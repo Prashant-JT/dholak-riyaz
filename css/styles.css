@@ -682,6 +682,37 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     transform: translateX(4px);
 }
 
+/* ============================================
+   GLOSARIO COLUMNS
+   ============================================ */
+
+.glosario-col {
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid;
+}
+
+.glosario-col__bol {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-primary);
+}
+.glosario-col__bol:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+/* Light mode */
+.glosario-col--orange { background: #fff7ed; border-color: #fed7aa; }
+.glosario-col--blue   { background: #eff6ff; border-color: #bfdbfe; }
+.glosario-col--purple { background: #faf5ff; border-color: #e9d5ff; }
+
+/* Dark mode — colores suaves, no saturados */
+body.dark .glosario-col--orange { background: #1c1108; border-color: #78350f; }
+body.dark .glosario-col--blue   { background: #0c1829; border-color: #1e3a8a; }
+body.dark .glosario-col--purple { background: #130d1e; border-color: #3b0764; }
+
 .info-box {
     background: var(--card-bg);
     border-radius: 12px;

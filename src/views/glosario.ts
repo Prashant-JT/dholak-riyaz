@@ -26,7 +26,7 @@ export class GlosarioView implements View {
         // Teoría de Taal
         const theorySection = createElement('div', { className: 'card p-8 mb-8' });
         theorySection.appendChild(createElement('h3', {
-            className: 'text-2xl font-bold text-slate-900 mb-6'
+            className: 'text-2xl font-bold mb-6'
         }, 'El concepto de Taal (El Ciclo)'));
         
         // Diagrama visual de conceptos
@@ -71,10 +71,10 @@ export class GlosarioView implements View {
         concepts.forEach(concept => {
             const conceptDiv = createElement('div', { className: 'mb-4' });
             conceptDiv.appendChild(createElement('h4', {
-                className: 'text-lg font-bold text-orange-600 mb-1'
+                className: 'text-lg font-bold text-orange-500 mb-1'
             }, concept.term));
             conceptDiv.appendChild(createElement('p', {
-                className: 'text-slate-700'
+                className: 'text-muted'
             }, concept.definition));
             theorySection.appendChild(conceptDiv);
         });
@@ -83,7 +83,7 @@ export class GlosarioView implements View {
         
         // Glosario de Bols - Tres columnas
         const bolsHeader = createElement('h3', {
-            className: 'text-2xl font-bold text-slate-900 mb-6'
+            className: 'section-title'
         }, 'Glosario de Bols');
         section.appendChild(bolsHeader);
         
@@ -97,7 +97,7 @@ export class GlosarioView implements View {
             'Chatti (Dayan)',
             'Parche Agudo',
             BOLS_BY_CATEGORY.chatti,
-            'bg-orange-50 border-orange-200'
+            'glosario-col--orange'
         );
         columnsContainer.appendChild(chattiColumn);
         
@@ -106,7 +106,7 @@ export class GlosarioView implements View {
             'Bayan',
             'Parche Grave',
             BOLS_BY_CATEGORY.bayan,
-            'bg-blue-50 border-blue-200'
+            'glosario-col--blue'
         );
         columnsContainer.appendChild(bayanColumn);
         
@@ -115,7 +115,7 @@ export class GlosarioView implements View {
             'Compuestos',
             'Dha & Dhi',
             BOLS_BY_CATEGORY.compuestos,
-            'bg-purple-50 border-purple-200'
+            'glosario-col--purple'
         );
         columnsContainer.appendChild(compuestosColumn);
         
@@ -180,42 +180,40 @@ export class GlosarioView implements View {
         return diagramContainer;
     }
     
-    private createBolColumn(title: string, subtitle: string, bols: Bol[], bgClass: string): HTMLElement {
+    private createBolColumn(title: string, subtitle: string, bols: Bol[], colorClass: string): HTMLElement {
         const column = createElement('div', {
-            className: `rounded-lg p-6 border-2 border-slate-300 ${bgClass}`
+            className: `glosario-col ${colorClass}`
         });
         
         // Header de la columna
         const header = createElement('div', { className: 'mb-6' });
         header.appendChild(createElement('h4', {
-            className: 'text-2xl font-bold text-slate-900 mb-1'
+            className: 'text-2xl font-bold mb-1'
         }, title));
         header.appendChild(createElement('p', {
-            className: 'text-sm text-slate-600 italic'
+            className: 'text-sm text-muted italic'
         }, subtitle));
         column.appendChild(header);
         
         // Bols de esta categoría
         bols.forEach((bol) => {
             const bolSection = createElement('div', {
-                className: 'mb-6 pb-6 border-b border-slate-300 last:border-b-0 last:mb-0 last:pb-0'
+                className: 'glosario-col__bol'
             });
             
             // Nombre del bol
             bolSection.appendChild(createElement('h5', {
-                className: 'text-xl font-bold text-slate-900 mb-2'
+                className: 'text-xl font-bold mb-2'
             }, bol.name));
             
             // Técnica
-            const tecnicaP = createElement('p', {
-                className: 'text-slate-700 mb-1'
-            });
+            const tecnicaP = createElement('p', { className: 'text-muted mb-1' });
             tecnicaP.innerHTML = `<strong>Técnica:</strong> ${bol.technique}`;
             bolSection.appendChild(tecnicaP);
             
             // Descripción
             bolSection.appendChild(createElement('p', {
-                className: 'text-slate-600'
+                className: 'text-muted'
             }, bol.description));
             
             column.appendChild(bolSection);
