@@ -37,11 +37,16 @@ export class FillersView implements View {
         }, filler.category);
         section.appendChild(title);
 
-        // Table with borders like PPT
+        // Table with borders - mobile responsive
+        const tableWrapper = createElement('div', {
+            className: 'overflow-x-auto'
+        });
+        
         const table = createElement('table', {
             className: 'w-full border-collapse'
         });
         table.style.border = '2px solid #1e293b';
+        table.style.minWidth = '100%';
 
         const tbody = createElement('tbody');
 
@@ -94,7 +99,8 @@ export class FillersView implements View {
         });
 
         table.appendChild(tbody);
-        section.appendChild(table);
+        tableWrapper.appendChild(table);
+        section.appendChild(tableWrapper);
 
         return section;
     }

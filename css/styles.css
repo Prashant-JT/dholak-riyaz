@@ -598,6 +598,51 @@ body {
     position: relative;
 }
 
+/* Mobile improvements for tables and diagrams */
+@media (max-width: 768px) {
+    /* Fillers table - make it scrollable horizontally */
+    .w-full.border-collapse {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .w-full.border-collapse td {
+        min-width: 120px;
+        font-size: 0.875rem !important;
+        padding: 0.75rem !important;
+    }
+    
+    /* Taal diagram - stack vertically on mobile */
+    .taal-diagram {
+        padding: 1rem;
+    }
+    
+    .taal-diagram > div {
+        width: 100%;
+        max-width: none;
+    }
+    
+    /* Theory boxes - full width on mobile */
+    .taal-diagram .grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Taal grid cells - larger touch targets */
+    .taal-cell {
+        min-height: 80px !important;
+        padding: 0.75rem !important;
+    }
+    
+    .taal-cell .bol-text {
+        font-size: 1.125rem !important;
+    }
+    
+    .taal-cell .matra-number {
+        font-size: 0.75rem !important;
+    }
+}
+
 .diagram-node {
     padding: 1rem 2rem;
     border-radius: 50px;
