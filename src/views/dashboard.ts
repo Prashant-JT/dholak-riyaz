@@ -24,10 +24,50 @@ export class DashboardView implements View {
         }, 'Metrónomo y Herramientas de Práctica'));
         section.appendChild(header);
         
+        section.appendChild(this.createRiyazFormCard());
         section.appendChild(this.createMetronomeCard());
         section.appendChild(this.createLehrasCard());
         
         return section;
+    }
+    
+    private createRiyazFormCard(): HTMLElement {
+        const card = createElement('div', {
+            className: 'bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200 hover:border-orange-300 transition-all duration-200 mb-6'
+        });
+        
+        // Compact layout with flex
+        const content = createElement('div', { className: 'flex items-center justify-between gap-4' });
+        
+        // Left side: Icon + Text
+        const leftSide = createElement('div', { className: 'flex items-center gap-4' });
+        leftSide.appendChild(createElement('span', {
+            className: 'text-6xl'
+        }, '📝'));
+        
+        const textContainer = createElement('div');
+        textContainer.appendChild(createElement('h3', {
+            className: 'text-xl font-bold text-slate-800'
+        }, 'Registro de Práctica'));
+        textContainer.appendChild(createElement('p', {
+            className: 'text-base text-slate-600'
+        }, 'Registra tu Riyaz de hoy'));
+        
+        leftSide.appendChild(textContainer);
+        content.appendChild(leftSide);
+        
+        // Right side: Button
+        const button = createElement('a', {
+            href: 'https://forms.gle/a7hrsQS8nR6CGLdZ8',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            className: 'inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors font-bold text-lg whitespace-nowrap shadow-md hover:shadow-lg'
+        });
+        button.innerHTML = '📋 Registrar';
+        content.appendChild(button);
+        
+        card.appendChild(content);
+        return card;
     }
     
     private createMetronomeCard(): HTMLElement {
