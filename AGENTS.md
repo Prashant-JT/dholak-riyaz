@@ -23,6 +23,47 @@ Este documento establece los estándares y buenas prácticas que TODOS los agent
 - Grid layouts: `grid grid-cols-1 gap-4` (mobile) → `md:grid-cols-2` o `md:grid-cols-3` (desktop)
 - NO uses tablas HTML a menos que sea estrictamente necesario - prefiere cards
 
+### 3. **Sistema de Temas: Modo Claro y Oscuro (OBLIGATORIO)**
+- **REGLA DE ORO**: El CSS global (`css/styles.css`) usa **variables CSS** (`var(--card-bg)`, `var(--text-primary)`, etc.) que se adaptan automáticamente al tema activo. Las clases Tailwind hardcodeadas como `bg-white` o `text-slate-800` **rompen** el modo oscuro.
+- **✅ CORRECTO — Usar clases CSS del sistema de temas:**
+  ```typescript
+  // Cards → usa clase 'card' (usa var(--card-bg) automáticamente)
+  className: 'card p-6 mb-4'
+  
+  // Títulos de sección → usa clase 'section-title'
+  className: 'section-title'
+  
+  // Subtítulos → usa clase 'section-subtitle'
+  className: 'section-subtitle'
+  
+  // Texto secundario/muted → usa clase 'text-muted'
+  className: 'text-muted italic text-sm'
+  
+  // Selects → NO añadir bg-white ni colores; el CSS global ya los maneja
+  className: 'w-full'
+  ```
+- **❌ INCORRECTO — Nunca hardcodear colores sin variante dark:**
+  ```typescript
+  // ❌ Rompe modo oscuro
+  className: 'bg-white rounded-xl p-6 border-2 border-slate-200'
+  className: 'text-slate-800 font-bold'
+  className: 'bg-white' // en un select
+  
+  // ✅ Si usas Tailwind puro, SIEMPRE añadir variante dark:
+  className: 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100'
+  ```
+- **Clases CSS globales disponibles** (definidas en `css/styles.css`):
+  | Clase | Uso |
+  |---|---|
+  | `.card` | Contenedor principal de sección |
+  | `.section-title` | Título h2/h3 de vista |
+  | `.section-subtitle` | Subtítulo descriptivo |
+  | `.text-muted` | Texto secundario/notas |
+  | `.btn-primary` | Botón acción principal (naranja) |
+  | `.btn-secondary` | Botón acción secundaria (contorno) |
+  | `.bol-cell` | Celda de matra en tabla de Taal |
+  | `.taal-row-separator` | Separador de fila de Taal |
+
 ### 3. **TypeScript Estricto**
 - Todos los archivos deben ser `.ts`
 - Usa tipos explícitos, no `any`
