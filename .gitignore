@@ -2,7 +2,7 @@
 node_modules/
 package-lock.json
 
-# Compiled output
+# Compiled output (GitHub Actions will build this)
 dist/
 
 # TypeScript cache
