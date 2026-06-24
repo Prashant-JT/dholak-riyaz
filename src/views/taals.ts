@@ -57,22 +57,17 @@ export class TaalView implements View {
     
     private createTutorialLink(): HTMLElement {
         const linkDiv = createElement('div', {
-            className: 'p-4 mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200'
+            className: 'resource-box resource-box--tutorials mb-6'
         });
         
         const headerDiv = createElement('div', { className: 'flex items-center gap-2 mb-3' });
-        headerDiv.appendChild(createElement('span', {
-            className: 'text-xl'
-        }, '🎓'));
+        headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '🎓'));
         headerDiv.appendChild(createElement('h4', {
-            className: 'font-bold text-blue-900'
+            className: 'font-bold resource-box__title'
         }, 'Tutorial'));
         linkDiv.appendChild(headerDiv);
         
-        const tutorialCard = createElement('div', {
-            className: 'tutorial-card'
-        });
-        
+        const tutorialCard = createElement('div', { className: 'tutorial-card' });
         const link = createElement('a', {
             href: this.taalData.tutorial!,
             target: '_blank',
@@ -80,15 +75,9 @@ export class TaalView implements View {
         });
         
         const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
-        contentDiv.appendChild(createElement('span', {
-            className: 'text-lg flex-shrink-0'
-        }, '📚'));
-        contentDiv.appendChild(createElement('span', {
-            className: 'font-medium text-blue-900 flex-1'
-        }, 'Ver tutorial completo'));
-        contentDiv.appendChild(createElement('span', {
-            className: 'text-blue-400 flex-shrink-0'
-        }, '↗'));
+        contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '📚'));
+        contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, 'Ver tutorial completo'));
+        contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
         
         link.appendChild(contentDiv);
         tutorialCard.appendChild(link);
