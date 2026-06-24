@@ -6,6 +6,7 @@
 import { NavigationController } from './components/navigation.js';
 import { ViewManager } from './components/viewManager.js';
 import { MetronomeEngine } from './components/metronome.js';
+import { DarkModeToggle } from './components/darkModeToggle.js';
 import { CONFIG } from './core/config.js';
 import type { NavigateEventDetail } from './types.js';
 
@@ -13,9 +14,11 @@ class Application {
     private navigationController: NavigationController | null = null;
     private viewManager: ViewManager | null = null;
     private metronome: MetronomeEngine;
+    private darkModeToggle: DarkModeToggle;
     
     constructor() {
         this.metronome = new MetronomeEngine();
+        this.darkModeToggle = new DarkModeToggle();
     }
     
     /**
@@ -29,6 +32,9 @@ class Application {
         // Inicializar gestor de vistas
         this.viewManager = new ViewManager('mainContent');
         this.viewManager.showView(CONFIG.VIEWS.DASHBOARD);
+        
+        // Añadir toggle de modo oscuro al body
+        document.body.appendChild(this.darkModeToggle.render());
         
         // Escuchar eventos de navegación
         window.addEventListener('navigate', (e: Event) => {
