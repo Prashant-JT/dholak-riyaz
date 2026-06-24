@@ -146,6 +146,7 @@ export interface ViewsConfig {
     RUPAK: string;
     DEEPCHANDI: string;
     KAYDAS: string;
+    SONGS: string;
 }
 
 export interface NavigationItem {

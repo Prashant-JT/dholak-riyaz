@@ -24,7 +24,8 @@ export const CONFIG: AppConfig = {
         DADRA: 'dadra',
         RUPAK: 'rupak',
         DEEPCHANDI: 'deepchandi',
-        KAYDAS: 'kaydas'
+        KAYDAS: 'kaydas',
+        SONGS: 'songs'
     },
     
     NAVIGATION: [
@@ -34,8 +35,9 @@ export const CONFIG: AppConfig = {
         { id: 'dadra', label: 'Dadra (6B)' },
         { id: 'rupak', label: 'Rupak (7B)' },
         { id: 'deepchandi', label: 'Deepchandi (14B)' },
+        { id: 'fillers', label: 'Pickups/Fillers' },
         { id: 'kaydas', label: 'Kaydas' },
-        { id: 'fillers', label: 'Pickups/Fillers' }
+        { id: 'songs', label: 'Canciones' }
     ]
 };
 

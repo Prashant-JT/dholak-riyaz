@@ -8,6 +8,7 @@ import { DashboardView } from '../views/dashboard.js';
 import { GlosarioView } from '../views/glosario.js';
 import { TaalView } from '../views/taals.js';
 import { KaydasView } from '../views/kaydas.js';
+import { SongsView } from '../views/songs.js';
 import { FillersView } from '../views/fillers.js';
 import type { View } from '../types.js';
 
@@ -38,6 +39,7 @@ export class ViewManager {
         this.views.set(CONFIG.VIEWS.RUPAK, new TaalView('rupak'));
         this.views.set(CONFIG.VIEWS.DEEPCHANDI, new TaalView('deepchandi'));
         this.views.set(CONFIG.VIEWS.KAYDAS, new KaydasView());
+        this.views.set(CONFIG.VIEWS.SONGS, new SongsView());
         this.views.set('fillers', new FillersView());
     }
     
