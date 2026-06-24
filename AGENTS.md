@@ -7,17 +7,28 @@ Este documento establece los estándares y buenas prácticas que TODOS los agent
 
 ## 🎯 Principios Fundamentales
 
-### 1. **Consistencia Absoluta**
-- Usa SIEMPRE el mismo patrón de código
-- No cambies el estilo entre sesiones
-- Sigue las convenciones establecidas
+### 1. **Mobile-First Design**
+- **PRIORIDAD ABSOLUTA**: La aplicación se usa principalmente en móvil mientras se sostiene el instrumento
+- Diseño responsive con breakpoint principal en 768px
+- Touch targets mínimos de 44x44px
+- Texto legible a 1 metro de distancia (mínimo 16px base)
+- Scroll horizontal solo cuando sea absolutamente necesario
+- Layouts que se adapten verticalmente en pantallas pequeñas
 
-### 2. **TypeScript Estricto**
+### 2. **Consistencia Visual Absoluta**
+- **TODAS las vistas deben seguir el mismo patrón de diseño**
+- Usa cards con: `bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200`
+- Hover states: `hover:border-orange-300 hover:shadow-md transition-all duration-200`
+- Títulos de sección: `text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-orange-500`
+- Grid layouts: `grid grid-cols-1 gap-4` (mobile) → `md:grid-cols-2` o `md:grid-cols-3` (desktop)
+- NO uses tablas HTML a menos que sea estrictamente necesario - prefiere cards
+
+### 3. **TypeScript Estricto**
 - Todos los archivos deben ser `.ts`
 - Usa tipos explícitos, no `any`
 - Aprovecha las interfaces y tipos definidos en `src/types.ts`
 
-### 3. **Modularidad**
+### 4. **Modularidad**
 - Cada archivo tiene UNA responsabilidad
 - No mezcles lógica de diferentes dominios
 - Usa imports/exports de ES6

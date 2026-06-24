@@ -31,78 +31,71 @@ export class FillersView implements View {
     private createCategorySection(filler: { category: string; patterns: any[] }): HTMLElement {
         const section = createElement('div', { className: 'mb-8' });
 
-        // Category title
+        // Category title with consistent styling
         const title = createElement('h3', {
             className: 'text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-orange-500'
         }, filler.category);
         section.appendChild(title);
 
-        // Table with borders - mobile responsive
-        const tableWrapper = createElement('div', {
-            className: 'overflow-x-auto'
+        // Grid layout for cards (like other views)
+        const grid = createElement('div', {
+            className: 'grid grid-cols-1 gap-4'
         });
-        
-        const table = createElement('table', {
-            className: 'w-full border-collapse'
-        });
-        table.style.border = '2px solid #1e293b';
-        table.style.minWidth = '100%';
-
-        const tbody = createElement('tbody');
 
         filler.patterns.forEach(pattern => {
-            const row = createElement('tr');
-            row.style.borderBottom = '1px solid #cbd5e1';
-
-            // Pattern name cell
-            const nameCell = createElement('td', {
-                className: 'p-4 text-lg font-medium text-slate-800'
-            });
-            nameCell.style.border = '1px solid #cbd5e1';
-            nameCell.style.backgroundColor = '#ffffff';
-
-            // Just set the text without any underline
-            nameCell.textContent = pattern.name;
-
-            row.appendChild(nameCell);
-
-            // Link/Audio/Note cell
-            const actionCell = createElement('td', {
-                className: 'p-4 text-right'
-            });
-            actionCell.style.border = '1px solid #cbd5e1';
-            actionCell.style.backgroundColor = '#ffffff';
-
-            if (pattern.link) {
-                const link = createElement('a', {
-                    href: pattern.link,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    className: 'text-blue-600 hover:text-blue-800 underline'
-                }, pattern.link);
-                actionCell.appendChild(link);
-            } else if (pattern.hasAudio) {
-                const audioIcon = createElement('span', {
-                    className: 'inline-flex items-center justify-center w-10 h-10 bg-slate-200 rounded-full text-2xl'
-                });
-                audioIcon.innerHTML = '🔊';
-                actionCell.appendChild(audioIcon);
-            } else if (pattern.note) {
-                const note = createElement('span', {
-                    className: 'text-slate-600 italic'
-                }, pattern.note);
-                actionCell.appendChild(note);
-            }
-
-            row.appendChild(actionCell);
-            tbody.appendChild(row);
+            const card = this.createPatternCard(pattern);
+            grid.appendChild(card);
         });
 
-        table.appendChild(tbody);
-        tableWrapper.appendChild(table);
-        section.appendChild(tableWrapper);
-
+        section.appendChild(grid);
         return section;
+    }
+
+    private createPatternCard(pattern: any): HTMLElement {
+        // Card container with consistent styling
+        const card = createElement('div', {
+            className: 'bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200 hover:border-orange-300 hover:shadow-md transition-all duration-200'
+        });
+
+        // Pattern name
+        const nameDiv = createElement('div', {
+            className: 'flex items-center justify-between mb-3'
+        });
+
+        const name = createElement('h4', {
+            className: 'text-xl font-bold text-slate-800'
+        }, pattern.name);
+        nameDiv.appendChild(name);
+
+        // Action button/icon
+        if (pattern.link) {
+            const linkBtn = createElement('a', {
+                href: pattern.link,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                className: 'inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium'
+            });
+            linkBtn.innerHTML = '🎥 Ver';
+            nameDiv.appendChild(linkBtn);
+        } else if (pattern.hasAudio) {
+            const audioBtn = createElement('button', {
+                className: 'inline-flex items-center justify-center w-12 h-12 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors text-2xl'
+            });
+            audioBtn.innerHTML = '🔊';
+            nameDiv.appendChild(audioBtn);
+        }
+
+        card.appendChild(nameDiv);
+
+        // Note (if exists)
+        if (pattern.note) {
+            const note = createElement('p', {
+                className: 'text-slate-600 italic text-sm mt-2'
+            }, pattern.note);
+            card.appendChild(note);
+        }
+
+        return card;
     }
 }
 
