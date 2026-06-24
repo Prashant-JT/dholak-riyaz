@@ -56,6 +56,22 @@
     --info-bg: #eff6ff;
     --info-border: #3b82f6;
     --info-text: #1e3a8a;
+
+    /* Resource boxes (songs / tutorials dentro de las variaciones) */
+    --resource-songs-bg: #fff7ed;
+    --resource-songs-border: #fed7aa;
+    --resource-songs-title: #7c2d12;
+    --resource-songs-arrow: #fb923c;
+    --resource-tutorials-bg: #eff6ff;
+    --resource-tutorials-border: #bfdbfe;
+    --resource-tutorials-title: #1e3a8a;
+    --resource-tutorials-arrow: #60a5fa;
+
+    /* Notes box */
+    --notes-bg: #fffbeb;
+    --notes-border: #fcd34d;
+    --notes-text: #78350f;
+    --notes-link: #b45309;
 }
 
 body.dark {
@@ -103,6 +119,22 @@ body.dark {
     --info-bg: #1e3a8a;
     --info-border: #3b82f6;
     --info-text: #dbeafe;
+
+    /* Resource boxes - dark mode */
+    --resource-songs-bg: #431407;
+    --resource-songs-border: #9a3412;
+    --resource-songs-title: #fed7aa;
+    --resource-songs-arrow: #fb923c;
+    --resource-tutorials-bg: #1e3a5f;
+    --resource-tutorials-border: #1e40af;
+    --resource-tutorials-title: #bfdbfe;
+    --resource-tutorials-arrow: #60a5fa;
+
+    /* Notes box - dark mode */
+    --notes-bg: #292116;
+    --notes-border: #92400e;
+    --notes-text: #fde68a;
+    --notes-link: #fbbf24;
 }
 
 /* ============================================
@@ -698,6 +730,122 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 .tutorial-link:hover {
     background: linear-gradient(to right, rgba(219, 234, 254, 0.5), transparent);
 }
+
+/* ============================================
+   RESOURCE BOXES (canciones / tutoriales en variaciones)
+   ============================================ */
+
+.resource-box {
+    padding: 1rem;
+    border-radius: 12px;
+    border: 2px solid;
+}
+
+.resource-box--songs {
+    background: var(--resource-songs-bg);
+    border-color: var(--resource-songs-border);
+}
+
+.resource-box--tutorials {
+    background: var(--resource-tutorials-bg);
+    border-color: var(--resource-tutorials-border);
+}
+
+.resource-box__title {
+    color: var(--text-primary);
+}
+
+.resource-box--songs .resource-box__title {
+    color: var(--resource-songs-title);
+}
+
+.resource-box--tutorials .resource-box__title {
+    color: var(--resource-tutorials-title);
+}
+
+.resource-box__arrow {
+    color: var(--resource-songs-arrow);
+}
+
+.resource-box--tutorials .resource-box__arrow {
+    color: var(--resource-tutorials-arrow);
+}
+
+/* ============================================
+   NOTES BOX (notas de variaciones)
+   ============================================ */
+
+.notes-box {
+    padding: 1rem;
+    background: var(--notes-bg);
+    border-left: 4px solid var(--notes-border);
+    border-radius: 8px;
+}
+
+.notes-box__text {
+    color: var(--notes-text);
+}
+
+.notes-box__link {
+    color: var(--notes-link);
+}
+
+.notes-box__link:hover {
+    opacity: 0.8;
+}
+
+/* ============================================
+   INFO BOX TIPS (con variantes de color)
+   ============================================ */
+
+.info-box__title {
+    color: var(--text-primary);
+}
+
+.info-box__text {
+    color: var(--text-secondary);
+}
+
+.info-box--emerald { background: #ecfdf5; border-color: #10b981; }
+.info-box--emerald .info-box__title { color: #064e3b; }
+.info-box--emerald .info-box__text  { color: #065f46; }
+
+.info-box--purple  { background: #faf5ff; border-color: #a855f7; }
+.info-box--purple  .info-box__title { color: #3b0764; }
+.info-box--purple  .info-box__text  { color: #4c1d95; }
+
+.info-box--amber   { background: #fffbeb; border-color: #f59e0b; }
+.info-box--amber   .info-box__title { color: #78350f; }
+.info-box--amber   .info-box__text  { color: #92400e; }
+
+.info-box--blue    { background: #eff6ff; border-color: #3b82f6; }
+.info-box--blue    .info-box__title { color: #1e3a8a; }
+.info-box--blue    .info-box__text  { color: #1e40af; }
+
+.info-box--indigo  { background: #eef2ff; border-color: #6366f1; }
+.info-box--indigo  .info-box__title { color: #1e1b4b; }
+.info-box--indigo  .info-box__text  { color: #312e81; }
+
+/* Dark mode overrides para info-box */
+body.dark .info-box--emerald { background: #022c22; border-color: #34d399; }
+body.dark .info-box--emerald .info-box__title { color: #6ee7b7; }
+body.dark .info-box--emerald .info-box__text  { color: #a7f3d0; }
+
+body.dark .info-box--purple  { background: #2e1065; border-color: #c084fc; }
+body.dark .info-box--purple  .info-box__title { color: #e9d5ff; }
+body.dark .info-box--purple  .info-box__text  { color: #ddd6fe; }
+
+body.dark .info-box--amber   { background: #292116; border-color: #fbbf24; }
+body.dark .info-box--amber   .info-box__title { color: #fde68a; }
+body.dark .info-box--amber   .info-box__text  { color: #fef3c7; }
+
+body.dark .info-box--blue    { background: #1e3a5f; border-color: #60a5fa; }
+body.dark .info-box--blue    .info-box__title { color: #bfdbfe; }
+body.dark .info-box--blue    .info-box__text  { color: #dbeafe; }
+
+body.dark .info-box--indigo  { background: #1e1b4b; border-color: #818cf8; }
+body.dark .info-box--indigo  .info-box__title { color: #c7d2fe; }
+body.dark .info-box--indigo  .info-box__text  { color: #e0e7ff; }
 
 /* ============================================
    TAAL DIAGRAM

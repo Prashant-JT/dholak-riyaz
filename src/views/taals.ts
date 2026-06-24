@@ -246,44 +246,29 @@ export class TaalView implements View {
             // Songs column
             if (hasSongs) {
                 const songsDiv = createElement('div', {
-                    className: 'p-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200'
+                    className: 'resource-box resource-box--songs'
                 });
                 
                 const headerDiv = createElement('div', { className: 'flex items-center gap-2 mb-3' });
-                headerDiv.appendChild(createElement('span', {
-                    className: 'text-xl'
-                }, '🎵'));
+                headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '🎵'));
                 headerDiv.appendChild(createElement('h5', {
-                    className: 'font-bold text-orange-900'
+                    className: 'font-bold resource-box__title'
                 }, 'Canciones'));
                 songsDiv.appendChild(headerDiv);
                 
-                const songsGrid = createElement('div', {
-                    className: 'grid gap-2'
-                });
+                const songsGrid = createElement('div', { className: 'grid gap-2' });
                 
                 variation.songs.forEach((song: any) => {
-                    const songCard = createElement('div', {
-                        className: 'song-card'
-                    });
-                    
+                    const songCard = createElement('div', { className: 'song-card' });
                     const link = createElement('a', {
                         href: song.url,
                         target: '_blank',
                         className: 'song-link'
                     });
-                    
                     const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
-                    contentDiv.appendChild(createElement('span', {
-                        className: 'text-lg flex-shrink-0'
-                    }, '▶️'));
-                    contentDiv.appendChild(createElement('span', {
-                        className: 'font-medium text-orange-900 flex-1'
-                    }, song.title));
-                    contentDiv.appendChild(createElement('span', {
-                        className: 'text-orange-400 flex-shrink-0'
-                    }, '↗'));
-                    
+                    contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '▶️'));
+                    contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, song.title));
+                    contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
                     link.appendChild(contentDiv);
                     songCard.appendChild(link);
                     songsGrid.appendChild(songCard);
@@ -296,44 +281,29 @@ export class TaalView implements View {
             // Tutorials section
             if (hasTutorials) {
                 const tutorialsDiv = createElement('div', {
-                    className: `p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 ${hasSongs ? 'mt-4' : ''}`
+                    className: `resource-box resource-box--tutorials ${hasSongs ? 'mt-4' : ''}`
                 });
                 
                 const headerDiv = createElement('div', { className: 'flex items-center gap-2 mb-3' });
-                headerDiv.appendChild(createElement('span', {
-                    className: 'text-xl'
-                }, '📚'));
+                headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '📚'));
                 headerDiv.appendChild(createElement('h5', {
-                    className: 'font-bold text-blue-900'
+                    className: 'font-bold resource-box__title'
                 }, 'Tutoriales'));
                 tutorialsDiv.appendChild(headerDiv);
                 
-                const tutorialsGrid = createElement('div', {
-                    className: 'grid gap-2'
-                });
+                const tutorialsGrid = createElement('div', { className: 'grid gap-2' });
                 
                 variation.tutorials.forEach((url: string, idx: number) => {
-                    const tutorialCard = createElement('div', {
-                        className: 'tutorial-card'
-                    });
-                    
+                    const tutorialCard = createElement('div', { className: 'tutorial-card' });
                     const link = createElement('a', {
                         href: url,
                         target: '_blank',
                         className: 'tutorial-link'
                     });
-                    
                     const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
-                    contentDiv.appendChild(createElement('span', {
-                        className: 'text-lg flex-shrink-0'
-                    }, '🎓'));
-                    contentDiv.appendChild(createElement('span', {
-                        className: 'font-medium text-blue-900 flex-1'
-                    }, `Tutorial ${idx + 1}`));
-                    contentDiv.appendChild(createElement('span', {
-                        className: 'text-blue-400 flex-shrink-0'
-                    }, '↗'));
-                    
+                    contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '🎓'));
+                    contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, `Tutorial ${idx + 1}`));
+                    contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
                     link.appendChild(contentDiv);
                     tutorialCard.appendChild(link);
                     tutorialsGrid.appendChild(tutorialCard);
@@ -348,7 +318,7 @@ export class TaalView implements View {
         
         // Add notes if present
         if (variation?.notes && variation.notes.length > 0) {
-            const notesDiv = createElement('div', { className: 'mt-4 p-4 bg-amber-50 rounded-lg' });
+            const notesDiv = createElement('div', { className: 'notes-box mt-4' });
             variation.notes.forEach((note: string) => {
                 if (note.trim() === '') {
                     notesDiv.appendChild(createElement('br', {}));
@@ -356,12 +326,12 @@ export class TaalView implements View {
                     const link = createElement('a', {
                         href: note,
                         target: '_blank',
-                        className: 'text-amber-700 hover:text-amber-900 underline block mb-1'
+                        className: 'notes-box__link underline block mb-1'
                     }, note);
                     notesDiv.appendChild(link);
                 } else {
                     notesDiv.appendChild(createElement('p', {
-                        className: 'text-amber-900 mb-1'
+                        className: 'notes-box__text mb-1'
                     }, note));
                 }
             });
@@ -373,48 +343,14 @@ export class TaalView implements View {
     
     private createTip(): HTMLElement {
         const tip = this.taalData.tip;
-        const colorMap = {
-            emerald: { 
-                bg: 'bg-emerald-50', 
-                border: 'border-emerald-500', 
-                title: 'text-emerald-900', 
-                text: 'text-emerald-800' 
-            },
-            purple: { 
-                bg: 'bg-purple-50', 
-                border: 'border-purple-500', 
-                title: 'text-purple-900', 
-                text: 'text-purple-800' 
-            },
-            amber: { 
-                bg: 'bg-amber-50', 
-                border: 'border-amber-500', 
-                title: 'text-amber-900', 
-                text: 'text-amber-800' 
-            },
-            blue: { 
-                bg: 'bg-blue-50', 
-                border: 'border-blue-500', 
-                title: 'text-blue-900', 
-                text: 'text-blue-800' 
-            },
-            indigo: { 
-                bg: 'bg-indigo-50', 
-                border: 'border-indigo-500', 
-                title: 'text-indigo-900', 
-                text: 'text-indigo-800' 
-            }
-        };
-        
-        const colors = colorMap[tip.color];
-        const tipDiv = createElement('div', { 
-            className: `info-box mt-6 ${colors.bg} ${colors.border}` 
+        const tipDiv = createElement('div', {
+            className: `info-box info-box--${tip.color} mt-6`
         });
-        tipDiv.appendChild(createElement('h4', { 
-            className: `text-xl font-bold ${colors.title} mb-2` 
+        tipDiv.appendChild(createElement('h4', {
+            className: 'info-box__title text-xl font-bold mb-2'
         }, tip.title));
-        tipDiv.appendChild(createElement('p', { 
-            className: colors.text 
+        tipDiv.appendChild(createElement('p', {
+            className: 'info-box__text'
         }, tip.text));
         
         return tipDiv;
