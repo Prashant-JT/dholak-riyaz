@@ -44,7 +44,11 @@ export const TAALS: TaalsData = {
                         { matra: 8, bol: 'Na', technique: '' }
                     ]
                 ],
-                description: '4 beats + 4 beats'
+                description: '4 beats + 4 beats',
+                songs: [
+                    { title: 'Kuch Toh Log Kahenge', url: 'https://www.youtube.com/watch?v=56I2rxRPRLY' },
+                    { title: 'Naa Kajre Ki Dhar', url: 'https://www.youtube.com/watch?v=v1rRI4GYTdY' }
+                ]
             },
             {
                 name: 'Keherwa variación 2 (Punjabi Dhol)',
@@ -119,7 +123,10 @@ export const TAALS: TaalsData = {
                         { matra: 8, bol: 'TaTi', technique: '' }
                     ]
                 ],
-                tutorials: ['https://www.youtube.com/watch?v=WG_RByBmRcE']
+                tutorials: ['https://www.youtube.com/watch?v=WG_RByBmRcE'],
+                songs: [
+                    { title: 'Sambhariyaan Sada Dil Me Tokhe', url: 'https://youtu.be/72-POeN9XwQ' }
+                ]
             },
             {
                 name: 'Keherwa variación Ghoomar (más simple)',
@@ -135,7 +142,10 @@ export const TAALS: TaalsData = {
                         { matra: 8, bol: 'Dhin', technique: '' }
                     ]
                 ],
-                description: '4 beats + 4 beats'
+                description: '4 beats + 4 beats',
+                songs: [
+                    { title: 'Itni Shakti Hai Dai / Aisi Kirpa Guru', url: 'https://youtu.be/m1Ft4JdgrBE?si=jazhC1TLeakR8xim' }
+                ]
             },
             {
                 name: 'Keherwa variación Thapki',
@@ -152,7 +162,10 @@ export const TAALS: TaalsData = {
                     ]
                 ],
                 tutorials: ['https://www.youtube.com/watch?v=GzTTmt70X0o'],
-                description: '4 beats + 4 beats'
+                description: '4 beats + 4 beats',
+                songs: [
+                    { title: 'Phero Na Nazar Se Najariya', url: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q' }
+                ]
             },
             {
                 name: 'Keherwa variación 4 (80s songs)',
@@ -167,6 +180,9 @@ export const TAALS: TaalsData = {
                         { matra: 7, bol: 'Dhin', technique: '' },
                         { matra: 8, bol: 'Na', technique: '' }
                     ]
+                ],
+                songs: [
+                    { title: 'Dagabaaz Re', url: 'https://www.youtube.com/watch?v=0KozfDYK1EU' }
                 ]
             },
             {
@@ -201,6 +217,9 @@ export const TAALS: TaalsData = {
                         { matra: 7, bol: 'Ghe', technique: '' },
                         { matra: 8, bol: 'N (three finger touch)', technique: 'Se puede sustituir por Na' }
                     ]
+                ],
+                songs: [
+                    { title: 'Thumaka Chalata Ramachandra', url: 'https://www.youtube.com/watch?v=IGaQSumuSpA' }
                 ]
             },
             {
@@ -292,7 +311,10 @@ export const TAALS: TaalsData = {
                         { matra: 6, bol: 'NaNa', technique: '' }
                     ]
                 ],
-                description: '3 beats + 3 beats'
+                description: '3 beats + 3 beats',
+                songs: [
+                    { title: 'Ye Daulat Bhi Lelo Ye Shohrat Bhi Lelo', url: 'https://www.youtube.com/watch?v=L7jFS5jYAjI' }
+                ]
             },
             {
                 name: 'Dadra variación 2',
@@ -306,7 +328,10 @@ export const TAALS: TaalsData = {
                         { matra: 6, bol: 'Dhi', technique: '' }
                     ]
                 ],
-                description: '3 beats + 3 beats'
+                description: '3 beats + 3 beats',
+                songs: [
+                    { title: 'Lab Par Aaye', url: 'https://www.youtube.com/watch?v=7kR6tqaq_zY' }
+                ]
             },
             {
                 name: 'Dadra variación principal',
@@ -320,7 +345,10 @@ export const TAALS: TaalsData = {
                         { matra: 6, bol: 'Na', technique: '' }
                     ]
                 ],
-                description: '3 beats + 3 beats'
+                description: '3 beats + 3 beats',
+                songs: [
+                    { title: 'Aaj Jaane Ki Zid Na Karo', url: 'https://www.youtube.com/watch?v=CfUDuYAasjE' }
+                ]
             },
             {
                 name: 'Dadra Western variación',
@@ -435,6 +463,9 @@ export const TAALS: TaalsData = {
                     ]
                 ],
                 description: 'Frase rítmica para velocidad',
+                songs: [
+                    { title: 'Payoji Maine Ram Ratan Dhan Payo', url: 'https://www.youtube.com/watch?v=eVzyOEhTBy8' }
+                ],
                 notes: [
                     '¿Qué es el Tirekite (तिरेकिट)?',
                     'Es la frase rítmica (bol) más importante para desarrollar velocidad y ornamentación.',
@@ -462,7 +493,10 @@ export const TAALS: TaalsData = {
                         { matra: 6, bol: 'Te', technique: '' }
                     ]
                 ],
-                description: 'Variación invertida'
+                description: 'Variación invertida',
+                songs: [
+                    { title: 'Baaje Re Muraliya Baaje', url: 'https://youtu.be/GP6dt_qW5qE?si=Cw1h8xQsU5RyVD1S' }
+                ]
             },
             {
                 name: 'Dadra taal variación 3',
@@ -507,6 +541,10 @@ export const TAALS: TaalsData = {
                 tutorials: [
                     'https://www.youtube.com/watch?v=XORXG9TaCtg',
                     'https://www.youtube.com/shorts/iMXwZyeRrx'
+                ],
+                songs: [
+                    { title: 'Pretty Woman', url: 'https://youtu.be/Gcne5Wt-Qfo?si=NhelC1xErAd-wnRA' },
+                    { title: 'Patola - Guru Randhawa', url: 'https://youtu.be/z-ZEHL4Df-A?si=tDsXGu62ZWS-WxPz' }
                 ]
             },
             {
@@ -524,6 +562,9 @@ export const TAALS: TaalsData = {
                 description: '3 beats + 3 beats (variación)',
                 tutorials: [
                     'https://www.youtube.com/shorts/vNBI3bv9m20'
+                ],
+                songs: [
+                    { title: 'Lakdi Ki Kaathi', url: 'https://youtu.be/wSs2n5abdmg?si=taWsXUFXUfT1nH9M' }
                 ]
             }
         ],

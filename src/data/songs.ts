@@ -149,6 +149,18 @@ export const SONGS: Song[] = [
         artist: "Farida Khanum",
         taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=CfUDuYAasjE"
+    },
+    {
+        title: "Shree Ram Chandra",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=FqmMkDdpLdo"
+    },
+    {
+        title: "Aaja Sanam Madhur Chandni Mein Hum",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/results?search_query=aaja+sanam+madhur+chandni+mein+hum"
     }
 ];
 
