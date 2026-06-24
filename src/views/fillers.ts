@@ -73,9 +73,9 @@ export class FillersView implements View {
                 href: pattern.link,
                 target: '_blank',
                 rel: 'noopener noreferrer',
-                className: 'inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium'
+                className: 'inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-sm'
             });
-            linkBtn.innerHTML = '🎥 Ver';
+            linkBtn.innerHTML = '🎥 Ver Tutorial';
             nameDiv.appendChild(linkBtn);
         } else if (pattern.hasAudio) {
             const audioBtn = createElement('button', {
