@@ -33,7 +33,7 @@ export class DashboardView implements View {
     
     private createRiyazFormCard(): HTMLElement {
         const card = createElement('div', {
-            className: 'bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 transition-all duration-200 mb-6'
+            className: 'card p-6 mb-6'
         });
         
         // Compact layout with flex
@@ -47,10 +47,10 @@ export class DashboardView implements View {
         
         const textContainer = createElement('div');
         textContainer.appendChild(createElement('h3', {
-            className: 'text-xl font-bold text-slate-800 dark:text-slate-100'
+            className: 'text-xl font-bold'
         }, 'Registro de Práctica'));
         textContainer.appendChild(createElement('p', {
-            className: 'text-base text-slate-600 dark:text-slate-400'
+            className: 'text-base text-slate-500'
         }, 'Registra tu Riyaz de hoy'));
         
         leftSide.appendChild(textContainer);
@@ -170,7 +170,7 @@ export class DashboardView implements View {
         
         const beatsSelect = createElement('select', {
             id: 'beatsSelect',
-            className: 'w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-100'
+            className: 'w-full'
         });
         
         const beatsOptions = [
@@ -239,7 +239,7 @@ export class DashboardView implements View {
         
         const select = createElement('select', {
             id: 'lehraSelect',
-            className: 'w-full max-w-2xl px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-100'
+            className: 'w-full max-w-2xl'
         });
         
         LEHRAS.forEach(lehra => {
