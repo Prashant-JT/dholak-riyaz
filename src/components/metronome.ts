@@ -150,6 +150,13 @@ export class MetronomeEngine {
         
         if (this.audioContext) {
             this.nextNoteTime = this.audioContext.currentTime;
+            
+            // Reproducir el primer click inmediatamente
+            if (this.onBeatCallback) {
+                this.onBeatCallback(this.currentBeat);
+            }
+            this.playClick(this.nextNoteTime, true); // Primer beat es siempre Sam
+            this.nextNote();
         }
         
         this.timerID = window.setInterval(() => this.scheduler(), CONFIG.METRONOME.LOOKAHEAD);

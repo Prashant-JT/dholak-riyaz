@@ -145,10 +145,27 @@ class Application {
             resetButton.parentNode?.replaceChild(newResetButton, resetButton);
             
             newResetButton.addEventListener('click', () => {
+                // Si está tocando, detenerlo primero
+                if (this.metronome.getPlayingState()) {
+                    this.metronome.stop();
+                    
+                    // Obtener el botón de play/stop actualizado del DOM
+                    const currentPlayButton = document.getElementById('playStopBtn') as HTMLButtonElement | null;
+                    if (currentPlayButton) {
+                        currentPlayButton.textContent = 'Iniciar';
+                        currentPlayButton.classList.remove('btn-danger');
+                        currentPlayButton.classList.add('btn-primary');
+                    }
+                }
+                
+                // Resetear ciclos
                 this.metronome.resetCycles();
                 if (cycleDisplay) {
                     cycleDisplay.textContent = '0';
                 }
+                
+                // Resetear indicadores visuales al estado inicial
+                this.updateBeatIndicators(-1);
             });
         }
     }
