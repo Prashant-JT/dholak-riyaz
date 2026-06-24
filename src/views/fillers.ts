@@ -15,7 +15,7 @@ export class FillersView implements View {
             className: 'section-title'
         }, 'Pickups / Fillers / Cuts'));
         header.appendChild(createElement('p', {
-            className: 'text-slate-600 text-lg'
+            className: 'text-slate-600 dark:text-slate-400 text-lg'
         }, 'Patrones rítmicos de relleno y transición'));
         container.appendChild(header);
 
@@ -33,7 +33,7 @@ export class FillersView implements View {
 
         // Category title with consistent styling
         const title = createElement('h3', {
-            className: 'text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-orange-500'
+            className: 'text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4 pb-2 border-b-2 border-orange-500'
         }, filler.category);
         section.appendChild(title);
 
@@ -54,7 +54,7 @@ export class FillersView implements View {
     private createPatternCard(pattern: any): HTMLElement {
         // Card container with consistent styling
         const card = createElement('div', {
-            className: 'bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200 hover:border-orange-300 hover:shadow-md transition-all duration-200'
+            className: 'bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 hover:shadow-md transition-all duration-200'
         });
 
         // Pattern name
@@ -63,7 +63,7 @@ export class FillersView implements View {
         });
 
         const name = createElement('h4', {
-            className: 'text-xl font-bold text-slate-800'
+            className: 'text-xl font-bold text-slate-800 dark:text-slate-100'
         }, pattern.name);
         nameDiv.appendChild(name);
 
@@ -90,7 +90,7 @@ export class FillersView implements View {
         // Note (if exists)
         if (pattern.note) {
             const note = createElement('p', {
-                className: 'text-slate-600 italic text-sm mt-2'
+                className: 'text-slate-600 dark:text-slate-400 italic text-sm mt-2'
             }, pattern.note);
             card.appendChild(note);
         }
