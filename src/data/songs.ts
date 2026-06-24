@@ -160,7 +160,7 @@ export const SONGS: Song[] = [
         title: "Aaja Sanam Madhur Chandni Mein Hum",
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
-        youtubeUrl: "https://www.youtube.com/results?search_query=aaja+sanam+madhur+chandni+mein+hum"
+        youtubeUrl: "https://www.youtube.com/watch?v=msRBZuoerGo"
     }
 ];
 
