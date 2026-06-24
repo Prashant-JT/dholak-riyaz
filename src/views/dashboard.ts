@@ -33,7 +33,7 @@ export class DashboardView implements View {
     
     private createRiyazFormCard(): HTMLElement {
         const card = createElement('div', {
-            className: 'bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200 hover:border-orange-300 transition-all duration-200 mb-6'
+            className: 'bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-700 hover:border-orange-300 dark:hover:border-orange-500 transition-all duration-200 mb-6'
         });
         
         // Compact layout with flex
@@ -47,10 +47,10 @@ export class DashboardView implements View {
         
         const textContainer = createElement('div');
         textContainer.appendChild(createElement('h3', {
-            className: 'text-xl font-bold text-slate-800'
+            className: 'text-xl font-bold text-slate-800 dark:text-slate-100'
         }, 'Registro de Práctica'));
         textContainer.appendChild(createElement('p', {
-            className: 'text-base text-slate-600'
+            className: 'text-base text-slate-600 dark:text-slate-400'
         }, 'Registra tu Riyaz de hoy'));
         
         leftSide.appendChild(textContainer);
@@ -74,7 +74,7 @@ export class DashboardView implements View {
         const card = createElement('div', { className: 'card p-6 mb-6' });
         
         card.appendChild(createElement('h3', {
-            className: 'text-xl font-semibold text-slate-800 mb-4'
+            className: 'text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4'
         }, 'Metrónomo'));
         
         const displayContainer = createElement('div', {
@@ -98,11 +98,11 @@ export class DashboardView implements View {
         
         displayContainer.appendChild(createElement('div', {
             id: 'bpmDisplay',
-            className: 'text-5xl font-bold text-slate-800 mono-font mb-1'
+            className: 'text-5xl font-bold text-slate-800 dark:text-slate-100 mono-font mb-1'
         }, CONFIG.METRONOME.DEFAULT_BPM.toString()));
         
         displayContainer.appendChild(createElement('p', {
-            className: 'text-slate-500 text-sm mb-4'
+            className: 'text-slate-500 dark:text-slate-400 text-sm mb-4'
         }, 'BPM'));
         
         // Cycle counter
@@ -111,7 +111,7 @@ export class DashboardView implements View {
         });
         
         cycleContainer.appendChild(createElement('span', {
-            className: 'text-slate-600 font-medium'
+            className: 'text-slate-600 dark:text-slate-300 font-medium'
         }, 'Ciclos:'));
         
         cycleContainer.appendChild(createElement('div', {
@@ -126,7 +126,7 @@ export class DashboardView implements View {
             className: 'w-full max-w-md mb-4'
         });
         bpmSliderContainer.appendChild(createElement('label', {
-            className: 'block text-sm font-medium text-slate-700 mb-2'
+            className: 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'
         }, 'Tempo (BPM)'));
         
         const sliderWrapper = createElement('div', { className: 'relative' });
@@ -165,12 +165,12 @@ export class DashboardView implements View {
         });
         beatsSelectContainer.appendChild(createElement('label', {
             for: 'beatsSelect',
-            className: 'block text-sm font-medium text-slate-700 mb-2'
+            className: 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'
         }, 'Beats por Compás'));
         
         const beatsSelect = createElement('select', {
             id: 'beatsSelect',
-            className: 'w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 bg-white'
+            className: 'w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-100'
         });
         
         const beatsOptions = [
@@ -228,18 +228,18 @@ export class DashboardView implements View {
         const card = createElement('div', { className: 'card p-6' });
         
         card.appendChild(createElement('h3', {
-            className: 'text-xl font-semibold text-slate-800 mb-4'
+            className: 'text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4'
         }, 'Lehras'));
         
         const selectContainer = createElement('div', { className: 'mb-4' });
         selectContainer.appendChild(createElement('label', {
             for: 'lehraSelect',
-            className: 'block text-sm font-medium text-slate-700 mb-2'
+            className: 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'
         }, 'Selecciona un Loop:'));
         
         const select = createElement('select', {
             id: 'lehraSelect',
-            className: 'w-full max-w-2xl px-3 py-2 border-2 border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 bg-white'
+            className: 'w-full max-w-2xl px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:border-orange-500 bg-white dark:bg-slate-700 dark:text-slate-100'
         });
         
         LEHRAS.forEach(lehra => {
