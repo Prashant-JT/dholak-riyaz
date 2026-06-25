@@ -398,6 +398,15 @@ Antes de considerar una tarea completa, verificar:
 6. **NUNCA** usar `any` sin justificación extrema
 7. **SIEMPRE** verificar que la app funciona antes de terminar
 8. **SIEMPRE** actualizar este documento si cambias convenciones
+9. **NUNCA hardcodear datos en las vistas** — Los datos viven en `src/data/`. Las vistas deben iterar sobre ellos dinámicamente. Si añades un nuevo kayda, taal, canción o filler a los archivos de datos, debe aparecer automáticamente en la UI sin tocar ningún archivo de vista.
+   ```typescript
+   // ❌ INCORRECTO — hardcodeado
+   const kayda = KAYDAS.fundamental;
+   renderKayda(kayda);
+
+   // ✅ CORRECTO — dinámico
+   Object.values(KAYDAS).forEach(kayda => renderKayda(kayda));
+   ```
 
 ---
 
