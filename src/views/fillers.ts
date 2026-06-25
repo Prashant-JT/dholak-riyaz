@@ -75,7 +75,7 @@ export class FillersView implements View {
                 rel: 'noopener noreferrer',
                 className: 'inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-slate-900 dark:text-white rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-sm'
             });
-            linkBtn.innerHTML = '🎥 Ver Tutorial';
+            linkBtn.innerHTML = 'Ver Tutorial';
             nameDiv.appendChild(linkBtn);
         }
 
