@@ -323,6 +323,23 @@ export function createButton(text: string): HTMLElement {
 
 ---
 
+## 📝 Convenciones de Git
+
+### Commits
+- **SIEMPRE en inglés** — sin excepción
+- Formato: `type: short description in English`
+- Tipos: `feat`, `fix`, `data`, `style`, `refactor`, `docs`, `chore`
+- Ejemplos correctos:
+  ```
+  feat: add thapki/ghuisa visual indicators on bol cells
+  data: add Aaye Ho Meri Zindagi Mein song (Dadra)
+  fix: remove trailing space in song URL
+  style: improve legend layout for dark mode
+  ```
+- ❌ NUNCA en español: `"añade canción"`, `"corrige error"`, `"mejora diseño"`
+
+---
+
 ## 🎯 Checklist Pre-Commit
 
 Antes de considerar una tarea completa, verificar:
