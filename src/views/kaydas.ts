@@ -46,6 +46,17 @@ export class KaydasView implements View {
         return section;
     }
 
+    /**
+     * Divide un array en grupos de tamaño n
+     */
+    private chunkArray<T>(arr: T[], size: number): T[][] {
+        const chunks: T[][] = [];
+        for (let i = 0; i < arr.length; i += size) {
+            chunks.push(arr.slice(i, i + size));
+        }
+        return chunks;
+    }
+
     private createKaydaCard(kayda: Kayda): HTMLElement {
         const card = createElement('div', { className: 'card p-8 mb-6' });
 
@@ -85,40 +96,52 @@ export class KaydasView implements View {
             card.appendChild(tutorialDiv);
         }
 
-        // Filas de matras
-        kayda.rows.forEach((row, index) => {
-            const rowDiv = createElement('div', { 
-                className: `taal-row-separator ${index > 0 ? 'mt-6' : ''}` 
-            });
-            rowDiv.appendChild(createElement('h4', { 
-                className: 'text-lg font-semibold text-muted mt-4 mb-3' 
-            }, row.label));
-            
-            const grid = createElement('div', { 
-                className: 'grid gap-4 pt-6',
-                style: { gridTemplateColumns: `repeat(${row.matras.length}, minmax(0, 1fr))` }
-            });
-            
-            row.matras.forEach(matra => {
-                const cell = createElement('div', { className: 'bol-cell' });
-                cell.appendChild(createElement('div', {
-                    className: 'matra-number mono-font'
-                }, `M${matra.matra}`));
-                cell.appendChild(createElement('div', {
-                    className: 'bol-text'
-                }, matra.bol));
-                
-                if (matra.technique === 'Khali' || matra.technique === 'Taali') {
-                    cell.appendChild(createElement('span', {
-                        className: 'technique-badge'
-                    }, matra.technique));
+        // Filas de matras — en móvil se dividen en grupos de 4
+        kayda.rows.forEach((row, rowIndex) => {
+            const isMobile = window.innerWidth < 768;
+            const groups = isMobile
+                ? this.chunkArray(row.matras, 4)
+                : [row.matras];
+
+            groups.forEach((group, groupIndex) => {
+                const isFirst = rowIndex === 0 && groupIndex === 0;
+                const rowDiv = createElement('div', {
+                    className: `taal-row-separator ${!isFirst ? 'mt-6' : ''}`
+                });
+
+                // Label solo en el primer grupo de cada fila
+                if (groupIndex === 0) {
+                    rowDiv.appendChild(createElement('h4', {
+                        className: 'text-lg font-semibold text-muted mt-4 mb-3'
+                    }, row.label));
                 }
-                
-                grid.appendChild(cell);
+
+                const grid = createElement('div', {
+                    className: 'grid gap-4 pt-6',
+                    style: { gridTemplateColumns: `repeat(${group.length}, minmax(0, 1fr))` }
+                });
+
+                group.forEach(matra => {
+                    const cell = createElement('div', { className: 'bol-cell' });
+                    cell.appendChild(createElement('div', {
+                        className: 'matra-number mono-font'
+                    }, `M${matra.matra}`));
+                    cell.appendChild(createElement('div', {
+                        className: 'bol-text'
+                    }, matra.bol));
+
+                    if (matra.technique === 'Khali' || matra.technique === 'Taali') {
+                        cell.appendChild(createElement('span', {
+                            className: 'technique-badge'
+                        }, matra.technique));
+                    }
+
+                    grid.appendChild(cell);
+                });
+
+                rowDiv.appendChild(grid);
+                card.appendChild(rowDiv);
             });
-            
-            rowDiv.appendChild(grid);
-            card.appendChild(rowDiv);
         });
 
         return card;

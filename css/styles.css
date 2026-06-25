@@ -496,10 +496,17 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     text-decoration: none;
     display: block;
     transition: opacity 0.2s ease;
+    cursor: pointer;
 }
 
 .sidebar-title-link:hover {
     opacity: 0.8;
+    text-decoration: none;
+}
+
+.sidebar-title-link:focus {
+    outline: none;
+    text-decoration: none;
 }
 
 .sidebar-title {
@@ -518,8 +525,8 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 
 .nav-divider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 0.5rem 0 0.75rem 0;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0.75rem 0.5rem;
 }
 
 .sidebar-footer {
