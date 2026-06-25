@@ -536,18 +536,34 @@ export const TAALS: TaalsData = {
                 description: '3 beats + 3 beats',
                 tutorials: [
                     'https://www.youtube.com/watch?v=XORXG9TaCtg',
-                    'https://www.youtube.com/shorts/iMXwZyeRrx'
                 ],
             },
             {
-                name: 'Dadra taal ulti thapki',
+                name: 'Dadra taal thapki pattern',
+                rows: [
+                    [
+                        { matra: 1, bol: 'Dhit (thapki) (ghisa)', technique: 'Bhari' },
+                        { matra: 2, bol: 'Dha', technique: '' },
+                        { matra: 3, bol: 'Ta', technique: '' },
+                        { matra: 4, bol: 'Tit (thapki)', technique: 'Khali' },
+                        { matra: 5, bol: 'Dha (ghisa)', technique: '' },
+                        { matra: 6, bol: 'Ta', technique: '' }
+                    ]
+                ],
+                description: '3 beats + 3 beats',
+                tutorials: [
+                    'https://www.youtube.com/shorts/iMXwZyeRrxQ'
+                ],
+            },
+            {
+                name: 'Dadra taal ulti thapki pattern',
                 rows: [
                     [
                         { matra: 1, bol: 'Dha (ghisa)', technique: 'Bhari' },
                         { matra: 2, bol: 'Tit (thapki)', technique: '' },
                         { matra: 3, bol: 'Ta', technique: '' },
                         { matra: 4, bol: 'Ta', technique: 'Khali' },
-                        { matra: 5, bol: 'Dhit (thapki + ghisa)', technique: '' },
+                        { matra: 5, bol: 'Dhit (thapki) (ghisa)', technique: '' },
                         { matra: 6, bol: 'Ta', technique: '' }
                     ]
                 ],
