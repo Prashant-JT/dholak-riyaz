@@ -551,6 +551,56 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 }
 
 /* ============================================
+   BPM PRESETS
+   ============================================ */
+
+.bpm-preset-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.25rem;
+    border-radius: 10px;
+    border: 2px solid var(--border-primary);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    gap: 2px;
+}
+
+.bpm-preset-btn:hover {
+    border-color: var(--orange-500);
+    background: var(--bg-hover);
+}
+
+.bpm-preset-btn.active {
+    border-color: var(--orange-500);
+    background: var(--orange-500);
+    color: white;
+}
+
+.bpm-preset-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.8;
+}
+
+.bpm-preset-value {
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: monospace;
+}
+
+.bpm-preset-btn.active .bpm-preset-label,
+.bpm-preset-btn.active .bpm-preset-value {
+    opacity: 1;
+    color: white;
+}
+
+/* ============================================
    SONGS SEARCH
    ============================================ */
 

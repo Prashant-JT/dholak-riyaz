@@ -154,7 +154,7 @@ export class DashboardView implements View {
         
         bpmSliderContainer.appendChild(sliderWrapper);
         displayContainer.appendChild(bpmSliderContainer);
-        
+
         // Beats per measure dropdown
         const beatsSelectContainer = createElement('div', {
             className: 'w-full max-w-md mb-4'
@@ -193,7 +193,35 @@ export class DashboardView implements View {
         
         beatsSelectContainer.appendChild(beatsSelect);
         displayContainer.appendChild(beatsSelectContainer);
-        
+
+        // BPM Presets
+        const presetsContainer = createElement('div', {
+            className: 'w-full max-w-md mb-4'
+        });
+
+        const presetBtns = createElement('div', {
+            className: 'grid grid-cols-4 gap-2'
+        });
+
+        const presets = [
+            { label: 'Lento', bpm: 60 },
+            { label: 'Medio', bpm: 120 },
+            { label: 'Rápido', bpm: 180 },
+            { label: 'Drut', bpm: 240 }
+        ];
+
+        presets.forEach(preset => {
+            const btn = createElement('button', {
+                id: `preset-${preset.bpm}`,
+                className: 'bpm-preset-btn'
+            });
+            btn.innerHTML = `<span class="bpm-preset-label">${preset.label}</span><span class="bpm-preset-value">${preset.bpm}</span>`;
+            presetBtns.appendChild(btn);
+        });
+
+        presetsContainer.appendChild(presetBtns);
+        displayContainer.appendChild(presetsContainer);
+
         // Botones de control
         const buttonContainer = createElement('div', {
             className: 'flex gap-4 items-center justify-center mt-6'

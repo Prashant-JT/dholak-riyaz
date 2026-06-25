@@ -122,7 +122,31 @@ class Application {
      */
     private initializeControls(): void {
         this.initMetronomeControls();
+        this.initBpmPresets();
         this.initLehrasControls();
+    }
+
+    /**
+     * BPM preset buttons
+     */
+    private initBpmPresets(): void {
+        const presets = [60, 120, 180, 240];
+        presets.forEach(bpm => {
+            const btn = document.getElementById(`preset-${bpm}`) as HTMLButtonElement | null;
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+                const slider = document.getElementById('bpmSlider') as HTMLInputElement | null;
+                const display = document.getElementById('bpmDisplay');
+                if (slider) slider.value = bpm.toString();
+                if (display) display.textContent = bpm.toString();
+                this.metronome.setBPM(bpm);
+                // Highlight active preset
+                presets.forEach(b => {
+                    document.getElementById(`preset-${b}`)?.classList.remove('active');
+                });
+                btn.classList.add('active');
+            });
+        });
     }
     
     /**
