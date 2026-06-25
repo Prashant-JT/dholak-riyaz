@@ -29,9 +29,11 @@ class Application {
         this.navigationController = new NavigationController('navigationMenu', 'mainContent');
         this.navigationController.render();
         
-        // Inicializar gestor de vistas
+        // Inicializar gestor de vistas — restaurar última vista visitada
         this.viewManager = new ViewManager('mainContent');
-        this.viewManager.showView(CONFIG.VIEWS.DASHBOARD);
+        const lastView = localStorage.getItem('lastView') ?? CONFIG.VIEWS.DASHBOARD;
+        this.viewManager.showView(lastView);
+        this.navigationController.navigateTo(lastView);
         
         // Añadir toggle de modo oscuro al body
         document.body.appendChild(this.darkModeToggle.render());
@@ -39,8 +41,10 @@ class Application {
         // Escuchar eventos de navegación
         window.addEventListener('navigate', (e: Event) => {
             const customEvent = e as CustomEvent<NavigateEventDetail>;
+            const viewId = customEvent.detail.viewId;
             if (this.viewManager) {
-                this.viewManager.showView(customEvent.detail.viewId);
+                this.viewManager.showView(viewId);
+                localStorage.setItem('lastView', viewId);
             }
             // Reinicializar controles después de cambiar de vista
             setTimeout(() => this.initializeControls(), 100);

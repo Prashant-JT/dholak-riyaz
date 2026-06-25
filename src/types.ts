@@ -44,6 +44,7 @@ export interface TaalVariation {
     songs?: Song[];
     tutorials?: string[];
     notes?: string[];
+    special?: boolean;  // Variación pedagógica/especial, se muestra al final con divisor
 }
 
 export interface TaalTheory {
@@ -118,6 +119,7 @@ export interface FillerPattern {
     link?: string | null;
     hasAudio?: boolean;
     note?: string;
+    special?: boolean;  // Patrón destacado, se muestra al final separado con divisor
 }
 
 export interface Filler {

@@ -402,7 +402,7 @@ export const TAALS: TaalsData = {
                 name: 'Dadra variación (famous theka)',
                 rows: [
                     [
-                        { matra: 1, bol: 'Dhi', technique: 'Bhari' },
+                        { matra: 1, bol: 'Dhi (ghisa)', technique: 'Bhari' },
                         { matra: 2, bol: 'Dhi', technique: '' },
                         { matra: 3, bol: 'Na', technique: '' },
                         { matra: 4, bol: 'Ti', technique: 'Khali' },
@@ -420,6 +420,7 @@ export const TAALS: TaalsData = {
                 tutorials: [
                     'https://www.youtube.com/watch?v=zkRwdMDUgs8'
                 ],
+                
             },
             {
                 name: 'Dandiya',
@@ -451,6 +452,7 @@ export const TAALS: TaalsData = {
             },
             {
                 name: 'Tirekite Take',
+                special: true,
                 rows: [
                     [
                         { matra: 1, bol: 'Ti', technique: '' },
@@ -479,6 +481,7 @@ export const TAALS: TaalsData = {
             },
             {
                 name: 'Take Tirekite',
+                special: true,
                 rows: [
                     [
                         { matra: 1, bol: 'Ta', technique: '' },
@@ -490,9 +493,6 @@ export const TAALS: TaalsData = {
                     ]
                 ],
                 description: 'Variación invertida',
-                songs: [
-                    { title: 'Baaje Re Muraliya Baaje', url: 'https://youtu.be/GP6dt_qW5qE?si=Cw1h8xQsU5RyVD1S' }
-                ]
             },
             {
                 name: 'Dadra taal variación 3',

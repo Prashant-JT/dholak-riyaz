@@ -700,6 +700,32 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 }
 
 /* ============================================
+   FILLERS — SPECIAL DIVIDER
+   ============================================ */
+
+.filler-special-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0 1rem;
+}
+.filler-special-divider::before,
+.filler-special-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-primary);
+}
+.filler-special-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* ============================================
    SCROLL TO TOP BUTTON
    ============================================ */
 

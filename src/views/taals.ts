@@ -45,9 +45,22 @@ export class TaalView implements View {
         
         // Variations (if exist)
         if (this.taalData.variations && this.taalData.variations.length > 0) {
-            this.taalData.variations.forEach(variation => {
+            const normal  = this.taalData.variations.filter(v => !v.special);
+            const special = this.taalData.variations.filter(v => v.special);
+
+            normal.forEach(variation => {
                 section.appendChild(this.createTaalCard(variation.name, variation.rows, variation.description, variation));
             });
+
+            if (special.length > 0) {
+                const divider = createElement('div', { className: 'filler-special-divider' });
+                divider.appendChild(createElement('span', { className: 'filler-special-label' }, '✦ Tirekite'));
+                section.appendChild(divider);
+
+                special.forEach(variation => {
+                    section.appendChild(this.createTaalCard(variation.name, variation.rows, variation.description, variation));
+                });
+            }
         }
         
         section.appendChild(this.createTip());

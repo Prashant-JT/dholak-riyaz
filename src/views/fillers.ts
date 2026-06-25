@@ -37,17 +37,11 @@ export class FillersView implements View {
         }, filler.category);
         section.appendChild(title);
 
-        // Grid layout for cards (like other views)
-        const grid = createElement('div', {
-            className: 'grid grid-cols-1 gap-4'
-        });
-
-        filler.patterns.forEach(pattern => {
-            const card = this.createPatternCard(pattern);
-            grid.appendChild(card);
-        });
-
+        // Grid layout for cards
+        const grid = createElement('div', { className: 'grid grid-cols-1 gap-4' });
+        filler.patterns.forEach(pattern => grid.appendChild(this.createPatternCard(pattern)));
         section.appendChild(grid);
+
         return section;
     }
 
