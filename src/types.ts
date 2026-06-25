@@ -92,6 +92,7 @@ export interface Kayda {
     beats: number;
     description: string;
     rows: KaydaRow[];
+    tutorial?: string;
 }
 
 export interface KaydasData {
