@@ -482,7 +482,13 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     overflow-y: auto;
     z-index: 1000;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-    padding: 2rem 1.5rem;
+    padding: 4.5rem 1.5rem 2rem 1.5rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.sidebar.open {
+    transform: translateX(0);
 }
 
 .sidebar-header {
@@ -538,10 +544,10 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 }
 
 .main-content {
-    margin-left: 280px;
+    margin-left: 0;
     min-height: 100vh;
     background-color: var(--bg-primary);
-    padding: 3rem;
+    padding: 3rem 3rem 3rem 5rem;
 }
 
 /* ============================================
@@ -652,7 +658,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
    ============================================ */
 
 .hamburger-btn {
-    display: none;
+    display: flex;
     position: fixed;
     top: 1rem;
     left: 1rem;
@@ -697,28 +703,13 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 }
 
 @media (max-width: 768px) {
-    .hamburger-btn {
-        display: flex;
-    }
-
     .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
         width: 260px;
-        height: 100vh;
-        position: fixed;
-        padding: 1.5rem 1rem;
-        z-index: 1000;
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
+        padding: 4.5rem 1rem 1.5rem 1rem;
     }
 
     .main-content {
-        margin-left: 0;
-        padding: 1rem;
-        padding-top: 4rem; /* espacio para el botón hamburguesa */
+        padding: 1rem 1rem 1rem 4rem;
     }
     
     /* Celdas de bols más pequeñas en móvil */
