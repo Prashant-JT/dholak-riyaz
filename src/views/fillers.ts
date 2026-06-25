@@ -77,12 +77,6 @@ export class FillersView implements View {
             });
             linkBtn.innerHTML = '🎥 Ver Tutorial';
             nameDiv.appendChild(linkBtn);
-        } else if (pattern.hasAudio) {
-            const audioBtn = createElement('button', {
-                className: 'inline-flex items-center justify-center w-12 h-12 bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition-colors text-2xl'
-            });
-            audioBtn.innerHTML = '🔊';
-            nameDiv.appendChild(audioBtn);
         }
 
         card.appendChild(nameDiv);
