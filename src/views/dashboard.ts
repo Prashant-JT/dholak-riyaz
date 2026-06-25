@@ -61,7 +61,7 @@ export class DashboardView implements View {
             href: 'https://forms.gle/a7hrsQS8nR6CGLdZ8',
             target: '_blank',
             rel: 'noopener noreferrer',
-            className: 'inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors font-bold text-lg whitespace-nowrap shadow-md hover:shadow-lg'
+            className: 'inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-slate-900 dark:text-white rounded-xl hover:bg-orange-600 transition-colors font-bold text-lg whitespace-nowrap shadow-md hover:shadow-lg'
         });
         button.innerHTML = '📋 Registrar';
         content.appendChild(button);
