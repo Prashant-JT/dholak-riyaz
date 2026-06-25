@@ -1,11 +1,11 @@
 /**
  * KAYDAS VIEW
- * Vista de kaydas
+ * Vista de kaydas — renderiza todos los kaydas del objeto KAYDAS
  */
 
 import { createElement } from '../core/utils.js';
 import { KAYDAS } from '../data/kaydas.js';
-import type { View } from '../types.js';
+import type { View, Kayda } from '../types.js';
 
 export class KaydasView implements View {
     public render(): HTMLElement {
@@ -23,22 +23,75 @@ export class KaydasView implements View {
         }, 'Composiciones avanzadas y variaciones temáticas'));
         section.appendChild(header);
         
-        const card = createElement('div', { className: 'card p-8' });
-        const kayda = KAYDAS.fundamental;
+        // Iterar sobre todos los kaydas
+        Object.values(KAYDAS).forEach(kayda => {
+            section.appendChild(this.createKaydaCard(kayda));
+        });
         
+        // Teoría
+        const theory = createElement('div', { 
+            className: 'info-box info-box--indigo mt-6'
+        });
+        theory.appendChild(createElement('h4', { 
+            className: 'info-box__title text-xl font-bold mb-2' 
+        }, 'Teoría de Kaydas'));
+        theory.appendChild(createElement('p', { 
+            className: 'info-box__text mb-3' 
+        }, 'Las Kaydas son composiciones fijas que sirven como base para improvisación (Palta). Este patrón fundamental de Teental (16 tiempos) es la piedra angular del repertorio de tabla y dholak.'));
+        theory.appendChild(createElement('p', { 
+            className: 'info-box__text' 
+        }, 'Estructura: El ciclo se divide en dos mitades: Bhari (lleno, con bajo) y Khali (vacío, sin bajo). El Sam (M1) es el punto de resolución más importante del ciclo.'));
+        section.appendChild(theory);
+        
+        return section;
+    }
+
+    private createKaydaCard(kayda: Kayda): HTMLElement {
+        const card = createElement('div', { className: 'card p-8 mb-6' });
+
         card.appendChild(createElement('h3', { 
-            className: 'text-2xl font-semibold text-slate-800 mb-6' 
-        }, `${kayda.name} (Base ${kayda.taal} - ${kayda.beats} Tiempos)`));
+            className: 'text-2xl font-semibold mb-2' 
+        }, `${kayda.name} (${kayda.taal} - ${kayda.beats} Tiempos)`));
+
         card.appendChild(createElement('p', { 
-            className: 'text-slate-600 mb-6' 
-        }, 'Estructura clásica dividida en Bhari (lleno) y Khali (vacío)'));
-        
+            className: 'text-muted mb-4'
+        }, kayda.description));
+
+        // Tutorial link (si existe)
+        if (kayda.tutorial) {
+            const tutorialDiv = createElement('div', {
+                className: 'resource-box resource-box--tutorials mb-6'
+            });
+            const headerDiv = createElement('div', { className: 'flex items-center gap-2 mb-3' });
+            headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '🎓'));
+            headerDiv.appendChild(createElement('h5', {
+                className: 'font-bold resource-box__title'
+            }, 'Tutorial'));
+            tutorialDiv.appendChild(headerDiv);
+
+            const tutorialCard = createElement('div', { className: 'tutorial-card' });
+            const link = createElement('a', {
+                href: kayda.tutorial,
+                target: '_blank',
+                className: 'tutorial-link'
+            });
+            const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
+            contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '📚'));
+            contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, 'Ver tutorial completo'));
+            contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
+            link.appendChild(contentDiv);
+            tutorialCard.appendChild(link);
+            tutorialDiv.appendChild(tutorialCard);
+            card.appendChild(tutorialDiv);
+        }
+
+        // Filas de matras
         kayda.rows.forEach((row, index) => {
             const rowDiv = createElement('div', { 
                 className: `taal-row-separator ${index > 0 ? 'mt-6' : ''}` 
             });
             rowDiv.appendChild(createElement('h4', { 
-                className: 'text-lg font-semibold text-slate-700 mt-4 mb-3' 
+                className: 'text-lg font-semibold text-muted mt-4 mb-3' 
             }, row.label));
             
             const grid = createElement('div', { 
@@ -55,7 +108,6 @@ export class KaydasView implements View {
                     className: 'bol-text'
                 }, matra.bol));
                 
-                // Solo mostrar badge si la técnica es "Khali" o "Taali"
                 if (matra.technique === 'Khali' || matra.technique === 'Taali') {
                     cell.appendChild(createElement('span', {
                         className: 'technique-badge'
@@ -68,25 +120,8 @@ export class KaydasView implements View {
             rowDiv.appendChild(grid);
             card.appendChild(rowDiv);
         });
-        
-        section.appendChild(card);
-        
-        // Teoría
-        const theory = createElement('div', { 
-            className: 'info-box mt-6 bg-indigo-50 border-indigo-500' 
-        });
-        theory.appendChild(createElement('h4', { 
-            className: 'text-xl font-bold text-indigo-900 mb-2' 
-        }, 'Teoría de Kaydas'));
-        theory.appendChild(createElement('p', { 
-            className: 'text-indigo-800 mb-3' 
-        }, 'Las Kaydas son composiciones fijas que sirven como base para improvisación (Palta). Este patrón fundamental de Teental (16 tiempos) es la piedra angular del repertorio de tabla y dholak.'));
-        theory.appendChild(createElement('p', { 
-            className: 'text-indigo-800' 
-        }, '<strong>Estructura:</strong> El ciclo se divide en dos mitades: Bhari (lleno, con bajo) y Khali (vacío, sin bajo). El Sam (M1) es el punto de resolución más importante del ciclo.'));
-        section.appendChild(theory);
-        
-        return section;
+
+        return card;
     }
 }
 
