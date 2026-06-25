@@ -30,12 +30,12 @@ export const CONFIG: AppConfig = {
     
     NAVIGATION: [
         { id: 'dashboard', label: 'Riyaz' },
-        { id: 'glosario', label: 'Teoría' },
+        { id: 'glosario', label: 'Teoría', separator: true },
         { id: 'keherwa', label: 'Keherwa (8B)' },
         { id: 'dadra', label: 'Dadra (6B)' },
         { id: 'rupak', label: 'Rupak (7B)' },
         { id: 'deepchandi', label: 'Deepchandi (14B)' },
-        { id: 'fillers', label: 'Pickups/Fillers' },
+        { id: 'fillers', label: 'Pickups/Fillers', separator: true },
         { id: 'kaydas', label: 'Kaydas' },
         { id: 'songs', label: 'Canciones' }
     ]

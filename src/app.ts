@@ -48,6 +48,15 @@ class Application {
         
         // Inicializar controles de la vista inicial
         setTimeout(() => this.initializeControls(), 100);
+
+        // Home link — navega al dashboard al hacer clic en el título
+        const homeLink = document.getElementById('homeLink');
+        if (homeLink) {
+            homeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.navigationController?.navigateTo(CONFIG.VIEWS.DASHBOARD);
+            });
+        }
     }
     
     /**

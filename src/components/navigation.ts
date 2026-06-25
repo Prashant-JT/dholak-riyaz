@@ -30,8 +30,8 @@ export class NavigationController {
         CONFIG.NAVIGATION.forEach(item => {
             const button = createElement('button', {
                 className: `nav-item w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${
-                    item.id === this.currentView 
-                        ? 'active' 
+                    item.id === this.currentView
+                        ? 'active'
                         : 'text-slate-300 hover:text-white hover:bg-slate-700'
                 }`,
                 dataset: { view: item.id }
@@ -39,6 +39,12 @@ export class NavigationController {
             
             button.addEventListener('click', () => this.navigateTo(item.id));
             this.menuElement.appendChild(button);
+
+            // Separador después del item si está marcado
+            if (item.separator) {
+                const divider = createElement('div', { className: 'nav-divider' });
+                this.menuElement.appendChild(divider);
+            }
         });
     }
     

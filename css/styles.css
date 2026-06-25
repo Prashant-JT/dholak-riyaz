@@ -489,6 +489,17 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.sidebar-title-link {
+    text-decoration: none;
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-title-link:hover {
+    opacity: 0.8;
 }
 
 .sidebar-title {
@@ -503,6 +514,12 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     font-size: 0.875rem;
     color: #94a3b8;
     font-weight: 500;
+}
+
+.nav-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0 0.75rem 0;
 }
 
 .sidebar-footer {

@@ -153,6 +153,7 @@ export interface ViewsConfig {
 export interface NavigationItem {
     id: string;
     label: string;
+    separator?: boolean; // Línea divisoria DESPUÉS de este item
 }
 
 export interface AppConfig {
