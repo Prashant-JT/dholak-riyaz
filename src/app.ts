@@ -15,7 +15,6 @@ class Application {
     private viewManager: ViewManager | null = null;
     private metronome: MetronomeEngine;
     private darkModeToggle: DarkModeToggle;
-    
     constructor() {
         this.metronome = new MetronomeEngine();
         this.darkModeToggle = new DarkModeToggle();
@@ -359,19 +358,9 @@ class Application {
 }
 
 // Inicializar aplicación cuando el DOM esté listo
-console.log('🚀 App script loaded');
-
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ DOM Content Loaded');
     const app = new Application();
-    console.log('✅ Application instance created');
     app.init();
-    console.log('✅ Application initialized');
-    
-    // Exponer app globalmente para debugging (opcional)
-    (window as any).app = app;
 });
-
-console.log('📝 Event listener registered');
 
 // Made with Bob

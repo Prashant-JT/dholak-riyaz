@@ -23,7 +23,7 @@ export class DashboardView implements View {
             className: 'section-subtitle'
         }, 'Metrónomo y Herramientas de Práctica'));
         section.appendChild(header);
-        
+
         section.appendChild(this.createRiyazFormCard());
         section.appendChild(this.createMetronomeCard());
         section.appendChild(this.createLehrasCard());

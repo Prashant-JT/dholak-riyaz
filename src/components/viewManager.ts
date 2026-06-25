@@ -48,25 +48,14 @@ export class ViewManager {
      * @param viewId - ID de la vista
      */
     public showView(viewId: string): void {
-        console.log('🎯 ViewManager.showView called with:', viewId);
         const view = this.views.get(viewId);
-        
         if (view) {
-            console.log('✅ View found:', viewId);
             this.contentElement.innerHTML = '';
-            console.log('✅ Content cleared');
             try {
-                console.log('🔄 Rendering view...');
-                const rendered = view.render();
-                console.log('✅ View rendered:', rendered);
-                this.contentElement.appendChild(rendered);
-                console.log('✅ View appended to DOM');
+                this.contentElement.appendChild(view.render());
             } catch (error) {
-                console.error('❌ Error al renderizar vista:', error);
+                console.error('Error rendering view:', error);
             }
-        } else {
-            console.error('❌ Vista no encontrada:', viewId);
-            console.log('Available views:', Array.from(this.views.keys()));
         }
     }
 }
