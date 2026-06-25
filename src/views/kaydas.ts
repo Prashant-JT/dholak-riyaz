@@ -3,7 +3,7 @@
  * Vista de kaydas — renderiza todos los kaydas del objeto KAYDAS
  */
 
-import { createElement } from '../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../core/utils.js';
 import { KAYDAS } from '../data/kaydas.js';
 import type { View, Kayda } from '../types.js';
 
@@ -42,7 +42,7 @@ export class KaydasView implements View {
             className: 'info-box__text' 
         }, 'Estructura: El ciclo se divide en dos mitades: Bhari (lleno, con bajo) y Khali (vacío, sin bajo). El Sam (M1) es el punto de resolución más importante del ciclo.'));
         section.appendChild(theory);
-        
+
         return section;
     }
 
@@ -126,9 +126,9 @@ export class KaydasView implements View {
                     cell.appendChild(createElement('div', {
                         className: 'matra-number mono-font'
                     }, `M${matra.matra}`));
-                    cell.appendChild(createElement('div', {
-                        className: 'bol-text'
-                    }, matra.bol));
+                    const bolTextEl = createElement('div', { className: 'bol-text' });
+                    applyBolIndicators(bolTextEl, matra.bol);
+                    cell.appendChild(bolTextEl);
 
                     if (matra.technique === 'Khali' || matra.technique === 'Taali') {
                         cell.appendChild(createElement('span', {
@@ -143,6 +143,10 @@ export class KaydasView implements View {
                 card.appendChild(rowDiv);
             });
         });
+
+        if (bolsHaveIndicators(kayda.rows)) {
+            card.appendChild(createBolIndicatorsLegend());
+        }
 
         return card;
     }

@@ -12,6 +12,8 @@ export interface Bol {
     technique: string;
     description: string;
     badge: string;
+    thapki?: boolean;   // El bol admite variación con thapki
+    ghuisa?: boolean;   // El bol admite variación con ghuisa (deslizamiento)
 }
 
 // ============================================================================

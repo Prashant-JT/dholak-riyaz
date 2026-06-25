@@ -3,7 +3,7 @@
  * Vista del glosario de bols
  */
 
-import { createElement } from '../core/utils.js';
+import { createElement, createBolIndicatorsLegend } from '../core/utils.js';
 import { BOLS_BY_CATEGORY } from '../data/bols.js';
 import type { View, Bol } from '../types.js';
 
@@ -120,8 +120,9 @@ export class GlosarioView implements View {
         columnsContainer.appendChild(compuestosColumn);
         
         section.appendChild(columnsContainer);
-        
-        
+
+        section.appendChild(createBolIndicatorsLegend());
+
         return section;
     }
     
@@ -201,13 +202,35 @@ export class GlosarioView implements View {
                 className: 'glosario-col__bol'
             });
             
-            // Nombre del bol
-            bolSection.appendChild(createElement('h5', {
-                className: 'text-xl font-bold mb-2'
+            // Header del bol: nombre + indicadores
+            const bolHeader = createElement('div', { className: 'glosario-col__bol-header' });
+            bolHeader.appendChild(createElement('h5', {
+                className: 'text-xl font-bold'
             }, bol.name));
             
+            // Indicadores de thapki / ghuisa
+            if (bol.thapki || bol.ghuisa) {
+                const indicators = createElement('div', { className: 'bol-indicators' });
+                if (bol.thapki) {
+                    const dot = createElement('span', {
+                        className: 'bol-indicator bol-indicator--thapki',
+                        title: 'Admite variación con Thapki'
+                    }, '');
+                    indicators.appendChild(dot);
+                }
+                if (bol.ghuisa) {
+                    const dot = createElement('span', {
+                        className: 'bol-indicator bol-indicator--ghuisa',
+                        title: 'Admite variación con Ghuisa'
+                    }, '');
+                    indicators.appendChild(dot);
+                }
+                bolHeader.appendChild(indicators);
+            }
+            bolSection.appendChild(bolHeader);
+            
             // Técnica
-            const tecnicaP = createElement('p', { className: 'text-muted mb-1' });
+            const tecnicaP = createElement('p', { className: 'text-muted mb-1 mt-2' });
             tecnicaP.innerHTML = `<strong>Técnica:</strong> ${bol.technique}`;
             bolSection.appendChild(tecnicaP);
             

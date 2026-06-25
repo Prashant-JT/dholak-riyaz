@@ -964,6 +964,77 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     border-bottom: none;
 }
 
+/* Header del bol: nombre + indicadores alineados */
+.glosario-col__bol-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Contenedor de indicadores */
+.bol-indicators {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+/* Versión inline: va pegada al nombre del bol dentro de la celda */
+.bol-indicators--inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+/* Punto indicador base */
+.bol-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    cursor: help;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+.bol-indicator:hover {
+    transform: scale(1.4);
+}
+
+/* Thapki → dorado/ámbar */
+.bol-indicator--thapki {
+    background-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+
+/* Ghuisa → violeta */
+.bol-indicator--ghuisa {
+    background-color: #8b5cf6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
+}
+
+/* Leyenda de indicadores */
+.bol-indicators-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+}
+.bol-indicators-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+}
+
 /* Light mode */
 .glosario-col--orange { background: #fff7ed; border-color: #fed7aa; }
 .glosario-col--blue   { background: #eff6ff; border-color: #bfdbfe; }

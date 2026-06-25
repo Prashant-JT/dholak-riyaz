@@ -23,7 +23,8 @@ export const BOLS_BY_CATEGORY = {
             name: 'Ti / Te',
             technique: 'Golpe cerrado en el centro del parche agudo',
             description: 'Sonido mudo/apagado sin vibración. Se usa para crear contraste rítmico.',
-            badge: 'Mudo - Agudo'
+            badge: 'Mudo - Agudo',
+            thapki: true
         }
     ],
     bayan: [
@@ -31,7 +32,8 @@ export const BOLS_BY_CATEGORY = {
             name: 'Gha / Ghe',
             technique: 'Golpe abierto en el parche grave (Bayan)',
             description: 'Bajo profundo y resonante, fundamental para la base rítmica.',
-            badge: 'Abierto - Grave'
+            badge: 'Abierto - Grave',
+            ghuisa: true
         },
         {
             name: 'Ke / Ka',
@@ -45,13 +47,17 @@ export const BOLS_BY_CATEGORY = {
             name: 'Dha',
             technique: 'Na + Ghe (simultáneo)',
             description: 'Bol compuesto fundamental. Combina agudo brillante con bajo resonante.',
-            badge: 'Compuesto - Bhari'
+            badge: 'Compuesto - Bhari',
+            thapki: true,
+            ghuisa: true
         },
         {
             name: 'Dhi',
             technique: 'Tin + Ghe (simultáneo)',
             description: 'Bol compuesto con mayor resonancia. Tono completo y rico.',
-            badge: 'Compuesto - Resonante'
+            badge: 'Compuesto - Resonante',
+            thapki: true,
+            ghuisa: true
         }
     ]
 };

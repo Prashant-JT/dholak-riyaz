@@ -3,7 +3,7 @@
  * Vista genérica para mostrar taals
  */
 
-import { createElement } from '../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../core/utils.js';
 import { TAALS } from '../data/taals.js';
 import type { View, Taal } from '../types.js';
 
@@ -51,7 +51,7 @@ export class TaalView implements View {
         }
         
         section.appendChild(this.createTip());
-        
+
         return section;
     }
     
@@ -204,9 +204,9 @@ export class TaalView implements View {
                 cell.appendChild(createElement('div', {
                     className: 'matra-number mono-font'
                 }, `M${matra.matra}`));
-                cell.appendChild(createElement('div', {
-                    className: 'bol-text'
-                }, matra.bol));
+                const bolTextEl = createElement('div', { className: 'bol-text' });
+                applyBolIndicators(bolTextEl, matra.bol);
+                cell.appendChild(bolTextEl);
                 
                 // Solo mostrar badge en el patrón principal (variation === undefined)
                 if (!variation && (matra.technique === 'Khali' || matra.technique === 'Taali')) {
@@ -325,6 +325,10 @@ export class TaalView implements View {
                 }
             });
             card.appendChild(notesDiv);
+        }
+
+        if (bolsHaveIndicators(rows)) {
+            card.appendChild(createBolIndicatorsLegend());
         }
         
         return card;
