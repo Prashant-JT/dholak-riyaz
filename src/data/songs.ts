@@ -151,6 +151,12 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=CfUDuYAasjE"
     },
     {
+        title: "Aaye Ho Meri Zindagi Mein",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=ixCnsZswdpU"
+    },
+    {
         title: "Shree Ram Chandra",
         artist: "Devocional",
         taal: "Keherwa (8 beats)",

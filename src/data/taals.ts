@@ -339,6 +339,16 @@ export const TAALS: TaalsData = {
                     ]
                 ],
                 description: '3 beats + 3 beats',
+                songs: [
+                    {
+                        title: 'Dagabaaz Re',
+                        url: 'https://www.youtube.com/watch?v=0KozfDYK1EU'
+                    }
+                ],
+                notes: [
+                    'Bhajan Sambhariyaan Sada Dil Me Tokhe',
+                    'https://youtu.be/72-POeN9XwQ'
+                ]
             },
             {
                 name: 'Dadra Western variación',
@@ -389,13 +399,13 @@ export const TAALS: TaalsData = {
                 ]
             },
             {
-                name: 'Dadra variación mediano/rápido 2',
+                name: 'Dadra variación (famous theka)',
                 rows: [
                     [
                         { matra: 1, bol: 'Dhi', technique: 'Bhari' },
                         { matra: 2, bol: 'Dhi', technique: '' },
                         { matra: 3, bol: 'Na', technique: '' },
-                        { matra: 4, bol: 'Ge', technique: 'Khali' },
+                        { matra: 4, bol: 'Ti', technique: 'Khali' },
                         { matra: 5, bol: 'Dhi', technique: '' },
                         { matra: 6, bol: 'Na', technique: '' }
                     ]
@@ -403,14 +413,13 @@ export const TAALS: TaalsData = {
                 description: '3 beats + 3 beats',
                 songs: [
                     {
-                        title: 'Dagabaaz Re',
-                        url: 'https://www.youtube.com/watch?v=0KozfDYK1EU'
+                        title: 'Aaye Ho Meri Zindagi Mein',
+                        url: 'https://www.youtube.com/watch?v=ixCnsZswdpU'
                     }
                 ],
-                notes: [
-                    'Bhajan Sambhariyaan Sada Dil Me Tokhe',
-                    'https://youtu.be/72-POeN9XwQ'
-                ]
+                tutorials: [
+                    'https://www.youtube.com/watch?v=zkRwdMDUgs8'
+                ],
             },
             {
                 name: 'Dandiya',
