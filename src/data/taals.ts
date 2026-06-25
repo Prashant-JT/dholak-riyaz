@@ -282,7 +282,7 @@ export const TAALS: TaalsData = {
         subtitle: 'Métrica ligera y fluida (3+3 beats)',
         rows: [
             [
-                { matra: 1, bol: 'Dha', technique: 'Bhari' },
+                { matra: 1, bol: 'Dha', technique: 'Taali' },
                 { matra: 2, bol: 'Dhi', technique: '' },
                 { matra: 3, bol: 'Na', technique: '' },
                 { matra: 4, bol: 'Dha', technique: 'Khali' },
@@ -585,17 +585,17 @@ export const TAALS: TaalsData = {
         subtitle: 'Estructura 3+4+3+4 beats',
         rows: [
             [
-                { matra: 1, bol: 'Dha', technique: '' },
+                { matra: 1, bol: 'Dha', technique: 'Taali' },
                 { matra: 2, bol: 'Dhin', technique: '' },
                 { matra: 3, bol: '—', technique: '' },
-                { matra: 4, bol: 'Dha', technique: '' },
+                { matra: 4, bol: 'Dha', technique: 'Taali' },
                 { matra: 5, bol: 'Dha', technique: '' },
                 { matra: 6, bol: 'Tin', technique: '' },
                 { matra: 7, bol: '—', technique: '' },
-                { matra: 8, bol: 'Ta', technique: '' },
+                { matra: 8, bol: 'Ta', technique: 'Khali' },
                 { matra: 9, bol: 'Tin', technique: '' },
                 { matra: 10, bol: '—', technique: '' },
-                { matra: 11, bol: 'Dha', technique: '' },
+                { matra: 11, bol: 'Dha', technique: 'Taali' },
                 { matra: 12, bol: 'Dha', technique: '' },
                 { matra: 13, bol: 'Dhin', technique: '' },
                 { matra: 14, bol: '—', technique: '' }

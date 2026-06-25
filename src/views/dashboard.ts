@@ -39,12 +39,8 @@ export class DashboardView implements View {
         // Compact layout with flex
         const content = createElement('div', { className: 'flex items-center justify-between gap-4' });
         
-        // Left side: Icon + Text
+        // Left side: Text
         const leftSide = createElement('div', { className: 'flex items-center gap-4' });
-        leftSide.appendChild(createElement('span', {
-            className: 'text-6xl'
-        }, '📝'));
-        
         const textContainer = createElement('div');
         textContainer.appendChild(createElement('h3', {
             className: 'text-xl font-bold'
@@ -61,7 +57,7 @@ export class DashboardView implements View {
             href: 'https://forms.gle/a7hrsQS8nR6CGLdZ8',
             target: '_blank',
             rel: 'noopener noreferrer',
-            className: 'inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-slate-900 dark:text-white rounded-xl hover:bg-orange-600 transition-colors font-bold text-lg whitespace-nowrap shadow-md hover:shadow-lg'
+            className: 'songs-yt-btn'
         });
         button.innerHTML = '📋 Registrar';
         content.appendChild(button);

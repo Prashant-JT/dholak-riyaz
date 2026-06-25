@@ -8,7 +8,7 @@ import type { AppConfig } from '../types';
 export const CONFIG: AppConfig = {
     METRONOME: {
         MIN_BPM: 60,
-        MAX_BPM: 300,
+        MAX_BPM: 400,
         DEFAULT_BPM: 120,
         SCHEDULE_AHEAD_TIME: 0.1,
         LOOKAHEAD: 25.0,

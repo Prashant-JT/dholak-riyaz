@@ -12,59 +12,114 @@ export class SongsView implements View {
 
         // Header
         const header = createElement('h1', {
-            className: 'text-3xl font-bold text-slate-800 dark:text-slate-100 mb-6'
-        }, '🎵 Canciones');
+            className: 'section-title'
+        }, 'Canciones');
 
         const description = createElement('p', {
-            className: 'text-slate-600 dark:text-slate-400 mb-8'
-        }, 'Colección de canciones con el Taal identificado. Haz clic en el botón para ver el video en YouTube.');
+            className: 'section-subtitle mb-6'
+        }, 'Colección de canciones para practicar. Haz clic en ▶ YouTube para abrir el video.');
 
         container.appendChild(header);
         container.appendChild(description);
 
+        // Search input
+        const searchWrapper = createElement('div', { className: 'songs-search-wrapper' });
+        const searchInput = createElement('input', {
+            type: 'text',
+            id: 'songsSearch',
+            placeholder: 'Buscar canción...',
+            className: 'songs-search-input'
+        }) as HTMLInputElement;
+        searchWrapper.appendChild(searchInput);
+        container.appendChild(searchWrapper);
+
+        // Counter
+        const counter = createElement('p', {
+            id: 'songsCounter',
+            className: 'text-muted text-sm mb-4'
+        }, `${SONGS.length} canciones`);
+        container.appendChild(counter);
+
         // Songs list
+        const list = createElement('div', { id: 'songsList' });
         SONGS.forEach(song => {
-            const card = this.createSongCard(song);
-            container.appendChild(card);
+            list.appendChild(this.createSongCard(song));
         });
+        container.appendChild(list);
+
+        // Empty state (hidden by default)
+        const emptyState = createElement('p', {
+            id: 'songsEmpty',
+            className: 'text-muted text-center py-12 hidden'
+        }, 'No se encontraron canciones.');
+        container.appendChild(emptyState);
+
+        // Wire up search after render
+        requestAnimationFrame(() => this.initSearch());
 
         return container;
     }
 
     /**
-     * Create a song card - Title with YouTube button
+     * Filtra las canciones en tiempo real según el input de búsqueda
+     */
+    private initSearch(): void {
+        const input = document.getElementById('songsSearch') as HTMLInputElement | null;
+        const list = document.getElementById('songsList');
+        const counter = document.getElementById('songsCounter');
+        const emptyState = document.getElementById('songsEmpty');
+        if (!input || !list || !counter || !emptyState) return;
+
+        input.addEventListener('input', () => {
+            const query = input.value.toLowerCase().trim();
+            const cards = list.querySelectorAll<HTMLElement>('[data-song-title]');
+            let visible = 0;
+
+            cards.forEach(card => {
+                const title = card.dataset.songTitle ?? '';
+                const match = title.includes(query);
+                card.style.display = match ? '' : 'none';
+                if (match) visible++;
+            });
+
+            counter.textContent = query
+                ? `${visible} de ${SONGS.length} canciones`
+                : `${SONGS.length} canciones`;
+
+            emptyState.classList.toggle('hidden', visible > 0);
+        });
+    }
+
+    /**
+     * Card de canción — título + botón YouTube
      */
     private createSongCard(song: typeof SONGS[0]): HTMLElement {
         const card = createElement('div', {
-            className: 'card p-8 mb-6'
+            className: 'card p-6 mb-4',
+            'data-song-title': song.title.toLowerCase()
         });
 
-        // Container for title and button (flex layout)
-        const container = createElement('div', {
+        const row = createElement('div', {
             className: 'flex items-center justify-between gap-4'
         });
 
-        // Song title (normal text, not a link)
         const title = createElement('h3', {
-            className: 'text-xl font-bold text-slate-800 dark:text-slate-100 flex-1'
+            className: 'text-lg font-semibold flex-1'
         }, song.title);
 
-        // YouTube button - Orange background with dark text in light mode, white text in dark mode
         const button = createElement('a', {
             href: song.youtubeUrl,
             target: '_blank',
             rel: 'noopener noreferrer',
-            className: 'inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-slate-900 dark:text-white rounded-lg font-semibold transition-colors duration-200 whitespace-nowrap shadow-md hover:shadow-lg border-2 border-orange-600'
+            className: 'songs-yt-btn'
         }, '▶ YouTube');
 
-        container.appendChild(title);
-        container.appendChild(button);
-        card.appendChild(container);
+        row.appendChild(title);
+        row.appendChild(button);
+        card.appendChild(row);
 
         return card;
     }
 }
-
-// Made with ❤️ by Bob
 
 // Made with Bob

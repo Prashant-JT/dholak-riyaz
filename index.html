@@ -7,8 +7,16 @@
     <link rel="stylesheet" href="css/styles.css?v=2">
 </head>
 <body>
+    <!-- Hamburger button (mobile only) -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+    </button>
+
+    <!-- Overlay para cerrar sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="#" id="homeLink" class="sidebar-title-link">
                 <div class="sidebar-title">Satnam Sakhi</div>
@@ -20,6 +28,9 @@
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent"></main>
+
+    <!-- Scroll to top button -->
+    <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Volver arriba">↑</button>
 
     <!-- Scripts compilados desde TypeScript -->
     <script type="module" src="./dist/app.js"></script>

@@ -544,17 +544,181 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     padding: 3rem;
 }
 
+/* ============================================
+   SONGS SEARCH
+   ============================================ */
+
+.songs-search-wrapper {
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.songs-search-wrapper::before {
+    content: '🔍';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.songs-search-input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    border: 2px solid var(--border-primary);
+    border-radius: 12px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 1px 4px var(--card-shadow);
+}
+
+.songs-search-input:focus {
+    border-color: var(--orange-500);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+.songs-search-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.songs-yt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    background: #f97316;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 2px 6px rgba(249,115,22,0.35);
+}
+
+.songs-yt-btn:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(249,115,22,0.4);
+}
+
+/* ============================================
+   SCROLL TO TOP BUTTON
+   ============================================ */
+
+.scroll-top-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--orange-500);
+    color: white;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 500;
+}
+
+.scroll-top-btn.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.scroll-top-btn:hover {
+    background: var(--orange-600);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   HAMBURGER BUTTON
+   ============================================ */
+
+.hamburger-btn {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #1e293b;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger-btn.open span:nth-child(2) { opacity: 0; }
+.hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Overlay para cerrar sidebar en móvil */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+.sidebar-overlay.visible {
+    display: block;
+}
+
 @media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 1rem;
+    .hamburger-btn {
+        display: flex;
     }
-    
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        width: 260px;
+        height: 100vh;
+        position: fixed;
+        padding: 1.5rem 1rem;
+        z-index: 1000;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
     .main-content {
         margin-left: 0;
         padding: 1rem;
+        padding-top: 4rem; /* espacio para el botón hamburguesa */
     }
     
     /* Celdas de bols más pequeñas en móvil */

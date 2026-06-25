@@ -55,8 +55,66 @@ class Application {
             homeLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.navigationController?.navigateTo(CONFIG.VIEWS.DASHBOARD);
+                this.closeSidebar();
             });
         }
+
+        // Hamburger menu (mobile)
+        this.initHamburger();
+
+        // Scroll to top button
+        this.initScrollToTop();
+    }
+
+    /**
+     * Sidebar colapsable en móvil
+     */
+    private initHamburger(): void {
+        const btn = document.getElementById('hamburgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!btn || !sidebar || !overlay) return;
+
+        btn.addEventListener('click', () => {
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) {
+                this.closeSidebar();
+            } else {
+                sidebar.classList.add('open');
+                btn.classList.add('open');
+                overlay.classList.add('visible');
+            }
+        });
+
+        overlay.addEventListener('click', () => this.closeSidebar());
+
+        // Cerrar sidebar al navegar en móvil
+        window.addEventListener('navigate', () => {
+            if (window.innerWidth < 768) this.closeSidebar();
+        });
+    }
+
+    private closeSidebar(): void {
+        document.getElementById('sidebar')?.classList.remove('open');
+        document.getElementById('hamburgerBtn')?.classList.remove('open');
+        document.getElementById('sidebarOverlay')?.classList.remove('visible');
+    }
+
+    /**
+     * Botón de scroll to top
+     */
+    private initScrollToTop(): void {
+        const btn = document.getElementById('scrollTopBtn');
+        const main = document.getElementById('mainContent');
+        if (!btn || !main) return;
+
+        main.addEventListener('scroll', () => {
+            btn.classList.toggle('visible', main.scrollTop > 300);
+        });
+
+        btn.addEventListener('click', () => {
+            main.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     }
     
     /**

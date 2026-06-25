@@ -208,8 +208,8 @@ export class TaalView implements View {
                     className: 'bol-text'
                 }, matra.bol));
                 
-                // Solo mostrar badge si la técnica es "Khali" o "Taali"
-                if (matra.technique === 'Khali' || matra.technique === 'Taali') {
+                // Solo mostrar badge en el patrón principal (variation === undefined)
+                if (!variation && (matra.technique === 'Khali' || matra.technique === 'Taali')) {
                     cell.appendChild(createElement('span', {
                         className: 'technique-badge'
                     }, matra.technique));
