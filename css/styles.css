@@ -547,7 +547,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     margin-left: 0;
     min-height: 100vh;
     background-color: var(--bg-primary);
-    padding: 3rem 3rem 3rem 5rem;
+    padding: 4.5rem 3rem 3rem 3rem;
 }
 
 /* ============================================
@@ -709,7 +709,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     }
 
     .main-content {
-        padding: 1rem 1rem 1rem 4rem;
+        padding: 4rem 1rem 1rem 1rem;
     }
     
     /* Celdas de bols más pequeñas en móvil */
