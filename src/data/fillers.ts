@@ -23,6 +23,10 @@ export const FILLERS: Filler[] = [
             {
                 name: 'Ta Ki Te (x2) Ta',
                 link: 'https://www.youtube.com/shorts/vSo3QhDWmtQ'
+            },
+            {
+                name: 'Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)',
+                link: 'https://www.youtube.com/watch?v=m5ryRabj5Fc'
             }
         ]
     },
@@ -63,10 +67,6 @@ export const FILLERS: Filler[] = [
                 name: 'Tirekite Ta Tirekite Ta Tirekite Dha',
                 hasAudio: true
             },
-            {
-                name: 'Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)',
-                link: 'https://www.youtube.com/watch?v=m5ryRabj5Fc'
-            }
         ]
     }
 ];
