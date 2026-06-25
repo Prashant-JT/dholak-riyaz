@@ -92,11 +92,28 @@ export class DashboardView implements View {
         }
         displayContainer.appendChild(beatIndicators);
         
-        displayContainer.appendChild(createElement('div', {
+        // BPM display with +/- buttons
+        const bpmRow = createElement('div', { className: 'flex items-center gap-4 mb-1' });
+
+        const bpmMinus = createElement('button', {
+            id: 'bpmMinus',
+            className: 'bpm-adj-btn'
+        }, '−');
+
+        bpmRow.appendChild(bpmMinus);
+        bpmRow.appendChild(createElement('div', {
             id: 'bpmDisplay',
-            className: 'text-5xl font-bold text-slate-800 dark:text-slate-100 mono-font mb-1'
+            className: 'text-5xl font-bold text-slate-800 dark:text-slate-100 mono-font'
         }, CONFIG.METRONOME.DEFAULT_BPM.toString()));
-        
+
+        const bpmPlus = createElement('button', {
+            id: 'bpmPlus',
+            className: 'bpm-adj-btn'
+        }, '+');
+
+        bpmRow.appendChild(bpmPlus);
+        displayContainer.appendChild(bpmRow);
+
         displayContainer.appendChild(createElement('p', {
             className: 'text-slate-500 dark:text-slate-400 text-sm mb-4'
         }, 'BPM'));

@@ -551,6 +551,38 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 }
 
 /* ============================================
+   BPM ADJUST BUTTONS (+/-)
+   ============================================ */
+
+.bpm-adj-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--border-primary);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.bpm-adj-btn:hover {
+    border-color: var(--orange-500);
+    background: var(--orange-500);
+    color: white;
+}
+
+.bpm-adj-btn:active {
+    transform: scale(0.92);
+}
+
+/* ============================================
    BPM PRESETS
    ============================================ */
 

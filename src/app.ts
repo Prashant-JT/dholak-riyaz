@@ -122,8 +122,40 @@ class Application {
      */
     private initializeControls(): void {
         this.initMetronomeControls();
+        this.initBpmAdjButtons();
         this.initBpmPresets();
         this.initLehrasControls();
+    }
+
+    /**
+     * BPM +/- adjustment buttons
+     */
+    private initBpmAdjButtons(): void {
+        const minus = document.getElementById('bpmMinus') as HTMLButtonElement | null;
+        const plus  = document.getElementById('bpmPlus')  as HTMLButtonElement | null;
+        if (!minus || !plus) return;
+
+        // Clonar para evitar listeners duplicados en re-inicializaciones
+        const newMinus = minus.cloneNode(true) as HTMLButtonElement;
+        const newPlus  = plus.cloneNode(true)  as HTMLButtonElement;
+        minus.parentNode?.replaceChild(newMinus, minus);
+        plus.parentNode?.replaceChild(newPlus,   plus);
+
+        const adjust = (delta: number) => {
+            const slider  = document.getElementById('bpmSlider')  as HTMLInputElement | null;
+            const display = document.getElementById('bpmDisplay');
+            if (!slider || !display) return;
+
+            const current = parseInt(slider.value);
+            const next = Math.min(CONFIG.METRONOME.MAX_BPM,
+                         Math.max(CONFIG.METRONOME.MIN_BPM, current + delta));
+            slider.value = next.toString();
+            display.textContent = next.toString();
+            this.metronome.setBPM(next);
+        };
+
+        newMinus.addEventListener('click', () => adjust(-1));
+        newPlus.addEventListener('click',  () => adjust(+1));
     }
 
     /**
