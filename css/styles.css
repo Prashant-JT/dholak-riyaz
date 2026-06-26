@@ -1490,6 +1490,7 @@ body.dark .technique-badge {
     background: #f97316;
     color: white;
     font-weight: 600;
+    padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 9999px;
     font-size: 1rem;
@@ -1749,6 +1750,319 @@ select:disabled {
         height: 48px;
         font-size: 1.25rem;
     }
+}
+
+/* ============================================
+   RIYAZ SESSION WIZARD
+   ============================================ */
+
+/* ── Bloques añadidos (resumen) ─────────────────────────────────────── */
+.session-block-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.session-block-card:hover {
+    border-color: var(--orange-500);
+    box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.session-block-card__index {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--orange-500);
+    color: white;
+    font-weight: 700;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.session-block-card__warmup-badge {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 3px 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-primary);
+}
+
+.session-block-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.session-block-card__title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
+}
+
+.session-block-card__meta {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.session-block-card__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.session-block-card__remove {
+    background: transparent;
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    min-height: 36px;
+}
+
+.session-block-card__remove:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+}
+
+/* ── Formularios de configuración ───────────────────────────────────── */
+
+/* Cabecera de sección: "Warm Up" / "Nuevo bloque de práctica" */
+.session-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1.75rem;
+}
+
+.session-section-header:first-child {
+    margin-top: 0;
+}
+
+.session-section-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 3px 10px;
+}
+
+.session-section-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--border-primary);
+}
+
+/* Card del formulario */
+.session-form-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-secondary);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Título interno del card (Warm Up / Bloque de práctica) */
+.session-form-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.875rem;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+/* Campos del formulario */
+.session-form-field {
+    margin-bottom: 1rem;
+}
+
+.session-form-field:last-child {
+    margin-bottom: 0;
+}
+
+.session-form-field label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Inputs de texto/número del wizard */
+.session-form-field input[type="number"],
+.session-form-field input[type="text"] {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 8px;
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px 0 var(--card-shadow);
+}
+
+.session-form-field input[type="number"]:hover,
+.session-form-field input[type="text"]:hover {
+    border-color: var(--border-hover);
+}
+
+.session-form-field input[type="number"]:focus,
+.session-form-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--orange-500);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Preview de bols */
+.session-bol-preview {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    margin-top: 0.375rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    min-height: 2.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-word;
+}
+
+/* Botones de acción del wizard */
+.session-add-btn {
+    width: 100%;
+    margin-top: 1.25rem;
+}
+
+.session-start-btn {
+    width: 100%;
+    margin-top: 1.75rem;
+    padding: 1rem 2rem;
+    font-size: 1.0625rem;
+}
+
+/* ── Paso 2 — Ejecución ─────────────────────────────────────────────── */
+.session-next-btn {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.session-metro-toggle {
+    width: 100%;
+    margin-bottom: 0;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem;
+}
+
+.session-metro-wrapper {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.session-metro-card {
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+}
+
+/* Botón destructivo (descartar sesión) */
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 1.5px solid #ef4444;
+    color: #ef4444;
+    min-height: 44px;
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+/* Card de confirmación de descarte */
+.session-discard-confirm {
+    background: var(--card-bg);
+    border: 1.5px solid #ef4444;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-top: 0.75rem;
+}
+
+/* Enlace "Nueva sesión" al fondo del paso 3 */
+.session-new-link {
+    display: block;
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+}
+
+.session-new-link:hover {
+    color: var(--text-primary);
 }
 
 /* Made with Bob */

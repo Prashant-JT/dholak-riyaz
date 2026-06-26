@@ -20,45 +20,45 @@ export const SONGS: Song[] = [
     {
         title: "Dagabaaz Re",
         artist: "Bollywood",
-        taal: "Keherwa (8 beats)",
+        taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=0KozfDYK1EU"
     },
     {
         title: "Sambhariyaan Sada Dil Me Tokhe",
         artist: "Devocional",
-        taal: "Keherwa (8 beats)",
+        taal: "Dadra (6 beats)",
         youtubeUrl: "https://youtu.be/72-POeN9XwQ"
     },
     {
         title: "Thumaka Chalata Ramachandra",
         artist: "Devocional",
-        taal: "Keherwa (8 beats)",
-        youtubeUrl: "https://www.youtube.com/watch?v=IGaQSumuSpA"
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=lGaQSumuSpA"
     },
     {
         title: "Ye Daulat Bhi Lelo Ye Shohrat Bhi Lelo",
         artist: "Bollywood",
-        taal: "Keherwa (8 beats)",
+        taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=L7jFS5jYAjI"
     },
     {
         title: "Lab Par Aaye",
         artist: "Bollywood",
-        taal: "Keherwa (8 beats)",
+        taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=7kR6tqaq_zY"
     },
     {
         title: "Hey Naam Re Sabse Bada Tera Naam",
         artist: "Devocional",
-        taal: "Keherwa (8 beats)",
+        taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=UaFTHjUnOao",
         notes: "Después del min 0:50"
     },
     {
         title: "Aaj Humare Dil Mein",
         artist: "Bollywood",
-        taal: "Keherwa (8 beats)",
-        youtubeUrl: "https://youtu.be/ABqsJBSBNBw?si=rwJaRwl78MFxwoT6"
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://youtu.be/ABqsJBSBNBw?si=rwJaRwI78MFxwoT6"
     },
     {
         title: "Kuch Toh Log Kahenge",
@@ -141,14 +141,20 @@ export const SONGS: Song[] = [
     {
         title: "Phero Na Nazar Se Najariya",
         artist: "Bollywood",
-        taal: "Keherwa (8 beats)",
+        taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=1_WaSnOnu1Q"
     },
     {
         title: "Aaj Jaane Ki Zid Na Karo",
         artist: "Farida Khanum",
-        taal: "Dadra (6 beats)",
-        youtubeUrl: "https://www.youtube.com/watch?v=CfUDuYAasjE"
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=CfUDuYAasiE"
+    },
+    {
+        title: "Tera Chehra Jab Nazar Aaye",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://youtu.be/zNUs54J3mKo?si=gJeNGyxSXGYt_ymX"
     },
     {
         title: "Aaye Ho Meri Zindagi Mein",
@@ -157,10 +163,34 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=ixCnsZswdpU"
     },
     {
-        title: "Shree Ram Chandra",
+        title: "Shri Ramchandra Kripalu Bhajamana",
         artist: "Devocional",
-        taal: "Keherwa (8 beats)",
+        taal: "Rupak (7 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=FqmMkDdpLdo"
+    },
+    {
+        title: "Sharanagatam / Kisi Rah Par Kisi Mor Par",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://youtu.be/i88txA3Qpc8?si=kTHNn1ErPuyIHeEs"
+    },
+    {
+        title: "Ghoomar",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=nHhRWgkkpMk"
+    },
+    {
+        title: "Kehna Hi Kya",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=_YB1taxJPgk"
+    },
+    {
+        title: "Roop Suhana Lagta Hai",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=DdO7VPfbgSg"
     },
     {
         title: "Aaja Sanam Madhur Chandni Mein Hum",

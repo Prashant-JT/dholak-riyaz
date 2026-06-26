@@ -25,11 +25,13 @@ export const CONFIG: AppConfig = {
         RUPAK: 'rupak',
         DEEPCHANDI: 'deepchandi',
         KAYDAS: 'kaydas',
-        SONGS: 'songs'
+        SONGS: 'songs',
+        RIYAZ: 'riyaz'
     },
     
     NAVIGATION: [
-        { id: 'dashboard', label: 'Riyaz' },
+        { id: 'riyaz', label: 'Sesión Riyaz', separator: true },
+        { id: 'dashboard', label: 'Metrónomo' },
         { id: 'glosario', label: 'Teoría', separator: true },
         { id: 'keherwa', label: 'Keherwa (8B)' },
         { id: 'dadra', label: 'Dadra (6B)' },

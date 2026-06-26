@@ -152,6 +152,7 @@ export interface ViewsConfig {
     DEEPCHANDI: string;
     KAYDAS: string;
     SONGS: string;
+    RIYAZ: string;
 }
 
 export interface NavigationItem {
@@ -192,6 +193,47 @@ export interface ElementAttributes {
     dataset?: Record<string, string>;
     style?: Partial<CSSStyleDeclaration>;
     [key: string]: any;
+}
+
+// ============================================================================
+// RIYAZ SESSION TYPES
+// ============================================================================
+
+export interface SessionBlock {
+    id: string;                     // identificador único local (crypto.randomUUID)
+    type: 'warmup' | 'practice';
+
+    // Warm Up
+    lehraLabel?: string;
+    lehraUrl?: string;
+    kaydaId?: string;
+    kaydaName?: string;
+
+    // Practice
+    taalId?: string;
+    taalName?: string;
+    variationName?: string;         // 'Patrón Principal' o nombre de variación
+    supportType?: 'metronome' | 'song' | 'lehra';
+    supportRef?: string;            // título de canción o label de lehra
+    supportUrl?: string;            // URL YouTube
+    bpmStart?: number;
+    bpmEnd?: number;                // BPM al finalizar el bloque (puede cambiar)
+
+    // Timer
+    timerMode: 'free' | 'fixed';
+    timerMinutes?: number;          // solo si timerMode === 'fixed'
+
+    // Resultado (se rellena al completar el bloque durante la ejecución)
+    durationSecs?: number;
+    completedAt?: number;           // timestamp Date.now()
+    cyclesCompleted?: number;       // solo si supportType === 'metronome'
+}
+
+export interface SessionState {
+    startedAt: number;              // timestamp Date.now()
+    blocks: SessionBlock[];
+    currentBlockIndex: number;
+    notes: string;
 }
 
 // Made with Bob
