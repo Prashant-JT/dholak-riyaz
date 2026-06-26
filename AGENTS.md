@@ -338,6 +338,12 @@ export function createButton(text: string): HTMLElement {
   ```
 - ❌ NUNCA en español: `"añade canción"`, `"corrige error"`, `"mejora diseño"`
 
+### ⚠️ Flujo obligatorio antes de commit/push
+- **NUNCA hacer `git commit` ni `git push` de forma automática.**
+- **SIEMPRE preguntar al usuario** antes de commitear: _"¿Probaste en local? ¿Hago commit y push?"_
+- El usuario debe confirmar explícitamente que la funcionalidad fue probada en el navegador.
+- Solo entonces ejecutar `git add`, `git commit` y `git push`.
+
 ---
 
 ## 🎯 Checklist Pre-Commit

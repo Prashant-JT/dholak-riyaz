@@ -9,25 +9,62 @@ import type { View, Kayda } from '../types.js';
 
 export class KaydasView implements View {
     public render(): HTMLElement {
-        const section = createElement('section', { 
-            id: 'kaydas', 
-            className: 'view-section' 
+        const section = createElement('section', {
+            id: 'kaydas',
+            className: 'view-section'
         });
         
         const header = createElement('div', { className: 'mb-8' });
-        header.appendChild(createElement('h2', { 
-            className: 'section-title' 
+        header.appendChild(createElement('h2', {
+            className: 'section-title'
         }, 'Kaydas'));
-        header.appendChild(createElement('p', { 
-            className: 'section-subtitle' 
+        header.appendChild(createElement('p', {
+            className: 'section-subtitle'
         }, 'Composiciones avanzadas y variaciones temáticas'));
         section.appendChild(header);
-        
-        // Iterar sobre todos los kaydas
+
+        // Search bar
+        const searchWrapper = createElement('div', { className: 'songs-search-wrapper mb-6' });
+        const searchInput = createElement('input', {
+            type: 'text',
+            className: 'songs-search-input',
+            placeholder: 'Buscar kayda, taal o bol...'
+        }) as HTMLInputElement;
+        searchWrapper.appendChild(searchInput);
+        section.appendChild(searchWrapper);
+
+        // Empty state
+        const emptyMsg = createElement('p', {
+            className: 'text-muted text-center py-6',
+            style: { display: 'none' }
+        }, 'No hay kaydas que coincidan con la búsqueda.');
+        section.appendChild(emptyMsg);
+
+        // Render kaydas and build search index
+        const kaydaCards: { el: HTMLElement; index: string }[] = [];
+
         Object.values(KAYDAS).forEach(kayda => {
-            section.appendChild(this.createKaydaCard(kayda));
+            const card = this.createKaydaCard(kayda);
+            const bolTexts = kayda.rows.flatMap(r => r.matras.map(m => m.bol));
+            const index = [kayda.name, kayda.taal, kayda.description, ...bolTexts].join(' ').toLowerCase();
+            section.appendChild(card);
+            kaydaCards.push({ el: card, index });
         });
-        
+
+        // Filter logic
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            let anyVisible = false;
+
+            kaydaCards.forEach(({ el, index }) => {
+                const visible = query === '' || index.includes(query);
+                el.style.display = visible ? '' : 'none';
+                if (visible) anyVisible = true;
+            });
+
+            (emptyMsg as HTMLElement).style.display = anyVisible ? 'none' : '';
+        });
+
         // Teoría
         const theory = createElement('div', { 
             className: 'info-box info-box--indigo mt-6'

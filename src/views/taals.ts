@@ -4,7 +4,7 @@
  */
 
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../core/utils.js';
-import { TAALS } from '../data/taals.js';
+import { TAALS } from '../data/taals/index.js';
 import type { View, Taal } from '../types.js';
 
 export class TaalView implements View {
@@ -48,19 +48,70 @@ export class TaalView implements View {
             const normal  = this.taalData.variations.filter(v => !v.special);
             const special = this.taalData.variations.filter(v => v.special);
 
+            // Search bar (only when there are variations)
+            const searchWrapper = createElement('div', { className: 'songs-search-wrapper mb-6' });
+            const searchInput = createElement('input', {
+                type: 'text',
+                className: 'songs-search-input',
+                placeholder: 'Buscar variación, canción o bol...'
+            }) as HTMLInputElement;
+            searchWrapper.appendChild(searchInput);
+            section.appendChild(searchWrapper);
+
+            // Empty state message
+            const emptyMsg = createElement('p', {
+                className: 'text-muted text-center py-6',
+                style: { display: 'none' }
+            }, 'No hay variaciones que coincidan con la búsqueda.');
+            section.appendChild(emptyMsg);
+
+            // Render variation cards and tag them with searchable text
+            const variationCards: HTMLElement[] = [];
+
             normal.forEach(variation => {
-                section.appendChild(this.createTaalCard(variation.name, variation.rows, variation.description, variation));
+                const card = this.createTaalCard(variation.name, variation.rows, variation.description, variation);
+                card.dataset['search'] = this.buildSearchIndex(variation);
+                section.appendChild(card);
+                variationCards.push(card);
             });
 
+            let specialDivider: HTMLElement | null = null;
             if (special.length > 0) {
-                const divider = createElement('div', { className: 'filler-special-divider' });
-                divider.appendChild(createElement('span', { className: 'filler-special-label' }, '✦ Tirekite'));
-                section.appendChild(divider);
+                specialDivider = createElement('div', { className: 'filler-special-divider' });
+                specialDivider.appendChild(createElement('span', { className: 'filler-special-label' }, '✦ Tirekite'));
+                section.appendChild(specialDivider);
 
                 special.forEach(variation => {
-                    section.appendChild(this.createTaalCard(variation.name, variation.rows, variation.description, variation));
+                    const card = this.createTaalCard(variation.name, variation.rows, variation.description, variation);
+                    card.dataset['search'] = this.buildSearchIndex(variation);
+                    section.appendChild(card);
+                    variationCards.push(card);
                 });
             }
+
+            // Filter logic
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                let anyVisible = false;
+
+                variationCards.forEach(card => {
+                    const index = (card.dataset['search'] ?? '').toLowerCase();
+                    const visible = query === '' || index.includes(query);
+                    card.style.display = visible ? '' : 'none';
+                    if (visible) anyVisible = true;
+                });
+
+                // Hide special divider if all special cards are hidden
+                if (specialDivider) {
+                    const anySpecialVisible = special.some((_, i) => {
+                        const card = variationCards[normal.length + i];
+                        return card && card.style.display !== 'none';
+                    });
+                    specialDivider.style.display = anySpecialVisible ? '' : 'none';
+                }
+
+                (emptyMsg as HTMLElement).style.display = anyVisible ? 'none' : '';
+            });
         }
         
         section.appendChild(this.createTip());
@@ -347,6 +398,26 @@ export class TaalView implements View {
         return card;
     }
     
+    /**
+     * Builds a searchable text index for a variation:
+     * includes name, song titles, and all bol texts.
+     */
+    private buildSearchIndex(variation: import('../types.js').TaalVariation): string {
+        const parts: string[] = [variation.name];
+
+        if (variation.description) parts.push(variation.description);
+
+        if (variation.songs) {
+            variation.songs.forEach(s => parts.push(s.title));
+        }
+
+        variation.rows.forEach(row => {
+            row.forEach(matra => parts.push(matra.bol));
+        });
+
+        return parts.join(' ');
+    }
+
     private createTip(): HTMLElement {
         const tip = this.taalData.tip;
         const tipDiv = createElement('div', {

@@ -13,7 +13,7 @@ export const FILLERS: Filler[] = [
                 link: null
             },
             {
-                name: 'TeTe NaNa TeTe NaNa Na TeTe Na TeTe Na',
+                name: 'TeTe NaNa (x2) Na TeTe (x2) Na',
                 link: null
             },
             {
@@ -35,20 +35,21 @@ export const FILLERS: Filler[] = [
         patterns: [
             {
                 name: 'Dhi Dhi Na (x3)',
-                link: null
+                link: null,
+                note: 'Dandiya style'
             },
             {
                 name: 'Ta Tirekite Tit Ta',
                 link: 'https://www.youtube.com/shorts/Sv0zXoy8_ZQ'
             },
             {
+                name: 'Take Tirekite Tit Ta',
+                link: 'https://www.youtube.com/shorts/SyUZlnS4tlo'
+            },
+            {
                 name: 'Tirekite Tak Tirekite Tak',
                 link: null,
                 hasAudio: true
-            },
-            {
-                name: 'Take Tirekite Tit Ta',
-                link: 'https://www.youtube.com/shorts/SyUZlnS4tlo'
             },
             {
                 name: 'TaTi (x3) Ta Tirekite Tit Ta',
@@ -64,7 +65,7 @@ export const FILLERS: Filler[] = [
         category: 'Finish',
         patterns: [
             {
-                name: 'Tirekite Ta Tirekite Ta Tirekite Dha',
+                name: 'Tirekite Ta (x2) Tirekite Dha',
                 hasAudio: true
             },
         ]
