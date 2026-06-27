@@ -1002,8 +1002,8 @@ export class SessionWizardView implements View {
         // SHA-256 hashes de las contraseñas — calculados en build time con openssl.
         // Las contraseñas reales nunca están en el código fuente.
         const USERS: Record<string, string> = {
-            prashant: 'ae4b0d12939920f3b55c0a720bb46add87367b39e952982fd821c80078845e37',
-            meera:    '70c5db7d6de2c3272f7952b0d0e6a30de0ecff9f47ca4b81c2e8917d4344912a',
+            prashant: '08ff26c5a6661c7bcf74134fc684717aabba4a66c2d0cfa06c4be231755c1a91',
+            meera:    'ea4198f9dc6c89087fd7a47d6023c65e9eaaf8ed2a219b8fda98f5b5b765ede9',
         };
 
         // ── Overlay ───────────────────────────────────────────────────────────
