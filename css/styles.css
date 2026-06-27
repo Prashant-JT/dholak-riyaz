@@ -1937,6 +1937,60 @@ select:disabled {
 }
 
 /* Campos del formulario */
+/* Rampa de BPM */
+.session-ramp-row label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0;
+}
+
+.session-ramp-toggle {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--orange-500);
+    cursor: pointer;
+}
+
+.session-ramp-fields {
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1.5px dashed var(--border-primary);
+}
+
+.session-ramp-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.session-ramp-input {
+    width: 56px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-family: inherit;
+    text-align: center;
+}
+
+.session-ramp-input:focus {
+    outline: none;
+    border-color: var(--orange-500);
+}
+
 .session-form-field {
     margin-bottom: 1rem;
 }
@@ -2424,6 +2478,37 @@ body.dark .stats-insight-box {
 }
 
 /* History table */
+/* Filtros del historial */
+.stats-hist-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.stats-hist-filter-sel {
+    font-size: 0.82rem;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-family: inherit;
+    cursor: pointer;
+    min-width: 140px;
+}
+
+.stats-hist-filter-sel:focus {
+    outline: none;
+    border-color: var(--orange-500);
+}
+
+.stats-hist-count {
+    font-size: 0.78rem;
+    margin-left: auto;
+}
+
 .stats-history-table {
     width: 100%;
     border-collapse: collapse;

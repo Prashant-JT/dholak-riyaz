@@ -43,6 +43,7 @@ interface UserStats {
     cycles: number[];
     history: { date: string; dur: string; blocks: string[]; bpm: string; notes: string | null }[];
     heatmap: { label: string; days: number[] }[];
+    rawSessions: SupabaseSession[];   // todas las sesiones, para filtrado client-side
 }
 
 // ── Fetch desde Supabase ──────────────────────────────────────────────────────
@@ -249,6 +250,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         cycles,
         history,
         heatmap,
+        rawSessions: sessions,
     };
 }
 
@@ -267,13 +269,14 @@ function emptyStats(): UserStats {
         kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0 },
         insight: 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!',
         weekLabels,
-        weekly:   new Array(16).fill(0),
-        weekDays: Array.from({ length: 16 }, () => new Array(7).fill(0)),
-        bpm: {},
-        donut: {},
-        cycles: [],
-        history: [],
-        heatmap: [],
+        weekly:      new Array(16).fill(0),
+        weekDays:    Array.from({ length: 16 }, () => new Array(7).fill(0)),
+        bpm:         {},
+        donut:       {},
+        cycles:      [],
+        history:     [],
+        heatmap:     [],
+        rawSessions: [],
     };
 }
 
@@ -447,13 +450,7 @@ export class StatsView implements View {
         heatCard.appendChild(this.buildHeatmapLegend());
         content.appendChild(heatCard);
 
-        const histCard = this.card();
-        histCard.appendChild(this.cardTitle('Historial de sesiones recientes'));
-        const tableWrap = createElement('div', { style: { overflowX: 'auto' } });
-        tableWrap.innerHTML = this.buildHistoryHTML(d);
-        histCard.appendChild(tableWrap);
-        content.appendChild(histCard);
-        this.bindHistoryNotes(tableWrap);
+        content.appendChild(this.buildHistoryCard(d));
 
         requestAnimationFrame(() => {
             this.mountCharts(d);
@@ -883,6 +880,100 @@ export class StatsView implements View {
     }
 
     // ── Historial ─────────────────────────────────────────────────────────────
+
+    // ── Historial con filtros ─────────────────────────────────────────────────
+
+    private buildHistoryCard(d: UserStats): HTMLElement {
+        const card = this.card();
+        card.appendChild(this.cardTitle('Historial de sesiones'));
+
+        // ── Filtros ───────────────────────────────────────────────────────────
+        const filterRow = createElement('div', { className: 'stats-hist-filters' });
+
+        // Selector de taal
+        const taalSel = createElement('select', { className: 'stats-hist-filter-sel' }) as HTMLSelectElement;
+        const taalNames = ['Todos los taals', ...Array.from(
+            new Set(d.rawSessions.flatMap(s => s.blocks.map(b => b.taal_name).filter(Boolean)))
+        ).sort()];
+        taalNames.forEach((name, i) => {
+            taalSel.appendChild(createElement('option', { value: i === 0 ? '' : name! }, name!) as HTMLOptionElement);
+        });
+        filterRow.appendChild(taalSel);
+
+        // Selector de mes
+        const MONTH_ES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const monthSel = createElement('select', { className: 'stats-hist-filter-sel' }) as HTMLSelectElement;
+        monthSel.appendChild(createElement('option', { value: '' }, 'Todos los meses') as HTMLOptionElement);
+        const monthsSeen = new Set<string>();
+        d.rawSessions.forEach(s => {
+            const d2 = new Date(s.saved_at);
+            monthsSeen.add(`${d2.getFullYear()}-${String(d2.getMonth()).padStart(2,'0')}`);
+        });
+        [...monthsSeen].sort().reverse().forEach(key => {
+            const [yr, mo] = key.split('-');
+            monthSel.appendChild(createElement('option', { value: key },
+                `${MONTH_ES_FULL[parseInt(mo)]} ${yr}`) as HTMLOptionElement);
+        });
+        filterRow.appendChild(monthSel);
+
+        // Contador de resultados
+        const resultCount = createElement('span', { className: 'stats-hist-count text-muted' });
+        filterRow.appendChild(resultCount);
+
+        card.appendChild(filterRow);
+
+        // ── Tabla ─────────────────────────────────────────────────────────────
+        const tableWrap = createElement('div', { style: { overflowX: 'auto' } });
+        card.appendChild(tableWrap);
+
+        const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+        const applyFilters = () => {
+            const taalFilter  = taalSel.value;
+            const monthFilter = monthSel.value;
+
+            let filtered = [...d.rawSessions].reverse();
+
+            if (taalFilter) {
+                filtered = filtered.filter(s =>
+                    s.blocks.some(b => b.taal_name === taalFilter)
+                );
+            }
+            if (monthFilter) {
+                const [yr, mo] = monthFilter.split('-').map(Number);
+                filtered = filtered.filter(s => {
+                    const sd = new Date(s.saved_at);
+                    return sd.getFullYear() === yr && sd.getMonth() === mo;
+                });
+            }
+
+            // Limitar a 25 resultados
+            const shown = filtered.slice(0, 25);
+            resultCount.textContent = filtered.length > 25
+                ? `Mostrando 25 de ${filtered.length}`
+                : `${filtered.length} sesión${filtered.length !== 1 ? 'es' : ''}`;
+
+            // Convertir a formato history
+            const histEntries = shown.map(s => {
+                const date2 = new Date(s.saved_at);
+                const date  = `${date2.getDate()} ${MONTH_ES[date2.getMonth()]} ${date2.getFullYear()}`;
+                const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
+                const blocks = s.blocks.map(b => b.type === 'warmup' ? 'Warm Up' : (b.taal_name ?? 'Práctica'));
+                const maxBpm = s.blocks.filter(b => b.bpm_end).reduce((m, b) => Math.max(m, b.bpm_end ?? 0), 0);
+                return { date, dur, blocks, bpm: maxBpm > 0 ? String(maxBpm) : '—', notes: s.notes ?? null };
+            });
+
+            const fakeD = { ...d, history: histEntries };
+            tableWrap.innerHTML = this.buildHistoryHTML(fakeD);
+            this.bindHistoryNotes(tableWrap);
+        };
+
+        taalSel.addEventListener('change', applyFilters);
+        monthSel.addEventListener('change', applyFilters);
+        applyFilters();
+
+        return card;
+    }
 
     private buildHistoryHTML(d: UserStats): string {
         if (d.history.length === 0) {
