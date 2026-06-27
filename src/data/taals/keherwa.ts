@@ -311,6 +311,22 @@ export const keherwa: Taal = {
             songs: [
                 { title: 'Sathiya Bin Tere Dil Mane Na', url: 'https://youtu.be/oD0Dtk3YfZ8?si=IzPtmEsfY4e_Ihbj' }
             ]
+        },
+        {
+            name: 'Keherwa variación 12 (Thapki Dha Ghe)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha (thapki)', technique: 'Taali' },
+                    { matra: 2, bol: 'Ghe',          technique: '' },
+                    { matra: 3, bol: 'Na',            technique: '' },
+                    { matra: 4, bol: 'Ti',            technique: '' },
+                    { matra: 5, bol: 'Ta (thapki)',   technique: 'Khali' },
+                    { matra: 6, bol: 'Ghe',           technique: '' },
+                    { matra: 7, bol: 'Na',            technique: '' },
+                    { matra: 8, bol: 'Ti',            technique: '' }
+                ]
+            ],
+            description: '4 beats + 4 beats — thapki en Sam y en Khali'
         }
     ]
 };
