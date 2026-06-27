@@ -33,7 +33,9 @@ export const deepchandi: Taal = {
     ],
     songs: [
         { title: 'Phero Na Nazar Se Najariya', url: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q' },
-        { title: 'Aaj Jaane Ki Zid Na Karo', url: 'https://www.youtube.com/watch?v=CfUDuYAasiE' }
+        { title: 'Aaj Jaane Ki Zid Na Karo', url: 'https://www.youtube.com/watch?v=CfUDuYAasiE' },
+        { title: 'Pakhiyun Akhero Chadiyo', url: 'https://www.youtube.com/watch?v=UoWMQimowm8' },
+        { title: 'Aji Rooth Kar Ab Kahan Jaiyega', url: 'https://www.youtube.com/watch?v=tbVKu36_4ZU' }
     ],
     notes: [
         'El significado de _',

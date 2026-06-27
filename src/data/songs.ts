@@ -203,6 +203,18 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://youtu.be/oD0Dtk3YfZ8?si=IzPtmEsfY4e_Ihbj"
+    },
+    {
+        title: "Pakhiyun Akhero Chadiyo",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=UoWMQimowm8"
+    },
+    {
+        title: "Aji Rooth Kar Ab Kahan Jaiyega",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=tbVKu36_4ZU"
     }
 ];
 
