@@ -215,6 +215,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=tbVKu36_4ZU"
+    },
+    {
+        title: "Mera Jeevan Kora Kagaz / Dil Mein Ho Tasveer Teri",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=vmDWt1skq24"
     }
 ];
 
