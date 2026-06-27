@@ -97,6 +97,30 @@ export const deepchandi: Taal = {
                 ]
             ],
             description: '3+4+3+4 — variación con Na Na Te Te al cierre'
+        },
+        {
+            name: 'Deepchandi variación 3 (simple)',
+            rows: [
+                [
+                    { matra: 1,  bol: 'Dha', technique: 'Taali' },
+                    { matra: 2,  bol: 'Dhin', technique: '' },
+                    { matra: 3,  bol: '—',   technique: '' },
+                    { matra: 4,  bol: 'Dha', technique: 'Taali' },
+                    { matra: 5,  bol: 'Dha', technique: '' },
+                    { matra: 6,  bol: 'Ti',  technique: '' },
+                    { matra: 7,  bol: '—',   technique: '' }
+                ],
+                [
+                    { matra: 8,  bol: 'Ta',  technique: 'Khali' },
+                    { matra: 9,  bol: 'Tin', technique: '' },
+                    { matra: 10, bol: '—',   technique: '' },
+                    { matra: 11, bol: 'Dha', technique: 'Taali' },
+                    { matra: 12, bol: 'Dha', technique: '' },
+                    { matra: 13, bol: '—',   technique: '' },
+                    { matra: 14, bol: '—',   technique: '' }
+                ]
+            ],
+            description: '3+4+3+4 — Dha Dhin — Dha Dha Ti — / Ta Tin — Dha Dha — —'
         }
     ]
 };

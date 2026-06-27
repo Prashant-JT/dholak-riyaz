@@ -197,6 +197,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=msRBZuoerGo"
+    },
+    {
+        title: "Sathiya Bin Tere Dil Mane Na",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://youtu.be/oD0Dtk3YfZ8?si=IzPtmEsfY4e_Ihbj"
     }
 ];
 

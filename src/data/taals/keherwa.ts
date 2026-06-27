@@ -293,6 +293,24 @@ export const keherwa: Taal = {
                 { title: 'Roop Suhana Lagta Hai', url: 'https://www.youtube.com/watch?v=DdO7VPfbgSg' }
             ],
             description: '4 beats + 4 beats'
+        },
+        {
+            name: 'Keherwa variación 11 (Dha Dhin Tin Na)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha', technique: '' },
+                    { matra: 2, bol: 'Dhin', technique: '' },
+                    { matra: 3, bol: 'Tin', technique: '' },
+                    { matra: 4, bol: 'Na', technique: '' },
+                    { matra: 5, bol: 'Ke', technique: '' },
+                    { matra: 6, bol: 'Dhin', technique: '' },
+                    { matra: 7, bol: '—', technique: '' },
+                    { matra: 8, bol: '—', technique: '' }
+                ]
+            ],
+            songs: [
+                { title: 'Sathiya Bin Tere Dil Mane Na', url: 'https://youtu.be/oD0Dtk3YfZ8?si=IzPtmEsfY4e_Ihbj' }
+            ]
         }
     ]
 };
