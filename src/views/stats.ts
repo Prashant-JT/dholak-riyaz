@@ -60,6 +60,17 @@ async function fetchUserStats(userId: string): Promise<UserStats> {
 
 // ── Transformación de datos ───────────────────────────────────────────────────
 
+/**
+ * Calcula los segundos reales de una sesión.
+ * Usa la suma de blocks[].duration_secs como fuente de verdad
+ * (así las ediciones manuales en el JSON de Supabase se reflejan),
+ * y cae a total_secs solo si los bloques no tienen duración registrada.
+ */
+function effectiveSecs(s: SupabaseSession): number {
+    const fromBlocks = s.blocks.reduce((sum, b) => sum + (b.duration_secs ?? 0), 0);
+    return fromBlocks > 0 ? fromBlocks : s.total_secs;
+}
+
 function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const now   = new Date();
     const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -93,7 +104,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const weekly = new Array(16).fill(0);
     sessions.forEach(s => {
         const idx = getWeekIdx(s.saved_at);
-        if (idx >= 0) weekly[idx] += Math.round(s.total_secs / 60);
+        if (idx >= 0) weekly[idx] += Math.round(effectiveSecs(s) / 60);
     });
 
     // ── BPM máx. por taal por semana ──────────────────────────────────────────
@@ -152,7 +163,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const history = recentSessions.map(s => {
         const d = new Date(s.saved_at);
         const date = `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`;
-        const dur  = `${Math.round(s.total_secs / 60)} min`;
+        const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
         const blocks = s.blocks.map(b =>
             b.type === 'warmup' ? 'Warm Up' : (b.taal_name ?? 'Práctica')
         );
@@ -179,9 +190,9 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             const sd = new Date(s.saved_at);
             if (sd.getFullYear() === ref.getFullYear() && sd.getMonth() === ref.getMonth()) {
                 const dayIdx = sd.getDate() - 1;
-                const mins = Math.round(s.total_secs / 60);
+                const mins = Math.round(effectiveSecs(s) / 60);
                 // Nivel 1 mínimo para cualquier sesión registrada (aunque sea de prueba/corta)
-                const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : s.total_secs > 0 ? 1 : 0;
+                const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : effectiveSecs(s) > 0 ? 1 : 0;
                 days[dayIdx] = Math.min(4, days[dayIdx] + level);
             }
         });
@@ -190,7 +201,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     }
 
     // ── KPIs ──────────────────────────────────────────────────────────────────
-    const totalSecs = sessions.reduce((sum, s) => sum + s.total_secs, 0);
+    const totalSecs = sessions.reduce((sum, s) => sum + effectiveSecs(s), 0);
     const totalMins = Math.round(totalSecs / 60);
     const timeStr = totalMins >= 60
         ? `${Math.floor(totalMins / 60)}h ${totalMins % 60 > 0 ? (totalMins % 60) + 'm' : ''}`.trim()
