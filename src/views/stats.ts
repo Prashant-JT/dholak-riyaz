@@ -37,6 +37,7 @@ interface UserStats {
     insight: string;
     weekLabels: string[];
     weekly: number[];
+    weekDays: number[][];   // 16 semanas × 7 días (Lun-Dom), minutos por día
     bpm: Record<string, number[]>;
     donut: Record<string, number>;
     cycles: number[];
@@ -100,11 +101,18 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         return -1;
     };
 
-    // ── Weekly minutos ────────────────────────────────────────────────────────
-    const weekly = new Array(16).fill(0);
+    // ── Weekly minutos + desglose diario (Lun=0 … Dom=6) ─────────────────────
+    const weekly  = new Array(16).fill(0);
+    const weekDays: number[][] = Array.from({ length: 16 }, () => new Array(7).fill(0));
     sessions.forEach(s => {
         const idx = getWeekIdx(s.saved_at);
-        if (idx >= 0) weekly[idx] += Math.round(effectiveSecs(s) / 60);
+        if (idx < 0) return;
+        const mins = Math.round(effectiveSecs(s) / 60);
+        weekly[idx] += mins;
+        // Día de la semana normalizado a Lun=0 … Dom=6
+        const dow = new Date(s.saved_at).getDay();
+        const dayIdx = dow === 0 ? 6 : dow - 1;
+        weekDays[idx][dayIdx] += mins;
     });
 
     // ── BPM máx. por taal por semana ──────────────────────────────────────────
@@ -235,6 +243,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         insight,
         weekLabels,
         weekly,
+        weekDays,
         bpm: bpmMap,
         donut,
         cycles,
@@ -258,7 +267,8 @@ function emptyStats(): UserStats {
         kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0 },
         insight: 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!',
         weekLabels,
-        weekly: new Array(16).fill(0),
+        weekly:   new Array(16).fill(0),
+        weekDays: Array.from({ length: 16 }, () => new Array(7).fill(0)),
         bpm: {},
         donut: {},
         cycles: [],
@@ -300,6 +310,9 @@ export class StatsView implements View {
     private charts: any[] = [];
     private userData: Record<string, UserStats> = {};
     private section!: HTMLElement;
+    private weeklyMode: 'weeks' | 'days' = 'weeks';
+    private weeklySelectedIdx: number = 15;   // índice de la semana activa en modo días
+    private weeklyChart: any = null;
 
     public render(): HTMLElement {
         this.section = createElement('section', { id: 'stats', className: 'view-section' });
@@ -407,7 +420,7 @@ export class StatsView implements View {
 
         content.appendChild(this.buildKPIs(d));
         content.appendChild(this.buildInsight(d));
-        content.appendChild(this.buildChartCard('Minutos practicados por semana', 'Constancia de práctica — últimas 16 semanas', 'stats-chart-weekly', 230, 'stats-canvas-tall'));
+        content.appendChild(this.buildWeeklyCard(d));
 
         const row2 = createElement('div', { className: 'stats-chart-row' });
         row2.appendChild(this.buildChartCard('Evolución de BPM por taal', 'Progresión técnica real', 'stats-chart-bpm', 260, 'stats-canvas-medium'));
@@ -460,6 +473,192 @@ export class StatsView implements View {
         p.style.marginBottom = '16px';
         p.textContent = text;
         return p;
+    }
+
+    // ── Gráfica semanal con toggle Semanas / Días ─────────────────────────────
+
+    private buildWeeklyCard(d: UserStats): HTMLElement {
+        const card = this.card();
+
+        // Cabecera: título + toggle
+        const headerRow = createElement('div', { className: 'stats-weekly-header' });
+        const titleWrap = createElement('div');
+        titleWrap.appendChild(this.cardTitle('Minutos practicados'));
+        const subEl = createElement('p', { className: 'text-muted', id: 'stats-weekly-sub' });
+        subEl.style.fontSize     = '0.8rem';
+        subEl.style.marginBottom = '0';
+        subEl.textContent = 'Últimas 16 semanas';
+        titleWrap.appendChild(subEl);
+        headerRow.appendChild(titleWrap);
+
+        // Toggle Semanas / Días
+        const toggle = createElement('div', { className: 'stats-weekly-toggle' });
+        const btnWeeks = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks' }, 'Semanas');
+        const btnDays  = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'  }, 'Días');
+        toggle.appendChild(btnWeeks);
+        toggle.appendChild(btnDays);
+        headerRow.appendChild(toggle);
+        card.appendChild(headerRow);
+
+        // Selector de semana (oculto en modo "Semanas")
+        const weekSel = createElement('div', { className: 'stats-week-selector', id: 'stats-week-selector' });
+        weekSel.style.display = 'none';
+        const selLabel = createElement('span', { className: 'text-muted' });
+        selLabel.style.fontSize = '0.82rem';
+        selLabel.textContent = 'Semana:';
+        const selPrev = createElement('button', { className: 'stats-week-nav', id: 'stats-week-prev' }, '‹');
+        const selNext = createElement('button', { className: 'stats-week-nav', id: 'stats-week-next' }, '›');
+        const selCurrent = createElement('span', { className: 'stats-week-label', id: 'stats-week-label' });
+        weekSel.appendChild(selLabel);
+        weekSel.appendChild(selPrev);
+        weekSel.appendChild(selCurrent);
+        weekSel.appendChild(selNext);
+        card.appendChild(weekSel);
+
+        // Canvas
+        const wrap = createElement('div', { className: 'stats-canvas-tall' });
+        wrap.style.position = 'relative';
+        wrap.style.height   = '230px';
+        wrap.appendChild(createElement('canvas', { id: 'stats-chart-weekly' }));
+        card.appendChild(wrap);
+
+        // Lógica toggle
+        const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+        const updateSub = () => {
+            const subNode = document.getElementById('stats-weekly-sub');
+            if (!subNode) return;
+            if (this.weeklyMode === 'weeks') {
+                subNode.textContent = 'Últimas 16 semanas';
+            } else {
+                subNode.textContent = `Semana del ${d.weekLabels[this.weeklySelectedIdx]}`;
+            }
+        };
+
+        const updateWeekLabel = () => {
+            const lbl = document.getElementById('stats-week-label');
+            if (lbl) lbl.textContent = d.weekLabels[this.weeklySelectedIdx] ?? '';
+        };
+
+        const switchChart = () => {
+            if (!this.weeklyChart) return;
+            const chart = this.weeklyChart;
+            if (this.weeklyMode === 'weeks') {
+                const trend = d.weekly.map((_, i, arr) => {
+                    const slice = arr.slice(Math.max(0, i - 2), i + 1);
+                    return Math.round(slice.reduce((a: number, b: number) => a + b, 0) / slice.length);
+                });
+                chart.data.labels = d.weekLabels;
+                chart.data.datasets[0].data = d.weekly;
+                chart.data.datasets[0].backgroundColor = d.weekly.map((_: number, i: number) => i >= 12 ? C.orange : C.orangeA);
+                chart.data.datasets[1].data = trend;
+                chart.data.datasets[1].hidden = false;
+            } else {
+                const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
+                chart.data.labels = DAY_LABELS;
+                chart.data.datasets[0].data = days;
+                chart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
+                chart.data.datasets[1].data = new Array(7).fill(null);
+                chart.data.datasets[1].hidden = true;
+            }
+            chart.update();
+            updateSub();
+        };
+
+        btnWeeks.addEventListener('click', () => {
+            this.weeklyMode = 'weeks';
+            btnWeeks.classList.add('active');
+            btnDays.classList.remove('active');
+            weekSel.style.display = 'none';
+            switchChart();
+        });
+
+        btnDays.addEventListener('click', () => {
+            this.weeklyMode = 'days';
+            btnDays.classList.add('active');
+            btnWeeks.classList.remove('active');
+            weekSel.style.display = 'flex';
+            updateWeekLabel();
+            switchChart();
+        });
+
+        selPrev.addEventListener('click', () => {
+            if (this.weeklySelectedIdx > 0) {
+                this.weeklySelectedIdx--;
+                updateWeekLabel();
+                switchChart();
+            }
+        });
+
+        selNext.addEventListener('click', () => {
+            if (this.weeklySelectedIdx < 15) {
+                this.weeklySelectedIdx++;
+                updateWeekLabel();
+                switchChart();
+            }
+        });
+
+        return card;
+    }
+
+    private mountWeeklyChart(d: UserStats): void {
+        const canvas = document.getElementById('stats-chart-weekly') as HTMLCanvasElement | null;
+        if (!canvas) return;
+
+        const gridCol = C.grid();
+        const textCol = C.text();
+
+        const trend = d.weekly.map((_, i, arr) => {
+            const slice = arr.slice(Math.max(0, i - 2), i + 1);
+            return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
+        });
+
+        this.weeklyChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: d.weekLabels,
+                datasets: [
+                    {
+                        label: 'Minutos',
+                        data: d.weekly,
+                        backgroundColor: d.weekly.map((_, i) => i >= 12 ? C.orange : C.orangeA),
+                        borderColor: C.orange, borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
+                    },
+                    {
+                        label: 'Tendencia',
+                        data: trend,
+                        type: 'line',
+                        borderColor: C.blue, backgroundColor: 'transparent',
+                        borderWidth: 2, pointRadius: 0, tension: 0.4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'top' as const, align: 'end' as const, labels: { boxWidth: 12, padding: 16, usePointStyle: true } } },
+                scales: {
+                    x: { grid: { color: gridCol }, ticks: { maxRotation: 45 } },
+                    y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'min', color: textCol } },
+                },
+            },
+        });
+        this.charts.push(this.weeklyChart);
+
+        // Restaurar estado del toggle si venía en modo días
+        if (this.weeklyMode === 'days') {
+            const btnDays  = document.getElementById('stats-toggle-days');
+            const btnWeeks = document.getElementById('stats-toggle-weeks');
+            const weekSel  = document.getElementById('stats-week-selector');
+            btnDays?.classList.add('active');
+            btnWeeks?.classList.remove('active');
+            if (weekSel) weekSel.style.display = 'flex';
+            const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
+            this.weeklyChart.data.labels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+            this.weeklyChart.data.datasets[0].data = days;
+            this.weeklyChart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
+            this.weeklyChart.data.datasets[1].hidden = true;
+            this.weeklyChart.update();
+        }
     }
 
     private buildChartCard(title: string, sub: string, canvasId: string, height: number, canvasCls = ''): HTMLElement {
@@ -589,6 +788,7 @@ export class StatsView implements View {
     private destroyCharts(): void {
         this.charts.forEach(c => { try { c.destroy(); } catch { /* noop */ } });
         this.charts = [];
+        this.weeklyChart = null;
     }
 
     private mountCharts(d: UserStats): void {
@@ -600,32 +800,8 @@ export class StatsView implements View {
         Chart.defaults.font.size   = 12;
         Chart.defaults.color       = textCol;
 
-        // 1. Minutos por semana
-        const weeklyCanvas = document.getElementById('stats-chart-weekly') as HTMLCanvasElement | null;
-        if (weeklyCanvas) {
-            const trend = d.weekly.map((_, i, arr) => {
-                const slice = arr.slice(Math.max(0, i - 2), i + 1);
-                return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
-            });
-            this.charts.push(new Chart(weeklyCanvas, {
-                type: 'bar',
-                data: {
-                    labels: d.weekLabels,
-                    datasets: [
-                        { label: 'Minutos', data: d.weekly, backgroundColor: d.weekly.map((_, i) => i >= 12 ? C.orange : C.orangeA), borderColor: C.orange, borderWidth: 1.5, borderRadius: 6, borderSkipped: false },
-                        { label: 'Tendencia', data: trend, type: 'line', borderColor: C.blue, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.4 },
-                    ],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'top' as const, align: 'end' as const, labels: { boxWidth: 12, padding: 16, usePointStyle: true } } },
-                    scales: {
-                        x: { grid: { color: gridCol }, ticks: { maxRotation: 45 } },
-                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'min', color: textCol } },
-                    },
-                },
-            }));
-        }
+        // 1. Minutos por semana — delegado a mountWeeklyChart
+        this.mountWeeklyChart(d);
 
         // 2. BPM por taal
         const bpmCanvas = document.getElementById('stats-chart-bpm') as HTMLCanvasElement | null;
