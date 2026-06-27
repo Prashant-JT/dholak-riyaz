@@ -33,7 +33,7 @@ export interface SupabaseBlock {
 }
 
 interface UserStats {
-    kpi: { sessions: number; time: string; bpm: number; streak: number };
+    kpi: { sessions: number; time: string; bpm: number; streak: number; weekStreak: number };
     insight: string;
     weekLabels: string[];
     weekly: number[];
@@ -219,7 +219,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const allBpms = sessions.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0));
     const maxBpm = allBpms.length > 0 ? Math.max(...allBpms) : 0;
 
-    // Racha: días consecutivos hasta hoy con al menos una sesión
+    // Racha diaria: días consecutivos hasta hoy con al menos una sesión
     const sessionDays = new Set(sessions.map(s => new Date(s.saved_at).toDateString()));
     let streak = 0;
     const today = new Date();
@@ -227,6 +227,25 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         const d = new Date(today);
         d.setDate(d.getDate() - i);
         if (sessionDays.has(d.toDateString())) streak++;
+        else if (i > 0) break;
+    }
+
+    // Racha semanal: semanas ISO consecutivas (Lun-Dom) con al menos una sesión
+    // Una semana "cuenta" si tiene ≥1 sesión en cualquiera de sus 7 días
+    const getISOWeekKey = (date: Date): string => {
+        const d = new Date(date);
+        const day = d.getDay();
+        // Ajustar al lunes de esa semana
+        d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+        d.setHours(0, 0, 0, 0);
+        return d.toISOString().slice(0, 10);   // 'YYYY-MM-DD' del lunes
+    };
+    const sessionWeeks = new Set(sessions.map(s => getISOWeekKey(new Date(s.saved_at))));
+    let weekStreak = 0;
+    for (let i = 0; i < 52; i++) {
+        const ref = new Date(today);
+        ref.setDate(ref.getDate() - i * 7);
+        if (sessionWeeks.has(getISOWeekKey(ref))) weekStreak++;
         else if (i > 0) break;
     }
 
@@ -240,7 +259,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         : `<strong>Taal más practicado:</strong> ${topTaal}. <strong>A equilibrar:</strong> ${leastTaal} tiene el menor tiempo registrado — prueba a incluirlo más en tus sesiones.`;
 
     return {
-        kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak },
+        kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak },
         insight,
         weekLabels,
         weekly,
@@ -266,7 +285,7 @@ function emptyStats(): UserStats {
         weekLabels.push(`${d.getDate()} ${MONTH_ES[d.getMonth()]}`);
     }
     return {
-        kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0 },
+        kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0, weekStreak: 0 },
         insight: 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!',
         weekLabels,
         weekly:      new Array(16).fill(0),
@@ -697,7 +716,8 @@ export class StatsView implements View {
             { label: 'Sesiones',     p: String(p.kpi.sessions), m: String(m.kpi.sessions) },
             { label: 'Tiempo total', p: p.kpi.time,             m: m.kpi.time             },
             { label: 'BPM máx.',     p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—', m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—' },
-            { label: 'Racha',        p: `${p.kpi.streak}d`,     m: `${m.kpi.streak}d`     },
+            { label: 'Racha días',     p: `${p.kpi.streak}d`,           m: `${m.kpi.streak}d`           },
+            { label: 'Racha semanas',  p: `${p.kpi.weekStreak}sem`,      m: `${m.kpi.weekStreak}sem`      },
         ];
 
         const kpiGrid = createElement('div', { className: 'stats-compare-grid' });
@@ -812,10 +832,9 @@ export class StatsView implements View {
         const grid = createElement('div', { className: 'stats-kpi-grid' });
 
         const kpis = [
-            { label: 'Sesiones totales',    value: String(d.kpi.sessions), sub: 'registradas',      badge: '📊 histórico',        badgeCls: 'stats-badge--up'     },
-            { label: 'Tiempo total',        value: d.kpi.time,             sub: 'acumulado',         badge: '⏱ en práctica',       badgeCls: 'stats-badge--up'     },
-            { label: 'BPM máx. alcanzado',  value: d.kpi.bpm > 0 ? String(d.kpi.bpm) : '—', sub: 'mejor marca',  badge: '🎯 récord',           badgeCls: 'stats-badge--up'     },
-            { label: 'Racha actual',        value: String(d.kpi.streak),   sub: 'días seguidos',     badge: d.kpi.streak > 0 ? '🔥 activa' : '— sin racha', badgeCls: 'stats-badge--streak' },
+            { label: 'Sesiones totales',   value: String(d.kpi.sessions), sub: 'registradas',  badge: '📊 histórico',  badgeCls: 'stats-badge--up'     },
+            { label: 'Tiempo total',       value: d.kpi.time,             sub: 'acumulado',     badge: '⏱ en práctica', badgeCls: 'stats-badge--up'     },
+            { label: 'BPM máx. alcanzado', value: d.kpi.bpm > 0 ? String(d.kpi.bpm) : '—', sub: 'mejor marca', badge: '🎯 récord', badgeCls: 'stats-badge--up' },
         ];
 
         kpis.forEach(k => {
@@ -826,6 +845,32 @@ export class StatsView implements View {
             card.appendChild(createElement('span', { className: `stats-badge ${k.badgeCls}` }, k.badge));
             grid.appendChild(card);
         });
+
+        // Racha — card especial con dos valores: días y semanas
+        const streakCard = createElement('div', { className: 'card stats-kpi-card stats-streak-card' });
+        streakCard.appendChild(createElement('div', { className: 'stats-kpi-label' }, 'Racha activa'));
+
+        const streakRow = createElement('div', { className: 'stats-streak-row' });
+
+        const dayBlock = createElement('div', { className: 'stats-streak-block' });
+        dayBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.streak)));
+        dayBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, 'días'));
+        streakRow.appendChild(dayBlock);
+
+        const divider = createElement('div', { className: 'stats-streak-divider' });
+        streakRow.appendChild(divider);
+
+        const weekBlock = createElement('div', { className: 'stats-streak-block' });
+        weekBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.weekStreak)));
+        weekBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, 'semanas'));
+        streakRow.appendChild(weekBlock);
+
+        streakCard.appendChild(streakRow);
+        const streakBadge = d.kpi.weekStreak > 0
+            ? `🔥 ${d.kpi.weekStreak} sem. consecutiva${d.kpi.weekStreak !== 1 ? 's' : ''}`
+            : '— sin racha semanal';
+        streakCard.appendChild(createElement('span', { className: 'stats-badge stats-badge--streak' }, streakBadge));
+        grid.appendChild(streakCard);
 
         return grid;
     }

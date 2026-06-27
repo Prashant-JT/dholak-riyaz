@@ -2160,6 +2160,27 @@ body.dark .stats-badge--streak {
     color: #fdba74;
 }
 
+/* Card de racha con dos valores lado a lado */
+.stats-streak-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 4px 0 6px;
+}
+
+.stats-streak-block {
+    flex: 1;
+    text-align: center;
+}
+
+.stats-streak-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border-primary);
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
 /* Insight box */
 .stats-insight-box {
     background: var(--orange-100);
