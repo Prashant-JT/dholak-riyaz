@@ -1999,6 +1999,31 @@ select:disabled {
     word-break: break-word;
 }
 
+/* Campos de URL personalizada en selector de canciones */
+.session-custom-song {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.session-custom-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-secondary);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    transition: border-color 0.15s;
+}
+
+.session-custom-input:focus {
+    outline: none;
+    border-color: var(--orange-500);
+}
+
 /* Botones de acción del wizard */
 .session-add-btn {
     width: 100%;

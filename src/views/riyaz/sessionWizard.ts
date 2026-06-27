@@ -293,7 +293,28 @@ export class SessionWizardView implements View {
                         sel.appendChild(opt);
                     });
                 }
+                // Opción para URL personalizada al final de la lista
+                sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
                 subSelectorContainer.appendChild(sel);
+
+                // Campos adicionales — visibles solo al elegir "Otra canción"
+                const customWrap = createElement('div', { className: 'session-custom-song' });
+                customWrap.style.display = 'none';
+                const customTitle = createElement('input', {
+                    type: 'text', placeholder: 'Título de la canción', className: 'w-full session-custom-input',
+                    'data-custom-title': 'true',
+                }) as HTMLInputElement;
+                const customUrl = createElement('input', {
+                    type: 'url', placeholder: 'URL de YouTube (https://…)', className: 'w-full session-custom-input',
+                    'data-custom-url': 'true',
+                }) as HTMLInputElement;
+                customWrap.appendChild(customTitle);
+                customWrap.appendChild(customUrl);
+                subSelectorContainer.appendChild(customWrap);
+
+                sel.addEventListener('change', () => {
+                    customWrap.style.display = sel.value === '__custom__' ? '' : 'none';
+                });
             } else if (supportType === 'lehra') {
                 subSelectorContainer.appendChild(createElement('label', {}, 'Lehra'));
                 const sel = createElement('select', { className: 'w-full', 'data-sub-select': 'lehra' }) as HTMLSelectElement;
@@ -322,6 +343,11 @@ export class SessionWizardView implements View {
             let supportUrl = '';
             if (supportType === 'metronome') {
                 supportRef = `${bpmInput.value} BPM`;
+            } else if (supportType === 'song' && subSel?.value === '__custom__') {
+                const customTitle = subSelectorContainer.querySelector('[data-custom-title]') as HTMLInputElement | null;
+                const customUrl = subSelectorContainer.querySelector('[data-custom-url]') as HTMLInputElement | null;
+                supportRef = customTitle?.value.trim() || 'Canción personalizada';
+                supportUrl = customUrl?.value.trim() ?? '';
             } else if (subSel) {
                 supportUrl = subSel.value;
                 supportRef = subSel.options[subSel.selectedIndex]?.text ?? '';
