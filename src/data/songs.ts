@@ -239,6 +239,13 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=oWKgpB2zpgw"
+    },
+    {
+        title: "Ae Mere Pyare Watan",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=jDdlOoysg4s",
+        notes: "Tutorial: https://www.youtube.com/shorts/b9MYUAMDurk"
     }
 ];
 
