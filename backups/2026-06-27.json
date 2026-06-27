@@ -1,0 +1,20 @@
+{
+  "exported_at": "2026-06-27T13:57:21.201Z",
+  "total": 1,
+  "sessions": [
+    {
+      "id": "44ec4aa8-5223-40b5-9da7-410f4db622c7",
+      "user_id": "prashant",
+      "saved_at": "2026-06-27T12:45:54.976472+00:00",
+      "total_secs": 48,
+      "notes": "test",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda Fundamental",
+          "duration_secs": 900
+        }
+      ]
+    }
+  ]
+}
