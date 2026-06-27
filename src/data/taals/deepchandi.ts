@@ -48,7 +48,7 @@ export const deepchandi: Taal = {
     },
     variations: [
         {
-            name: 'Deepchandi variación 1',
+            name: 'Deepchandi variación 1 (Ta Tin Ta Tin)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -75,7 +75,7 @@ export const deepchandi: Taal = {
             ]
         },
         {
-            name: 'Deepchandi variación 2',
+            name: 'Deepchandi variación 2 (Na Na Te Te)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },

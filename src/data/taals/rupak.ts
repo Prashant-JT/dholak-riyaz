@@ -29,7 +29,7 @@ export const rupak: Taal = {
     },
     variations: [
         {
-            name: 'Rupak variación 1',
+            name: 'Rupak variación 1 (TiNa TeTe)',
             rows: [
                 [
                     { matra: 1, bol: 'Ti', technique: 'Khali' },

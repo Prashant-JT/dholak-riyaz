@@ -24,7 +24,7 @@ export const dadra: Taal = {
     tutorial: 'https://youtu.be/GEhUA857iW0',
     variations: [
         {
-            name: 'Dadra variación 1',
+            name: 'Dadra variación 1 (DhiDhi NaNa)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -41,7 +41,7 @@ export const dadra: Taal = {
             ]
         },
         {
-            name: 'Dadra variación 2',
+            name: 'Dadra variación 2 (Dha Tin Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -96,7 +96,7 @@ export const dadra: Taal = {
             ]
         },
         {
-            name: 'Dadra variación mediano/rápido 1',
+            name: 'Dadra variación mediano/rápido (Dha Tin Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -204,7 +204,7 @@ export const dadra: Taal = {
             description: 'Variación invertida',
         },
         {
-            name: 'Dadra taal variación 3',
+            name: 'Dadra variación 3 (Ghe Na Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Ghe', technique: 'Bhari' },

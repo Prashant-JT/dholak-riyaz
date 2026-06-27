@@ -31,7 +31,7 @@ export const keherwa: Taal = {
     },
     variations: [
         {
-            name: 'Keherwa variación 1',
+            name: 'Keherwa variación 1 (Base Bollywood)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -235,7 +235,7 @@ export const keherwa: Taal = {
             ]
         },
         {
-            name: 'Keherwa variación 8',
+            name: 'Keherwa variación 8 (Rápida con TeTe)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -257,7 +257,7 @@ export const keherwa: Taal = {
             ]
         },
         {
-            name: 'Keherwa variación 9',
+            name: 'Keherwa variación 9 (Dhi Dhi Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi', technique: '' },
@@ -276,7 +276,7 @@ export const keherwa: Taal = {
             description: '4 beats + 4 beats'
         },
         {
-            name: 'Keherwa variación 10',
+            name: 'Keherwa variación 10 (Kite Ta Ti)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
