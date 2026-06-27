@@ -221,6 +221,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=vmDWt1skq24"
+    },
+    {
+        title: "Aaj Kal Yaad Kuch Aur Rahata",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=exAAEljV-68"
     }
 ];
 
