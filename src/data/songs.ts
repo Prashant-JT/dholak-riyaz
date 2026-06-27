@@ -252,6 +252,30 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=qRWozIldyDM"
+    },
+    {
+        title: "Teri Bindiya Re",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=DRaVzCwkl98"
+    },
+    {
+        title: "Tere Mere Milan Ki Yeh Raina",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=1Dlr6SG7Vm4"
+    },
+    {
+        title: "Chupke Chupke Raat Din Aansoon Bahana Yaad Hai",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=MWjaK_nW72E"
+    },
+    {
+        title: "Thade Rahiyo O Baake Yaar Re",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=cx_fHLQE97w"
     }
 ];
 
