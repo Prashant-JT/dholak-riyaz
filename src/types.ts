@@ -203,7 +203,7 @@ export interface ElementAttributes {
 
 export interface SessionBlock {
     id: string;                     // identificador único local (crypto.randomUUID)
-    type: 'warmup' | 'practice';
+    type: 'warmup' | 'practice' | 'pickup';
 
     // Warm Up
     lehraLabel?: string;
@@ -220,6 +220,11 @@ export interface SessionBlock {
     supportUrl?: string;            // URL YouTube
     bpmStart?: number;
     bpmEnd?: number;                // BPM al finalizar el bloque (puede cambiar)
+
+    // Pickup
+    pickupName?: string;            // nombre del patrón (ej. 'Na Na Ti (x2) Na')
+    pickupTaalCategory?: string;    // categoría del filler (ej. 'Keherwa')
+    pickupVideoUrl?: string;        // URL del tutorial YouTube (opcional)
 
     // Timer
     timerMode: 'free' | 'fixed';

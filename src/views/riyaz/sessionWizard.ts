@@ -10,8 +10,11 @@ import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
 import { SONGS } from '../../data/songs.js';
+import { FILLERS } from '../../data/fillers.js';
+// FILLERS used for pickup blocks
 import { MetronomeEngine } from '../../components/metronome.js';
 import type { View, SessionBlock, SessionState, Matra } from '../../types.js';
+import { DEFAULT_TEMPLATES } from '../../data/defaultTemplates.js';
 
 /** Divide un array en grupos de tamaño n */
 function chunkArray<T>(arr: T[], size: number): T[][] {
@@ -34,6 +37,45 @@ async function hashPassword(plain: string): Promise<string> {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ─── Plantillas guardadas en localStorage ──────────────────────────────────
+interface SavedTemplate { id: string; name: string; blocks: SessionBlock[]; }
+const LS_TEMPLATES_KEY = 'dholak_session_templates';
+const LS_SEEDED_KEY    = 'dholak_templates_seeded_v1';
+
+function loadSavedTemplates(): SavedTemplate[] {
+    try { return JSON.parse(localStorage.getItem(LS_TEMPLATES_KEY) ?? '[]'); } catch { return []; }
+}
+function saveSavedTemplates(t: SavedTemplate[]): void {
+    localStorage.setItem(LS_TEMPLATES_KEY, JSON.stringify(t));
+}
+/** Inyecta plantillas por defecto la primera vez */
+function seedDefaultTemplates(): void {
+    if (localStorage.getItem(LS_SEEDED_KEY)) return;
+    const existing = loadSavedTemplates();
+    const defaultIds = new Set(DEFAULT_TEMPLATES.map(t => t.id));
+    if (!existing.some(t => defaultIds.has(t.id))) {
+        saveSavedTemplates([...DEFAULT_TEMPLATES, ...existing]);
+    }
+    localStorage.setItem(LS_SEEDED_KEY, '1');
+}
+
+// ─── Serialización de bloques para URL ─────────────────────────────────────
+/** Campos que se incluyen en la URL (excluye resultados de ejecución) */
+type ShareableBlock = Omit<SessionBlock, 'durationSecs'|'completedAt'|'cyclesCompleted'|'bpmEnd'>;
+
+function blocksToHash(name: string, blocks: ShareableBlock[]): string {
+    const payload = JSON.stringify({ name, blocks });
+    return btoa(encodeURIComponent(payload));
+}
+
+function hashToBlocks(hash: string): { name: string; blocks: SessionBlock[] } | null {
+    try {
+        const payload = JSON.parse(decodeURIComponent(atob(hash)));
+        if (typeof payload.name !== 'string' || !Array.isArray(payload.blocks)) return null;
+        return payload as { name: string; blocks: SessionBlock[] };
+    } catch { return null; }
+}
+
 export class SessionWizardView implements View {
     private container!: HTMLElement;
     private sessionState!: SessionState;
@@ -43,37 +85,66 @@ export class SessionWizardView implements View {
     private cycleCount: number = 0;
 
     public render(): HTMLElement {
+        seedDefaultTemplates();
         this.container = createElement('section', {
             id: 'riyaz',
             className: 'view-section'
         });
-        this.renderStep1();
+        // Detectar link compartido en el hash de la URL
+        const hashParam = this.extractShareHash();
+        if (hashParam) {
+            const parsed = hashToBlocks(hashParam);
+            if (parsed) {
+                this.renderStep1([], parsed);
+            } else {
+                this.renderStep1();
+            }
+        } else {
+            this.renderStep1();
+        }
         return this.container;
+    }
+
+    /** Extrae el valor de #share=... de la URL y limpia el hash */
+    private extractShareHash(): string | null {
+        const hash = window.location.hash;
+        const prefix = '#share=';
+        if (!hash.startsWith(prefix)) return null;
+        const value = hash.slice(prefix.length);
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        return value || null;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // PASO 1 — Configurador de sesión
     // ─────────────────────────────────────────────────────────────────────────
 
-    private renderStep1(existingBlocks: SessionBlock[] = []): void {
+    private renderStep1(existingBlocks: SessionBlock[] = [], incomingShare: { name: string; blocks: SessionBlock[] } | null = null): void {
         this.container.innerHTML = '';
 
         // Header
-        const header = createElement('div', { className: 'mb-8' });
+        const header = createElement('div', { className: 'mb-6' });
         header.appendChild(createElement('h2', { className: 'section-title' }, 'Nueva Sesión de Riyaz'));
         header.appendChild(createElement('p', { className: 'section-subtitle' },
             'Configura tu sesión añadiendo bloques de práctica'));
         this.container.appendChild(header);
 
-        // Lista de bloques añadidos
-        if (existingBlocks.length > 0) {
-            const blockListLabel = createElement('p', {
-                className: 'text-muted text-sm mb-3',
-                style: { textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: '600' }
-            }, `${existingBlocks.length} bloque${existingBlocks.length !== 1 ? 's' : ''} añadido${existingBlocks.length !== 1 ? 's' : ''}`);
-            this.container.appendChild(blockListLabel);
+        // ── Modal de sesión compartida recibida ─────────────────────────────
+        if (incomingShare) {
+            this.container.appendChild(this.renderShareModal(incomingShare));
+            return; // el modal tiene sus propios botones para continuar
         }
-        const blockList = createElement('div', { id: 'block-list', className: 'mb-6' });
+
+        // ── Panel de plantillas guardadas ───────────────────────────────────
+        this.container.appendChild(this.renderTemplatesPanel(existingBlocks));
+
+        // ── Resumen en vivo + botón compartir ───────────────────────────────
+        if (existingBlocks.length > 0) {
+            this.container.appendChild(this.renderPlanBar(existingBlocks));
+        }
+
+        // Lista de bloques con botones ↑↓
+        const blockList = createElement('div', { id: 'block-list', className: 'mb-4' });
         existingBlocks.forEach((block, i) => {
             blockList.appendChild(this.createBlockSummaryCard(block, i, existingBlocks));
         });
@@ -87,6 +158,9 @@ export class SessionWizardView implements View {
 
         // Formulario para añadir bloque de práctica
         this.container.appendChild(this.createPracticeBlockForm(existingBlocks));
+
+        // Formulario para añadir bloque de pickup
+        this.container.appendChild(this.createPickupBlockForm(existingBlocks));
 
         // Botón Comenzar
         const canStart = existingBlocks.length > 0;
@@ -103,14 +177,252 @@ export class SessionWizardView implements View {
         this.container.appendChild(startBtn);
     }
 
+    // ── Barra de resumen en vivo + botón compartir ──────────────────────────
+    private renderPlanBar(blocks: SessionBlock[]): HTMLElement {
+        const bar = createElement('div', { className: 'session-plan-bar mb-4' });
+
+        const chips = createElement('div', { className: 'session-plan-chips' });
+        blocks.forEach(b => {
+            const chip = createElement('span', {
+                className: b.type === 'warmup' ? 'session-plan-chip session-plan-chip--warmup' : 'session-plan-chip'
+            });
+            if (b.type === 'warmup') {
+                chip.textContent = '🥁 Warm Up';
+            } else {
+                const ref = b.supportType === 'metronome'
+                    ? `${b.bpmStart ?? 120} BPM`
+                    : b.supportRef
+                        ? (b.supportRef.length > 20 ? b.supportRef.slice(0, 18) + '…' : b.supportRef)
+                        : '';
+                chip.textContent = `${b.taalName ?? b.taalId ?? '—'}${ref ? ' · ' + ref : ''}`;
+            }
+            chips.appendChild(chip);
+        });
+        bar.appendChild(chips);
+
+        // Botón compartir
+        const shareBtn = createElement('button', { className: 'session-share-btn', title: 'Generar link para compartir' }, '📤');
+        shareBtn.addEventListener('click', () => this.showSharePopup(blocks, shareBtn));
+        bar.appendChild(shareBtn);
+        return bar;
+    }
+
+    /** Muestra el popup con la URL copiable y opción de nombre */
+    private showSharePopup(blocks: SessionBlock[], anchor: HTMLElement): void {
+        document.querySelector('.session-share-popup')?.remove();
+
+        const popup = createElement('div', { className: 'session-share-popup' });
+
+        popup.appendChild(createElement('p', { className: 'session-share-popup__label' }, 'Nombre de la sesión:'));
+        const nameInput = createElement('input', {
+            type: 'text',
+            placeholder: 'Ej: Foco Keherwa',
+            className: 'session-share-popup__input',
+        }) as HTMLInputElement;
+        popup.appendChild(nameInput);
+
+        const genBtn = createElement('button', { className: 'btn-primary session-share-popup__gen' }, '📤 Generar y copiar link') as HTMLButtonElement;
+        genBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim() || 'Sesión compartida';
+            const hash = blocksToHash(name, blocks);
+            const url = `${window.location.origin}${window.location.pathname}#share=${hash}`;
+            navigator.clipboard.writeText(url).then(() => {
+                genBtn.textContent = '✓ Link copiado';
+                setTimeout(() => { genBtn.textContent = '📤 Generar y copiar link'; }, 2500);
+            });
+        });
+        popup.appendChild(genBtn);
+
+        const closeBtn = createElement('button', { className: 'session-share-popup__close' }, '✕');
+        closeBtn.addEventListener('click', () => popup.remove());
+        popup.appendChild(closeBtn);
+
+        anchor.parentElement?.after(popup);
+    }
+
+    // ── Modal de sesión recibida via URL ────────────────────────────────────
+    private renderShareModal(share: { name: string; blocks: SessionBlock[] }): HTMLElement {
+        const modal = createElement('div', { className: 'session-share-modal' });
+
+        modal.appendChild(createElement('div', { className: 'session-share-modal__icon' }, '📋'));
+        modal.appendChild(createElement('h3', { className: 'session-share-modal__title' }, 'Sesión recibida'));
+        modal.appendChild(createElement('p', { className: 'session-share-modal__name' }, share.name));
+        modal.appendChild(createElement('p', { className: 'session-share-modal__meta' },
+            `${share.blocks.length} bloque${share.blocks.length !== 1 ? 's' : ''}`));
+
+        // Resumen de bloques
+        const list = createElement('ul', { className: 'session-share-modal__list' });
+        share.blocks.forEach(b => {
+            const text = b.type === 'warmup'
+                ? `🥁 Warm Up — ${b.kaydaName ?? ''}`
+                : `${b.taalName ?? b.taalId} · ${b.variationName ?? 'Patrón Principal'}${b.supportRef ? ' · ' + b.supportRef : ''}`;
+            list.appendChild(createElement('li', {}, text));
+        });
+        modal.appendChild(list);
+
+        const actions = createElement('div', { className: 'session-share-modal__actions' });
+
+        // Cargar directamente
+        const loadBtn = createElement('button', { className: 'btn-primary' }, '▶ Cargar y practicar');
+        loadBtn.addEventListener('click', () => {
+            const fresh = share.blocks.map(b => ({ ...b, id: crypto.randomUUID() }));
+            this.renderStep1(fresh);
+        });
+        actions.appendChild(loadBtn);
+
+        // Guardar como plantilla + cargar
+        const saveInput = createElement('input', {
+            type: 'text',
+            className: 'session-share-modal__save-input',
+            placeholder: 'Nombre para guardar como plantilla…',
+            value: share.name,
+        }) as HTMLInputElement;
+        const saveBtn = createElement('button', { className: 'btn-secondary' }, '💾 Guardar plantilla');
+        saveBtn.addEventListener('click', () => {
+            const name = saveInput.value.trim() || share.name;
+            const existing = loadSavedTemplates();
+            saveSavedTemplates([...existing, {
+                id: crypto.randomUUID(),
+                name,
+                blocks: share.blocks.map(b => ({ ...b, id: crypto.randomUUID() })),
+            }]);
+            saveBtn.textContent = '✓ Guardada';
+            (saveBtn as HTMLButtonElement).disabled = true;
+        });
+
+        const saveRow = createElement('div', { className: 'session-share-modal__save-row' });
+        saveRow.appendChild(saveInput);
+        saveRow.appendChild(saveBtn);
+        actions.appendChild(saveRow);
+
+        // Descartar
+        const discardBtn = createElement('button', { className: 'session-share-modal__discard' }, 'Descartar');
+        discardBtn.addEventListener('click', () => this.renderStep1());
+        actions.appendChild(discardBtn);
+
+        modal.appendChild(actions);
+        return modal;
+    }
+
+    // ── Panel de plantillas guardadas (colapsable) ──────────────────────────
+    private renderTemplatesPanel(currentBlocks: SessionBlock[]): HTMLElement {
+        const templates = loadSavedTemplates();
+        const wrap = createElement('div', { className: 'session-templates-panel mb-6' });
+
+        const toggle = createElement('button', { className: 'session-templates-toggle' }) as HTMLButtonElement;
+        const rebuildToggleLabel = () => {
+            const count = loadSavedTemplates().length;
+            toggle.innerHTML = `<span>📋 Plantillas</span>${count > 0 ? `<span class="session-templates-badge">${count}</span>` : ''}<span class="session-templates-arrow">›</span>`;
+        };
+        rebuildToggleLabel();
+        wrap.appendChild(toggle);
+
+        const body = createElement('div', { className: 'session-templates-body' });
+        body.style.display = 'none';
+
+        const rebuildBody = () => {
+            body.innerHTML = '';
+            const list = loadSavedTemplates();
+
+            if (list.length === 0) {
+                body.appendChild(createElement('p', { className: 'text-muted text-sm' },
+                    'Sin plantillas. Configura bloques, genera un link y guárdalo aquí.'));
+            } else {
+                list.forEach(t => {
+                    const row = createElement('div', { className: 'session-template-row' });
+
+                    const info = createElement('div', { className: 'session-template-row__info' });
+                    info.appendChild(createElement('span', { className: 'session-template-row__name' }, t.name));
+                    info.appendChild(createElement('span', { className: 'session-template-row__meta' },
+                        `${t.blocks.length} bloque${t.blocks.length !== 1 ? 's' : ''}`));
+                    row.appendChild(info);
+
+                    const acts = createElement('div', { className: 'session-template-row__actions' });
+
+                    const loadBtn = createElement('button', { className: 'btn-secondary session-template-btn' }, 'Cargar');
+                    loadBtn.addEventListener('click', () => {
+                        const fresh = t.blocks.map(b => ({ ...b, id: crypto.randomUUID() }));
+                        this.renderStep1(fresh);
+                    });
+                    acts.appendChild(loadBtn);
+
+                    // Botón compartir plantilla
+                    const shareBtn = createElement('button', { className: 'session-template-share-btn', title: 'Compartir como link' }, '📤');
+                    shareBtn.addEventListener('click', () => this.showSharePopup(t.blocks, shareBtn));
+                    acts.appendChild(shareBtn);
+
+                    const delBtn = createElement('button', { className: 'session-template-delete' }, '✕') as HTMLButtonElement;
+                    delBtn.title = 'Eliminar plantilla';
+                    delBtn.addEventListener('click', () => {
+                        saveSavedTemplates(loadSavedTemplates().filter(x => x.id !== t.id));
+                        rebuildBody();
+                        rebuildToggleLabel();
+                    });
+                    acts.appendChild(delBtn);
+
+                    row.appendChild(acts);
+                    body.appendChild(row);
+                });
+            }
+
+            // Guardar sesión actual como plantilla (solo si hay bloques)
+            if (currentBlocks.length > 0) {
+                const saveRow = createElement('div', { className: 'session-template-save-row' });
+                const nameInput = createElement('input', {
+                    type: 'text',
+                    placeholder: 'Nombre para guardar sesión actual…',
+                    className: 'session-template-save-input',
+                }) as HTMLInputElement;
+                const saveBtn = createElement('button', { className: 'btn-primary session-template-btn' }, '💾 Guardar') as HTMLButtonElement;
+                saveBtn.addEventListener('click', () => {
+                    const name = nameInput.value.trim() || `Sesión ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
+                    saveSavedTemplates([...loadSavedTemplates(), {
+                        id: crypto.randomUUID(),
+                        name,
+                        blocks: currentBlocks.map(b => ({ ...b })),
+                    }]);
+                    nameInput.value = '';
+                    rebuildBody();
+                    rebuildToggleLabel();
+                });
+                saveRow.appendChild(nameInput);
+                saveRow.appendChild(saveBtn);
+                body.appendChild(saveRow);
+            }
+        };
+
+        toggle.addEventListener('click', () => {
+            const open = body.style.display !== 'none';
+            body.style.display = open ? 'none' : '';
+            const arrow = toggle.querySelector('.session-templates-arrow') as HTMLElement | null;
+            if (arrow) arrow.style.transform = open ? '' : 'rotate(90deg)';
+            if (!open) rebuildBody();
+        });
+
+        wrap.appendChild(body);
+
+        // Auto-abrir si hay plantillas y no hay bloques configurados
+        if (templates.length > 0 && currentBlocks.length === 0) {
+            body.style.display = '';
+            const arrow = toggle.querySelector('.session-templates-arrow') as HTMLElement | null;
+            if (arrow) arrow.style.transform = 'rotate(90deg)';
+            rebuildBody();
+        }
+
+        return wrap;
+    }
+
     private createBlockSummaryCard(block: SessionBlock, index: number, allBlocks: SessionBlock[]): HTMLElement {
         const card = createElement('div', { className: 'session-block-card' });
 
         // Badge / número de orden
         if (block.type === 'warmup') {
             card.appendChild(createElement('div', { className: 'session-block-card__warmup-badge' }, 'Warm Up'));
+        } else if (block.type === 'pickup') {
+            card.appendChild(createElement('div', { className: 'session-block-card__pickup-badge' }, 'Pickup'));
         } else {
-            card.appendChild(createElement('div', { className: 'session-block-card__index' }, String(index)));
+            const practiceIdx = allBlocks.slice(0, index).filter(b => b.type === 'practice').length + 1;
+            card.appendChild(createElement('div', { className: 'session-block-card__index' }, String(practiceIdx)));
         }
 
         // Cuerpo
@@ -118,12 +430,21 @@ export class SessionWizardView implements View {
 
         const title = block.type === 'warmup'
             ? `${block.kaydaName ?? ''}`
-            : `${block.taalName ?? ''} · ${block.variationName ?? 'Patrón Principal'}`;
+            : block.type === 'pickup'
+                ? `${block.pickupName ?? ''}`
+                : `${block.taalName ?? ''} · ${block.variationName ?? 'Patrón Principal'}`;
         body.appendChild(createElement('div', { className: 'session-block-card__title' }, title));
 
         const meta = createElement('div', { className: 'session-block-card__meta' });
         if (block.type === 'warmup' && block.lehraLabel) {
             meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.lehraLabel));
+        } else if (block.type === 'pickup') {
+            if (block.pickupTaalCategory) {
+                meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.pickupTaalCategory));
+            }
+            if (block.pickupVideoUrl) {
+                meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, '▶ Tutorial'));
+            }
         } else if (block.supportType === 'metronome') {
             meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, `Metrónomo · ${block.bpmStart ?? 120} BPM`));
         } else if (block.supportRef) {
@@ -132,6 +453,26 @@ export class SessionWizardView implements View {
         meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, 'Tiempo libre'));
         body.appendChild(meta);
         card.appendChild(body);
+
+        // Botones ↑ ↓
+        const reorder = createElement('div', { className: 'session-block-card__reorder' });
+        const upBtn = createElement('button', { className: 'session-block-card__reorder-btn', title: 'Mover arriba' }, '↑') as HTMLButtonElement;
+        upBtn.disabled = index === 0;
+        upBtn.addEventListener('click', () => {
+            const updated = [...allBlocks];
+            [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+            this.renderStep1(updated);
+        });
+        const downBtn = createElement('button', { className: 'session-block-card__reorder-btn', title: 'Mover abajo' }, '↓') as HTMLButtonElement;
+        downBtn.disabled = index === allBlocks.length - 1;
+        downBtn.addEventListener('click', () => {
+            const updated = [...allBlocks];
+            [updated[index + 1], updated[index]] = [updated[index], updated[index + 1]];
+            this.renderStep1(updated);
+        });
+        reorder.appendChild(upBtn);
+        reorder.appendChild(downBtn);
+        card.appendChild(reorder);
 
         // Botón quitar
         const removeBtn = createElement('button', { className: 'session-block-card__remove' }, 'Quitar');
@@ -191,6 +532,98 @@ export class SessionWizardView implements View {
         section.appendChild(wrapper);
         return section;
     }
+
+
+    private createPickupBlockForm(existingBlocks: SessionBlock[]): HTMLElement {
+        const section = createElement('div', {});
+        const sectionHeader = createElement('div', { className: 'session-section-header' });
+        sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, 'Pickup / Filler'));
+        sectionHeader.appendChild(createElement('div', { className: 'session-section-divider' }));
+        section.appendChild(sectionHeader);
+
+        const wrapper = createElement('div', { className: 'session-form-card' });
+        wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, 'Pickup / Filler'));
+
+        // Selector de categoría (taal)
+        const catField = createElement('div', { className: 'session-form-field' });
+        catField.appendChild(createElement('label', {}, 'Taal / Categoría'));
+        const catSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+        // Categorías únicas presentes en FILLERS
+        const categories = [...new Set(FILLERS.map(f => f.category))];
+        categories.forEach(cat => {
+            catSelect.appendChild(createElement('option', { value: cat }, cat) as HTMLOptionElement);
+        });
+        catField.appendChild(catSelect);
+        wrapper.appendChild(catField);
+
+        // Selector de patrón
+        const patField = createElement('div', { className: 'session-form-field' });
+        patField.appendChild(createElement('label', {}, 'Patrón'));
+        const patSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+        wrapper.appendChild(patField);
+
+        // Preview del patrón
+        const patPreview = createElement('div', { className: 'session-bol-preview' });
+        wrapper.appendChild(patPreview);
+
+        const refreshPatterns = (category: string) => {
+            patSelect.innerHTML = '';
+            patPreview.textContent = '';
+            const patterns = FILLERS.find(f => f.category === category)?.patterns ?? [];
+            if (patterns.length === 0) {
+                patSelect.appendChild(createElement('option', { value: '' }, 'Sin pickups para esta categoría') as HTMLOptionElement);
+            } else {
+                patterns.forEach(p => {
+                    patSelect.appendChild(createElement('option', {
+                        value: JSON.stringify({ name: p.name, link: p.link ?? '' })
+                    }, p.name) as HTMLOptionElement);
+                });
+                // Mostrar preview del primero
+                try {
+                    const first = JSON.parse(patSelect.value) as { name: string; link: string };
+                    patPreview.textContent = first.name;
+                } catch { /* no-op */ }
+            }
+        };
+
+        patField.appendChild(patSelect);
+
+        refreshPatterns(catSelect.value);
+        catSelect.addEventListener('change', () => refreshPatterns(catSelect.value));
+        patSelect.addEventListener('change', () => {
+            try {
+                const p = JSON.parse(patSelect.value) as { name: string; link: string };
+                patPreview.textContent = p.name;
+            } catch { patPreview.textContent = ''; }
+        });
+
+        const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, '+ Añadir Pickup');
+        addBtn.addEventListener('click', () => {
+            let pickupName = '';
+            let pickupVideoUrl = '';
+            try {
+                const parsed = JSON.parse(patSelect.value) as { name: string; link: string };
+                pickupName = parsed.name;
+                pickupVideoUrl = parsed.link ?? '';
+            } catch {
+                pickupName = patSelect.options[patSelect.selectedIndex]?.text ?? '';
+            }
+            if (!pickupName) return;
+            const block: SessionBlock = {
+                id: crypto.randomUUID(),
+                type: 'pickup',
+                pickupName,
+                pickupTaalCategory: catSelect.value,
+                pickupVideoUrl,
+                timerMode: 'free',
+            };
+            this.renderStep1([...existingBlocks, block]);
+        });
+        wrapper.appendChild(addBtn);
+        section.appendChild(wrapper);
+        return section;
+    }
+
 
     private createPracticeBlockForm(existingBlocks: SessionBlock[]): HTMLElement {
         // Cabecera de sección
@@ -403,7 +836,9 @@ export class SessionWizardView implements View {
             `Bloque ${blockNum} de ${totalBlocks}`));
         const subtitle = block.type === 'warmup'
             ? `Warm Up — ${block.kaydaName}`
-            : `${block.taalName} · ${block.variationName}`;
+            : block.type === 'pickup'
+                ? `Pickup — ${block.pickupTaalCategory ?? ''}`
+                : `${block.taalName} · ${block.variationName}`;
         header.appendChild(createElement('p', { className: 'section-subtitle' }, subtitle));
         this.container.appendChild(header);
 
@@ -423,8 +858,8 @@ export class SessionWizardView implements View {
         // Patrón visual
         this.container.appendChild(this.renderPattern(block));
 
-        // Metrónomo secundario (siempre disponible para cualquier bloque)
-        if (block.supportType !== 'metronome') {
+        // Metrónomo secundario — para práctica sin metrónomo y para pickup
+        if (block.type === 'pickup' || block.supportType !== 'metronome') {
             this.container.appendChild(this.renderSecondaryMetronome(block));
         }
 
@@ -444,10 +879,24 @@ export class SessionWizardView implements View {
     private renderSupport(block: SessionBlock): HTMLElement {
         const card = createElement('div', { className: 'card p-6 mb-4' });
 
-        if (block.type === 'warmup' || block.supportType === 'lehra' || block.supportType === 'song') {
+        if (block.type === 'pickup') {
+            // Patrón de bols en grande
+            const patternDisplay = createElement('div', { className: 'session-pickup-pattern' });
+            patternDisplay.textContent = block.pickupName ?? '';
+            card.appendChild(patternDisplay);
+            // Si tiene tutorial embeber video
+            if (block.pickupVideoUrl) {
+                const embedUrl = this.toEmbedUrl(block.pickupVideoUrl);
+                const iframe = createElement('iframe', {
+                    src: embedUrl,
+                    style: { width: '100%', height: '220px', border: 'none', borderRadius: '8px', marginTop: '0.75rem' },
+                    allowfullscreen: 'true'
+                });
+                card.appendChild(iframe);
+            }
+        } else if (block.type === 'warmup' || block.supportType === 'lehra' || block.supportType === 'song') {
             const url = block.type === 'warmup' ? (block.lehraUrl ?? '') : (block.supportUrl ?? '');
             if (url) {
-                // Convertir URL normal de YouTube a embed
                 const embedUrl = this.toEmbedUrl(url);
                 const iframe = createElement('iframe', {
                     src: embedUrl,
@@ -704,8 +1153,14 @@ export class SessionWizardView implements View {
 
     private renderPattern(block: SessionBlock): HTMLElement {
         const card = createElement('div', { className: 'card p-6 mb-4' });
-        card.appendChild(createElement('h4', { className: 'font-bold mb-4' },
-            block.type === 'warmup' ? (block.kaydaName ?? 'Kayda') : `${block.taalName} — ${block.variationName}`));
+
+        // Los bloques pickup no tienen patrón de taal — devolver tarjeta vacía
+        if (block.type === 'pickup') return createElement('div', {});
+
+        const title = block.type === 'warmup'
+            ? (block.kaydaName ?? 'Kayda')
+            : `${block.taalName ?? ''} — ${block.variationName ?? ''}`;
+        card.appendChild(createElement('h4', { className: 'font-bold mb-4' }, title));
 
         // ── Bloque de Warm Up (Kayda) ─────────────────────────────────────────
         if (block.type === 'warmup' && block.kaydaId) {
@@ -857,7 +1312,9 @@ export class SessionWizardView implements View {
 
             const name = block.type === 'warmup'
                 ? `Warm Up — ${block.kaydaName}`
-                : `${i}. ${block.taalName} · ${block.variationName}`;
+                : block.type === 'pickup'
+                    ? `Pickup — ${block.pickupName ?? ''}`
+                    : `${i}. ${block.taalName} · ${block.variationName}`;
             row.appendChild(createElement('span', { className: 'font-medium' }, name));
 
             const meta = createElement('span', { className: 'text-muted text-sm text-right' });
@@ -878,7 +1335,11 @@ export class SessionWizardView implements View {
         // Breakdown por taal
         const taalTimes: Record<string, number> = {};
         state.blocks.forEach(b => {
-            const key = b.type === 'warmup' ? 'Warm Up' : (b.taalName ?? 'Desconocido');
+            const key = b.type === 'warmup'
+                ? 'Warm Up'
+                : b.type === 'pickup'
+                    ? 'Pickups'
+                    : (b.taalName ?? 'Desconocido');
             taalTimes[key] = (taalTimes[key] ?? 0) + (b.durationSecs ?? 0);
         });
 
@@ -995,11 +1456,11 @@ export class SessionWizardView implements View {
     }
 
     private toEmbedUrl(url: string): string {
-        // Convertir youtube.com/watch?v=ID o youtu.be/ID a embed
         const watchMatch = url.match(/youtube\.com\/watch\?v=([\w-]+)/);
         const shortMatch = url.match(/youtu\.be\/([\w-]+)/);
         const embedMatch = url.match(/youtube\.com\/embed\/([\w-]+)/);
-        const id = (watchMatch ?? shortMatch ?? embedMatch)?.[1];
+        const shortsMatch = url.match(/youtube\.com\/shorts\/([\w-]+)/);
+        const id = (watchMatch ?? shortMatch ?? embedMatch ?? shortsMatch)?.[1];
         return id ? `https://www.youtube.com/embed/${id}` : url;
     }
 
@@ -1106,6 +1567,9 @@ export class SessionWizardView implements View {
                     bpm_end:           b.bpmEnd,
                     duration_secs:     b.durationSecs,
                     cycles_completed:  b.cyclesCompleted,
+                    // Pickup fields
+                    pickup_name:       b.pickupName,
+                    pickup_taal:       b.pickupTaalCategory,
                 })),
             };
 

@@ -1828,6 +1828,19 @@ select:disabled {
     border: 1px solid var(--border-primary);
 }
 
+.session-block-card__pickup-badge {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--blue-50);
+    color: var(--blue-500);
+    border-radius: 6px;
+    padding: 3px 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--blue-100);
+}
+
 .session-block-card__body {
     flex: 1;
     min-width: 0;
@@ -1984,6 +1997,22 @@ select:disabled {
 }
 
 /* Preview de bols */
+/* Patrón de bols de pickup cuando no hay vídeo */
+.session-pickup-pattern {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border: 2px solid var(--orange-500);
+    border-radius: 10px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    line-height: 1.7;
+    word-break: break-word;
+    margin-bottom: 0.5rem;
+}
+
 .session-bol-preview {
     font-size: 0.8125rem;
     color: var(--text-muted);
@@ -1997,6 +2026,414 @@ select:disabled {
     min-height: 2.25rem;
     font-family: 'JetBrains Mono', monospace;
     word-break: break-word;
+}
+
+/* ── Barra de resumen en vivo ────────────────────────────────────────── */
+.session-plan-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 10px;
+    padding: 0.625rem 0.875rem;
+}
+
+.session-plan-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.session-plan-chip {
+    display: inline-flex;
+    align-items: center;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.session-plan-chip--warmup {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    background: var(--orange-50);
+}
+
+.session-share-btn {
+    background: transparent;
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 8px;
+    padding: 0.25rem 0.625rem;
+    font-size: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    color: var(--text-muted);
+}
+
+.session-share-btn:hover {
+    border-color: var(--orange-500);
+    background: var(--orange-50);
+}
+
+/* ── Botones ↑↓ de reordenación ─────────────────────────────────────── */
+.session-block-card__reorder {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.session-block-card__reorder-btn {
+    background: transparent;
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-muted);
+    border-radius: 6px;
+    width: 28px;
+    height: 26px;
+    font-size: 0.875rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+}
+
+.session-block-card__reorder-btn:hover:not(:disabled) {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    background: var(--orange-50);
+}
+
+.session-block-card__reorder-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+/* ── Popup de compartir ──────────────────────────────────────────────── */
+.session-share-popup {
+    position: relative;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    box-shadow: 0 4px 16px var(--card-shadow);
+}
+
+.session-share-popup__label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.session-share-popup__input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: inherit;
+}
+
+.session-share-popup__input:focus {
+    outline: none;
+    border-color: var(--orange-500);
+}
+
+.session-share-popup__gen {
+    width: 100%;
+    font-size: 0.875rem;
+}
+
+.session-share-popup__close {
+    position: absolute;
+    top: 0.625rem;
+    right: 0.625rem;
+    background: transparent;
+    border: none;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.session-share-popup__close:hover {
+    background: var(--bg-hover);
+}
+
+/* ── Modal sesión recibida ───────────────────────────────────────────── */
+.session-share-modal {
+    background: var(--card-bg);
+    border: 2px solid var(--orange-500);
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.session-share-modal__icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.session-share-modal__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem;
+}
+
+.session-share-modal__name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--orange-500);
+    margin: 0 0 0.25rem;
+}
+
+.session-share-modal__meta {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+}
+
+.session-share-modal__list {
+    text-align: left;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 10px;
+    padding: 0.75rem 1rem 0.75rem 1.75rem;
+    margin: 0 0 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    list-style: disc;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.session-share-modal__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.session-share-modal__save-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.session-share-modal__save-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.session-share-modal__save-input:focus {
+    outline: none;
+    border-color: var(--orange-500);
+}
+
+.session-share-modal__discard {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0.375rem;
+    text-decoration: underline;
+}
+
+/* ── Panel de plantillas guardadas ───────────────────────────────────── */
+.session-templates-panel {
+    border: 1.5px solid var(--border-primary);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.session-templates-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-tertiary);
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.session-templates-toggle:hover {
+    background: var(--bg-hover);
+}
+
+.session-templates-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--orange-500);
+    color: white;
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    min-width: 18px;
+}
+
+.session-templates-arrow {
+    margin-left: auto;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.session-templates-body {
+    background: var(--card-bg);
+    padding: 0.875rem 1rem;
+    border-top: 1px solid var(--border-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.session-template-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+}
+
+.session-template-row__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.session-template-row__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.session-template-row__meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.session-template-row__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-shrink: 0;
+}
+
+.session-template-btn {
+    padding: 0.3rem 0.625rem;
+    font-size: 0.8125rem;
+    min-height: 32px;
+}
+
+.session-template-share-btn {
+    background: transparent;
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-muted);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+}
+
+.session-template-share-btn:hover {
+    border-color: var(--orange-500);
+    background: var(--orange-50);
+}
+
+.session-template-delete {
+    background: transparent;
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-muted);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+}
+
+.session-template-delete:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+}
+
+.session-template-save-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-primary);
+    margin-top: 0.25rem;
+}
+
+.session-template-save-input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+
+.session-template-save-input:focus {
+    outline: none;
+    border-color: var(--orange-500);
 }
 
 /* Campos de URL personalizada en selector de canciones */

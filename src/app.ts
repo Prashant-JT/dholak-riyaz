@@ -28,9 +28,13 @@ class Application {
         this.navigationController = new NavigationController('navigationMenu', 'mainContent');
         this.navigationController.render();
         
-        // Inicializar gestor de vistas — restaurar última vista visitada
+        // Inicializar gestor de vistas
+        // Si hay un link compartido (#share=...) redirigir siempre al Riyaz
         this.viewManager = new ViewManager('mainContent');
-        const lastView = localStorage.getItem('lastView') ?? CONFIG.VIEWS.DASHBOARD;
+        const hasShareHash = window.location.hash.startsWith('#share=');
+        const lastView = hasShareHash
+            ? CONFIG.VIEWS.RIYAZ
+            : (localStorage.getItem('lastView') ?? CONFIG.VIEWS.DASHBOARD);
         this.viewManager.showView(lastView);
         this.navigationController.navigateTo(lastView);
         

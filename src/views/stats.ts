@@ -20,7 +20,7 @@ export interface SupabaseSession {
 }
 
 export interface SupabaseBlock {
-    type: 'warmup' | 'practice';
+    type: 'warmup' | 'practice' | 'pickup';
     taal_name?: string;
     variation_name?: string;
     kayda_name?: string;
@@ -30,6 +30,8 @@ export interface SupabaseBlock {
     bpm_end?: number;
     duration_secs?: number;
     cycles_completed?: number;
+    pickup_name?: string;
+    pickup_taal?: string;
 }
 
 interface UserStats {
@@ -146,7 +148,11 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const donutSecs: Record<string, number> = {};
     sessions.forEach(s => {
         s.blocks.forEach(b => {
-            const key = b.type === 'warmup' ? 'Warm Up' : (b.taal_name ?? 'Otro');
+            const key = b.type === 'warmup'
+                ? 'Warm Up'
+                : b.type === 'pickup'
+                    ? 'Pickups'
+                    : (b.taal_name ?? 'Otro');
             donutSecs[key] = (donutSecs[key] ?? 0) + (b.duration_secs ?? 0);
         });
     });
@@ -174,7 +180,11 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         const date = `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`;
         const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
         const blocks = s.blocks.map(b =>
-            b.type === 'warmup' ? 'Warm Up' : (b.taal_name ?? 'Práctica')
+            b.type === 'warmup'
+                ? 'Warm Up'
+                : b.type === 'pickup'
+                    ? `Pickup`
+                    : (b.taal_name ?? 'Práctica')
         );
         const maxBpm = s.blocks
             .filter(b => b.bpm_end)
@@ -250,10 +260,10 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     }
 
     // ── Insight automático ────────────────────────────────────────────────────
-    const topTaal = Object.entries(donutSecs).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
-    const leastTaal = Object.entries(donutSecs)
-        .filter(([k]) => k !== 'Warm Up')
-        .sort((a, b) => a[1] - b[1])[0]?.[0] ?? '—';
+    // Excluir Warm Up y Pickups del insight de taal
+    const taalOnlyEntries = Object.entries(donutSecs).filter(([k]) => !k.startsWith('Warm Up') && !k.startsWith('Pickup'));
+    const topTaal = taalOnlyEntries.sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+    const leastTaal = taalOnlyEntries.sort((a, b) => a[1] - b[1])[0]?.[0] ?? '—';
     const insight = sessions.length === 0
         ? 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!'
         : `<strong>Taal más practicado:</strong> ${topTaal}. <strong>A equilibrar:</strong> ${leastTaal} tiene el menor tiempo registrado — prueba a incluirlo más en tus sesiones.`;
@@ -1003,7 +1013,11 @@ export class StatsView implements View {
                 const date2 = new Date(s.saved_at);
                 const date  = `${date2.getDate()} ${MONTH_ES[date2.getMonth()]} ${date2.getFullYear()}`;
                 const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
-                const blocks = s.blocks.map(b => b.type === 'warmup' ? 'Warm Up' : (b.taal_name ?? 'Práctica'));
+                const blocks = s.blocks.map(b =>
+                    b.type === 'warmup' ? 'Warm Up'
+                    : b.type === 'pickup' ? 'Pickup'
+                    : (b.taal_name ?? 'Práctica')
+                );
                 const maxBpm = s.blocks.filter(b => b.bpm_end).reduce((m, b) => Math.max(m, b.bpm_end ?? 0), 0);
                 return { date, dur, blocks, bpm: maxBpm > 0 ? String(maxBpm) : '—', notes: s.notes ?? null };
             });
