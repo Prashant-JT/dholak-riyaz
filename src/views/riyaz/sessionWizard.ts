@@ -892,11 +892,19 @@ export class SessionWizardView implements View {
         // ── Botones de acción ────────────────────────────────────────────────
 
         // Guardar sesión
+        const actionArea = createElement('div', {});
         const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
         saveBtn.addEventListener('click', () => {
-            this.showSaveModal(state.notes, totalSecs, state.blocks, saveBtn);
+            this.showSaveModal(state.notes, totalSecs, state.blocks, () => {
+                // Éxito: mostrar mensaje y volver a nueva sesión
+                actionArea.innerHTML = '';
+                const successMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--success' });
+                successMsg.innerHTML = '✓ <strong>Sesión guardada.</strong> Redirigiendo...';
+                actionArea.appendChild(successMsg);
+                setTimeout(() => this.renderStep1(), 2000);
+            });
         });
-        this.container.appendChild(saveBtn);
+        actionArea.appendChild(saveBtn);
 
         // Descartar sesión (con confirmación inline)
         const discardWrapper = createElement('div', { style: { marginTop: '0.75rem' } });
@@ -911,7 +919,15 @@ export class SessionWizardView implements View {
         const confirmBtns = createElement('div', { className: 'flex gap-3 mt-3' });
 
         const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, 'Sí, descartar');
-        yesBtn.addEventListener('click', () => this.renderStep1());
+        yesBtn.addEventListener('click', () => {
+            // Descartar: ocultar todo, mostrar feedback y volver
+            actionArea.innerHTML = '';
+            discardWrapper.innerHTML = '';
+            const discardMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--discard' });
+            discardMsg.innerHTML = '✕ <strong>Sesión descartada.</strong> Redirigiendo...';
+            actionArea.appendChild(discardMsg);
+            setTimeout(() => this.renderStep1(), 2000);
+        });
 
         const noBtn = createElement('button', { className: 'btn-secondary flex-1' }, 'Cancelar');
         noBtn.addEventListener('click', () => {
@@ -930,14 +946,9 @@ export class SessionWizardView implements View {
 
         discardWrapper.appendChild(discardBtn);
         discardWrapper.appendChild(confirmRow);
-        this.container.appendChild(discardWrapper);
+        actionArea.appendChild(discardWrapper);
 
-        // Nueva sesión (enlace secundario al fondo)
-        const newSessionLink = createElement('button', {
-            className: 'session-new-link',
-        }, 'Nueva sesión');
-        newSessionLink.addEventListener('click', () => this.renderStep1());
-        this.container.appendChild(newSessionLink);
+        this.container.appendChild(actionArea);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -979,7 +990,7 @@ export class SessionWizardView implements View {
         notes: string,
         totalSecs: number,
         blocks: SessionBlock[],
-        triggerBtn: HTMLElement
+        onSuccess: () => void
     ): void {
         // Usuarios autorizados — contraseñas hasheadas de forma simple
         const USERS: Record<string, string> = {
@@ -1011,7 +1022,7 @@ export class SessionWizardView implements View {
         passField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Contraseña'));
         const passInput = createElement('input', {
             type: 'password',
-            className: 'w-full',
+            className: 'save-modal__pass-input',
             placeholder: '••••••••',
         }) as HTMLInputElement;
         passField.appendChild(passInput);
@@ -1073,10 +1084,7 @@ export class SessionWizardView implements View {
 
                 // Éxito
                 overlay.remove();
-                triggerBtn.textContent = '✓ Sesión guardada';
-                triggerBtn.style.opacity = '0.6';
-                triggerBtn.style.cursor  = 'default';
-                triggerBtn.replaceWith(triggerBtn.cloneNode(true)); // eliminar listener
+                onSuccess();
 
             } catch (err) {
                 console.error('Error guardando sesión:', err);
