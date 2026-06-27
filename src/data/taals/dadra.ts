@@ -224,7 +224,7 @@ export const dadra: Taal = {
                 '',
                 'Dha Ghe Ta Tin',
                 'Pick up: NA NA TE TE',
-                '        NA NA TE TE'
+                '         NA NA TE TE'
             ]
         },
         {
@@ -277,6 +277,23 @@ export const dadra: Taal = {
             tutorials: [
                 'https://www.youtube.com/shorts/vNBI3bv9m20'
             ],
+        },
+        {
+            name: 'Dadra variación (Dha Tin Tin)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha', technique: 'Bhari' },
+                    { matra: 2, bol: 'Tin', technique: '' },
+                    { matra: 3, bol: 'Tin', technique: '' },
+                    { matra: 4, bol: 'Ta',  technique: 'Khali' },
+                    { matra: 5, bol: 'Dhin', technique: '' },
+                    { matra: 6, bol: 'Dhin', technique: '' }
+                ]
+            ],
+            description: '3 beats + 3 beats',
+            songs: [
+                { title: 'Abhi Na Jao Chhod Kar', url: 'https://www.youtube.com/watch?v=qRWozIldyDM' }
+            ]
         }
     ],
     tip: {

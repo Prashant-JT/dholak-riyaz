@@ -246,6 +246,12 @@ export const SONGS: Song[] = [
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=jDdlOoysg4s",
         notes: "Tutorial: https://www.youtube.com/shorts/b9MYUAMDurk"
+    },
+    {
+        title: "Abhi Na Jao Chhod Kar",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=qRWozIldyDM"
     }
 ];
 
