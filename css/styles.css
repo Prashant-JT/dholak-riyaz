@@ -2253,6 +2253,74 @@ body.dark .stats-insight-box {
     color: #ffffff;
 }
 
+.stats-user-tab--compare {
+    border-left: 1.5px solid var(--border-primary);
+    margin-left: 2px;
+}
+
+.stats-user-tab--compare.active {
+    background: var(--blue-500, #3b82f6);
+}
+
+/* Tabla comparativa de KPIs */
+.stats-compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border-primary);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.stats-compare-cell {
+    background: var(--card-bg);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+}
+
+.stats-compare-header {
+    background: var(--bg-secondary);
+}
+
+.stats-compare-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.stats-compare-name--p { color: var(--orange-500); background: var(--bg-secondary); }
+.stats-compare-name--m { color: #3b82f6;           background: var(--bg-secondary); }
+
+.stats-compare-label {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.stats-compare-val {
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.stats-compare-val--p { color: var(--orange-500); }
+.stats-compare-val--m { color: #3b82f6; }
+
+@media (max-width: 768px) {
+    .stats-compare-grid {
+        font-size: 0.82rem;
+    }
+    .stats-compare-val {
+        font-size: 0.95rem;
+    }
+    .stats-compare-cell {
+        padding: 10px 10px;
+    }
+}
+
 /* Weekly toggle: cabecera con título + botones */
 .stats-weekly-header {
     display: flex;
@@ -2382,6 +2450,48 @@ body.dark .stats-insight-box {
 
 .stats-history-table tr:last-child td {
     border-bottom: none;
+}
+
+/* Fila de nota expandida */
+.stats-note-row td {
+    border-bottom: none;
+}
+
+.stats-note-cell {
+    padding: 8px 16px 14px !important;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    background: var(--bg-secondary);
+    border-radius: 0 0 8px 8px;
+    line-height: 1.6;
+}
+
+/* Botón 📝 clickable */
+.stats-note-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: transform 0.15s, opacity 0.15s;
+    opacity: 0.75;
+}
+
+.stats-note-btn:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.stats-note-btn--open {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(249,115,22,0.6));
+}
+
+/* Fila principal cuando tiene nota: cursor pointer */
+.stats-history-row--has-note {
+    cursor: default;
 }
 
 /* Tags */

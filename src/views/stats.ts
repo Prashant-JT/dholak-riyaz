@@ -41,7 +41,7 @@ interface UserStats {
     bpm: Record<string, number[]>;
     donut: Record<string, number>;
     cycles: number[];
-    history: { date: string; dur: string; blocks: string[]; bpm: string; notes: boolean }[];
+    history: { date: string; dur: string; blocks: string[]; bpm: string; notes: string | null }[];
     heatmap: { label: string; days: number[] }[];
 }
 
@@ -183,7 +183,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             dur,
             blocks,
             bpm: maxBpm > 0 ? String(maxBpm) : '—',
-            notes: !!s.notes,
+            notes: s.notes ?? null,
         };
     });
 
@@ -306,7 +306,7 @@ const BPM_PALETTE = [
 // ── Vista ─────────────────────────────────────────────────────────────────────
 
 export class StatsView implements View {
-    private activeUser: string = 'prashant';
+    private activeUser: string = 'prashant';   // 'prashant' | 'meera' | 'compare'
     private charts: any[] = [];
     private userData: Record<string, UserStats> = {};
     private section!: HTMLElement;
@@ -324,17 +324,21 @@ export class StatsView implements View {
             'Progresión y análisis de práctica · datos reales'));
         this.section.appendChild(header);
 
-        // Selector de usuario
+        // Selector de usuario + comparar
         const tabsWrap = createElement('div', { className: 'stats-user-tabs' });
-        ['prashant', 'meera'].forEach((u, idx) => {
+        [
+            { id: 'prashant', label: 'Prashant' },
+            { id: 'meera',    label: 'Meera'    },
+            { id: 'compare',  label: 'Comparar' },
+        ].forEach(({ id, label }, idx) => {
             const btn = createElement('button', {
-                className: `stats-user-tab${idx === 0 ? ' active' : ''}`,
-                dataset: { user: u },
-            }, u.charAt(0).toUpperCase() + u.slice(1));
+                className: `stats-user-tab${idx === 0 ? ' active' : ''}${id === 'compare' ? ' stats-user-tab--compare' : ''}`,
+                dataset: { user: id },
+            }, label);
             btn.addEventListener('click', () => {
                 tabsWrap.querySelectorAll('.stats-user-tab').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                this.activeUser = u;
+                this.activeUser = id;
                 this.renderContent();
             });
             tabsWrap.appendChild(btn);
@@ -416,6 +420,11 @@ export class StatsView implements View {
         content.innerHTML = '';
         this.destroyCharts();
 
+        if (this.activeUser === 'compare') {
+            this.buildCompareView(content);
+            return;
+        }
+
         const d = this.userData[this.activeUser] ?? emptyStats();
 
         content.appendChild(this.buildKPIs(d));
@@ -444,6 +453,7 @@ export class StatsView implements View {
         tableWrap.innerHTML = this.buildHistoryHTML(d);
         histCard.appendChild(tableWrap);
         content.appendChild(histCard);
+        this.bindHistoryNotes(tableWrap);
 
         requestAnimationFrame(() => {
             this.mountCharts(d);
@@ -675,6 +685,132 @@ export class StatsView implements View {
 
     // ── KPIs ──────────────────────────────────────────────────────────────────
 
+    // ── Vista comparativa ─────────────────────────────────────────────────────
+
+    private buildCompareView(content: HTMLElement): void {
+        const p = this.userData['prashant'] ?? emptyStats();
+        const m = this.userData['meera']    ?? emptyStats();
+
+        // ── KPIs lado a lado ──────────────────────────────────────────────────
+        const kpiSection = this.card();
+        kpiSection.appendChild(this.cardTitle('Estadísticas comparadas'));
+        kpiSection.appendChild(this.cardSub('Prashant vs Meera · datos históricos'));
+
+        const kpiDefs = [
+            { label: 'Sesiones',     p: String(p.kpi.sessions), m: String(m.kpi.sessions) },
+            { label: 'Tiempo total', p: p.kpi.time,             m: m.kpi.time             },
+            { label: 'BPM máx.',     p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—', m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—' },
+            { label: 'Racha',        p: `${p.kpi.streak}d`,     m: `${m.kpi.streak}d`     },
+        ];
+
+        const kpiGrid = createElement('div', { className: 'stats-compare-grid' });
+
+        // Cabecera con nombres
+        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-header' }));
+        ['Prashant', 'Meera'].forEach((name, i) => {
+            kpiGrid.appendChild(createElement('div', {
+                className: `stats-compare-cell stats-compare-name stats-compare-name--${i === 0 ? 'p' : 'm'}`,
+            }, name));
+        });
+
+        kpiDefs.forEach(k => {
+            kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-label' }, k.label));
+            kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--p' }, k.p));
+            kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--m' }, k.m));
+        });
+
+        kpiSection.appendChild(kpiGrid);
+        content.appendChild(kpiSection);
+
+        // ── Gráfica semanal dual ──────────────────────────────────────────────
+        const chartCard = this.card();
+        chartCard.appendChild(this.cardTitle('Minutos por semana'));
+        chartCard.appendChild(this.cardSub('Prashant (naranja) · Meera (azul) · últimas 16 semanas'));
+        const wrap = createElement('div', { className: 'stats-canvas-tall' });
+        wrap.style.position = 'relative';
+        wrap.style.height   = '250px';
+        wrap.appendChild(createElement('canvas', { id: 'stats-chart-compare' }));
+        chartCard.appendChild(wrap);
+        content.appendChild(chartCard);
+
+        // ── Distribución lado a lado ──────────────────────────────────────────
+        const distRow = createElement('div', { className: 'stats-chart-row' });
+        [
+            { title: 'Distribución · Prashant', id: 'stats-chart-compare-donut-p' },
+            { title: 'Distribución · Meera',    id: 'stats-chart-compare-donut-m' },
+        ].forEach(({ title, id }) => {
+            const c = this.card();
+            c.appendChild(this.cardTitle(title));
+            const w = createElement('div', { className: 'stats-canvas-medium' });
+            w.style.position = 'relative';
+            w.style.height   = '220px';
+            w.appendChild(createElement('canvas', { id }));
+            c.appendChild(w);
+            distRow.appendChild(c);
+        });
+        content.appendChild(distRow);
+
+        requestAnimationFrame(() => { this.mountCompareCharts(p, m); });
+    }
+
+    private mountCompareCharts(p: UserStats, m: UserStats): void {
+        const gridCol = C.grid();
+        const textCol = C.text();
+        const cardCol = C.card();
+
+        Chart.defaults.font.family = 'inherit';
+        Chart.defaults.font.size   = 12;
+        Chart.defaults.color       = textCol;
+
+        // Gráfica semanal dual
+        const compareCanvas = document.getElementById('stats-chart-compare') as HTMLCanvasElement | null;
+        if (compareCanvas) {
+            this.charts.push(new Chart(compareCanvas, {
+                type: 'bar',
+                data: {
+                    labels: p.weekLabels,
+                    datasets: [
+                        { label: 'Prashant', data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                        { label: 'Meera',    data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                    ],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'top' as const, align: 'end' as const, labels: { boxWidth: 12, padding: 16, usePointStyle: true } } },
+                    scales: {
+                        x: { grid: { color: gridCol }, ticks: { maxRotation: 45 } },
+                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'min', color: textCol } },
+                    },
+                },
+            }));
+        }
+
+        // Donuts de distribución
+        const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
+        [
+            { canvasId: 'stats-chart-compare-donut-p', donut: p.donut },
+            { canvasId: 'stats-chart-compare-donut-m', donut: m.donut },
+        ].forEach(({ canvasId, donut }) => {
+            const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
+            if (!canvas) return;
+            const entries = Object.entries(donut);
+            this.charts.push(new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: entries.length > 0 ? entries.map(([k]) => k) : ['Sin datos'],
+                    datasets: [{ data: entries.length > 0 ? entries.map(([, v]) => v) : [100], backgroundColor: entries.length > 0 ? donutColors : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom' as const, labels: { boxWidth: 10, padding: 10, usePointStyle: true, font: { size: 10 } } },
+                        tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.parsed}%` } },
+                    },
+                },
+            }));
+        });
+    }
+
     private buildKPIs(d: UserStats): HTMLElement {
         const grid = createElement('div', { className: 'stats-kpi-grid' });
 
@@ -760,18 +896,28 @@ export class StatsView implements View {
             b === 'Deepchandi' ? 'stats-tag--teal'   :
             'stats-tag--orange';
 
-        const rows = d.history.map(r => {
-            const tags = r.blocks.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
-            const note = r.notes
-                ? '<span title="Tiene notas" style="font-size:1rem">📝</span>'
-                : '<span style="color:var(--text-light)">—</span>';
-            return `<tr>
+        const rows = d.history.map((r, i) => {
+            const tags   = r.blocks.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
+            const noteId = `stats-note-row-${i}`;
+            const noteCell = r.notes
+                ? `<button class="stats-note-btn" data-target="${noteId}" title="Ver nota">📝</button>`
+                : `<span style="color:var(--text-muted)">—</span>`;
+            // Escapar el texto de la nota para HTML
+            const noteText = r.notes
+                ? r.notes.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                : '';
+            const noteRow = r.notes
+                ? `<tr id="${noteId}" class="stats-note-row" style="display:none">
+                       <td colspan="5" class="stats-note-cell">💬 ${noteText}</td>
+                   </tr>`
+                : '';
+            return `<tr class="stats-history-row${r.notes ? ' stats-history-row--has-note' : ''}" data-note="${noteId}">
                 <td style="white-space:nowrap;font-weight:600">${r.date}</td>
                 <td style="white-space:nowrap;color:var(--text-muted)">${r.dur}</td>
                 <td>${tags}</td>
                 <td class="stats-col-bpm" style="font-weight:700;color:var(--orange-500)">${r.bpm}</td>
-                <td>${note}</td>
-            </tr>`;
+                <td>${noteCell}</td>
+            </tr>${noteRow}`;
         }).join('');
 
         return `<table class="stats-history-table">
@@ -781,6 +927,18 @@ export class StatsView implements View {
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
+    }
+
+    private bindHistoryNotes(container: HTMLElement): void {
+        container.querySelectorAll<HTMLButtonElement>('.stats-note-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = document.getElementById(btn.dataset.target ?? '');
+                if (!target) return;
+                const isOpen = target.style.display !== 'none';
+                target.style.display = isOpen ? 'none' : 'table-row';
+                btn.classList.toggle('stats-note-btn--open', !isOpen);
+            });
+        });
     }
 
     // ── Chart.js ──────────────────────────────────────────────────────────────
