@@ -233,6 +233,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=TVbI55pDdaI"
+    },
+    {
+        title: "Abhi Mujh Mein Kahin",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=oWKgpB2zpgw"
     }
 ];
 
