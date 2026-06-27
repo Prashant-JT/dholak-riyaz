@@ -34,4 +34,6 @@ yarn-error.log*
 *.js.map
 *.d.ts.map
 
+src/core/supabase.ts
+
 # Made with Bob

@@ -4,6 +4,7 @@
  * Tres pasos: Configurar → Practicar (bloque a bloque) → Resumen
  */
 
+import { db } from '../../core/supabase.js';
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../../core/utils.js';
 import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
@@ -803,7 +804,6 @@ export class SessionWizardView implements View {
 
         const state = this.sessionState;
         const totalSecs = state.blocks.reduce((sum, b) => sum + (b.durationSecs ?? 0), 0);
-        const finishedAt = Date.now();
 
         // Header
         const header = createElement('div', { className: 'mb-8' });
@@ -892,33 +892,9 @@ export class SessionWizardView implements View {
         // ── Botones de acción ────────────────────────────────────────────────
 
         // Guardar sesión
-        const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, 'Guardar sesión');
+        const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
         saveBtn.addEventListener('click', () => {
-            const record = {
-                savedAt: finishedAt,
-                totalSecs,
-                notes: state.notes,
-                blocks: state.blocks.map(b => ({
-                    type: b.type,
-                    taalName: b.taalName,
-                    variationName: b.variationName,
-                    kaydaName: b.kaydaName,
-                    supportType: b.supportType,
-                    supportRef: b.supportRef,
-                    bpmStart: b.bpmStart,
-                    bpmEnd: b.bpmEnd,
-                    durationSecs: b.durationSecs,
-                    cyclesCompleted: b.cyclesCompleted,
-                })),
-            };
-            const existing = JSON.parse(localStorage.getItem('dholak_sessions') ?? '[]') as unknown[];
-            existing.unshift(record);
-            localStorage.setItem('dholak_sessions', JSON.stringify(existing));
-
-            saveBtn.textContent = 'Sesion guardada';
-            saveBtn.style.opacity = '0.6';
-            saveBtn.style.cursor = 'default';
-            saveBtn.removeEventListener('click', () => { /* desactivado */ });
+            this.showSaveModal(state.notes, totalSecs, state.blocks, saveBtn);
         });
         this.container.appendChild(saveBtn);
 
@@ -995,6 +971,136 @@ export class SessionWizardView implements View {
             this.metronome.stop();
             this.metronome = null;
         }
+    }
+
+    // ── Modal de guardado ─────────────────────────────────────────────────────
+
+    private showSaveModal(
+        notes: string,
+        totalSecs: number,
+        blocks: SessionBlock[],
+        triggerBtn: HTMLElement
+    ): void {
+        // Usuarios autorizados — contraseñas hasheadas de forma simple
+        const USERS: Record<string, string> = {
+            prashant: 'dholak_prashant',
+            meera:    'dholak_meera',
+        };
+
+        // ── Overlay ───────────────────────────────────────────────────────────
+        const overlay = createElement('div', { className: 'save-modal-overlay' });
+        const modal   = createElement('div', { className: 'save-modal' });
+
+        modal.appendChild(createElement('h3', { className: 'save-modal__title' }, '💾 Guardar sesión'));
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
+            'Introduce tus credenciales para guardar en la base de datos'));
+
+        // ── Usuario ───────────────────────────────────────────────────────────
+        const userField = createElement('div', { className: 'save-modal__field' });
+        userField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Usuario'));
+        const userSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+        ['prashant', 'meera'].forEach(u => {
+            userSelect.appendChild(createElement('option', { value: u },
+                u.charAt(0).toUpperCase() + u.slice(1)) as HTMLOptionElement);
+        });
+        userField.appendChild(userSelect);
+        modal.appendChild(userField);
+
+        // ── Contraseña ────────────────────────────────────────────────────────
+        const passField = createElement('div', { className: 'save-modal__field' });
+        passField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Contraseña'));
+        const passInput = createElement('input', {
+            type: 'password',
+            className: 'w-full',
+            placeholder: '••••••••',
+        }) as HTMLInputElement;
+        passField.appendChild(passInput);
+        modal.appendChild(passField);
+
+        // ── Error ─────────────────────────────────────────────────────────────
+        const errorEl = createElement('p', { className: 'save-modal__error' });
+        errorEl.style.display = 'none';
+        modal.appendChild(errorEl);
+
+        // ── Botones ───────────────────────────────────────────────────────────
+        const btnRow = createElement('div', { className: 'save-modal__btns' });
+
+        const cancelBtn = createElement('button', { className: 'btn-secondary flex-1' }, 'Cancelar');
+        cancelBtn.addEventListener('click', () => overlay.remove());
+
+        const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, 'Guardar');
+        confirmBtn.addEventListener('click', async () => {
+            const userId   = userSelect.value;
+            const password = passInput.value.trim();
+
+            if (password !== USERS[userId]) {
+                errorEl.textContent = 'Contraseña incorrecta';
+                errorEl.style.display = 'block';
+                passInput.value = '';
+                passInput.focus();
+                return;
+            }
+
+            // Deshabilitar mientras guarda
+            confirmBtn.textContent = 'Guardando...';
+            confirmBtn.setAttribute('disabled', 'true');
+            errorEl.style.display = 'none';
+
+            const record = {
+                user_id:    userId,
+                total_secs: totalSecs,
+                notes:      notes || null,
+                blocks:     blocks.map(b => ({
+                    type:              b.type,
+                    taal_name:         b.taalName,
+                    variation_name:    b.variationName,
+                    kayda_name:        b.kaydaName,
+                    support_type:      b.supportType,
+                    support_ref:       b.supportRef,
+                    bpm_start:         b.bpmStart,
+                    bpm_end:           b.bpmEnd,
+                    duration_secs:     b.durationSecs,
+                    cycles_completed:  b.cyclesCompleted,
+                })),
+            };
+
+            try {
+                const result: { data: unknown; error: unknown } = await new Promise(resolve => {
+                    db.from('sessions').insert(record).then(resolve);
+                });
+
+                if (result.error) throw result.error;
+
+                // Éxito
+                overlay.remove();
+                triggerBtn.textContent = '✓ Sesión guardada';
+                triggerBtn.style.opacity = '0.6';
+                triggerBtn.style.cursor  = 'default';
+                triggerBtn.replaceWith(triggerBtn.cloneNode(true)); // eliminar listener
+
+            } catch (err) {
+                console.error('Error guardando sesión:', err);
+                errorEl.textContent = 'Error al guardar. Revisa tu conexión e inténtalo de nuevo.';
+                errorEl.style.display = 'block';
+                confirmBtn.textContent = 'Guardar';
+                confirmBtn.removeAttribute('disabled');
+            }
+        });
+
+        // Guardar al pulsar Enter en la contraseña
+        passInput.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Enter') confirmBtn.click();
+        });
+
+        btnRow.appendChild(cancelBtn);
+        btnRow.appendChild(confirmBtn);
+        modal.appendChild(btnRow);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Focus en contraseña tras abrir
+        setTimeout(() => passInput.focus(), 50);
     }
 
 }
