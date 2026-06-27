@@ -390,7 +390,6 @@ export class SessionWizardView implements View {
 
     // ── Panel de plantillas guardadas (colapsable) ──────────────────────────
     private renderTemplatesPanel(currentBlocks: SessionBlock[]): HTMLElement {
-        const templates = loadSavedTemplates();
         const wrap = createElement('div', { className: 'session-templates-panel mb-6' });
 
         const toggle = createElement('button', { className: 'session-templates-toggle' }) as HTMLButtonElement;
@@ -484,14 +483,6 @@ export class SessionWizardView implements View {
         });
 
         wrap.appendChild(body);
-
-        // Auto-abrir si hay plantillas y no hay bloques configurados
-        if (templates.length > 0 && currentBlocks.length === 0) {
-            body.style.display = '';
-            const arrow = toggle.querySelector('.session-templates-arrow') as HTMLElement | null;
-            if (arrow) arrow.style.transform = 'rotate(90deg)';
-            rebuildBody();
-        }
 
         return wrap;
     }
