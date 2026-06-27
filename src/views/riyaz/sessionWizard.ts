@@ -274,52 +274,9 @@ export class SessionWizardView implements View {
         bpmRow.appendChild(bpmInput);
         wrapper.appendChild(bpmRow);
 
-        // Rampa de BPM (opcional, solo visible con metrónomo)
-        const rampRow = createElement('div', { className: 'session-form-field session-ramp-row' });
-        const rampTitle = createElement('label', {}, 'Rampa de BPM  ');
-        const rampToggle = createElement('input', { type: 'checkbox', className: 'session-ramp-toggle' }) as HTMLInputElement;
-        rampTitle.appendChild(rampToggle);
-        rampRow.appendChild(rampTitle);
-
-        const rampFields = createElement('div', { className: 'session-ramp-fields' });
-        rampFields.style.display = 'none';
-
-        // Subir X BPM
-        const rampStepWrap = createElement('div', { className: 'session-ramp-field' });
-        rampStepWrap.appendChild(createElement('span', { className: 'text-muted' }, 'Subir'));
-        const rampStepInput = createElement('input', {
-            type: 'number', min: '1', max: '20', value: '5', className: 'session-ramp-input'
-        }) as HTMLInputElement;
-        rampStepWrap.appendChild(rampStepInput);
-        rampStepWrap.appendChild(createElement('span', { className: 'text-muted' }, 'BPM cada'));
-
-        // Cada N ciclos
-        const rampEveryInput = createElement('input', {
-            type: 'number', min: '1', max: '50', value: '2', className: 'session-ramp-input'
-        }) as HTMLInputElement;
-        rampStepWrap.appendChild(rampEveryInput);
-        rampStepWrap.appendChild(createElement('span', { className: 'text-muted' }, 'ciclos hasta'));
-
-        // BPM máximo
-        const rampMaxInput = createElement('input', {
-            type: 'number', min: '40', max: '400', value: '180', className: 'session-ramp-input'
-        }) as HTMLInputElement;
-        rampStepWrap.appendChild(rampMaxInput);
-        rampStepWrap.appendChild(createElement('span', { className: 'text-muted' }, 'BPM'));
-
-        rampFields.appendChild(rampStepWrap);
-        rampRow.appendChild(rampFields);
-        wrapper.appendChild(rampRow);
-
-        rampToggle.addEventListener('change', () => {
-            rampFields.style.display = rampToggle.checked ? '' : 'none';
-        });
-
         const refreshSubSelector = (supportType: string) => {
             subSelectorContainer.innerHTML = '';
-            const isMetro = supportType === 'metronome';
-            bpmRow.style.display  = isMetro ? '' : 'none';
-            rampRow.style.display = isMetro ? '' : 'none';
+            bpmRow.style.display = supportType === 'metronome' ? '' : 'none';
 
             if (supportType === 'song') {
                 subSelectorContainer.appendChild(createElement('label', {}, 'Canción'));
@@ -370,7 +327,6 @@ export class SessionWizardView implements View {
                 supportRef = subSel.options[subSel.selectedIndex]?.text ?? '';
             }
 
-            const useRamp = supportType === 'metronome' && rampToggle.checked;
             const block: SessionBlock = {
                 id: crypto.randomUUID(),
                 type: 'practice',
@@ -380,10 +336,7 @@ export class SessionWizardView implements View {
                 supportType,
                 supportRef,
                 supportUrl,
-                bpmStart:    supportType === 'metronome' ? parseInt(bpmInput.value, 10) : undefined,
-                bpmRampStep:  useRamp ? parseInt(rampStepInput.value,  10) : undefined,
-                bpmRampEvery: useRamp ? parseInt(rampEveryInput.value, 10) : undefined,
-                bpmRampMax:   useRamp ? parseInt(rampMaxInput.value,   10) : undefined,
+                bpmStart: supportType === 'metronome' ? parseInt(bpmInput.value, 10) : undefined,
                 timerMode: 'free',
             };
             this.renderStep1([...existingBlocks, block]);
@@ -584,22 +537,6 @@ export class SessionWizardView implements View {
             this.cycleCount++;
             cycleDisplay.textContent = `Ciclos: ${this.cycleCount}`;
             if (block) block.cyclesCompleted = this.cycleCount;
-
-            // ── Rampa de BPM automática ───────────────────────────────────────
-            if (block?.bpmRampStep && block.bpmRampEvery && block.bpmRampMax) {
-                if (this.cycleCount % block.bpmRampEvery === 0) {
-                    const newBpm = Math.min(currentBpm + block.bpmRampStep, block.bpmRampMax);
-                    if (newBpm !== currentBpm) {
-                        currentBpm = newBpm;
-                        this.metronome?.setBPM(currentBpm);
-                        if (block) block.bpmEnd = currentBpm;
-                        bpmDisplay.textContent = `${currentBpm} BPM`;
-                        // Flash visual para indicar subida
-                        bpmDisplay.style.color = 'var(--orange-500)';
-                        setTimeout(() => { bpmDisplay.style.color = ''; }, 400);
-                    }
-                }
-            }
         });
 
         // ── +/- BPM ───────────────────────────────────────────────────────

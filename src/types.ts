@@ -220,9 +220,6 @@ export interface SessionBlock {
     supportUrl?: string;            // URL YouTube
     bpmStart?: number;
     bpmEnd?: number;                // BPM al finalizar el bloque (puede cambiar)
-    bpmRampStep?: number;           // subida automática de BPM por ciclo (0 = desactivado)
-    bpmRampEvery?: number;          // subir bpmRampStep cada N ciclos
-    bpmRampMax?: number;            // BPM máximo al que detenerse la rampa
 
     // Timer
     timerMode: 'free' | 'fixed';
