@@ -11,6 +11,7 @@ import { KaydasView } from '../views/kaydas.js';
 import { SongsView } from '../views/songs.js';
 import { FillersView } from '../views/fillers.js';
 import { SessionWizardView } from '../views/riyaz/sessionWizard.js';
+import { StatsView } from '../views/stats.js';
 import type { View } from '../types.js';
 
 export class ViewManager {
@@ -33,7 +34,8 @@ export class ViewManager {
      * Inicializa todas las vistas
      */
     private initializeViews(): void {
-        this.views.set(CONFIG.VIEWS.RIYAZ, new SessionWizardView());
+        this.views.set(CONFIG.VIEWS.RIYAZ,  new SessionWizardView());
+        this.views.set(CONFIG.VIEWS.STATS,  new StatsView());
         this.views.set(CONFIG.VIEWS.DASHBOARD, new DashboardView());
         this.views.set(CONFIG.VIEWS.GLOSARIO, new GlosarioView());
         this.views.set(CONFIG.VIEWS.KEHERWA, new TaalView('keherwa'));

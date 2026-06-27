@@ -4,13 +4,20 @@
  * Tres pasos: Configurar → Practicar (bloque a bloque) → Resumen
  */
 
-import { createElement, applyBolIndicators } from '../../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../../core/utils.js';
 import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
 import { SONGS } from '../../data/songs.js';
 import { MetronomeEngine } from '../../components/metronome.js';
-import type { View, SessionBlock, SessionState } from '../../types.js';
+import type { View, SessionBlock, SessionState, Matra } from '../../types.js';
+
+/** Divide un array en grupos de tamaño n */
+function chunkArray<T>(arr: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+    return chunks;
+}
 
 // Mapeo de taalId → prefijo del campo taal en SONGS
 const TAAL_SONG_PREFIXES: Record<string, string> = {
@@ -420,52 +427,99 @@ export class SessionWizardView implements View {
                 card.appendChild(createElement('p', { className: 'text-muted text-sm mt-2 text-center' }, block.supportRef));
             }
         } else if (block.supportType === 'metronome') {
-            this.buildMetronomeUI(card, block);
+            // ── Selector de Taal ──────────────────────────────────────────────
+            const taalField = createElement('div', { className: 'session-form-field mb-4' });
+            taalField.appendChild(createElement('label', {
+                style: {
+                    display: 'block',
+                    fontSize: '0.8125rem',
+                    fontWeight: '600',
+                    color: 'var(--text-secondary)',
+                    marginBottom: '0.375rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em'
+                }
+            }, 'Taal'));
+            const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+            Object.keys(TAALS).forEach(id => {
+                const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
+                if (id === (block.taalId ?? 'keherwa')) opt.selected = true;
+                taalSelect.appendChild(opt);
+            });
+            taalField.appendChild(taalSelect);
+            card.appendChild(taalField);
+
+            // ── Contenedor del metrónomo (se reconstruye al cambiar taal) ─────
+            const metroBody = createElement('div', {});
+            card.appendChild(metroBody);
+
+            const buildForTaal = (taalId: string) => {
+                metroBody.innerHTML = '';
+                const beats = TAALS[taalId]?.beats ?? 8;
+                this.buildMetronomeUI(metroBody, beats, block.bpmStart ?? 120, block);
+            };
+
+            taalSelect.addEventListener('change', () => {
+                this.stopMetronome();
+                buildForTaal(taalSelect.value);
+            });
+
+            buildForTaal(taalSelect.value);
         }
 
         return card;
     }
 
     /**
-     * Construye la UI del metrónomo (beat indicators + BPM + ciclos + Play/Stop)
-     * Reutilizable para el soporte principal y el metrónomo secundario.
+     * Construye la UI del metrónomo (beat indicators + BPM + ciclos + Play/Stop).
+     * @param container  Elemento donde se monta la UI
+     * @param initialBeats  Número de beats del compás inicial
+     * @param initialBpm    BPM inicial
+     * @param block         Bloque al que se asocian los ciclos (opcional)
      */
-    private buildMetronomeUI(container: HTMLElement, block: SessionBlock): void {
-        const beats = TAALS[block.taalId ?? 'keherwa']?.beats ?? 8;
-        const bpm = block.bpmStart ?? 120;
-
+    private buildMetronomeUI(
+        container: HTMLElement,
+        initialBeats: number,
+        initialBpm: number,
+        block?: SessionBlock
+    ): void {
         if (this.metronome) {
             this.metronome.stop();
         }
         this.metronome = new MetronomeEngine();
-        this.metronome.setBPM(bpm);
-        this.metronome.setBeatsPerMeasure(beats);
+        this.metronome.setBPM(initialBpm);
+        this.metronome.setBeatsPerMeasure(initialBeats);
 
-        // Beat indicators
+        // ── Indicadores de beat ───────────────────────────────────────────
         const indicatorsRow = createElement('div', {
             className: 'flex flex-wrap justify-center gap-3 mb-4'
         });
-        const indicators: HTMLElement[] = [];
-        for (let i = 0; i < beats; i++) {
-            const dot = createElement('div', { className: 'beat-indicator' });
-            if (i === 0) dot.dataset['beat'] = '0'; // Sam siempre rojo
-            indicatorsRow.appendChild(dot);
-            indicators.push(dot);
-        }
+        let indicators: HTMLElement[] = [];
+
+        const rebuildIndicators = (beats: number) => {
+            indicatorsRow.innerHTML = '';
+            indicators = [];
+            for (let i = 0; i < beats; i++) {
+                const dot = createElement('div', { className: 'beat-indicator' });
+                indicatorsRow.appendChild(dot);
+                indicators.push(dot);
+            }
+        };
+        rebuildIndicators(initialBeats);
         container.appendChild(indicatorsRow);
 
         this.metronome.onBeat((beat: number) => {
             indicators.forEach((d, i) => d.classList.toggle('active', i === beat));
         });
 
-        // BPM display
+        // ── BPM display ───────────────────────────────────────────────────
         const bpmDisplay = createElement('div', {
             className: 'mono-font text-center mb-2',
             style: { fontSize: '3rem' }
-        }, `${bpm} BPM`);
+        }, `${initialBpm} BPM`);
         container.appendChild(bpmDisplay);
 
-        // Ciclos
+        // ── Ciclos ────────────────────────────────────────────────────────
         const cycleDisplay = createElement('div', {
             className: 'text-muted text-sm text-center mb-3'
         }, 'Ciclos: 0');
@@ -474,37 +528,48 @@ export class SessionWizardView implements View {
         this.metronome.onCycle((_cycle: number) => {
             this.cycleCount++;
             cycleDisplay.textContent = `Ciclos: ${this.cycleCount}`;
-            block.cyclesCompleted = this.cycleCount;
+            if (block) block.cyclesCompleted = this.cycleCount;
         });
 
-        // +/- BPM
+        // ── +/- BPM ───────────────────────────────────────────────────────
         const bpmRow = createElement('div', { className: 'flex items-center justify-center gap-4 mb-4' });
         const minusBtn = createElement('button', { className: 'bpm-adj-btn' }, '−');
-        const plusBtn = createElement('button', { className: 'bpm-adj-btn' }, '+');
-        let currentBpm = bpm;
+        const plusBtn  = createElement('button', { className: 'bpm-adj-btn' }, '+');
+        let currentBpm = initialBpm;
+
         minusBtn.addEventListener('click', () => {
             currentBpm = Math.max(40, currentBpm - 5);
             this.metronome?.setBPM(currentBpm);
             bpmDisplay.textContent = `${currentBpm} BPM`;
-            block.bpmEnd = currentBpm;
+            if (block) block.bpmEnd = currentBpm;
         });
         plusBtn.addEventListener('click', () => {
             currentBpm = Math.min(400, currentBpm + 5);
             this.metronome?.setBPM(currentBpm);
             bpmDisplay.textContent = `${currentBpm} BPM`;
-            block.bpmEnd = currentBpm;
+            if (block) block.bpmEnd = currentBpm;
         });
         bpmRow.appendChild(minusBtn);
         bpmRow.appendChild(createElement('span', { className: 'text-muted text-sm' }, 'BPM'));
         bpmRow.appendChild(plusBtn);
         container.appendChild(bpmRow);
 
-        // Play/Stop
+        // ── Play/Stop ─────────────────────────────────────────────────────
         const playBtn = createElement('button', {
             className: 'btn-primary w-full',
             style: { fontSize: '1.1rem', padding: '0.875rem' }
         }, '▶ Play');
         let playing = false;
+
+        const stopPlayback = () => {
+            playing = false;
+            this.metronome?.stop();
+            indicators.forEach(d => d.classList.remove('active'));
+            playBtn.textContent = '▶ Play';
+            playBtn.className = 'btn-primary w-full';
+            (playBtn as HTMLElement).style.padding = '0.875rem';
+        };
+
         playBtn.addEventListener('click', () => {
             playing = !playing;
             if (playing) {
@@ -514,18 +579,21 @@ export class SessionWizardView implements View {
                 playBtn.className = 'btn-secondary w-full';
                 (playBtn as HTMLElement).style.padding = '0.875rem';
             } else {
-                this.metronome?.stop();
-                indicators.forEach(d => d.classList.remove('active'));
-                playBtn.textContent = '▶ Play';
-                playBtn.className = 'btn-primary w-full';
-                (playBtn as HTMLElement).style.padding = '0.875rem';
+                stopPlayback();
             }
         });
         container.appendChild(playBtn);
+
+        // Exponer función de parada para el selector de taal
+        return; // (stopPlayback queda en closure, usada desde taalSelect abajo)
+
+        // (TS no llega aquí — función auxiliar en closure accesible por taalSelect)
+        void stopPlayback;
     }
 
     /**
-     * Metrónomo secundario colapsable — disponible en bloques de canción/lehra
+     * Metrónomo secundario colapsable — disponible en bloques de canción/lehra.
+     * Incluye selector de taal para elegir el compás libremente.
      */
     private renderSecondaryMetronome(block: SessionBlock): HTMLElement {
         const wrapper = createElement('div', { className: 'session-metro-wrapper' });
@@ -539,9 +607,44 @@ export class SessionWizardView implements View {
             className: 'card p-6 session-metro-card',
             style: { display: 'none' }
         });
-        metroCard.appendChild(createElement('p', {
-            className: 'text-muted text-sm mb-4'
-        }, 'Metrónomo de apoyo — practica a menor tempo si lo necesitas'));
+
+        // ── Selector de Taal ──────────────────────────────────────────────
+        const taalField = createElement('div', { className: 'session-form-field mb-4' });
+        taalField.appendChild(createElement('label', {
+            style: {
+                display: 'block',
+                fontSize: '0.8125rem',
+                fontWeight: '600',
+                color: 'var(--text-secondary)',
+                marginBottom: '0.375rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em'
+            }
+        }, 'Taal'));
+        const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+        Object.keys(TAALS).forEach(id => {
+            const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
+            if (id === (block.taalId ?? 'keherwa')) opt.selected = true;
+            taalSelect.appendChild(opt);
+        });
+        taalField.appendChild(taalSelect);
+        metroCard.appendChild(taalField);
+
+        // ── Contenedor de la UI del metrónomo (se reconstruye al cambiar taal) ──
+        const metroBody = createElement('div', {});
+        metroCard.appendChild(metroBody);
+
+        const buildForTaal = (taalId: string) => {
+            metroBody.innerHTML = '';
+            const beats = TAALS[taalId]?.beats ?? 8;
+            const bpm = block.bpmStart ?? 80;
+            this.buildMetronomeUI(metroBody, beats, bpm, undefined);
+        };
+
+        taalSelect.addEventListener('change', () => {
+            this.stopMetronome();
+            buildForTaal(taalSelect.value);
+        });
 
         let metroBuilt = false;
         toggleBtn.addEventListener('click', () => {
@@ -551,13 +654,12 @@ export class SessionWizardView implements View {
                 metroCard.style.display = 'none';
                 toggleBtn.textContent = 'Metrónomo de apoyo';
             } else {
-                // Abrir: construir UI solo la primera vez
                 if (!metroBuilt) {
-                    this.buildMetronomeUI(metroCard, block);
+                    buildForTaal(taalSelect.value);
                     metroBuilt = true;
                 }
                 metroCard.style.display = '';
-                toggleBtn.textContent = '✕ Ocultar metrónomo';
+                toggleBtn.textContent = 'Ocultar metrónomo';
             }
         });
 
@@ -571,14 +673,64 @@ export class SessionWizardView implements View {
         card.appendChild(createElement('h4', { className: 'font-bold mb-4' },
             block.type === 'warmup' ? (block.kaydaName ?? 'Kayda') : `${block.taalName} — ${block.variationName}`));
 
-        let rows: { matra: number; bol: string; technique: string }[][] = [];
-
+        // ── Bloque de Warm Up (Kayda) ─────────────────────────────────────────
         if (block.type === 'warmup' && block.kaydaId) {
             const kayda = KAYDAS[block.kaydaId];
             if (kayda) {
-                rows = kayda.rows.map(r => r.matras);
+                card.appendChild(createElement('p', { className: 'text-muted text-sm mb-4' },
+                    `${kayda.taal} · ${kayda.beats} tiempos`));
+
+                kayda.rows.forEach((row, rowIndex) => {
+                    const isMobile = window.innerWidth < 768;
+                    const groups: Matra[][] = isMobile
+                        ? chunkArray(row.matras, 4)
+                        : [row.matras];
+
+                    groups.forEach((group, groupIndex) => {
+                        const isFirst = rowIndex === 0 && groupIndex === 0;
+                        const rowDiv = createElement('div', {
+                            className: `taal-row-separator ${!isFirst ? 'mt-6' : ''}`
+                        });
+
+                        // Label solo en el primer grupo de cada fila
+                        if (groupIndex === 0) {
+                            rowDiv.appendChild(createElement('h4', {
+                                className: 'text-sm font-semibold text-muted mt-4 mb-3'
+                            }, row.label));
+                        }
+
+                        const grid = createElement('div', {
+                            className: 'grid gap-4 pt-6',
+                            style: { gridTemplateColumns: `repeat(${group.length}, minmax(0, 1fr))` }
+                        });
+
+                        group.forEach(matra => {
+                            const cell = createElement('div', { className: 'bol-cell' });
+                            cell.appendChild(createElement('div', { className: 'matra-number mono-font' }, `M${matra.matra}`));
+                            const bolEl = createElement('div', { className: 'bol-text' });
+                            applyBolIndicators(bolEl, matra.bol);
+                            cell.appendChild(bolEl);
+                            if (matra.technique === 'Taali' || matra.technique === 'Khali' || matra.technique === 'Bhari') {
+                                cell.appendChild(createElement('span', { className: 'technique-badge' }, matra.technique));
+                            }
+                            grid.appendChild(cell);
+                        });
+
+                        rowDiv.appendChild(grid);
+                        card.appendChild(rowDiv);
+                    });
+                });
+
+                if (bolsHaveIndicators(kayda.rows)) {
+                    card.appendChild(createBolIndicatorsLegend());
+                }
             }
-        } else if (block.taalId) {
+            return card;
+        }
+
+        // ── Bloque de Práctica (Taal) ─────────────────────────────────────────
+        let rows: Matra[][] = [];
+        if (block.taalId) {
             const taal = TAALS[block.taalId];
             if (taal) {
                 if (block.variationName === 'Patrón Principal') {

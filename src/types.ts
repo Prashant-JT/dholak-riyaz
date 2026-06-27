@@ -153,12 +153,14 @@ export interface ViewsConfig {
     KAYDAS: string;
     SONGS: string;
     RIYAZ: string;
+    STATS: string;
 }
 
 export interface NavigationItem {
     id: string;
     label: string;
     separator?: boolean; // Línea divisoria DESPUÉS de este item
+    disabled?: boolean;  // Item visible pero no navegable (ej: "Próximamente")
 }
 
 export interface AppConfig {

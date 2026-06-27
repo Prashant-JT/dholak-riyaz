@@ -939,6 +939,33 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     font-weight: 700;
 }
 
+/* Nav item deshabilitado */
+.nav-item-disabled {
+    color: var(--sidebar-text-muted);
+    opacity: 0.55;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.nav-badge-soon {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(249, 115, 22, 0.25);
+    color: #fb923c;
+    padding: 2px 7px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+
 /* ============================================
    CARDS
    ============================================ */
@@ -2063,6 +2090,264 @@ select:disabled {
 
 .session-new-link:hover {
     color: var(--text-primary);
+}
+
+/* ============================================
+   STATS VIEW
+   ============================================ */
+
+/* KPI grid */
+.stats-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.stats-kpi-card {
+    padding: 20px 18px !important;
+}
+
+.stats-kpi-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+}
+
+.stats-kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+}
+
+.stats-kpi-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.stats-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.stats-badge--up {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.stats-badge--streak {
+    background: var(--orange-100);
+    color: #9a3412;
+}
+
+body.dark .stats-badge--up {
+    background: #14532d;
+    color: #86efac;
+}
+
+/* Insight box */
+.stats-insight-box {
+    background: var(--orange-100);
+    border-left: 4px solid var(--orange-500);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* 2-col chart row */
+.stats-chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 0;
+}
+
+/* ── Stats responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    /* KPI: 2 columnas en móvil */
+    .stats-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stats-kpi-card {
+        padding: 16px 14px !important;
+    }
+
+    .stats-kpi-value {
+        font-size: 1.75rem;
+    }
+
+    /* Charts: 1 columna en móvil */
+    .stats-chart-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Reducir altura de canvas en móvil */
+    .stats-canvas-tall   { height: 200px !important; }
+    .stats-canvas-medium { height: 200px !important; }
+    .stats-canvas-short  { height: 160px !important; }
+
+    /* Ocultar columna BPM en tabla historial en móvil */
+    .stats-history-table .stats-col-bpm  { display: none; }
+
+    /* Tabs ocupan todo el ancho */
+    .stats-user-tabs {
+        width: 100%;
+    }
+    .stats-user-tab {
+        flex: 1;
+        text-align: center;
+        padding: 7px 12px;
+    }
+}
+
+/* User tabs */
+.stats-user-tabs {
+    display: flex;
+    background: var(--border-primary);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+    margin-bottom: 24px;
+}
+
+.stats-user-tab {
+    padding: 6px 20px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.stats-user-tab.active {
+    background: var(--orange-500);
+    color: #ffffff;
+}
+
+/* Heatmap */
+.stats-hm-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.stats-hm-0 { background: var(--border-primary); }
+.stats-hm-1 { background: #fed7aa; }
+.stats-hm-2 { background: #fb923c; }
+.stats-hm-3 { background: #f97316; }
+.stats-hm-4 { background: #c2410c; }
+
+.stats-hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.stats-hm-legend-cells {
+    display: flex;
+    gap: 3px;
+}
+
+/* History table */
+.stats-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.stats-history-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1.5px solid var(--border-primary);
+}
+
+.stats-history-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-primary);
+    vertical-align: middle;
+    color: var(--text-primary);
+}
+
+.stats-history-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Tags */
+.stats-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin: 2px 3px 2px 0;
+}
+
+.stats-tag--orange {
+    background: var(--orange-100);
+    color: #9a3412;
+}
+
+.stats-tag--blue {
+    background: var(--blue-100);
+    color: #1e40af;
+}
+
+.stats-tag--slate {
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
+}
+
+.stats-tag--purple {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.stats-tag--teal {
+    background: #ccfbf1;
+    color: #115e59;
+}
+
+body.dark .stats-tag--blue {
+    background: #1e3a8a;
+    color: #93c5fd;
+}
+
+body.dark .stats-tag--purple {
+    background: #4c1d95;
+    color: #c4b5fd;
+}
+
+body.dark .stats-tag--teal {
+    background: #134e4a;
+    color: #5eead4;
 }
 
 /* Made with Bob */

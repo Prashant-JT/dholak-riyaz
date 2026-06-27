@@ -28,17 +28,27 @@ export class NavigationController {
      */
     public render(): void {
         CONFIG.NAVIGATION.forEach(item => {
-            const button = createElement('button', {
-                className: `nav-item w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${
-                    item.id === this.currentView
-                        ? 'active'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-700'
-                }`,
-                dataset: { view: item.id }
-            }, item.label);
-            
-            button.addEventListener('click', () => this.navigateTo(item.id));
-            this.menuElement.appendChild(button);
+            if (item.disabled) {
+                // Item deshabilitado — visible con badge, sin navegación
+                const wrapper = createElement('div', {
+                    className: 'nav-item-disabled w-full px-4 py-3 rounded-lg mb-2 flex items-center justify-between'
+                });
+                wrapper.appendChild(createElement('span', {}, item.label));
+                wrapper.appendChild(createElement('span', { className: 'nav-badge-soon' }, 'Pronto'));
+                this.menuElement.appendChild(wrapper);
+            } else {
+                const button = createElement('button', {
+                    className: `nav-item w-full text-left px-4 py-3 rounded-lg mb-2 transition-all ${
+                        item.id === this.currentView
+                            ? 'active'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                    }`,
+                    dataset: { view: item.id }
+                }, item.label);
+
+                button.addEventListener('click', () => this.navigateTo(item.id));
+                this.menuElement.appendChild(button);
+            }
 
             // Separador después del item si está marcado
             if (item.separator) {
