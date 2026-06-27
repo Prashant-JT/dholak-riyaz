@@ -227,6 +227,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=exAAEljV-68"
+    },
+    {
+        title: "Tu Hain Toh",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=TVbI55pDdaI"
     }
 ];
 
