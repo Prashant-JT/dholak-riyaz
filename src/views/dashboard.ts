@@ -24,46 +24,10 @@ export class DashboardView implements View {
         }, 'Metrónomo y Herramientas de Práctica'));
         section.appendChild(header);
 
-        section.appendChild(this.createRiyazFormCard());
         section.appendChild(this.createMetronomeCard());
         section.appendChild(this.createLehrasCard());
         
         return section;
-    }
-    
-    private createRiyazFormCard(): HTMLElement {
-        const card = createElement('div', {
-            className: 'card p-6 mb-6'
-        });
-        
-        // Compact layout with flex
-        const content = createElement('div', { className: 'flex items-center justify-between gap-4' });
-        
-        // Left side: Text
-        const leftSide = createElement('div', { className: 'flex items-center gap-4' });
-        const textContainer = createElement('div');
-        textContainer.appendChild(createElement('h3', {
-            className: 'text-xl font-bold'
-        }, 'Registro de Práctica'));
-        textContainer.appendChild(createElement('p', {
-            className: 'text-base text-slate-500'
-        }, 'Registra tu Riyaz de hoy'));
-        
-        leftSide.appendChild(textContainer);
-        content.appendChild(leftSide);
-        
-        // Right side: Button
-        const button = createElement('a', {
-            href: 'https://forms.gle/a7hrsQS8nR6CGLdZ8',
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            className: 'songs-yt-btn'
-        });
-        button.innerHTML = '📋 Registrar';
-        content.appendChild(button);
-        
-        card.appendChild(content);
-        return card;
     }
     
     private createMetronomeCard(): HTMLElement {

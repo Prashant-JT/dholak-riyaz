@@ -32,7 +32,7 @@ export const CONFIG: AppConfig = {
     
     NAVIGATION: [
         { id: 'riyaz', label: 'Sesión Riyaz' },
-        { id: 'stats', label: 'Estadísticas', separator: true, disabled: true },
+        { id: 'stats', label: 'Estadísticas', separator: true },
         { id: 'dashboard', label: 'Metrónomo' },
         { id: 'glosario', label: 'Teoría', separator: true },
         { id: 'keherwa', label: 'Keherwa (8B)' },

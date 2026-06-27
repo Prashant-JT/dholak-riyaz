@@ -28,6 +28,12 @@ const TAAL_SONG_PREFIXES: Record<string, string> = {
     deepchandi: 'Deepchandi',
 };
 
+/** Calcula el hash SHA-256 de un string usando la Web Crypto API nativa del navegador */
+async function hashPassword(plain: string): Promise<string> {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(plain));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export class SessionWizardView implements View {
     private container!: HTMLElement;
     private sessionState!: SessionState;
@@ -992,10 +998,11 @@ export class SessionWizardView implements View {
         blocks: SessionBlock[],
         onSuccess: () => void
     ): void {
-        // Usuarios autorizados — contraseñas hasheadas de forma simple
+        // SHA-256 hashes de las contraseñas — calculados en build time con openssl.
+        // Las contraseñas reales nunca están en el código fuente.
         const USERS: Record<string, string> = {
-            prashant: 'dholak_prashant',
-            meera:    'dholak_meera',
+            prashant: 'ae4b0d12939920f3b55c0a720bb46add87367b39e952982fd821c80078845e37',
+            meera:    '70c5db7d6de2c3272f7952b0d0e6a30de0ecff9f47ca4b81c2e8917d4344912a',
         };
 
         // ── Overlay ───────────────────────────────────────────────────────────
@@ -1041,10 +1048,10 @@ export class SessionWizardView implements View {
 
         const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, 'Guardar');
         confirmBtn.addEventListener('click', async () => {
-            const userId   = userSelect.value;
-            const password = passInput.value.trim();
+            const userId       = userSelect.value;
+            const passwordHash = await hashPassword(passInput.value.trim());
 
-            if (password !== USERS[userId]) {
+            if (passwordHash !== USERS[userId]) {
                 errorEl.textContent = 'Contraseña incorrecta';
                 errorEl.style.display = 'block';
                 passInput.value = '';
@@ -1076,11 +1083,9 @@ export class SessionWizardView implements View {
             };
 
             try {
-                const result: { data: unknown; error: unknown } = await new Promise(resolve => {
-                    db.from('sessions').insert(record).then(resolve);
-                });
+                const { error } = await db.from('sessions').insert(record);
 
-                if (result.error) throw result.error;
+                if (error) throw error;
 
                 // Éxito
                 overlay.remove();
