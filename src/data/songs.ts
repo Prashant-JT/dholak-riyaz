@@ -33,7 +33,7 @@ export const SONGS: Song[] = [
         title: "Thumaka Chalata Ramachandra",
         artist: "Devocional",
         taal: "Dadra (6 beats)",
-        youtubeUrl: "https://www.youtube.com/watch?v=lGaQSumuSpA"
+        youtubeUrl: "https://www.youtube.com/watch?v=8JAzZZSLZYQ"
     },
     {
         title: "Ye Daulat Bhi Lelo Ye Shohrat Bhi Lelo",
@@ -148,7 +148,7 @@ export const SONGS: Song[] = [
         title: "Aaj Jaane Ki Zid Na Karo",
         artist: "Farida Khanum",
         taal: "Deepchandi (14 beats)",
-        youtubeUrl: "https://www.youtube.com/watch?v=CfUDuYAasiE"
+        youtubeUrl: "https://www.youtube.com/watch?v=CfUDuYAasjE"
     },
     {
         title: "Tera Chehra Jab Nazar Aaye",
