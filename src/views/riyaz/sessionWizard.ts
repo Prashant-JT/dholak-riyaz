@@ -37,6 +37,33 @@ async function hashPassword(plain: string): Promise<string> {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ─── Draft de sesión en curso (recuperación tras recarga) ──────────────────
+const LS_DRAFT_KEY = 'dholak_session_draft';
+
+interface SessionDraft {
+    savedAt: number;            // timestamp para mostrar "hace X min"
+    state: SessionState;
+    elapsedSecs: number;        // segundos ya transcurridos en el bloque actual al guardar
+}
+
+function saveSessionDraft(state: SessionState, blockStartTime: number): void {
+    const elapsedSecs = Math.floor((Date.now() - blockStartTime) / 1000);
+    const draft: SessionDraft = { savedAt: Date.now(), state, elapsedSecs };
+    try { localStorage.setItem(LS_DRAFT_KEY, JSON.stringify(draft)); } catch { /* no-op */ }
+}
+
+function loadSessionDraft(): SessionDraft | null {
+    try {
+        const raw = localStorage.getItem(LS_DRAFT_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw) as SessionDraft;
+    } catch { return null; }
+}
+
+function clearSessionDraft(): void {
+    localStorage.removeItem(LS_DRAFT_KEY);
+}
+
 // ─── Plantillas guardadas en localStorage ──────────────────────────────────
 interface SavedTemplate { id: string; name: string; blocks: SessionBlock[]; }
 const LS_TEMPLATES_KEY = 'dholak_session_templates';
@@ -90,19 +117,76 @@ export class SessionWizardView implements View {
             id: 'riyaz',
             className: 'view-section'
         });
-        // Detectar link compartido en el hash de la URL
+
+        // 1. Link compartido tiene prioridad absoluta
         const hashParam = this.extractShareHash();
         if (hashParam) {
             const parsed = hashToBlocks(hashParam);
-            if (parsed) {
-                this.renderStep1([], parsed);
-            } else {
-                this.renderStep1();
-            }
-        } else {
-            this.renderStep1();
+            this.renderStep1([], parsed ?? null);
+            return this.container;
         }
+
+        // 2. Recuperar sesión interrumpida
+        const draft = loadSessionDraft();
+        if (draft) {
+            this.renderDraftRecovery(draft);
+            return this.container;
+        }
+
+        this.renderStep1();
         return this.container;
+    }
+
+    /** Banner de recuperación de sesión interrumpida */
+    private renderDraftRecovery(draft: SessionDraft): void {
+        this.container.innerHTML = '';
+
+        const elapsedMin = Math.round((Date.now() - draft.savedAt) / 60000);
+        const timeLabel = elapsedMin < 1 ? 'hace menos de 1 min'
+            : elapsedMin === 1 ? 'hace 1 min'
+            : `hace ${elapsedMin} min`;
+
+        const card = createElement('div', { className: 'session-draft-recovery' });
+        card.appendChild(createElement('div', { className: 'session-draft-recovery__icon' }, '🔄'));
+        card.appendChild(createElement('h3', { className: 'session-draft-recovery__title' }, 'Sesión interrumpida'));
+        card.appendChild(createElement('p', { className: 'session-draft-recovery__meta' },
+            `${draft.state.blocks.length} bloque${draft.state.blocks.length !== 1 ? 's' : ''} · Bloque ${draft.state.currentBlockIndex + 1} en curso · ${timeLabel}`));
+
+        // Lista de bloques
+        const list = createElement('ul', { className: 'session-draft-recovery__list' });
+        draft.state.blocks.forEach((b, i) => {
+            const isCurrent = i === draft.state.currentBlockIndex;
+            const label = b.type === 'warmup'
+                ? `Warm Up — ${b.kaydaName ?? ''}`
+                : b.type === 'pickup'
+                    ? `Pickup — ${b.pickupName ?? ''}`
+                    : `${b.taalName ?? ''} · ${b.variationName ?? ''}`;
+            const li = createElement('li', { className: isCurrent ? 'session-draft-recovery__list-item--current' : '' },
+                `${isCurrent ? '▶ ' : ''}${label}${b.durationSecs ? ` (${Math.floor(b.durationSecs / 60)}:${String(b.durationSecs % 60).padStart(2,'0')})` : ''}`);
+            list.appendChild(li);
+        });
+        card.appendChild(list);
+
+        const actions = createElement('div', { className: 'session-draft-recovery__actions' });
+
+        const continueBtn = createElement('button', { className: 'btn-primary' }, '▶ Continuar sesión');
+        continueBtn.addEventListener('click', () => {
+            this.sessionState = draft.state;
+            // Ajustar blockStartTime para que el timer continúe desde donde se pausó
+            this.blockStartTime = Date.now() - draft.elapsedSecs * 1000;
+            this.renderStep2();
+        });
+        actions.appendChild(continueBtn);
+
+        const discardBtn = createElement('button', { className: 'session-draft-recovery__discard' }, 'Descartar y empezar de nuevo');
+        discardBtn.addEventListener('click', () => {
+            clearSessionDraft();
+            this.renderStep1();
+        });
+        actions.appendChild(discardBtn);
+
+        card.appendChild(actions);
+        this.container.appendChild(card);
     }
 
     /** Extrae el valor de #share=... de la URL y limpia el hash */
@@ -816,6 +900,8 @@ export class SessionWizardView implements View {
             currentBlockIndex: 0,
             notes: ''
         };
+        this.blockStartTime = Date.now();
+        saveSessionDraft(this.sessionState, this.blockStartTime);
         this.renderStep2();
     }
 
@@ -871,8 +957,9 @@ export class SessionWizardView implements View {
         this.container.appendChild(nextBtn);
 
         // Arrancar timer
-        this.blockStartTime = Date.now();
-        this.cycleCount = 0;
+        // blockStartTime ya fue asignado en startSession o en completeCurrentBlock
+        // o restaurado desde draft — NO resetear aquí
+        this.cycleCount = this.sessionState.blocks[this.sessionState.currentBlockIndex]?.cyclesCompleted ?? 0;
         this.startTimer(timerDisplay);
     }
 
@@ -1277,8 +1364,12 @@ export class SessionWizardView implements View {
 
         if (this.sessionState.currentBlockIndex < this.sessionState.blocks.length - 1) {
             this.sessionState.currentBlockIndex++;
+            this.blockStartTime = Date.now();
+            saveSessionDraft(this.sessionState, this.blockStartTime);
             this.renderStep2();
         } else {
+            // Sesión completa — limpiar draft antes del resumen
+            clearSessionDraft();
             this.renderStep3();
         }
     }
@@ -1390,7 +1481,7 @@ export class SessionWizardView implements View {
         const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
         saveBtn.addEventListener('click', () => {
             this.showSaveModal(state.notes, totalSecs, state.blocks, () => {
-                // Éxito: mostrar mensaje y volver a nueva sesión
+                clearSessionDraft();
                 actionArea.innerHTML = '';
                 const successMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--success' });
                 successMsg.innerHTML = '✓ <strong>Sesión guardada.</strong> Redirigiendo...';
@@ -1414,7 +1505,7 @@ export class SessionWizardView implements View {
 
         const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, 'Sí, descartar');
         yesBtn.addEventListener('click', () => {
-            // Descartar: ocultar todo, mostrar feedback y volver
+            clearSessionDraft();
             actionArea.innerHTML = '';
             discardWrapper.innerHTML = '';
             const discardMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--discard' });
