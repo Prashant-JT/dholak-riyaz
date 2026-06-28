@@ -288,6 +288,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=cx_fHLQE97w"
+    },
+    {
+        title: "Aap Ki Nazro Ne Samjha",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=Wv-VlQMD0VY"
     }
 ];
 
