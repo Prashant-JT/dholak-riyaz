@@ -33,7 +33,8 @@ export class SongsView implements View {
             className: 'songs-taal-select'
         }) as HTMLSelectElement;
         TAAL_OPTIONS.forEach(t => {
-            taalSelect.appendChild(createElement('option', { value: t }, t) as HTMLOptionElement);
+            const label = t === 'Todos' ? 'Todos' : t.replace(/\s*\(.*\)$/, '');
+            taalSelect.appendChild(createElement('option', { value: t }, label) as HTMLOptionElement);
         });
         searchWrapper.appendChild(taalSelect);
 
