@@ -631,6 +631,7 @@ export class StatsView implements View {
 
         content.appendChild(this.buildKPIs(d));
         content.appendChild(this.buildInsight(d));
+        content.appendChild(this.buildWeekCompare(d));
         content.appendChild(this.buildWeeklyCard(d));
 
         const row2 = createElement('div', { className: 'stats-chart-row' });
@@ -1137,6 +1138,99 @@ export class StatsView implements View {
         const box = createElement('div', { className: 'stats-insight-box' });
         box.innerHTML = `💡 ${d.insight}`;
         return box;
+    }
+
+    // ── Esta semana vs semana pasada ──────────────────────────────────────────
+
+    private buildWeekCompare(d: UserStats): HTMLElement {
+        // weekly[15] = esta semana, weekly[14] = semana pasada
+        const minsThis = d.weekly[15] ?? 0;
+        const minsPrev = d.weekly[14] ?? 0;
+
+        // Sesiones esta semana / semana pasada
+        const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
+        const now = new Date();
+        const getMonday = (ref: Date): Date => {
+            const d = new Date(ref);
+            const day = d.getDay();
+            d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+            d.setHours(0, 0, 0, 0);
+            return d;
+        };
+        const thisMonday = getMonday(now);
+        const prevMonday = new Date(thisMonday.getTime() - MS_WEEK);
+
+        const sessionsThis = d.rawSessions.filter(s => {
+            const t = new Date(s.saved_at).getTime();
+            return t >= thisMonday.getTime() && t < thisMonday.getTime() + MS_WEEK;
+        });
+        const sessionsPrev = d.rawSessions.filter(s => {
+            const t = new Date(s.saved_at).getTime();
+            return t >= prevMonday.getTime() && t < thisMonday.getTime();
+        });
+
+        // BPM máx esta semana / semana pasada
+        const maxBpmOf = (ss: SupabaseSession[]) =>
+            ss.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0)).reduce((m, v) => Math.max(m, v), 0);
+        const bpmThis = maxBpmOf(sessionsThis);
+        const bpmPrev = maxBpmOf(sessionsPrev);
+
+        // Helper: delta con flecha y color
+        const delta = (curr: number, prev: number, unit: string): { text: string; cls: string } => {
+            if (prev === 0 && curr === 0) return { text: '—', cls: 'week-cmp-delta--neutral' };
+            if (prev === 0) return { text: `+${curr} ${unit}`, cls: 'week-cmp-delta--up' };
+            const diff = curr - prev;
+            if (diff > 0) return { text: `+${diff} ${unit}`, cls: 'week-cmp-delta--up' };
+            if (diff < 0) return { text: `${diff} ${unit}`, cls: 'week-cmp-delta--down' };
+            return { text: `= igual`, cls: 'week-cmp-delta--neutral' };
+        };
+
+        const minsDelta   = delta(minsThis,              minsPrev,              'min');
+        const sessDelta   = delta(sessionsThis.length,   sessionsPrev.length,   'ses.');
+        const bpmDelta    = delta(bpmThis,               bpmPrev,               'BPM');
+
+        const fmtMins = (m: number) => m >= 60 ? `${Math.floor(m/60)}h ${m%60 > 0 ? m%60+'m' : ''}`.trim() : `${m}m`;
+
+        const metrics: { label: string; thisVal: string; prevVal: string; delta: { text: string; cls: string } }[] = [
+            { label: 'Minutos',  thisVal: fmtMins(minsThis),          prevVal: fmtMins(minsPrev),          delta: minsDelta  },
+            { label: 'Sesiones', thisVal: String(sessionsThis.length), prevVal: String(sessionsPrev.length), delta: sessDelta  },
+            { label: 'BPM máx', thisVal: bpmThis > 0 ? String(bpmThis) : '—', prevVal: bpmPrev > 0 ? String(bpmPrev) : '—', delta: bpmDelta },
+        ];
+
+        const card = this.card();
+        const headerRow = createElement('div', { className: 'week-cmp-header' });
+        const titleWrap = createElement('div');
+        titleWrap.appendChild(this.cardTitle('Esta semana vs semana pasada'));
+        titleWrap.appendChild(this.cardSub('Progreso semanal en tiempo real'));
+        headerRow.appendChild(titleWrap);
+
+        // Etiquetas de columna
+        const colLabels = createElement('div', { className: 'week-cmp-col-labels' });
+        colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--this' }, 'Esta semana'));
+        colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--prev' }, 'Semana pasada'));
+        headerRow.appendChild(colLabels);
+        card.appendChild(headerRow);
+
+        const grid = createElement('div', { className: 'week-cmp-grid' });
+        metrics.forEach(m => {
+            const row = createElement('div', { className: 'week-cmp-row' });
+
+            row.appendChild(createElement('span', { className: 'week-cmp-metric-label' }, m.label));
+
+            const thisCell = createElement('div', { className: 'week-cmp-cell week-cmp-cell--this' });
+            thisCell.appendChild(createElement('span', { className: 'week-cmp-value' }, m.thisVal));
+            thisCell.appendChild(createElement('span', { className: `week-cmp-delta ${m.delta.cls}` }, m.delta.text));
+            row.appendChild(thisCell);
+
+            row.appendChild(createElement('div', { className: 'week-cmp-cell week-cmp-cell--prev' },));
+            const prevCell = row.lastElementChild as HTMLElement;
+            prevCell.appendChild(createElement('span', { className: 'week-cmp-value week-cmp-value--muted' }, m.prevVal));
+
+            grid.appendChild(row);
+        });
+        card.appendChild(grid);
+
+        return card;
     }
 
     // ── Heatmap ───────────────────────────────────────────────────────────────

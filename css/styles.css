@@ -2702,6 +2702,104 @@ body.dark .stats-insight-box {
     color: #fed7aa;
 }
 
+/* ── Esta semana vs semana pasada ──────────────────────────────────────────── */
+.week-cmp-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.week-cmp-col-labels {
+    display: flex;
+    gap: 0;
+    align-self: flex-end;
+}
+
+.week-cmp-col-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: 99px;
+}
+
+.week-cmp-col-label--this {
+    background: var(--orange-500);
+    color: #fff;
+    margin-right: 6px;
+}
+
+.week-cmp-col-label--prev {
+    background: var(--border-primary);
+    color: var(--text-muted);
+}
+
+.week-cmp-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.week-cmp-row {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.week-cmp-row:last-child {
+    border-bottom: none;
+}
+
+.week-cmp-metric-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.week-cmp-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.week-cmp-cell--this {
+    align-items: flex-start;
+}
+
+.week-cmp-cell--prev {
+    align-items: flex-end;
+}
+
+.week-cmp-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.week-cmp-value--muted {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.week-cmp-delta {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.week-cmp-delta--up      { color: #22c55e; }
+.week-cmp-delta--down    { color: #ef4444; }
+.week-cmp-delta--neutral { color: var(--text-muted); }
+
 /* 2-col chart row */
 .stats-chart-row {
     display: grid;
