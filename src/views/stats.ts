@@ -344,6 +344,8 @@ interface Medal {
     desc: string;
     earned: boolean;
     earnedAt?: string;   // fecha legible si está ganada
+    progress?: string;   // texto de progreso para celdas bloqueadas
+    progressPct?: number; // 0-100 para barra visual
 }
 
 function computeMedals(sessions: SupabaseSession[]): Medal[] {
@@ -420,39 +422,86 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
     const session10At      = sorted[9]?.saved_at;
     const session50At      = sorted[49]?.saved_at;
 
-    const mk = (id: string, emoji: string, name: string, desc: string, cond: boolean, when?: string): Medal => ({
+    const mk = (id: string, emoji: string, name: string, desc: string, cond: boolean, when?: string, progress?: string, progressPct?: number): Medal => ({
         id, emoji, name, desc,
         earned: cond,
         earnedAt: cond && when ? fmt(when) : undefined,
+        progress: cond ? undefined : progress,
+        progressPct: cond ? undefined : progressPct,
     });
+
+    // Racha actual (para mostrar en celdas de racha no ganadas)
+    const currentStreak = allDays.length > 0 ? (() => {
+        let s = 1;
+        for (let i = allDays.length - 1; i > 0; i--) {
+            const diff = (allDays[i].getTime() - allDays[i-1].getTime()) / 86400000;
+            if (diff === 1) s++; else break;
+        }
+        // Si el último día de práctica no fue hoy ni ayer, la racha está rota
+        const last = allDays[allDays.length - 1];
+        const today = new Date(); today.setHours(0,0,0,0);
+        const diffToToday = (today.getTime() - last.getTime()) / 86400000;
+        return diffToToday <= 1 ? s : 0;
+    })() : 0;
+
+    // Racha semanal actual
+    const currentWeekStreak = sessionWeeks.length > 0 ? (() => {
+        let s = 1;
+        for (let i = sessionWeeks.length - 1; i > 0; i--) {
+            const prev = new Date(sessionWeeks[i-1]); prev.setDate(prev.getDate() + 7);
+            if (prev.toISOString().slice(0,10) === sessionWeeks[i]) s++; else break;
+        }
+        const lastWeek = new Date(sessionWeeks[sessionWeeks.length - 1]);
+        const thisMonday = new Date(); const day = thisMonday.getDay(); thisMonday.setDate(thisMonday.getDate() - (day === 0 ? 6 : day - 1)); thisMonday.setHours(0,0,0,0);
+        return lastWeek.toISOString().slice(0,10) === thisMonday.toISOString().slice(0,10) ? s : 0;
+    })() : 0;
 
     return [
         // Constancia
         mk('first',     '🌱', 'Primera sesión',    'Guardaste tu primera sesión',                    totalSessions >= 1,  firstSession),
-        mk('s10',       '🎯', '10 sesiones',        '10 sesiones guardadas',                           totalSessions >= 10, session10At),
-        mk('s50',       '🏅', '50 sesiones',        '50 sesiones guardadas',                           totalSessions >= 50, session50At),
-        mk('streak7',   '🔥', 'Racha de 7 días',    '7 días consecutivos practicando',                maxStreak >= 7,   streak7Session),
-        mk('streak30',  '💎', 'Racha de 30 días',   '30 días consecutivos sin parar',                 maxStreak >= 30,  streak30Session),
-        mk('streak60',  '🌟', 'Racha de 60 días',   '60 días consecutivos practicando',               maxStreak >= 60,  streak60Session),
-        mk('streak100', '👑', 'Racha de 100 días',  '100 días consecutivos sin fallar',               maxStreak >= 100, streak100Session),
-        mk('streak365', '🎖️', 'Un año entero',      '365 días consecutivos — leyenda absoluta',       maxStreak >= 365, streak365Session),
-        mk('week4',     '🗓️', '4 semanas seguidas', 'Practicado al menos una vez en 4 semanas seguidas', maxWeekStreak >= 4, week4Session),
+        mk('s10',       '🎯', '10 sesiones',        '10 sesiones guardadas',                           totalSessions >= 10, session10At,
+            `${totalSessions} de 10 sesiones`, Math.min(100, Math.round((totalSessions / 10) * 100))),
+        mk('s50',       '🏅', '50 sesiones',        '50 sesiones guardadas',                           totalSessions >= 50, session50At,
+            `${totalSessions} de 50 sesiones`, Math.min(100, Math.round((totalSessions / 50) * 100))),
+        mk('streak7',   '🔥', 'Racha de 7 días',    '7 días consecutivos practicando',                maxStreak >= 7,   streak7Session,
+            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 7) * 100))),
+        mk('streak30',  '💎', 'Racha de 30 días',   '30 días consecutivos sin parar',                 maxStreak >= 30,  streak30Session,
+            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 30) * 100))),
+        mk('streak60',  '🌟', 'Racha de 60 días',   '60 días consecutivos practicando',               maxStreak >= 60,  streak60Session,
+            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 60) * 100))),
+        mk('streak100', '👑', 'Racha de 100 días',  '100 días consecutivos sin fallar',               maxStreak >= 100, streak100Session,
+            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 100) * 100))),
+        mk('streak365', '🎖️', 'Un año entero',      '365 días consecutivos — leyenda absoluta',       maxStreak >= 365, streak365Session,
+            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 365) * 100))),
+        mk('week4',     '🗓️', '4 semanas seguidas', 'Practicado al menos una vez en 4 semanas seguidas', maxWeekStreak >= 4, week4Session,
+            `${currentWeekStreak} de 4 semanas`, Math.min(100, Math.round((currentWeekStreak / 4) * 100))),
         // Volumen
-        mk('h1',        '⏱️', 'Primera hora',       'Acumulado total ≥ 1 hora',                        totalMins >= 60,   firstHourSession),
-        mk('h10',       '🕐', '10 horas',           'Acumulado total ≥ 10 horas',                      totalMins >= 600,  first10hSession),
-        mk('h50',       '🏆', '50 horas',           'Acumulado total ≥ 50 horas',                      totalMins >= 3000, first50hSession),
-        mk('h100',      '🥇', '100 horas',          'Acumulado total ≥ 100 horas',                     totalMins >= 6000, first100hSession),
-        mk('long',      '💪', 'Sesión larga',       'Una sesión de al menos 60 minutos',               maxSessionMins >= 60, longSession),
-        mk('marathon',  '🦾', 'Maratoniano',        'Una sesión de al menos 90 minutos',               maxSessionMins >= 90, marathonSession),
+        mk('h1',        '⏱️', 'Primera hora',       'Acumulado total ≥ 1 hora',                        totalMins >= 60,   firstHourSession,
+            `${totalMins} de 60 min`, Math.min(100, Math.round((totalMins / 60) * 100))),
+        mk('h10',       '🕐', '10 horas',           'Acumulado total ≥ 10 horas',                      totalMins >= 600,  first10hSession,
+            `${Math.round(totalMins / 60 * 10) / 10} de 10 h`, Math.min(100, Math.round((totalMins / 600) * 100))),
+        mk('h50',       '🏆', '50 horas',           'Acumulado total ≥ 50 horas',                      totalMins >= 3000, first50hSession,
+            `${Math.round(totalMins / 60 * 10) / 10} de 50 h`, Math.min(100, Math.round((totalMins / 3000) * 100))),
+        mk('h100',      '🥇', '100 horas',          'Acumulado total ≥ 100 horas',                     totalMins >= 6000, first100hSession,
+            `${Math.round(totalMins / 60 * 10) / 10} de 100 h`, Math.min(100, Math.round((totalMins / 6000) * 100))),
+        mk('long',      '💪', 'Sesión larga',       'Una sesión de al menos 60 minutos',               maxSessionMins >= 60, longSession,
+            `máx. sesión: ${maxSessionMins} min`, Math.min(100, Math.round((maxSessionMins / 60) * 100))),
+        mk('marathon',  '🦾', 'Maratoniano',        'Una sesión de al menos 90 minutos',               maxSessionMins >= 90, marathonSession,
+            `máx. sesión: ${maxSessionMins} min`, Math.min(100, Math.round((maxSessionMins / 90) * 100))),
         // Variedad
-        mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session),
+        mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session,
+            `${taalsSet.size} de 3 taals`, Math.min(100, Math.round((taalsSet.size / 3) * 100))),
         mk('deepchandi', '🌊', 'Primer Deepchandi',  'Primera sesión practicando Deepchandi (14 beats)',  deepchandiSession !== undefined, deepchandiSession),
-        mk('allFour',    '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi',  hasAllFour,                     allFourSession),
-        mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session),
+        mk('allFour',    '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi',  hasAllFour,                     allFourSession,
+            `${THE_FOUR.filter(t => taalsSet.has(t)).length} de 4 taals`, Math.min(100, Math.round((THE_FOUR.filter(t => taalsSet.has(t)).length / 4) * 100))),
+        mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session,
+            `${songSessions.length} de 5 sesiones`, Math.min(100, Math.round((songSessions.length / 5) * 100))),
         // BPM
         mk('slow',      '🐢', 'Base sólida',        'Practicado con metrónomo a ≤ 60 BPM',             maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
-        mk('bpm120',    '⚡', 'Velocista',          'Alcanzado ≥ 120 BPM en metrónomo',                maxBpm >= 120, bpm120Session),
-        mk('bpm180',    '🚀', 'Fuego',              'Alcanzado ≥ 180 BPM en metrónomo',                maxBpm >= 180, bpm180Session),
+        mk('bpm120',    '⚡', 'Velocista',          'Alcanzado ≥ 120 BPM en metrónomo',                maxBpm >= 120, bpm120Session,
+            `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),
+        mk('bpm180',    '🚀', 'Fuego',              'Alcanzado ≥ 180 BPM en metrónomo',                maxBpm >= 180, bpm180Session,
+            `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 180) / 180) * 100))),
     ];
 }
 
@@ -1337,8 +1386,23 @@ export class StatsView implements View {
                 cell.appendChild(nameEl);
                 cell.appendChild(descEl);
 
+                // Progreso visual para celdas bloqueadas
+                if (!m.earned && m.progress !== undefined) {
+                    const progressWrap = createElement('div', { className: 'medals-cell-progress' });
+                    const progressText = createElement('span', { className: 'medals-cell-progress__text' }, m.progress);
+                    progressWrap.appendChild(progressText);
+                    if (m.progressPct !== undefined && m.progressPct > 0) {
+                        const bar = createElement('div', { className: 'medals-cell-progress__bar' });
+                        const fill = createElement('div', { className: 'medals-cell-progress__fill' });
+                        fill.style.width = `${m.progressPct}%`;
+                        bar.appendChild(fill);
+                        progressWrap.appendChild(bar);
+                    }
+                    cell.appendChild(progressWrap);
+                }
+
                 // Tooltip con descripción completa al hacer hover (title nativo)
-                cell.title = m.earned ? `${m.name} · ${m.earnedAt ?? ''}` : m.desc;
+                cell.title = m.earned ? `${m.name} · ${m.earnedAt ?? ''}` : (m.progress ? `${m.desc} · ${m.progress}` : m.desc);
 
                 grid.appendChild(cell);
             });

@@ -3479,6 +3479,39 @@ body.dark .session-action-feedback--success {
     font-weight: 600;
 }
 
+/* Progreso en celdas de medallas bloqueadas */
+.medals-cell-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    width: 100%;
+    margin-top: 0.15rem;
+}
+
+.medals-cell-progress__text {
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: var(--orange-400, #fb923c);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.medals-cell-progress__bar {
+    width: 80%;
+    height: 3px;
+    background: var(--border-primary);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.medals-cell-progress__fill {
+    height: 100%;
+    background: var(--orange-400, #fb923c);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+}
+
 /* ── Medallas comparativas ──────────────────────────────────────────────────── */
 
 /* Leyenda */
