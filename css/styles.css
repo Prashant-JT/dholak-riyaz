@@ -3479,5 +3479,112 @@ body.dark .session-action-feedback--success {
     font-weight: 600;
 }
 
+/* ── Medallas comparativas ──────────────────────────────────────────────────── */
+
+/* Leyenda */
+.medals-compare-legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.medals-compare-legend-dots {
+    display: flex;
+    gap: 1rem;
+}
+
+.medals-compare-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.medals-compare-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+    background: var(--border-primary);
+    opacity: 0.3;
+}
+
+.medals-compare-dot--p { background: #f97316; }
+.medals-compare-dot--m { background: #3b82f6; }
+
+/* Grid de 3 cards */
+.medals-compare-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .medals-compare-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Grid de celdas dentro de cada card */
+.medals-cmp-cell-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+}
+
+/* Celda de medalla */
+.medals-cmp-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.2rem;
+    padding: 0.5rem 0.25rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-primary);
+    background: var(--bg-tertiary);
+    cursor: default;
+}
+
+.medals-cmp-emoji {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.medals-cmp-emoji--locked {
+    filter: grayscale(1);
+    opacity: 0.35;
+}
+
+.medals-cmp-name {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+/* Dos dots por celda */
+.medals-cmp-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.2rem;
+}
+
+.medals-cmp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-primary);
+    opacity: 0.25;
+    flex-shrink: 0;
+}
+
+.medals-cmp-dot--p.medals-cmp-dot--on { background: #f97316; opacity: 1; }
+.medals-cmp-dot--m.medals-cmp-dot--on { background: #3b82f6; opacity: 1; }
+
 /* Made with Bob */
 

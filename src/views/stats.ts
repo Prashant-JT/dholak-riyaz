@@ -386,6 +386,7 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
     const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
     const THE_FOUR = ['Keherwa (8 beats)', 'Dadra (6 beats)', 'Rupak (7 beats)', 'Deepchandi (14 beats)'];
     const hasAllFour = THE_FOUR.every(t => taalsSet.has(t));
+    const deepchandiSession = (() => { for (const s of sorted) { if (s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Deepchandi (14 beats)')) return s.saved_at; } return undefined; })();
 
     // Sesiones con canción
     const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
@@ -444,9 +445,10 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
         mk('long',      '💪', 'Sesión larga',       'Una sesión de al menos 60 minutos',               maxSessionMins >= 60, longSession),
         mk('marathon',  '🦾', 'Maratoniano',        'Una sesión de al menos 90 minutos',               maxSessionMins >= 90, marathonSession),
         // Variedad
-        mk('explorer',  '🥁', 'Explorador',         'Practicado 3 taals distintos',                    taalsSet.size >= 3, explorer3Session),
-        mk('allFour',   '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi', hasAllFour, allFourSession),
-        mk('songs5',    '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',            songSessions.length >= 5, song5Session),
+        mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session),
+        mk('deepchandi', '🌊', 'Primer Deepchandi',  'Primera sesión practicando Deepchandi (14 beats)',  deepchandiSession !== undefined, deepchandiSession),
+        mk('allFour',    '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi',  hasAllFour,                     allFourSession),
+        mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session),
         // BPM
         mk('slow',      '🐢', 'Base sólida',        'Practicado con metrónomo a ≤ 60 BPM',             maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
         mk('bpm120',    '⚡', 'Velocista',          'Alcanzado ≥ 120 BPM en metrónomo',                maxBpm >= 120, bpm120Session),
@@ -897,6 +899,81 @@ export class StatsView implements View {
         });
         content.appendChild(distRow);
 
+        // ── Medallas lado a lado (3 cards en grid) ────────────────────────────
+        const pm = computeMedals(p.rawSessions);
+        const mm = computeMedals(m.rawSessions);
+        const pmById = Object.fromEntries(pm.map(x => [x.id, x]));
+        const mmById = Object.fromEntries(mm.map(x => [x.id, x]));
+
+        const COMPARE_GROUPS = [
+            { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
+            { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
+            { label: 'Variedad + Velocidad', ids: ['explorer','deepchandi','allFour','songs5','slow','bpm120','bpm180'] },
+        ];
+
+        // Leyenda una sola vez
+        const legendCard = this.card();
+        legendCard.style.paddingBottom = '12px';
+        legendCard.style.marginBottom  = '8px';
+        const legendTitle = createElement('div', { className: 'medals-compare-legend' });
+        legendTitle.appendChild(this.cardTitle('Medallas'));
+        const dots = createElement('div', { className: 'medals-compare-legend-dots' });
+        [['p','Prashant'],['m','Meera']].forEach(([k,name]) => {
+            const item = createElement('span', { className: 'medals-compare-legend-item' });
+            item.appendChild(createElement('span', { className: `medals-compare-dot medals-compare-dot--${k}` }));
+            item.appendChild(document.createTextNode(name));
+            dots.appendChild(item);
+        });
+        legendTitle.appendChild(dots);
+        legendCard.appendChild(legendTitle);
+        content.appendChild(legendCard);
+
+        // Grid de 3 cards
+        const medalGrid = createElement('div', { className: 'medals-compare-grid' });
+
+        COMPARE_GROUPS.forEach(group => {
+            const card = this.card();
+            card.style.marginBottom = '0';
+            card.appendChild(createElement('p', { className: 'medals-group-label' }, group.label));
+
+            const cellGrid = createElement('div', { className: 'medals-cmp-cell-grid' });
+
+            group.ids.forEach(id => {
+                const pm_ = pmById[id];
+                const mm_ = mmById[id];
+                if (!pm_ || !mm_) return;
+
+                const cell = createElement('div', { className: 'medals-cmp-cell' });
+                cell.title = pm_.desc;
+
+                // Emoji — no aplicar grayscale aquí, solo opacidad
+                const emojiEl = createElement('span', {
+                    className: `medals-cmp-emoji${(!pm_.earned && !mm_.earned) ? ' medals-cmp-emoji--locked' : ''}`,
+                }, pm_.emoji);
+                cell.appendChild(emojiEl);
+
+                cell.appendChild(createElement('span', { className: 'medals-cmp-name' }, pm_.name));
+
+                // Dos dots de color
+                const dotsEl = createElement('div', { className: 'medals-cmp-dots' });
+                [pm_, mm_].forEach((medal, ui) => {
+                    const dot = createElement('span', {
+                        className: `medals-cmp-dot medals-cmp-dot--${ui === 0 ? 'p' : 'm'}${medal.earned ? ' medals-cmp-dot--on' : ''}`,
+                    });
+                    if (medal.earned && medal.earnedAt) dot.title = medal.earnedAt;
+                    dotsEl.appendChild(dot);
+                });
+                cell.appendChild(dotsEl);
+
+                cellGrid.appendChild(cell);
+            });
+
+            card.appendChild(cellGrid);
+            medalGrid.appendChild(card);
+        });
+
+        content.appendChild(medalGrid);
+
         requestAnimationFrame(() => { this.mountCompareCharts(p, m); });
     }
 
@@ -1237,7 +1314,7 @@ export class StatsView implements View {
         const GROUPS = [
             { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
             { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: 'Variedad',   ids: ['explorer','allFour','songs5'] },
+            { label: 'Variedad',   ids: ['explorer','deepchandi','allFour','songs5'] },
             { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
         ];
         const byId = Object.fromEntries(medals.map(m => [m.id, m]));
