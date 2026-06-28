@@ -6,21 +6,16 @@ import { createElement } from '../core/utils.js';
 import { SONGS } from '../data/songs.js';
 import type { View } from '../types.js';
 
+// Extraer taals únicos preservando orden de aparición
+const TAAL_OPTIONS = ['Todos', ...Array.from(new Set(SONGS.map(s => s.taal)))];
+
 export class SongsView implements View {
     public render(): HTMLElement {
         const container = createElement('div', { className: 'view-container' });
 
-        // Header
-        const header = createElement('h1', {
-            className: 'section-title'
-        }, 'Canciones');
-
-        const description = createElement('p', {
-            className: 'section-subtitle mb-6'
-        }, 'Colección de canciones para practicar. Haz clic en ▶ YouTube para abrir el video.');
-
-        container.appendChild(header);
-        container.appendChild(description);
+        container.appendChild(createElement('h1', { className: 'section-title' }, 'Canciones'));
+        container.appendChild(createElement('p', { className: 'section-subtitle mb-6' },
+            'Colección de canciones para practicar. Haz clic en ▶ YouTube para abrir el video.'));
 
         // Search input
         const searchWrapper = createElement('div', { className: 'songs-search-wrapper' });
@@ -31,72 +26,84 @@ export class SongsView implements View {
             className: 'songs-search-input'
         }) as HTMLInputElement;
         searchWrapper.appendChild(searchInput);
+
+        // Selector de taal
+        const taalSelect = createElement('select', {
+            id: 'songsTaalFilter',
+            className: 'songs-taal-select'
+        }) as HTMLSelectElement;
+        TAAL_OPTIONS.forEach(t => {
+            taalSelect.appendChild(createElement('option', { value: t }, t) as HTMLOptionElement);
+        });
+        searchWrapper.appendChild(taalSelect);
+
         container.appendChild(searchWrapper);
 
-        // Counter
+        // Contador
         const counter = createElement('p', {
             id: 'songsCounter',
             className: 'text-muted text-sm mb-4'
         }, `${SONGS.length} canciones`);
         container.appendChild(counter);
 
-        // Songs list
+        // Lista de canciones
         const list = createElement('div', { id: 'songsList' });
-        SONGS.forEach(song => {
-            list.appendChild(this.createSongCard(song));
-        });
+        SONGS.forEach(song => list.appendChild(this.createSongCard(song)));
         container.appendChild(list);
 
-        // Empty state (hidden by default)
+        // Estado vacío
         const emptyState = createElement('p', {
             id: 'songsEmpty',
             className: 'text-muted text-center py-12 hidden'
         }, 'No se encontraron canciones.');
         container.appendChild(emptyState);
 
-        // Wire up search after render
-        requestAnimationFrame(() => this.initSearch());
+        requestAnimationFrame(() => this.initFilters());
 
         return container;
     }
 
-    /**
-     * Filtra las canciones en tiempo real según el input de búsqueda
-     */
-    private initSearch(): void {
-        const input = document.getElementById('songsSearch') as HTMLInputElement | null;
-        const list = document.getElementById('songsList');
-        const counter = document.getElementById('songsCounter');
-        const emptyState = document.getElementById('songsEmpty');
-        if (!input || !list || !counter || !emptyState) return;
+    private initFilters(): void {
+        const searchInput = document.getElementById('songsSearch') as HTMLInputElement | null;
+        const taalSelect  = document.getElementById('songsTaalFilter') as HTMLSelectElement | null;
+        const list        = document.getElementById('songsList');
+        const counter     = document.getElementById('songsCounter');
+        const emptyState  = document.getElementById('songsEmpty');
+        if (!searchInput || !taalSelect || !list || !counter || !emptyState) return;
 
-        input.addEventListener('input', () => {
-            const query = input.value.toLowerCase().trim();
-            const cards = list.querySelectorAll<HTMLElement>('[data-song-title]');
-            let visible = 0;
+        const applyFilters = () => {
+            const query    = searchInput.value.toLowerCase().trim();
+            const taalVal  = taalSelect.value;
+            const cards    = list.querySelectorAll<HTMLElement>('[data-song-title]');
+            let visible    = 0;
 
             cards.forEach(card => {
                 const title = card.dataset.songTitle ?? '';
-                const match = title.includes(query);
-                card.style.display = match ? '' : 'none';
-                if (match) visible++;
+                const taal  = card.dataset.songTaal  ?? '';
+                const matchText = !query || title.includes(query);
+                const matchTaal = taalVal === 'Todos' || taal === taalVal;
+                const show = matchText && matchTaal;
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
             });
 
-            counter.textContent = query
-                ? `${visible} de ${SONGS.length} canciones`
-                : `${SONGS.length} canciones`;
+            const total = SONGS.length;
+            counter.textContent = (query || taalVal !== 'Todos')
+                ? `${visible} de ${total} canciones`
+                : `${total} canciones`;
 
             emptyState.classList.toggle('hidden', visible > 0);
-        });
+        };
+
+        searchInput.addEventListener('input', applyFilters);
+        taalSelect.addEventListener('change', applyFilters);
     }
 
-    /**
-     * Card de canción — título + botón YouTube
-     */
     private createSongCard(song: typeof SONGS[0]): HTMLElement {
         const card = createElement('div', {
             className: 'card p-6 mb-4',
-            'data-song-title': song.title.toLowerCase()
+            'data-song-title': song.title.toLowerCase(),
+            'data-song-taal':  song.taal,
         });
 
         const row = createElement('div', {
@@ -117,7 +124,6 @@ export class SongsView implements View {
         row.appendChild(title);
         row.appendChild(button);
         card.appendChild(row);
-
         return card;
     }
 }

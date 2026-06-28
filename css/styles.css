@@ -637,6 +637,9 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
    ============================================ */
 
 .songs-search-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
     position: relative;
     margin-bottom: 0.75rem;
 }
@@ -650,6 +653,28 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     font-size: 1rem;
     pointer-events: none;
     opacity: 0.5;
+}
+
+.songs-taal-select {
+    padding: 0.625rem 1rem;
+    border: 1.5px solid var(--border-secondary);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    flex-shrink: 0;
+}
+
+.songs-taal-select:focus {
+    outline: none;
+    border-color: var(--orange-500);
+}
+
+.songs-search-wrapper .songs-search-input {
+    flex: 1;
 }
 
 .songs-search-input {
