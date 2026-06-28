@@ -94,6 +94,7 @@ class Application {
                 sidebar.classList.add('open');
                 btn.classList.add('open');
                 overlay.classList.add('visible');
+                document.body.classList.add('sidebar-open');
             }
         });
 
@@ -109,6 +110,7 @@ class Application {
         document.getElementById('sidebar')?.classList.remove('open');
         document.getElementById('hamburgerBtn')?.classList.remove('open');
         document.getElementById('sidebarOverlay')?.classList.remove('visible');
+        document.body.classList.remove('sidebar-open');
     }
 
     /**

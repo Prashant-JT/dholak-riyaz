@@ -825,6 +825,18 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 .hamburger-btn.open span:nth-child(2) { opacity: 0; }
 .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* Bloquear scroll del fondo cuando el sidebar está abierto en móvil */
+@media (max-width: 768px) {
+    body.sidebar-open {
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    body.sidebar-open .sidebar {
+        touch-action: pan-y;
+    }
+}
+
 /* Overlay para cerrar sidebar en móvil */
 .sidebar-overlay {
     display: none;
