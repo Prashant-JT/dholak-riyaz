@@ -248,6 +248,18 @@ export const SONGS: Song[] = [
         notes: "Tutorial: https://www.youtube.com/shorts/b9MYUAMDurk"
     },
     {
+        title: "Maula Mere Le Le Meri Jaan",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=i_FmOdPF96E"
+    },
+    {
+        title: "Piya Ghar Aavenge",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=JSLHveDmdjY"
+    },
+    {
         title: "Abhi Na Jao Chhod Kar",
         artist: "Bollywood",
         taal: "Dadra (6 beats)",

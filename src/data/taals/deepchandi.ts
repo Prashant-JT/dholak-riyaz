@@ -77,7 +77,7 @@ export const deepchandi: Taal = {
             ]
         },
         {
-            name: 'Deepchandi variación 2 (Na Na Te Te)',
+            name: 'Deepchandi variación 2 (NaNa TeTe)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -92,10 +92,10 @@ export const deepchandi: Taal = {
                     { matra: 8, bol: 'Ta', technique: 'Khali' },
                     { matra: 9, bol: '—', technique: '' },
                     { matra: 10, bol: '—', technique: '' },
-                    { matra: 11, bol: 'Na', technique: 'Taali' },
-                    { matra: 12, bol: 'Na', technique: '' },
-                    { matra: 13, bol: 'Te', technique: '' },
-                    { matra: 14, bol: 'Te', technique: '' }
+                    { matra: 11, bol: 'NaNa', technique: 'Taali' },
+                    { matra: 12, bol: 'TeTe', technique: '' },
+                    { matra: 13, bol: 'NaNa', technique: '' },
+                    { matra: 14, bol: 'TeTe', technique: '' }
                 ]
             ],
             description: '3+4+3+4 — variación con Na Na Te Te al cierre'
