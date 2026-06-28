@@ -9,6 +9,14 @@ import type { View } from '../types.js';
 // Extraer taals únicos preservando orden de aparición
 const TAAL_OPTIONS = ['Todos', ...Array.from(new Set(SONGS.map(s => s.taal)))];
 
+// Canciones ordenadas: orden de taal preservado, alfabético dentro de cada taal
+const TAAL_ORDER = Array.from(new Set(SONGS.map(s => s.taal)));
+const SONGS_SORTED = [...SONGS].sort((a, b) => {
+    const taalDiff = TAAL_ORDER.indexOf(a.taal) - TAAL_ORDER.indexOf(b.taal);
+    if (taalDiff !== 0) return taalDiff;
+    return a.title.localeCompare(b.title, 'es');
+});
+
 export class SongsView implements View {
     public render(): HTMLElement {
         const container = createElement('div', { className: 'view-container' });
@@ -49,7 +57,7 @@ export class SongsView implements View {
 
         // Lista de canciones
         const list = createElement('div', { id: 'songsList' });
-        SONGS.forEach(song => list.appendChild(this.createSongCard(song)));
+        SONGS_SORTED.forEach(song => list.appendChild(this.createSongCard(song)));
         container.appendChild(list);
 
         // Estado vacío
@@ -88,7 +96,7 @@ export class SongsView implements View {
                 if (show) visible++;
             });
 
-            const total = SONGS.length;
+            const total = SONGS_SORTED.length;
             counter.textContent = (query || taalVal !== 'Todos')
                 ? `${visible} de ${total} canciones`
                 : `${total} canciones`;
