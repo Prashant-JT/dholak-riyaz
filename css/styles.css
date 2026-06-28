@@ -3324,5 +3324,57 @@ body.dark .session-action-feedback--success {
     text-decoration: underline;
 }
 
+/* ── Badge de sesión activa en el sidebar ───────────────────────────────── */
+.session-active-badge {
+    margin: 0.75rem 0.75rem 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    color: #fb923c;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: default;
+    line-height: 1.4;
+}
+
+/* ── Flash de bloque completado ─────────────────────────────────────────── */
+.session-block-complete-flash {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1.5rem);
+    background: #16a34a;
+    color: #fff;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 9999;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.session-block-complete-flash--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.session-block-complete-flash--hide {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-1rem);
+}
+
+.session-block-complete-flash__icon {
+    font-size: 1.2rem;
+}
+
 /* Made with Bob */
 

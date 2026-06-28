@@ -8,6 +8,7 @@ import { ViewManager } from './components/viewManager.js';
 import { MetronomeEngine } from './components/metronome.js';
 import { DarkModeToggle } from './components/darkModeToggle.js';
 import { CONFIG } from './core/config.js';
+import { updateSessionBadge } from './views/riyaz/sessionWizard.js';
 import type { NavigateEventDetail } from './types.js';
 
 class Application {
@@ -53,6 +54,9 @@ class Application {
             setTimeout(() => this.initializeControls(), 100);
         });
         
+        // Inicializar badge de sesión activa (persiste entre navegaciones)
+        updateSessionBadge();
+
         // Inicializar controles de la vista inicial
         setTimeout(() => this.initializeControls(), 100);
 

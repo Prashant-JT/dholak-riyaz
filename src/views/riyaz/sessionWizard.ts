@@ -51,6 +51,7 @@ function saveSessionDraft(state: SessionState, blockStartTime: number, completed
     const elapsedSecs = completed ? 0 : Math.floor((Date.now() - blockStartTime) / 1000);
     const draft: SessionDraft = { savedAt: Date.now(), state, elapsedSecs, completed };
     try { localStorage.setItem(LS_DRAFT_KEY, JSON.stringify(draft)); } catch { /* no-op */ }
+    updateSessionBadge();
 }
 
 function loadSessionDraft(): SessionDraft | null {
@@ -63,6 +64,21 @@ function loadSessionDraft(): SessionDraft | null {
 
 function clearSessionDraft(): void {
     localStorage.removeItem(LS_DRAFT_KEY);
+    updateSessionBadge();
+}
+
+/** Actualiza el badge de "sesión en curso" en el sidebar */
+export function updateSessionBadge(): void {
+    const badge = document.getElementById('session-active-badge');
+    if (!badge) return;
+    const draft = loadSessionDraft();
+    if (draft) {
+        const label = draft.completed ? '🥁 Sesión pendiente de guardar' : '🥁 Sesión en curso';
+        badge.textContent = label;
+        badge.style.display = '';
+    } else {
+        badge.style.display = 'none';
+    }
 }
 
 // ─── Plantillas guardadas en localStorage ──────────────────────────────────
@@ -1362,16 +1378,33 @@ export class SessionWizardView implements View {
         this.stopTimer();
         this.stopMetronome();
 
-        if (this.sessionState.currentBlockIndex < this.sessionState.blocks.length - 1) {
-            this.sessionState.currentBlockIndex++;
-            this.blockStartTime = Date.now();
-            saveSessionDraft(this.sessionState, this.blockStartTime);
-            this.renderStep2();
-        } else {
-            // Sesión completa — guardar draft como "pendiente de guardar"
-            saveSessionDraft(this.sessionState, this.blockStartTime, true);
-            this.renderStep3();
-        }
+        const isLast = this.sessionState.currentBlockIndex === this.sessionState.blocks.length - 1;
+
+        // Flash de "bloque completado" encima del contenido actual
+        const flash = createElement('div', { className: 'session-block-complete-flash' });
+        flash.innerHTML = isLast
+            ? '<span class="session-block-complete-flash__icon">🎉</span><span>¡Sesión completada!</span>'
+            : '<span class="session-block-complete-flash__icon">✓</span><span>Bloque completado</span>';
+        this.container.appendChild(flash);
+        // Forzar reflow para que la animación de entrada arranque
+        flash.getBoundingClientRect();
+        flash.classList.add('session-block-complete-flash--visible');
+
+        setTimeout(() => {
+            flash.classList.remove('session-block-complete-flash--visible');
+            flash.classList.add('session-block-complete-flash--hide');
+            setTimeout(() => {
+                if (isLast) {
+                    saveSessionDraft(this.sessionState, this.blockStartTime, true);
+                    this.renderStep3();
+                } else {
+                    this.sessionState.currentBlockIndex++;
+                    this.blockStartTime = Date.now();
+                    saveSessionDraft(this.sessionState, this.blockStartTime);
+                    this.renderStep2();
+                }
+            }, 350);
+        }, 900);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
