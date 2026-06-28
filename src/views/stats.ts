@@ -1235,8 +1235,8 @@ export class StatsView implements View {
 
         // Grid de medallas
         const GROUPS = [
-            { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','week4'] },
-            { label: 'Volumen',    ids: ['h1','h10','h50','long','marathon'] },
+            { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
+            { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
             { label: 'Variedad',   ids: ['explorer','allFour','songs5'] },
             { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
         ];
