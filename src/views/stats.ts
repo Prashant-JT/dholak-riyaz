@@ -335,6 +335,125 @@ const BPM_PALETTE = [
     { line: C.teal,   bg: C.tealA   },
 ];
 
+// ── Medallas ──────────────────────────────────────────────────────────────────
+
+interface Medal {
+    id: string;
+    emoji: string;
+    name: string;
+    desc: string;
+    earned: boolean;
+    earnedAt?: string;   // fecha legible si está ganada
+}
+
+function computeMedals(sessions: SupabaseSession[]): Medal[] {
+    const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`; };
+
+    // Sesiones ordenadas cronológicamente
+    const sorted = [...sessions].sort((a, b) => a.saved_at.localeCompare(b.saved_at));
+
+    const totalMins = Math.round(sorted.reduce((s, x) => s + effectiveSecs(x), 0) / 60);
+    const totalSessions = sorted.length;
+
+    // Racha diaria máxima (no solo la actual)
+    const sessionDays = new Set(sorted.map(s => new Date(s.saved_at).toDateString()));
+    let maxStreak = 0; let curStreak = 0;
+    const allDays = Array.from(sessionDays).map(d => new Date(d)).sort((a,b) => a.getTime()-b.getTime());
+    for (let i = 0; i < allDays.length; i++) {
+        if (i === 0) { curStreak = 1; }
+        else {
+            const diff = (allDays[i].getTime() - allDays[i-1].getTime()) / 86400000;
+            curStreak = diff === 1 ? curStreak + 1 : 1;
+        }
+        if (curStreak > maxStreak) maxStreak = curStreak;
+    }
+
+    // Racha semanal máxima
+    const getMonday = (d: Date) => { const c = new Date(d); const day = c.getDay(); c.setDate(c.getDate() - (day === 0 ? 6 : day - 1)); c.setHours(0,0,0,0); return c.toISOString().slice(0,10); };
+    const sessionWeeks = Array.from(new Set(sorted.map(s => getMonday(new Date(s.saved_at))))).sort();
+    let maxWeekStreak = 0; let curWStreak = 0;
+    for (let i = 0; i < sessionWeeks.length; i++) {
+        if (i === 0) { curWStreak = 1; }
+        else {
+            const prev = new Date(sessionWeeks[i-1]); prev.setDate(prev.getDate() + 7);
+            curWStreak = prev.toISOString().slice(0,10) === sessionWeeks[i] ? curWStreak + 1 : 1;
+        }
+        if (curWStreak > maxWeekStreak) maxWeekStreak = curWStreak;
+    }
+
+    // Taals distintos practicados
+    const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
+    const THE_FOUR = ['Keherwa (8 beats)', 'Dadra (6 beats)', 'Rupak (7 beats)', 'Deepchandi (14 beats)'];
+    const hasAllFour = THE_FOUR.every(t => taalsSet.has(t));
+
+    // Sesiones con canción
+    const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
+
+    // BPM máximo global
+    const maxBpm = sorted.reduce((mx, s) => Math.max(mx, ...s.blocks.map(b => b.bpm_end ?? 0)), 0);
+
+    // Sesión más larga
+    const maxSessionMins = sorted.reduce((mx, s) => Math.max(mx, Math.round(effectiveSecs(s) / 60)), 0);
+
+    // Fechas para when-earned
+    const firstSession = sorted[0]?.saved_at;
+    const firstHourSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 60)?.saved_at;
+    const first10hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 600)?.saved_at;
+    const first50hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 3000)?.saved_at;
+    const first100hSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 6000)?.saved_at;
+    const longSession      = sorted.find(s => Math.round(effectiveSecs(s)/60) >= 60)?.saved_at;
+    const marathonSession  = sorted.find(s => Math.round(effectiveSecs(s)/60) >= 90)?.saved_at;
+    const streak7Session   = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=7)   return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
+    const streak30Session  = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=30)  return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
+    const streak60Session  = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=60)  return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
+    const streak100Session = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=100) return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
+    const streak365Session = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=365) return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
+    const week4Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0 ? 1 : (()=>{const p=new Date(sessionWeeks[i-1]); p.setDate(p.getDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=4) return sorted.find(s => getMonday(new Date(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
+    const bpm120Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 120))?.saved_at;
+    const bpm180Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 180))?.saved_at;
+    const bpm60Session     = sorted.find(s => s.blocks.some(b => b.support_type === 'metronome' && (b.bpm_start ?? 0) <= 60))?.saved_at;
+    const explorer3Session = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (seen.size >= 3) return s.saved_at; } return undefined; })();
+    const allFourSession   = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (THE_FOUR.every(t => seen.has(t))) return s.saved_at; } return undefined; })();
+    const song5Session     = (() => { let c=0; for (const s of sorted) { if (s.blocks.some(b=>b.support_type==='song')) { c++; if (c>=5) return s.saved_at; } } return undefined; })();
+    const session10At      = sorted[9]?.saved_at;
+    const session50At      = sorted[49]?.saved_at;
+
+    const mk = (id: string, emoji: string, name: string, desc: string, cond: boolean, when?: string): Medal => ({
+        id, emoji, name, desc,
+        earned: cond,
+        earnedAt: cond && when ? fmt(when) : undefined,
+    });
+
+    return [
+        // Constancia
+        mk('first',     '🌱', 'Primera sesión',    'Guardaste tu primera sesión',                    totalSessions >= 1,  firstSession),
+        mk('s10',       '🎯', '10 sesiones',        '10 sesiones guardadas',                           totalSessions >= 10, session10At),
+        mk('s50',       '🏅', '50 sesiones',        '50 sesiones guardadas',                           totalSessions >= 50, session50At),
+        mk('streak7',   '🔥', 'Racha de 7 días',    '7 días consecutivos practicando',                maxStreak >= 7,   streak7Session),
+        mk('streak30',  '💎', 'Racha de 30 días',   '30 días consecutivos sin parar',                 maxStreak >= 30,  streak30Session),
+        mk('streak60',  '🌟', 'Racha de 60 días',   '60 días consecutivos practicando',               maxStreak >= 60,  streak60Session),
+        mk('streak100', '👑', 'Racha de 100 días',  '100 días consecutivos sin fallar',               maxStreak >= 100, streak100Session),
+        mk('streak365', '🎖️', 'Un año entero',      '365 días consecutivos — leyenda absoluta',       maxStreak >= 365, streak365Session),
+        mk('week4',     '🗓️', '4 semanas seguidas', 'Practicado al menos una vez en 4 semanas seguidas', maxWeekStreak >= 4, week4Session),
+        // Volumen
+        mk('h1',        '⏱️', 'Primera hora',       'Acumulado total ≥ 1 hora',                        totalMins >= 60,   firstHourSession),
+        mk('h10',       '🕐', '10 horas',           'Acumulado total ≥ 10 horas',                      totalMins >= 600,  first10hSession),
+        mk('h50',       '🏆', '50 horas',           'Acumulado total ≥ 50 horas',                      totalMins >= 3000, first50hSession),
+        mk('h100',      '🥇', '100 horas',          'Acumulado total ≥ 100 horas',                     totalMins >= 6000, first100hSession),
+        mk('long',      '💪', 'Sesión larga',       'Una sesión de al menos 60 minutos',               maxSessionMins >= 60, longSession),
+        mk('marathon',  '🦾', 'Maratoniano',        'Una sesión de al menos 90 minutos',               maxSessionMins >= 90, marathonSession),
+        // Variedad
+        mk('explorer',  '🥁', 'Explorador',         'Practicado 3 taals distintos',                    taalsSet.size >= 3, explorer3Session),
+        mk('allFour',   '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi', hasAllFour, allFourSession),
+        mk('songs5',    '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',            songSessions.length >= 5, song5Session),
+        // BPM
+        mk('slow',      '🐢', 'Base sólida',        'Practicado con metrónomo a ≤ 60 BPM',             maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
+        mk('bpm120',    '⚡', 'Velocista',          'Alcanzado ≥ 120 BPM en metrónomo',                maxBpm >= 120, bpm120Session),
+        mk('bpm180',    '🚀', 'Fuego',              'Alcanzado ≥ 180 BPM en metrónomo',                maxBpm >= 180, bpm180Session),
+    ];
+}
+
 // ── Vista ─────────────────────────────────────────────────────────────────────
 
 export class StatsView implements View {
@@ -480,6 +599,7 @@ export class StatsView implements View {
         content.appendChild(heatCard);
 
         content.appendChild(this.buildHistoryCard(d));
+        content.appendChild(this.buildMedalsCard(d));
 
         requestAnimationFrame(() => {
             this.mountCharts(d);
@@ -1089,6 +1209,67 @@ export class StatsView implements View {
                 btn.classList.toggle('stats-note-btn--open', !isOpen);
             });
         });
+    }
+
+    // ── Medallas ──────────────────────────────────────────────────────────────
+
+    private buildMedalsCard(d: UserStats): HTMLElement {
+        const medals = computeMedals(d.rawSessions);
+        const earned = medals.filter(m => m.earned).length;
+
+        const card = this.card();
+        const headerRow = createElement('div', { className: 'medals-header' });
+        const titleWrap = createElement('div');
+        titleWrap.appendChild(this.cardTitle('Medallas'));
+        titleWrap.appendChild(this.cardSub(`${earned} de ${medals.length} conseguidas`));
+        headerRow.appendChild(titleWrap);
+
+        // Progreso visual
+        const progressWrap = createElement('div', { className: 'medals-progress-wrap' });
+        const progressBar = createElement('div', { className: 'medals-progress-bar' });
+        const pct = medals.length > 0 ? Math.round((earned / medals.length) * 100) : 0;
+        progressBar.style.width = `${pct}%`;
+        progressWrap.appendChild(progressBar);
+        headerRow.appendChild(progressWrap);
+        card.appendChild(headerRow);
+
+        // Grid de medallas
+        const GROUPS = [
+            { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','week4'] },
+            { label: 'Volumen',    ids: ['h1','h10','h50','long','marathon'] },
+            { label: 'Variedad',   ids: ['explorer','allFour','songs5'] },
+            { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
+        ];
+        const byId = Object.fromEntries(medals.map(m => [m.id, m]));
+
+        GROUPS.forEach(group => {
+            const groupEl = createElement('div', { className: 'medals-group' });
+            groupEl.appendChild(createElement('p', { className: 'medals-group-label' }, group.label));
+            const grid = createElement('div', { className: 'medals-grid' });
+
+            group.ids.forEach(id => {
+                const m = byId[id];
+                if (!m) return;
+                const cell = createElement('div', { className: `medals-cell${m.earned ? ' medals-cell--earned' : ''}` });
+
+                const emojiEl = createElement('span', { className: 'medals-emoji' }, m.emoji);
+                const nameEl  = createElement('span', { className: 'medals-name' }, m.name);
+                const descEl  = createElement('span', { className: 'medals-desc' }, m.earned && m.earnedAt ? m.earnedAt : m.desc);
+
+                cell.appendChild(emojiEl);
+                cell.appendChild(nameEl);
+                cell.appendChild(descEl);
+
+                // Tooltip con descripción completa al hacer hover (title nativo)
+                cell.title = m.earned ? `${m.name} · ${m.earnedAt ?? ''}` : m.desc;
+
+                grid.appendChild(cell);
+            });
+            groupEl.appendChild(grid);
+            card.appendChild(groupEl);
+        });
+
+        return card;
     }
 
     // ── Chart.js ──────────────────────────────────────────────────────────────

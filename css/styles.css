@@ -3376,5 +3376,108 @@ body.dark .session-action-feedback--success {
     font-size: 1.2rem;
 }
 
+/* ── Medallas ───────────────────────────────────────────────────────────────── */
+.medals-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.medals-progress-wrap {
+    flex: 1;
+    min-width: 80px;
+    max-width: 140px;
+    margin-top: 0.35rem;
+    height: 6px;
+    background: var(--border-primary);
+    border-radius: 99px;
+    overflow: hidden;
+    align-self: center;
+}
+
+.medals-progress-bar {
+    height: 100%;
+    background: var(--orange-500);
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.medals-group {
+    margin-bottom: 1.25rem;
+}
+
+.medals-group-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+}
+
+.medals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+@media (min-width: 480px) {
+    .medals-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 768px) {
+    .medals-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+.medals-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.25rem;
+    padding: 0.65rem 0.4rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-primary);
+    background: var(--bg-tertiary);
+    filter: grayscale(1);
+    opacity: 0.45;
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.medals-cell--earned {
+    filter: grayscale(0);
+    opacity: 1;
+    border-color: var(--orange-500);
+    background: var(--card-bg);
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+}
+
+.medals-emoji {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.medals-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.medals-desc {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.medals-cell--earned .medals-desc {
+    color: var(--orange-500);
+    font-weight: 600;
+}
+
 /* Made with Bob */
 
