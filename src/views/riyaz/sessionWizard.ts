@@ -44,11 +44,12 @@ interface SessionDraft {
     savedAt: number;            // timestamp para mostrar "hace X min"
     state: SessionState;
     elapsedSecs: number;        // segundos ya transcurridos en el bloque actual al guardar
+    completed?: boolean;        // true = sesión terminada, pendiente de guardar
 }
 
-function saveSessionDraft(state: SessionState, blockStartTime: number): void {
-    const elapsedSecs = Math.floor((Date.now() - blockStartTime) / 1000);
-    const draft: SessionDraft = { savedAt: Date.now(), state, elapsedSecs };
+function saveSessionDraft(state: SessionState, blockStartTime: number, completed = false): void {
+    const elapsedSecs = completed ? 0 : Math.floor((Date.now() - blockStartTime) / 1000);
+    const draft: SessionDraft = { savedAt: Date.now(), state, elapsedSecs, completed };
     try { localStorage.setItem(LS_DRAFT_KEY, JSON.stringify(draft)); } catch { /* no-op */ }
 }
 
@@ -137,9 +138,17 @@ export class SessionWizardView implements View {
         return this.container;
     }
 
-    /** Banner de recuperación de sesión interrumpida */
+    /** Banner de recuperación de sesión interrumpida o pendiente de guardar */
     private renderDraftRecovery(draft: SessionDraft): void {
         this.container.innerHTML = '';
+
+        // Si la sesión ya estaba completada (pendiente de guardar), ir directo al resumen
+        if (draft.completed) {
+            this.sessionState = draft.state;
+            this.blockStartTime = 0;
+            this.renderStep3();
+            return;
+        }
 
         const elapsedMin = Math.round((Date.now() - draft.savedAt) / 60000);
         const timeLabel = elapsedMin < 1 ? 'hace menos de 1 min'
@@ -1359,8 +1368,8 @@ export class SessionWizardView implements View {
             saveSessionDraft(this.sessionState, this.blockStartTime);
             this.renderStep2();
         } else {
-            // Sesión completa — limpiar draft antes del resumen
-            clearSessionDraft();
+            // Sesión completa — guardar draft como "pendiente de guardar"
+            saveSessionDraft(this.sessionState, this.blockStartTime, true);
             this.renderStep3();
         }
     }
