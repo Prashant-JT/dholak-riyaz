@@ -476,13 +476,15 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     left: 0;
     top: 0;
     height: 100vh;
+    height: 100dvh; /* descuenta la barra del navegador en móvil */
     width: 280px;
     background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
     color: white;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     z-index: 1000;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-    padding: 4.5rem 1.5rem 2rem 1.5rem;
+    padding: 4.5rem 1.5rem 4rem 1.5rem; /* padding-bottom generoso para barra del navegador */
     transform: translateX(-100%);
     transition: transform 0.3s ease;
 }
