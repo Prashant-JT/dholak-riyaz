@@ -588,19 +588,35 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
 
         if (supportType === 'song') {
             subSelectorContainer.appendChild(createElement('label', {}, 'Canción'));
+
+            // Búsqueda de canciones
+            const searchInput = createElement('input', {
+                type: 'text', placeholder: '🔍 Buscar canción…',
+                className: 'w-full session-song-search',
+            }) as HTMLInputElement;
+            subSelectorContainer.appendChild(searchInput);
+
             const sel = createElement('select', { className: 'w-full', 'data-sub-select': 'song' }) as HTMLSelectElement;
-            const filtered = SONGS.filter(s => s.taal.toLowerCase().startsWith(
+            const allSongs = SONGS.filter(s => s.taal.toLowerCase().startsWith(
                 TAAL_SONG_PREFIXES[taalSelect.value]?.toLowerCase() ?? ''
             ));
-            if (filtered.length === 0) {
-                sel.appendChild(createElement('option', { value: '' }, 'No hay canciones para este taal') as HTMLOptionElement);
-            } else {
-                filtered.forEach(s => {
-                    sel.appendChild(createElement('option', { value: s.youtubeUrl }, `${s.title} — ${s.artist}`) as HTMLOptionElement);
-                });
-            }
-            sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
-            subSelectorContainer.appendChild(sel);
+
+            const rebuildOptions = (query: string) => {
+                sel.innerHTML = '';
+                const q = query.toLowerCase().trim();
+                const visible = q ? allSongs.filter(s =>
+                    s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+                ) : allSongs;
+                if (visible.length === 0) {
+                    sel.appendChild(createElement('option', { value: '' }, 'Sin resultados') as HTMLOptionElement);
+                } else {
+                    visible.forEach(s => {
+                        sel.appendChild(createElement('option', { value: s.youtubeUrl }, `${s.title} — ${s.artist}`) as HTMLOptionElement);
+                    });
+                }
+                sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
+                customWrap.style.display = 'none';
+            };
 
             const customWrap = createElement('div', { className: 'session-custom-song' });
             customWrap.style.display = 'none';
@@ -612,8 +628,12 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
             }) as HTMLInputElement;
             customWrap.appendChild(customTitle);
             customWrap.appendChild(customUrl);
+
+            rebuildOptions('');
+            subSelectorContainer.appendChild(sel);
             subSelectorContainer.appendChild(customWrap);
 
+            searchInput.addEventListener('input', () => rebuildOptions(searchInput.value));
             sel.addEventListener('change', () => {
                 customWrap.style.display = sel.value === '__custom__' ? '' : 'none';
             });

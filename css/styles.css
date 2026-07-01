@@ -3492,6 +3492,59 @@ body.dark .session-action-feedback--success {
    EDIT BLOCK PANEL — edición inline durante sesión
    ============================================ */
 
+/* ── Dots de progreso de bloques ─────────────────────────────────────────── */
+.session-progress-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.75rem;
+}
+
+.session-progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-primary);
+    transition: background 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.session-progress-dot--done {
+    background: var(--orange-500);
+    opacity: 0.45;
+}
+
+.session-progress-dot--current {
+    background: var(--orange-500);
+    opacity: 1;
+    transform: scale(1.35);
+}
+
+/* ── Búsqueda de canciones ───────────────────────────────────────────────── */
+.session-song-search {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.session-song-search:focus {
+    outline: none;
+    border-color: var(--orange-500);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.session-song-search::placeholder {
+    color: var(--text-muted);
+}
+
 /* Fila header: título + botón editar alineados */
 .session-edit-header-row {
     display: flex;

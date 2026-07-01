@@ -58,11 +58,19 @@ export function renderStep2(
     const block = sessionState.blocks[sessionState.currentBlockIndex];
     const isLast = sessionState.currentBlockIndex === sessionState.blocks.length - 1;
     const blockNum = sessionState.currentBlockIndex + 1;
-    const totalBlocks = sessionState.blocks.length;
 
-    // Header
+    // Header con progress bar
     const header = createElement('div', { className: 'mb-4' });
-    header.appendChild(createElement('h2', { className: 'section-title' }, `Bloque ${blockNum} de ${totalBlocks}`));
+
+    // Dots de progreso — un punto por bloque
+    const dotsRow = createElement('div', { className: 'session-progress-dots' });
+    sessionState.blocks.forEach((_b, i) => {
+        const dot = createElement('div', {
+            className: `session-progress-dot${i < blockNum ? ' session-progress-dot--done' : ''}${i === sessionState.currentBlockIndex ? ' session-progress-dot--current' : ''}`
+        });
+        dotsRow.appendChild(dot);
+    });
+    header.appendChild(dotsRow);
 
     const subtitleEl = createElement('p', { className: 'section-subtitle' });
     const getSubtitleText = (b: SessionBlock): string =>
@@ -707,24 +715,42 @@ function renderEditPanel(
 
         if (supportType === 'song') {
             subContainer.appendChild(createElement('label', {}, 'Canción'));
+
+            // Búsqueda de canciones
+            const searchInput = createElement('input', {
+                type: 'text', placeholder: '🔍 Buscar canción…',
+                className: 'w-full session-song-search',
+            }) as HTMLInputElement;
+            subContainer.appendChild(searchInput);
+
             const sel = createElement('select', { className: 'w-full', 'data-sub-select': 'song' }) as HTMLSelectElement;
-            const filtered = SONGS.filter(s => s.taal.toLowerCase().startsWith(
+            const allSongs = SONGS.filter(s => s.taal.toLowerCase().startsWith(
                 TAAL_SONG_PREFIXES[taalSelect.value]?.toLowerCase() ?? ''
             ));
-            if (filtered.length === 0) {
-                sel.appendChild(createElement('option', { value: '' }, 'No hay canciones para este taal') as HTMLOptionElement);
-            } else {
-                filtered.forEach(s => {
-                    const opt = createElement('option', { value: s.youtubeUrl }, `${s.title} — ${s.artist}`) as HTMLOptionElement;
-                    if (s.youtubeUrl === (currentUrl ?? block.supportUrl)) opt.selected = true;
-                    sel.appendChild(opt);
-                });
-            }
-            sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
-            subContainer.appendChild(sel);
+            const selectedUrl = currentUrl ?? block.supportUrl;
 
             const customWrap = createElement('div', { className: 'session-custom-song' });
             customWrap.style.display = 'none';
+
+            const rebuildOptions = (query: string) => {
+                sel.innerHTML = '';
+                const q = query.toLowerCase().trim();
+                const visible = q ? allSongs.filter(s =>
+                    s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+                ) : allSongs;
+                if (visible.length === 0) {
+                    sel.appendChild(createElement('option', { value: '' }, 'Sin resultados') as HTMLOptionElement);
+                } else {
+                    visible.forEach(s => {
+                        const opt = createElement('option', { value: s.youtubeUrl }, `${s.title} — ${s.artist}`) as HTMLOptionElement;
+                        if (s.youtubeUrl === selectedUrl) opt.selected = true;
+                        sel.appendChild(opt);
+                    });
+                }
+                sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
+                customWrap.style.display = 'none';
+            };
+
             const customTitle = createElement('input', {
                 type: 'text', placeholder: 'Título de la canción', className: 'w-full session-custom-input', 'data-custom-title': 'true',
             }) as HTMLInputElement;
@@ -733,7 +759,12 @@ function renderEditPanel(
             }) as HTMLInputElement;
             customWrap.appendChild(customTitle);
             customWrap.appendChild(customUrl);
+
+            rebuildOptions('');
+            subContainer.appendChild(sel);
             subContainer.appendChild(customWrap);
+
+            searchInput.addEventListener('input', () => rebuildOptions(searchInput.value));
             sel.addEventListener('change', () => { customWrap.style.display = sel.value === '__custom__' ? '' : 'none'; });
         } else if (supportType === 'lehra') {
             subContainer.appendChild(createElement('label', {}, 'Lehra'));
