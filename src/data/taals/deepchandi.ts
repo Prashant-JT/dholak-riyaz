@@ -123,7 +123,32 @@ export const deepchandi: Taal = {
                 ]
             ],
             description: '3+4+3+4 — Dha Dhin — Dha Dha Ti — / Ta Tin — Dha Dha — —'
-        }
+        },
+        {
+            name: 'Deepchandi variación 4 (Thapki pattern)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhi (thapki + ghuisa)', technique: 'Taali' },
+                    { matra: 2, bol: 'Dhi', technique: '' },
+                    { matra: 3, bol: 'Na', technique: '' },
+                    { matra: 4, bol: 'Dhi', technique: 'Taali' },
+                    { matra: 5, bol: 'Dhi', technique: '' },
+                    { matra: 6, bol: 'Na', technique: '' },
+                    { matra: 7, bol: 'Na', technique: '' }
+                ],
+                [
+                    { matra: 8,  bol: 'Dha',  technique: 'Khali' },
+                    { matra: 9,  bol: 'Ti (thapki)', technique: '' },
+                    { matra: 10, bol: '—',   technique: '' },
+                    { matra: 11, bol: 'TaTa', technique: 'Taali' },
+                    { matra: 12, bol: 'KeTe', technique: '' },
+                    { matra: 13, bol: 'TaTa', technique: '' },
+                    { matra: 14, bol: 'KeTe',   technique: '' }
+                ]
+            ],
+            description: '3+4+3+4 — variación con tutorial en video',
+            tutorials: ['']
+        },
     ]
 };
 
