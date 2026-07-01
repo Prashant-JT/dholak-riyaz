@@ -3505,26 +3505,27 @@ body.dark .session-action-feedback--success {
     flex: 1;
 }
 
-/* Botón ✏️ Editar */
+/* Botón ✏️ Editar bloque */
 .session-edit-btn {
-    flex-shrink: 0;
-    background: var(--card-bg);
+    display: block;
+    width: 100%;
+    margin: 0 0 0.75rem 0;
+    background: transparent;
     border: 1.5px solid var(--border-primary);
-    border-radius: 8px;
-    padding: 0.3rem 0.75rem;
-    font-size: 0.8125rem;
+    border-radius: 9999px;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-secondary);
     cursor: pointer;
     transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-    white-space: nowrap;
-    margin-top: 0.15rem;
+    text-align: center;
 }
 
 .session-edit-btn:hover {
     border-color: var(--orange-500);
     color: var(--orange-500);
-    background: rgba(249, 115, 22, 0.07);
+    background: rgba(249, 115, 22, 0.06);
 }
 
 /* Panel desplegable de edición */

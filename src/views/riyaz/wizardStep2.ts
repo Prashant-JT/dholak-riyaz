@@ -61,12 +61,8 @@ export function renderStep2(
     const totalBlocks = sessionState.blocks.length;
 
     // Header
-    const header = createElement('div', { className: 'mb-6' });
-    const headerTop = createElement('div', { className: 'session-edit-header-row' });
-    headerTop.appendChild(createElement('h2', { className: 'section-title' }, `Bloque ${blockNum} de ${totalBlocks}`));
-    const editBtn = createElement('button', { className: 'session-edit-btn', title: 'Editar este bloque' }, '✏️ Editar');
-    headerTop.appendChild(editBtn);
-    header.appendChild(headerTop);
+    const header = createElement('div', { className: 'mb-4' });
+    header.appendChild(createElement('h2', { className: 'section-title' }, `Bloque ${blockNum} de ${totalBlocks}`));
 
     const subtitleEl = createElement('p', { className: 'section-subtitle' });
     const getSubtitleText = (b: SessionBlock): string =>
@@ -75,30 +71,6 @@ export function renderStep2(
         : `${b.taalName} · ${b.variationName}`;
     subtitleEl.textContent = getSubtitleText(block);
     header.appendChild(subtitleEl);
-
-    // Panel de edición inline (oculto por defecto)
-    const editPanel = createElement('div', { className: 'session-edit-panel', style: { display: 'none' } });
-    header.appendChild(editPanel);
-
-    editBtn.addEventListener('click', () => {
-        const isOpen = editPanel.style.display !== 'none';
-        if (isOpen) {
-            editPanel.style.display = 'none';
-            editBtn.textContent = '✏️ Editar';
-        } else {
-            editPanel.innerHTML = '';
-            renderEditPanel(editPanel, block, sessionState, blockStartTime, cb, () => {
-                // Re-render completo del bloque preservando el tiempo transcurrido
-                // (evita estado inconsistente por cambio de tipo: metrónomo secundario,
-                //  botón "Siguiente/Finalizar", condición de secondary metronome, etc.)
-                stopTimer(cb);
-                renderStep2(container, sessionState, blockStartTime, cb);
-            });
-            editPanel.style.display = '';
-            editBtn.textContent = '✕ Cerrar';
-        }
-    });
-
     container.appendChild(header);
 
     // Timer display
@@ -117,6 +89,29 @@ export function renderStep2(
     if (block.type === 'pickup' || block.supportType !== 'metronome') {
         container.appendChild(renderSecondaryMetronome(block, cb));
     }
+
+    // Botón ✏️ Editar + panel — justo antes del botón de siguiente/finalizar
+    const editBtn = createElement('button', { className: 'session-edit-btn' }, '✏️ Editar bloque');
+    container.appendChild(editBtn);
+
+    const editPanel = createElement('div', { className: 'session-edit-panel', style: { display: 'none' } });
+    container.appendChild(editPanel);
+
+    editBtn.addEventListener('click', () => {
+        const isOpen = editPanel.style.display !== 'none';
+        if (isOpen) {
+            editPanel.style.display = 'none';
+            editBtn.textContent = '✏️ Editar bloque';
+        } else {
+            editPanel.innerHTML = '';
+            renderEditPanel(editPanel, block, sessionState, blockStartTime, cb, () => {
+                stopTimer(cb);
+                renderStep2(container, sessionState, blockStartTime, cb);
+            });
+            editPanel.style.display = '';
+            editBtn.textContent = '✕ Cerrar';
+        }
+    });
 
     const nextBtn = createElement('button', { className: 'btn-primary session-next-btn' },
         isLast ? '✓ Finalizar sesión' : 'Siguiente bloque →');
