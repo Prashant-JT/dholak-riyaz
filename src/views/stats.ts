@@ -262,11 +262,13 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     // ── Insight automático ────────────────────────────────────────────────────
     // Excluir Warm Up y Pickups del insight de taal
     const taalOnlyEntries = Object.entries(donutSecs).filter(([k]) => !k.startsWith('Warm Up') && !k.startsWith('Pickup'));
-    const topTaal = taalOnlyEntries.sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
-    const leastTaal = taalOnlyEntries.sort((a, b) => a[1] - b[1])[0]?.[0] ?? '—';
+    const topTaal   = taalOnlyEntries.reduce((best, cur) => cur[1] > best[1] ? cur : best, taalOnlyEntries[0] ?? ['—', 0])[0];
+    const leastTaal = taalOnlyEntries.reduce((worst, cur) => cur[1] < worst[1] ? cur : worst, taalOnlyEntries[0] ?? ['—', 0])[0];
     const insight = sessions.length === 0
         ? 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!'
-        : `<strong>Taal más practicado:</strong> ${topTaal}. <strong>A equilibrar:</strong> ${leastTaal} tiene el menor tiempo registrado — prueba a incluirlo más en tus sesiones.`;
+        : taalOnlyEntries.length <= 1
+            ? `<strong>Taal más practicado:</strong> ${topTaal}. Prueba a añadir otros taals en tus sesiones para equilibrar tu práctica.`
+            : `<strong>Taal más practicado:</strong> ${topTaal}. <strong>A equilibrar:</strong> ${leastTaal} tiene el menor tiempo registrado — prueba a incluirlo más en tus sesiones.`;
 
     return {
         kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak },
