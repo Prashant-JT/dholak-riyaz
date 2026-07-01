@@ -1580,7 +1580,7 @@ body.dark .technique-badge {
 }
 
 .btn-secondary {
-    background: white;
+    background: var(--card-bg);
     border: 2px solid #f97316;
     color: #f97316;
     font-weight: 600;
@@ -1593,7 +1593,7 @@ body.dark .technique-badge {
 }
 
 .btn-secondary:hover {
-    background: #fff7ed;
+    background: rgba(249, 115, 22, 0.08);
     border-color: #ea580c;
     color: #ea580c;
     box-shadow: 0 2px 6px rgba(249, 115, 22, 0.2);
@@ -3486,6 +3486,66 @@ body.dark .session-action-feedback--success {
 
 .session-block-complete-flash__icon {
     font-size: 1.2rem;
+}
+
+/* ============================================
+   EDIT BLOCK PANEL — edición inline durante sesión
+   ============================================ */
+
+/* Fila header: título + botón editar alineados */
+.session-edit-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.session-edit-header-row .section-title {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+/* Botón ✏️ Editar */
+.session-edit-btn {
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
+    margin-top: 0.15rem;
+}
+
+.session-edit-btn:hover {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    background: rgba(249, 115, 22, 0.07);
+}
+
+/* Panel desplegable de edición */
+.session-edit-panel {
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--orange-500);
+    border-radius: 12px;
+    animation: editPanelSlideIn 0.18s ease;
+}
+
+@keyframes editPanelSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Botón confirmar dentro del panel */
+.session-edit-confirm-btn {
+    width: 100%;
+    margin-top: 0.25rem;
 }
 
 /* ── Medallas ───────────────────────────────────────────────────────────────── */

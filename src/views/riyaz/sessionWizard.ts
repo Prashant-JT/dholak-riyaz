@@ -106,10 +106,10 @@ export class SessionWizardView implements View {
     private makeStep2Callbacks(): Step2Callbacks {
         return {
             onComplete: () => {
-                // blockStartTime ya fue actualizado dentro de completeCurrentBlock
-                // si no es el último bloque. Para el último, el renderStep3 lo ignora.
-                const wasLast = this.sessionState.currentBlockIndex === this.sessionState.blocks.length - 1;
-                if (!wasLast) {
+                // currentBlockIndex ya fue incrementado por completeCurrentBlock.
+                // Si el índice supera el último bloque, la sesión terminó.
+                const done = this.sessionState.currentBlockIndex >= this.sessionState.blocks.length;
+                if (!done) {
                     this.blockStartTime = Date.now();
                     this.doStep2();
                 } else {

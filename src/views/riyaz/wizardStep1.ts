@@ -564,7 +564,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     const supportField = createElement('div', { className: 'session-form-field' });
     supportField.appendChild(createElement('label', {}, 'Soporte rítmico'));
     const supportSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
-    ['metronome', 'song', 'lehra'].forEach(s => {
+    ['song', 'lehra', 'metronome'].forEach(s => {
         const labels: Record<string, string> = { metronome: 'Metrónomo', song: 'Canción', lehra: 'Lehra' };
         supportSelect.appendChild(createElement('option', { value: s }, labels[s]) as HTMLOptionElement);
     });
