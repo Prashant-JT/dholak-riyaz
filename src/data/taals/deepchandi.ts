@@ -147,7 +147,7 @@ export const deepchandi: Taal = {
                 ]
             ],
             description: '3+4+3+4 — variación con tutorial en video',
-            tutorials: ['']
+            tutorials: ['https://www.youtube.com/watch?v=HOZXYb-RjS0']
         },
     ]
 };
