@@ -56,7 +56,8 @@ export function updateSessionBadge(): void {
 export interface SavedTemplate { id: string; name: string; blocks: SessionBlock[]; }
 
 const LS_TEMPLATES_KEY = 'dholak_session_templates';
-const LS_SEEDED_KEY    = 'dholak_templates_seeded_v1';
+// Incrementar este número cada vez que se añadan/modifiquen plantillas default.
+const LS_SEEDED_KEY    = 'dholak_templates_seeded_v3';
 
 export function loadSavedTemplates(): SavedTemplate[] {
     try { return JSON.parse(localStorage.getItem(LS_TEMPLATES_KEY) ?? '[]'); } catch { return []; }
@@ -70,9 +71,9 @@ export function seedDefaultTemplates(): void {
     if (localStorage.getItem(LS_SEEDED_KEY)) return;
     const existing = loadSavedTemplates();
     const defaultIds = new Set(DEFAULT_TEMPLATES.map(t => t.id));
-    if (!existing.some(t => defaultIds.has(t.id))) {
-        saveSavedTemplates([...DEFAULT_TEMPLATES, ...existing]);
-    }
+    // Reemplaza las default existentes con las nuevas y conserva las del usuario
+    const userTemplates = existing.filter(t => !defaultIds.has(t.id));
+    saveSavedTemplates([...DEFAULT_TEMPLATES, ...userTemplates]);
     localStorage.setItem(LS_SEEDED_KEY, '1');
 }
 
