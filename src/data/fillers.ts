@@ -22,12 +22,12 @@ export const FILLERS: Filler[] = [
             },
             {
                 name: 'Ta Ki Te (x2) Ta',
-                link: 'https://www.youtube.com/shorts/vSo3QhDWmtQ',
-                note: "'Ne es como Te'"
+                link: 'https://www.youtube.com/shorts/vSo3QhDWmtQ'
             },
             {
                 name: 'Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)',
-                link: 'https://www.youtube.com/watch?v=m5ryRabj5Fc'
+                link: 'https://www.youtube.com/watch?v=m5ryRabj5Fc',
+                note: "'Ne es como Te'"
             }
         ]
     },
