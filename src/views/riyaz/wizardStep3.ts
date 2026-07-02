@@ -71,13 +71,32 @@ export function renderStep3(
     }) as HTMLTextAreaElement;
     textarea.addEventListener('input', () => { sessionState.notes = textarea.value; });
     notesCard.appendChild(textarea);
+
+    // Toggle sesión conjunta
+    const jointRow = createElement('div', {
+        style: {
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            marginTop: '1rem', padding: '0.75rem 1rem',
+            background: 'var(--bg-secondary)', borderRadius: '8px',
+            border: '1.5px solid var(--border-primary)',
+        }
+    });
+    const jointCheckbox = createElement('input', { type: 'checkbox', id: 'joint-session-toggle' }) as HTMLInputElement;
+    jointCheckbox.style.cssText = 'width:18px;height:18px;cursor:pointer;accent-color:var(--orange-500)';
+    const jointLabel = createElement('label', { htmlFor: 'joint-session-toggle' });
+    jointLabel.style.cssText = 'cursor:pointer;font-size:0.95rem;user-select:none';
+    jointLabel.textContent = 'Sesión conjunta';
+    jointRow.appendChild(jointCheckbox);
+    jointRow.appendChild(jointLabel);
+    notesCard.appendChild(jointRow);
+
     container.appendChild(notesCard);
 
     // Botones de acción
     const actionArea = createElement('div', {});
     const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
     saveBtn.addEventListener('click', () => {
-        showSaveModal(sessionState.notes, totalSecs, sessionState.blocks, () => {
+        showSaveModal(sessionState.notes, totalSecs, sessionState.blocks, jointCheckbox.checked, () => {
             clearSessionDraft();
             actionArea.innerHTML = '';
             const successMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--success' });
@@ -187,6 +206,7 @@ function showSaveModal(
     notes: string,
     totalSecs: number,
     blocks: SessionBlock[],
+    jointSession: boolean,
     onSuccess: () => void
 ): void {
     const USERS: Record<string, string> = {
@@ -198,9 +218,19 @@ function showSaveModal(
     const modal   = createElement('div', { className: 'save-modal' });
 
     modal.appendChild(createElement('h3', { className: 'save-modal__title' }, '💾 Guardar sesión'));
-    modal.appendChild(createElement('p', { className: 'save-modal__sub' },
-        'Introduce tus credenciales para guardar en la base de datos'));
 
+    if (jointSession) {
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
+            'Sesión conjunta — se guardará para Prashant y Meera'));
+        // En sesión conjunta solo se autentica con la contraseña de Prashant
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
+            'Introduce la contraseña de Prashant para confirmar'));
+    } else {
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
+            'Introduce tus credenciales para guardar en la base de datos'));
+    }
+
+    // Selector de usuario (oculto en sesión conjunta, siempre prashant)
     const userField = createElement('div', { className: 'save-modal__field' });
     userField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Usuario'));
     const userSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
@@ -209,6 +239,10 @@ function showSaveModal(
             u.charAt(0).toUpperCase() + u.slice(1)) as HTMLOptionElement);
     });
     userField.appendChild(userSelect);
+    if (jointSession) {
+        userField.style.display = 'none';
+        userSelect.value = 'prashant';
+    }
     modal.appendChild(userField);
 
     const passField = createElement('div', { className: 'save-modal__field' });
@@ -229,7 +263,7 @@ function showSaveModal(
 
     const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, 'Guardar');
     confirmBtn.addEventListener('click', async () => {
-        const userId       = userSelect.value;
+        const userId       = jointSession ? 'prashant' : userSelect.value;
         const passwordHash = await hashPassword(passInput.value.trim());
 
         if (passwordHash !== USERS[userId]) {
@@ -244,28 +278,31 @@ function showSaveModal(
         confirmBtn.setAttribute('disabled', 'true');
         errorEl.style.display = 'none';
 
-        const record = {
-            user_id:    userId,
-            total_secs: totalSecs,
-            notes:      notes || null,
-            blocks:     blocks.map(b => ({
-                type:             b.type,
-                taal_name:        b.taalName,
-                variation_name:   b.variationName,
-                kayda_name:       b.kaydaName,
-                support_type:     b.supportType,
-                support_ref:      b.supportRef,
-                bpm_start:        b.bpmStart,
-                bpm_end:          b.bpmEnd,
-                duration_secs:    b.durationSecs,
-                cycles_completed: b.cyclesCompleted,
-                pickup_name:      b.pickupName,
-                pickup_taal:      b.pickupTaalCategory,
-            })),
-        };
+        const blocksMapped = blocks.map(b => ({
+            type:             b.type,
+            taal_name:        b.taalName,
+            variation_name:   b.variationName,
+            kayda_name:       b.kaydaName,
+            support_type:     b.supportType,
+            support_ref:      b.supportRef,
+            bpm_start:        b.bpmStart,
+            bpm_end:          b.bpmEnd,
+            duration_secs:    b.durationSecs,
+            cycles_completed: b.cyclesCompleted,
+            pickup_name:      b.pickupName,
+            pickup_taal:      b.pickupTaalCategory,
+        }));
+
+        // En sesión conjunta se insertan dos registros: uno por usuario
+        const records = jointSession
+            ? [
+                { user_id: 'prashant', total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },
+                { user_id: 'meera',    total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },
+              ]
+            : [{ user_id: userId, total_secs: totalSecs, notes: notes || null, blocks: blocksMapped }];
 
         try {
-            const { error } = await db.from('sessions').insert(record);
+            const { error } = await db.from('sessions').insert(records);
             if (error) throw error;
             overlay.remove();
             onSuccess();
