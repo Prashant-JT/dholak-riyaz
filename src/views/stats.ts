@@ -8,6 +8,27 @@ import { db } from '../core/supabase.js';
 import { createElement } from '../core/utils.js';
 import type { View } from '../types.js';
 
+// ── Timezone Gran Canaria ──────────────────────────────────────────────────────
+const GC_TZ = 'Atlantic/Canary';
+
+/** Devuelve 'YYYY-MM-DD' en hora canaria a partir de un ISO string UTC */
+function gcDateStr(iso: string): string {
+    return new Intl.DateTimeFormat('sv-SE', { timeZone: GC_TZ }).format(new Date(iso));
+}
+
+/** Devuelve 'YYYY-MM-DD' de hoy en hora canaria */
+function gcTodayStr(): string {
+    return new Intl.DateTimeFormat('sv-SE', { timeZone: GC_TZ }).format(new Date());
+}
+
+/** Devuelve el lunes de la semana ISO (YYYY-MM-DD) en hora canaria */
+function gcMondayStr(isoDate: string): string {
+    const d = new Date(isoDate + 'T00:00:00Z');
+    const dow = d.getUTCDay();
+    d.setUTCDate(d.getUTCDate() - (dow === 0 ? 6 : dow - 1));
+    return d.toISOString().slice(0, 10);
+}
+
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 export interface SupabaseSession {
@@ -113,7 +134,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         const mins = Math.round(effectiveSecs(s) / 60);
         weekly[idx] += mins;
         // Día de la semana normalizado a Lun=0 … Dom=6
-        const dow = new Date(s.saved_at).getDay();
+        const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay();
         const dayIdx = dow === 0 ? 6 : dow - 1;
         weekDays[idx][dayIdx] += mins;
     });
@@ -176,8 +197,9 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     // ── Historial: últimas 10 sesiones ────────────────────────────────────────
     const recentSessions = [...sessions].reverse().slice(0, 10);
     const history = recentSessions.map(s => {
-        const d = new Date(s.saved_at);
-        const date = `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`;
+        const gcStr = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' en hora canaria
+        const d = new Date(gcStr + 'T12:00:00Z');
+        const date = `${d.getUTCDate()} ${MONTH_ES[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
         const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
         const blocks = s.blocks.map(b =>
             b.type === 'warmup'
@@ -201,14 +223,17 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     // ── Heatmap: últimos 4 meses ──────────────────────────────────────────────
     const heatmap: { label: string; days: number[] }[] = [];
     for (let m = 3; m >= 0; m--) {
-        const ref = new Date(now.getFullYear(), now.getMonth() - m, 1);
-        const daysInMonth = new Date(ref.getFullYear(), ref.getMonth() + 1, 0).getDate();
+        const gcNow = gcTodayStr();
+        const refYear  = parseInt(gcNow.slice(0, 4));
+        const refMonth = parseInt(gcNow.slice(5, 7)) - 1 - m;   // puede ser negativo, Date lo normaliza
+        const ref = new Date(Date.UTC(refYear, refMonth, 1));
+        const daysInMonth = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 0)).getUTCDate();
         const days = new Array(daysInMonth).fill(0);
 
         sessions.forEach(s => {
-            const sd = new Date(s.saved_at);
-            if (sd.getFullYear() === ref.getFullYear() && sd.getMonth() === ref.getMonth()) {
-                const dayIdx = sd.getDate() - 1;
+            const sd = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z');
+            if (sd.getUTCFullYear() === ref.getUTCFullYear() && sd.getUTCMonth() === ref.getUTCMonth()) {
+                const dayIdx = sd.getUTCDate() - 1;
                 const mins = Math.round(effectiveSecs(s) / 60);
                 // Nivel 1 mínimo para cualquier sesión registrada (aunque sea de prueba/corta)
                 const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : effectiveSecs(s) > 0 ? 1 : 0;
@@ -216,7 +241,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             }
         });
 
-        heatmap.push({ label: ref.toLocaleDateString('es-ES', { month: 'long' }), days });
+        heatmap.push({ label: ref.toLocaleDateString('es-ES', { timeZone: 'UTC', month: 'long' }), days });
     }
 
     // ── KPIs ──────────────────────────────────────────────────────────────────
@@ -229,34 +254,41 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const allBpms = sessions.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0));
     const maxBpm = allBpms.length > 0 ? Math.max(...allBpms) : 0;
 
-    // Racha diaria: días consecutivos hasta hoy con al menos una sesión
-    const sessionDays = new Set(sessions.map(s => new Date(s.saved_at).toDateString()));
+    // Racha diaria — todas las fechas en hora canaria
+    const todayGC = gcTodayStr();
+    const sessionDaysSet = new Set(sessions.map(s => gcDateStr(s.saved_at)));
+    const allDaysKpi = Array.from(sessionDaysSet).sort();
     let streak = 0;
-    const today = new Date();
-    for (let i = 0; i < 365; i++) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        if (sessionDays.has(d.toDateString())) streak++;
-        else if (i > 0) break;
+    if (allDaysKpi.length > 0) {
+        let s = 1;
+        for (let i = allDaysKpi.length - 1; i > 0; i--) {
+            const curr = new Date(allDaysKpi[i] + 'T00:00:00Z');
+            const prev = new Date(allDaysKpi[i - 1] + 'T00:00:00Z');
+            const diff = (curr.getTime() - prev.getTime()) / 86400000;
+            if (diff === 1) s++; else break;
+        }
+        const lastDay  = new Date(allDaysKpi[allDaysKpi.length - 1] + 'T00:00:00Z');
+        const todayDay = new Date(todayGC + 'T00:00:00Z');
+        const diffToToday = Math.round((todayDay.getTime() - lastDay.getTime()) / 86400000);
+        streak = diffToToday <= 1 ? s : 0;
     }
 
-    // Racha semanal: semanas ISO consecutivas (Lun-Dom) con al menos una sesión
-    // Una semana "cuenta" si tiene ≥1 sesión en cualquiera de sus 7 días
-    const getISOWeekKey = (date: Date): string => {
-        const d = new Date(date);
-        const day = d.getDay();
-        // Ajustar al lunes de esa semana
-        d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
-        d.setHours(0, 0, 0, 0);
-        return d.toISOString().slice(0, 10);   // 'YYYY-MM-DD' del lunes
-    };
-    const sessionWeeks = new Set(sessions.map(s => getISOWeekKey(new Date(s.saved_at))));
+    // Racha semanal — semanas ISO en hora canaria
+    const sessionWeeksArr = Array.from(new Set(sessions.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
     let weekStreak = 0;
-    for (let i = 0; i < 52; i++) {
-        const ref = new Date(today);
-        ref.setDate(ref.getDate() - i * 7);
-        if (sessionWeeks.has(getISOWeekKey(ref))) weekStreak++;
-        else if (i > 0) break;
+    if (sessionWeeksArr.length > 0) {
+        let ws = 1;
+        for (let i = sessionWeeksArr.length - 1; i > 0; i--) {
+            const prev = new Date(sessionWeeksArr[i - 1] + 'T00:00:00Z');
+            prev.setUTCDate(prev.getUTCDate() + 7);
+            if (prev.toISOString().slice(0, 10) === sessionWeeksArr[i]) ws++; else break;
+        }
+        const lastWeek   = new Date(sessionWeeksArr[sessionWeeksArr.length - 1] + 'T00:00:00Z');
+        const todayDay2  = new Date(todayGC + 'T00:00:00Z');
+        const todayDow   = todayDay2.getUTCDay();
+        const thisMonday = new Date(todayDay2);
+        thisMonday.setUTCDate(todayDay2.getUTCDate() - (todayDow === 0 ? 6 : todayDow - 1));
+        weekStreak = lastWeek.toISOString().slice(0, 10) === thisMonday.toISOString().slice(0, 10) ? ws : 0;
     }
 
     // ── Insight automático ────────────────────────────────────────────────────
@@ -360,10 +392,10 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
     const totalMins = Math.round(sorted.reduce((s, x) => s + effectiveSecs(x), 0) / 60);
     const totalSessions = sorted.length;
 
-    // Racha diaria máxima (no solo la actual)
-    const sessionDays = new Set(sorted.map(s => new Date(s.saved_at).toDateString()));
+    // Racha diaria máxima — fechas en hora canaria
+    const allDayStrs = Array.from(new Set(sorted.map(s => gcDateStr(s.saved_at)))).sort();
+    const allDays = allDayStrs.map(d => new Date(d + 'T00:00:00Z'));
     let maxStreak = 0; let curStreak = 0;
-    const allDays = Array.from(sessionDays).map(d => new Date(d)).sort((a,b) => a.getTime()-b.getTime());
     for (let i = 0; i < allDays.length; i++) {
         if (i === 0) { curStreak = 1; }
         else {
@@ -373,14 +405,13 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
         if (curStreak > maxStreak) maxStreak = curStreak;
     }
 
-    // Racha semanal máxima
-    const getMonday = (d: Date) => { const c = new Date(d); const day = c.getDay(); c.setDate(c.getDate() - (day === 0 ? 6 : day - 1)); c.setHours(0,0,0,0); return c.toISOString().slice(0,10); };
-    const sessionWeeks = Array.from(new Set(sorted.map(s => getMonday(new Date(s.saved_at))))).sort();
+    // Racha semanal máxima — semanas en hora canaria
+    const sessionWeeks = Array.from(new Set(sorted.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
     let maxWeekStreak = 0; let curWStreak = 0;
     for (let i = 0; i < sessionWeeks.length; i++) {
         if (i === 0) { curWStreak = 1; }
         else {
-            const prev = new Date(sessionWeeks[i-1]); prev.setDate(prev.getDate() + 7);
+            const prev = new Date(sessionWeeks[i-1] + 'T00:00:00Z'); prev.setUTCDate(prev.getUTCDate() + 7);
             curWStreak = prev.toISOString().slice(0,10) === sessionWeeks[i] ? curWStreak + 1 : 1;
         }
         if (curWStreak > maxWeekStreak) maxWeekStreak = curWStreak;
@@ -409,12 +440,12 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
     const first100hSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 6000)?.saved_at;
     const longSession      = sorted.find(s => Math.round(effectiveSecs(s)/60) >= 60)?.saved_at;
     const marathonSession  = sorted.find(s => Math.round(effectiveSecs(s)/60) >= 90)?.saved_at;
-    const streak7Session   = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=7)   return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
-    const streak30Session  = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=30)  return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
-    const streak60Session  = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=60)  return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
-    const streak100Session = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=100) return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
-    const streak365Session = (() => { let c = 0; for (const d of allDays) { c = allDays.indexOf(d) === 0 ? 1 : (d.getTime()-allDays[allDays.indexOf(d)-1].getTime())/86400000===1 ? c+1 : 1; if (c>=365) return sorted.find(s => new Date(s.saved_at).toDateString()===d.toDateString())?.saved_at; } return undefined; })();
-    const week4Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0 ? 1 : (()=>{const p=new Date(sessionWeeks[i-1]); p.setDate(p.getDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=4) return sorted.find(s => getMonday(new Date(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
+    const streak7Session   = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=7)   return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
+    const streak30Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=30)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
+    const streak60Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=60)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
+    const streak100Session = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=100) return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
+    const streak365Session = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=365) return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
+    const week4Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=4) return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
     const bpm120Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 120))?.saved_at;
     const bpm180Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 180))?.saved_at;
     const bpm60Session     = sorted.find(s => s.blocks.some(b => b.support_type === 'metronome' && (b.bpm_start ?? 0) <= 60))?.saved_at;
@@ -432,29 +463,31 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
         progressPct: cond ? undefined : progressPct,
     });
 
-    // Racha actual (para mostrar en celdas de racha no ganadas)
+    // Racha actual (para celdas de logros no ganadas) — hora canaria
     const currentStreak = allDays.length > 0 ? (() => {
         let s = 1;
         for (let i = allDays.length - 1; i > 0; i--) {
             const diff = (allDays[i].getTime() - allDays[i-1].getTime()) / 86400000;
             if (diff === 1) s++; else break;
         }
-        // Si el último día de práctica no fue hoy ni ayer, la racha está rota
-        const last = allDays[allDays.length - 1];
-        const today = new Date(); today.setHours(0,0,0,0);
-        const diffToToday = (today.getTime() - last.getTime()) / 86400000;
+        const last     = allDays[allDays.length - 1];
+        const todayDay = new Date(gcTodayStr() + 'T00:00:00Z');
+        const diffToToday = Math.round((todayDay.getTime() - last.getTime()) / 86400000);
         return diffToToday <= 1 ? s : 0;
     })() : 0;
 
-    // Racha semanal actual
+    // Racha semanal actual — hora canaria
     const currentWeekStreak = sessionWeeks.length > 0 ? (() => {
         let s = 1;
         for (let i = sessionWeeks.length - 1; i > 0; i--) {
-            const prev = new Date(sessionWeeks[i-1]); prev.setDate(prev.getDate() + 7);
+            const prev = new Date(sessionWeeks[i-1] + 'T00:00:00Z'); prev.setUTCDate(prev.getUTCDate() + 7);
             if (prev.toISOString().slice(0,10) === sessionWeeks[i]) s++; else break;
         }
-        const lastWeek = new Date(sessionWeeks[sessionWeeks.length - 1]);
-        const thisMonday = new Date(); const day = thisMonday.getDay(); thisMonday.setDate(thisMonday.getDate() - (day === 0 ? 6 : day - 1)); thisMonday.setHours(0,0,0,0);
+        const lastWeek   = new Date(sessionWeeks[sessionWeeks.length - 1] + 'T00:00:00Z');
+        const todayGC2   = gcTodayStr();
+        const todayD     = new Date(todayGC2 + 'T00:00:00Z');
+        const dow2       = todayD.getUTCDay();
+        const thisMonday = new Date(todayD); thisMonday.setUTCDate(todayD.getUTCDate() - (dow2 === 0 ? 6 : dow2 - 1));
         return lastWeek.toISOString().slice(0,10) === thisMonday.toISOString().slice(0,10) ? s : 0;
     })() : 0;
 
@@ -1303,8 +1336,8 @@ export class StatsView implements View {
         monthSel.appendChild(createElement('option', { value: '' }, 'Todos los meses') as HTMLOptionElement);
         const monthsSeen = new Set<string>();
         d.rawSessions.forEach(s => {
-            const d2 = new Date(s.saved_at);
-            monthsSeen.add(`${d2.getFullYear()}-${String(d2.getMonth()).padStart(2,'0')}`);
+            const gc = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' hora canaria
+            monthsSeen.add(`${gc.slice(0,4)}-${String(parseInt(gc.slice(5,7)) - 1).padStart(2,'0')}`);
         });
         [...monthsSeen].sort().reverse().forEach(key => {
             const [yr, mo] = key.split('-');
@@ -1339,8 +1372,8 @@ export class StatsView implements View {
             if (monthFilter) {
                 const [yr, mo] = monthFilter.split('-').map(Number);
                 filtered = filtered.filter(s => {
-                    const sd = new Date(s.saved_at);
-                    return sd.getFullYear() === yr && sd.getMonth() === mo;
+                    const gc = gcDateStr(s.saved_at);
+                    return parseInt(gc.slice(0,4)) === yr && parseInt(gc.slice(5,7)) - 1 === mo;
                 });
             }
 
@@ -1350,10 +1383,11 @@ export class StatsView implements View {
                 ? `Mostrando 25 de ${filtered.length}`
                 : `${filtered.length} sesión${filtered.length !== 1 ? 'es' : ''}`;
 
-            // Convertir a formato history
+            // Convertir a formato history — fechas en hora canaria
             const histEntries = shown.map(s => {
-                const date2 = new Date(s.saved_at);
-                const date  = `${date2.getDate()} ${MONTH_ES[date2.getMonth()]} ${date2.getFullYear()}`;
+                const gcStr = gcDateStr(s.saved_at);
+                const date2 = new Date(gcStr + 'T12:00:00Z');
+                const date  = `${date2.getUTCDate()} ${MONTH_ES[date2.getUTCMonth()]} ${date2.getUTCFullYear()}`;
                 const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
                 const blocks = s.blocks.map(b =>
                     b.type === 'warmup' ? 'Warm Up'

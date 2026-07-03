@@ -96,7 +96,7 @@ export function renderStep3(
     const actionArea = createElement('div', {});
     const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
     saveBtn.addEventListener('click', () => {
-        showSaveModal(sessionState.notes, totalSecs, sessionState.blocks, jointCheckbox.checked, () => {
+        showSaveModal(sessionState.notes, totalSecs, sessionState.blocks, jointCheckbox.checked, sessionState.startedAt, () => {
             clearSessionDraft();
             actionArea.innerHTML = '';
             const successMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--success' });
@@ -207,6 +207,7 @@ function showSaveModal(
     totalSecs: number,
     blocks: SessionBlock[],
     jointSession: boolean,
+    startedAt: number,
     onSuccess: () => void
 ): void {
     const USERS: Record<string, string> = {
@@ -293,13 +294,16 @@ function showSaveModal(
             pickup_taal:      b.pickupTaalCategory,
         }));
 
+        // saved_at = momento de inicio de la sesión (ISO 8601)
+        const savedAt = new Date(startedAt).toISOString();
+
         // En sesión conjunta se insertan dos registros: uno por usuario
         const records = jointSession
             ? [
-                { user_id: 'prashant', total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },
-                { user_id: 'meera',    total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },
+                { user_id: 'prashant', saved_at: savedAt, total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },
+                { user_id: 'meera',    saved_at: savedAt, total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },
               ]
-            : [{ user_id: userId, total_secs: totalSecs, notes: notes || null, blocks: blocksMapped }];
+            : [{ user_id: userId, saved_at: savedAt, total_secs: totalSecs, notes: notes || null, blocks: blocksMapped }];
 
         try {
             const { error } = await db.from('sessions').insert(records);
