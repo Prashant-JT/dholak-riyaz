@@ -382,7 +382,7 @@ interface Medal {
     progressPct?: number; // 0-100 para barra visual
 }
 
-function computeMedals(sessions: SupabaseSession[]): Medal[] {
+function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
     const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     const fmt = (iso: string) => { const d = new Date(iso); return `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`; };
 
@@ -543,6 +543,21 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
             `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),
         mk('bpm180',    '🚀', 'Fuego',              'Alcanzado ≥ 180 BPM en metrónomo',                maxBpm >= 180, bpm180Session,
             `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 180) / 180) * 100))),
+        // Sesión conjunta
+        ...(() => {
+            if (otherSessions.length === 0) return [];
+            const otherTimes    = new Set(otherSessions.map(s => s.saved_at));
+            const jointSessions = sorted.filter(s => otherTimes.has(s.saved_at));
+            const jointCount    = jointSessions.length;
+            const jointMins     = Math.round(jointSessions.reduce((sum, s) => sum + effectiveSecs(s), 0) / 60);
+            return [
+                mk('jugalbandi', '🤝', 'Jugalbandi',       'Primera sesión conjunta con tu compañero',    jointCount >= 1,  jointSessions[0]?.saved_at),
+                mk('duo5',       '🎶', 'Dúo en armonía',   '5 sesiones conjuntas con tu compañero',       jointCount >= 5,  jointSessions[4]?.saved_at,
+                    `${jointCount} de 5 sesiones conjuntas`, Math.min(100, Math.round((jointCount / 5) * 100))),
+                mk('superjugal', '⚡', 'Super Jugalbandi', '60 min acumulados en sesiones conjuntas',     jointMins  >= 60, jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 60)?.saved_at,
+                    `${jointMins} de 60 min`, Math.min(100, Math.round((jointMins / 60) * 100))),
+            ];
+        })(),
     ];
 }
 
@@ -991,8 +1006,8 @@ export class StatsView implements View {
         content.appendChild(distRow);
 
         // ── Medallas lado a lado (3 cards en grid) ────────────────────────────
-        const pm = computeMedals(p.rawSessions);
-        const mm = computeMedals(m.rawSessions);
+        const pm = computeMedals(p.rawSessions, m.rawSessions);
+        const mm = computeMedals(m.rawSessions, p.rawSessions);
         const pmById = Object.fromEntries(pm.map(x => [x.id, x]));
         const mmById = Object.fromEntries(mm.map(x => [x.id, x]));
 
@@ -1000,6 +1015,7 @@ export class StatsView implements View {
             { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
             { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
             { label: 'Variedad + Velocidad', ids: ['explorer','keherwa','dadra','rupak','deepchandi','allFour','songs5','slow','bpm120','bpm180'] },
+            { label: 'Conjunto',             ids: ['jugalbandi','duo5','superjugal'] },
         ];
 
         // Leyenda una sola vez
@@ -1476,7 +1492,9 @@ export class StatsView implements View {
     // ── Medallas ──────────────────────────────────────────────────────────────
 
     private buildMedalsCard(d: UserStats): HTMLElement {
-        const medals = computeMedals(d.rawSessions);
+        const otherUser = this.activeUser === 'prashant' ? 'meera' : 'prashant';
+        const otherSessions = this.userData[otherUser]?.rawSessions ?? [];
+        const medals = computeMedals(d.rawSessions, otherSessions);
         const earned = medals.filter(m => m.earned).length;
 
         const card = this.card();
@@ -1501,6 +1519,7 @@ export class StatsView implements View {
             { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
             { label: 'Variedad',   ids: ['explorer','keherwa','dadra','rupak','deepchandi','allFour','songs5'] },
             { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
+            { label: 'Conjunto',   ids: ['jugalbandi','duo5','superjugal'] },
         ];
         const byId = Object.fromEntries(medals.map(m => [m.id, m]));
 
