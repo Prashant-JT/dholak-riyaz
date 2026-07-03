@@ -419,9 +419,12 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
 
     // Taals distintos practicados
     const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
-    const THE_FOUR = ['Keherwa (8 beats)', 'Dadra (6 beats)', 'Rupak (7 beats)', 'Deepchandi (14 beats)'];
+    const THE_FOUR = ['Keherwa Taal', 'Dadra Taal', 'Rupak Taal', 'Deepchandi Taal'];
     const hasAllFour = THE_FOUR.every(t => taalsSet.has(t));
-    const deepchandiSession = (() => { for (const s of sorted) { if (s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Deepchandi (14 beats)')) return s.saved_at; } return undefined; })();
+    const keherwaSession   = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Keherwa Taal'))?.saved_at;
+    const dadraSession     = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Dadra Taal'))?.saved_at;
+    const rupakSession     = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Rupak Taal'))?.saved_at;
+    const deepchandiSession = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Deepchandi Taal'))?.saved_at;
 
     // Sesiones con canción
     const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
@@ -526,7 +529,10 @@ function computeMedals(sessions: SupabaseSession[]): Medal[] {
         // Variedad
         mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session,
             `${taalsSet.size} de 3 taals`, Math.min(100, Math.round((taalsSet.size / 3) * 100))),
-        mk('deepchandi', '🌊', 'Primer Deepchandi',  'Primera sesión practicando Deepchandi (14 beats)',  deepchandiSession !== undefined, deepchandiSession),
+        mk('keherwa',    '🔔', 'Primer Keherwa',     'Primera sesión practicando Keherwa Taal',           keherwaSession !== undefined,   keherwaSession),
+        mk('dadra',      '🌀', 'Primer Dadra',       'Primera sesión practicando Dadra Taal',             dadraSession !== undefined,     dadraSession),
+        mk('rupak',      '🎭', 'Primer Rupak',       'Primera sesión practicando Rupak Taal',             rupakSession !== undefined,     rupakSession),
+        mk('deepchandi', '🌊', 'Primer Deepchandi',  'Primera sesión practicando Deepchandi Taal',        deepchandiSession !== undefined, deepchandiSession),
         mk('allFour',    '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi',  hasAllFour,                     allFourSession,
             `${THE_FOUR.filter(t => taalsSet.has(t)).length} de 4 taals`, Math.min(100, Math.round((THE_FOUR.filter(t => taalsSet.has(t)).length / 4) * 100))),
         mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session,
@@ -993,7 +999,7 @@ export class StatsView implements View {
         const COMPARE_GROUPS = [
             { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
             { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: 'Variedad + Velocidad', ids: ['explorer','deepchandi','allFour','songs5','slow','bpm120','bpm180'] },
+            { label: 'Variedad + Velocidad', ids: ['explorer','keherwa','dadra','rupak','deepchandi','allFour','songs5','slow','bpm120','bpm180'] },
         ];
 
         // Leyenda una sola vez
@@ -1493,7 +1499,7 @@ export class StatsView implements View {
         const GROUPS = [
             { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
             { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: 'Variedad',   ids: ['explorer','deepchandi','allFour','songs5'] },
+            { label: 'Variedad',   ids: ['explorer','keherwa','dadra','rupak','deepchandi','allFour','songs5'] },
             { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
         ];
         const byId = Object.fromEntries(medals.map(m => [m.id, m]));
