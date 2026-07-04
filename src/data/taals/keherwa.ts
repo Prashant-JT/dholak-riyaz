@@ -327,6 +327,24 @@ export const keherwa: Taal = {
                 ]
             ],
             description: '4 beats + 4 beats — thapki en Sam y en Khali'
+        },
+        {
+            name: 'Keherwa variación 13 (Dhin _ Na Dhi)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhin',  technique: '' },
+                    { matra: 2, bol: '—',     technique: '' },
+                    { matra: 3, bol: 'Na',    technique: '' },
+                    { matra: 4, bol: 'Dhi',   technique: '' },
+                    { matra: 5, bol: '—',     technique: '' },
+                    { matra: 6, bol: 'Dhin',  technique: '' },
+                    { matra: 7, bol: 'NaNa',  technique: '' },
+                    { matra: 8, bol: 'TeTe',  technique: '' }
+                ]
+            ],
+            songs: [
+                { title: 'In Ankhon Ki Masti', url: 'https://www.youtube.com/watch?v=pwsjRraWgdA' }
+            ]
         }
     ]
 };
