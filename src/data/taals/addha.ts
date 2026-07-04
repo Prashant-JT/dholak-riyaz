@@ -15,23 +15,23 @@ export const addha: Taal = {
     rows: [
         [
             { matra: 1,  bol: 'Dha',  technique: 'Taali' },
-            { matra: 2,  bol: 'Dha',  technique: '' },
-            { matra: 3,  bol: 'Dhin', technique: '' },
-            { matra: 4,  bol: 'Ta',   technique: '' },
-            { matra: 5,  bol: 'Tet',  technique: 'Taali' },
-            { matra: 6,  bol: 'Dha',  technique: '' },
-            { matra: 7,  bol: 'Dhin', technique: '' },
-            { matra: 8,  bol: 'Ta',   technique: '' }
+            { matra: 2,  bol: '_',  technique: '' },
+            { matra: 3,  bol: 'Dhi', technique: '' },
+            { matra: 4,  bol: 'GeDha',   technique: '' },
+            { matra: 5,  bol: 'Dha',  technique: 'Taali' },
+            { matra: 6,  bol: '_',  technique: '' },
+            { matra: 7,  bol: 'Dhi', technique: '' },
+            { matra: 8,  bol: 'GeDha',   technique: '' }
         ],
         [
             { matra: 9,  bol: 'Dha',  technique: 'Khali' },
-            { matra: 10, bol: 'Tin',  technique: '' },
-            { matra: 11, bol: 'Tin',  technique: '' },
+            { matra: 10, bol: '_',  technique: '' },
+            { matra: 11, bol: 'TiKe',  technique: '' },
             { matra: 12, bol: 'Ta',   technique: '' },
-            { matra: 13, bol: 'Tet',  technique: 'Taali' },
-            { matra: 14, bol: 'Dha',  technique: '' },
-            { matra: 15, bol: 'Dhin', technique: '' },
-            { matra: 16, bol: 'Ta',   technique: '' }
+            { matra: 13, bol: 'Ta',  technique: 'Taali' },
+            { matra: 14, bol: '_',  technique: '' },
+            { matra: 15, bol: 'Dhi', technique: '' },
+            { matra: 16, bol: 'GeDha',   technique: '' }
         ]
     ],
     tip: {

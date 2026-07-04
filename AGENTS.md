@@ -273,7 +273,7 @@ npm run build
 
 ## ✅ Checklist: Añadir un Nuevo Taal (OBLIGATORIO)
 
-Cada vez que se añade un nuevo taal al proyecto, se deben tocar **obligatoriamente** estos 5 archivos. Olvidar cualquiera causa que el taal no aparezca o no funcione en alguna parte de la app:
+Cada vez que se añade un nuevo taal al proyecto, se deben tocar **obligatoriamente** estos 4 archivos. Olvidar cualquiera causa que el taal no aparezca o no funcione en alguna parte de la app:
 
 | # | Archivo | Qué añadir |
 |---|---|---|
@@ -281,9 +281,9 @@ Cada vez que se añade un nuevo taal al proyecto, se deben tocar **obligatoriame
 | 2 | `src/data/taals/index.ts` | Import + entrada en el objeto `TAALS` |
 | 3 | `src/core/config.ts` | Campo en `VIEWS` + item en array `NAVIGATION` |
 | 4 | `src/types.ts` | Campo en interfaz `ViewsConfig` |
-| 5 | `src/components/viewManager.ts` | `this.views.set(CONFIG.VIEWS.<TAAL>, new TaalView('<id>'))` |
 
 > ✅ **Automático** — no hay que tocar nada más:
+> - `src/components/viewManager.ts`: registra TaalViews dinámicamente desde `CONFIG.NAVIGATION`
 > - Bloques de práctica del Riyaz (`wizardStep1.ts`, `wizardStep2.ts`): derivan taals activos de `CONFIG.NAVIGATION`
 > - Estadísticas (`stats.ts`): medallas "Primer X", medalla "Polirítmico" y colores de tags se generan dinámicamente desde `ACTIVE_TAAL_IDS`
 > - Solo si el taal nuevo necesita color/emoji propio en las stats: añadir entrada en `TAAL_META` al inicio de `stats.ts`

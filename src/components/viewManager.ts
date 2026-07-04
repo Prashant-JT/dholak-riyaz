@@ -12,6 +12,7 @@ import { SongsView } from '../views/songs.js';
 import { FillersView } from '../views/fillers.js';
 import { SessionWizardView } from '../views/riyaz/sessionWizard.js';
 import { StatsView } from '../views/stats.js';
+import { TAALS } from '../data/taals/index.js';
 import type { View } from '../types.js';
 
 export class ViewManager {
@@ -34,18 +35,19 @@ export class ViewManager {
      * Inicializa todas las vistas
      */
     private initializeViews(): void {
-        this.views.set(CONFIG.VIEWS.RIYAZ,  new SessionWizardView());
-        this.views.set(CONFIG.VIEWS.STATS,  new StatsView());
-        this.views.set(CONFIG.VIEWS.DASHBOARD, new DashboardView());
-        this.views.set(CONFIG.VIEWS.GLOSARIO, new GlosarioView());
-        this.views.set(CONFIG.VIEWS.KEHERWA, new TaalView('keherwa'));
-        this.views.set(CONFIG.VIEWS.DADRA, new TaalView('dadra'));
-        this.views.set(CONFIG.VIEWS.RUPAK, new TaalView('rupak'));
-        this.views.set(CONFIG.VIEWS.DEEPCHANDI, new TaalView('deepchandi'));
-        this.views.set(CONFIG.VIEWS.ADDHA, new TaalView('addha'));
-        this.views.set(CONFIG.VIEWS.KAYDAS, new KaydasView());
-        this.views.set(CONFIG.VIEWS.SONGS, new SongsView());
-        this.views.set('fillers', new FillersView());
+        // Vistas fijas
+        this.views.set(CONFIG.VIEWS.RIYAZ,     new SessionWizardView());
+        this.views.set(CONFIG.VIEWS.STATS,      new StatsView());
+        this.views.set(CONFIG.VIEWS.DASHBOARD,  new DashboardView());
+        this.views.set(CONFIG.VIEWS.GLOSARIO,   new GlosarioView());
+        this.views.set(CONFIG.VIEWS.KAYDAS,     new KaydasView());
+        this.views.set(CONFIG.VIEWS.SONGS,      new SongsView());
+        this.views.set('fillers',               new FillersView());
+
+        // Vistas de taals — generadas automáticamente desde NAVIGATION
+        CONFIG.NAVIGATION
+            .filter(item => item.id in TAALS)
+            .forEach(item => this.views.set(item.id, new TaalView(item.id)));
     }
     
     /**
