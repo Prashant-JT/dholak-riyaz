@@ -294,6 +294,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Rupak (7 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=Wv-VlQMD0VY"
+    },
+    {
+        title: "In Ankhon Ki Masti",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=pwsjRraWgdA"
     }
 ];
 

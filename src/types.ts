@@ -150,6 +150,7 @@ export interface ViewsConfig {
     DADRA: string;
     RUPAK: string;
     DEEPCHANDI: string;
+    ADDHA: string;
     KAYDAS: string;
     SONGS: string;
     RIYAZ: string;

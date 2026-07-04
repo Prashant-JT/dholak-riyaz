@@ -10,6 +10,7 @@ import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
 import { SONGS } from '../../data/songs.js';
 import { FILLERS } from '../../data/fillers.js';
+import { CONFIG } from '../../core/config.js';
 import type { SessionBlock } from '../../types.js';
 import {
     loadSavedTemplates,
@@ -18,13 +19,15 @@ import {
     type SavedTemplate,
 } from './wizardDraft.js';
 
-// Mapeo de taalId → prefijo del campo taal en SONGS
-const TAAL_SONG_PREFIXES: Record<string, string> = {
-    keherwa:    'Keherwa',
-    dadra:      'Dadra',
-    rupak:      'Rupak',
-    deepchandi: 'Deepchandi',
-};
+// IDs de taals activos: los que aparecen en NAVIGATION y existen en TAALS
+const activeTaals: string[] = CONFIG.NAVIGATION
+    .map(item => item.id)
+    .filter(id => id in TAALS);
+
+// Mapeo taalId → primera palabra del nombre (para filtrar canciones por taal)
+const TAAL_SONG_PREFIXES: Record<string, string> = Object.fromEntries(
+    activeTaals.map(id => [id, TAALS[id].name.split(' ')[0]])
+);
 
 export interface Step1Callbacks {
     onStart:    (blocks: SessionBlock[]) => void;
@@ -521,7 +524,6 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     const taalField = createElement('div', { className: 'session-form-field' });
     taalField.appendChild(createElement('label', {}, 'Taal'));
     const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
-    const activeTaals = ['keherwa', 'dadra', 'rupak', 'deepchandi'];
     activeTaals.forEach(id => {
         taalSelect.appendChild(createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement);
     });

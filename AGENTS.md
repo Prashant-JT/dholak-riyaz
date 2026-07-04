@@ -271,6 +271,25 @@ npm run build
 
 ---
 
+## ✅ Checklist: Añadir un Nuevo Taal (OBLIGATORIO)
+
+Cada vez que se añade un nuevo taal al proyecto, se deben tocar **obligatoriamente** estos 5 archivos. Olvidar cualquiera causa que el taal no aparezca o no funcione en alguna parte de la app:
+
+| # | Archivo | Qué añadir |
+|---|---|---|
+| 1 | `src/data/taals/<nombre>.ts` | Crear el archivo con la definición completa del taal |
+| 2 | `src/data/taals/index.ts` | Import + entrada en el objeto `TAALS` |
+| 3 | `src/core/config.ts` | Campo en `VIEWS` + item en array `NAVIGATION` |
+| 4 | `src/types.ts` | Campo en interfaz `ViewsConfig` |
+| 5 | `src/components/viewManager.ts` | `this.views.set(CONFIG.VIEWS.<TAAL>, new TaalView('<id>'))` |
+
+> ✅ **Automático** — no hay que tocar nada más:
+> - Bloques de práctica del Riyaz (`wizardStep1.ts`, `wizardStep2.ts`): derivan taals activos de `CONFIG.NAVIGATION`
+> - Estadísticas (`stats.ts`): medallas "Primer X", medalla "Polirítmico" y colores de tags se generan dinámicamente desde `ACTIVE_TAAL_IDS`
+> - Solo si el taal nuevo necesita color/emoji propio en las stats: añadir entrada en `TAAL_META` al inicio de `stats.ts`
+
+---
+
 ## 🚫 Errores Comunes a EVITAR
 
 ### 1. ❌ Mezclar JavaScript y TypeScript
@@ -430,6 +449,7 @@ Antes de considerar una tarea completa, verificar:
    // ✅ CORRECTO — dinámico
    Object.values(KAYDAS).forEach(kayda => renderKayda(kayda));
    ```
+10. **Al añadir un nuevo Taal, actualizar TODOS los 7 archivos del checklist** — Ver sección "✅ Checklist: Añadir un Nuevo Taal". En especial no olvidar `viewManager.ts` (sin esto la vista no carga) y los dos archivos de `wizardStep*.ts` (sin esto el taal no aparece en los bloques de práctica del Riyaz).
 
 ---
 
@@ -439,6 +459,6 @@ Si encuentras inconsistencias en este documento o en el código, documéntalas a
 
 ---
 
-**Versión**: 1.0.0  
-**Última actualización**: 2026-06-23  
+**Versión**: 1.1.0
+**Última actualización**: 2026-06-24
 **Mantenedor**: Bob (AI Assistant)

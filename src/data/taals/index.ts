@@ -14,6 +14,7 @@ import { keherwa }    from './keherwa.js';
 import { dadra }      from './dadra.js';
 import { rupak }      from './rupak.js';
 import { deepchandi } from './deepchandi.js';
+import { addha }      from './addha.js';
 
 // ── Taals preparados (datos listos, pendientes de añadir a la navegación) ────
 import { teental }    from './teental.js';
@@ -26,6 +27,7 @@ export const TAALS: TaalsData = {
     dadra,
     rupak,
     deepchandi,
+    addha,
     // Preparados — descomentar entrada en config.ts > NAVIGATION para activar
     teental,
     ektal,

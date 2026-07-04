@@ -42,6 +42,7 @@ export class ViewManager {
         this.views.set(CONFIG.VIEWS.DADRA, new TaalView('dadra'));
         this.views.set(CONFIG.VIEWS.RUPAK, new TaalView('rupak'));
         this.views.set(CONFIG.VIEWS.DEEPCHANDI, new TaalView('deepchandi'));
+        this.views.set(CONFIG.VIEWS.ADDHA, new TaalView('addha'));
         this.views.set(CONFIG.VIEWS.KAYDAS, new KaydasView());
         this.views.set(CONFIG.VIEWS.SONGS, new SongsView());
         this.views.set('fillers', new FillersView());

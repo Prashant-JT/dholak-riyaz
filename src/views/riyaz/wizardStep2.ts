@@ -10,17 +10,20 @@ import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
 import { SONGS } from '../../data/songs.js';
 import { FILLERS } from '../../data/fillers.js';
+import { CONFIG } from '../../core/config.js';
 import { MetronomeEngine } from '../../components/metronome.js';
 import type { SessionBlock, SessionState, Matra } from '../../types.js';
 import { saveSessionDraft } from './wizardDraft.js';
 
-// Mapeo de taalId → prefijo del campo taal en SONGS (igual que step1)
-const TAAL_SONG_PREFIXES: Record<string, string> = {
-    keherwa:    'Keherwa',
-    dadra:      'Dadra',
-    rupak:      'Rupak',
-    deepchandi: 'Deepchandi',
-};
+// IDs de taals activos: los que aparecen en NAVIGATION y existen en TAALS
+const activeTaals: string[] = CONFIG.NAVIGATION
+    .map(item => item.id)
+    .filter(id => id in TAALS);
+
+// Mapeo taalId → primera palabra del nombre (para filtrar canciones por taal)
+const TAAL_SONG_PREFIXES: Record<string, string> = Object.fromEntries(
+    activeTaals.map(id => [id, TAALS[id].name.split(' ')[0]])
+);
 
 /** Divide un array en grupos de tamaño n */
 function chunkArray<T>(arr: T[], size: number): T[][] {
@@ -544,7 +547,6 @@ function renderEditPanel(
     cb: Step2Callbacks,
     onConfirm: () => void
 ): void {
-    const activeTaals = ['keherwa', 'dadra', 'rupak', 'deepchandi'];
 
     // ── WARM UP ───────────────────────────────────────────────────────────────
     if (block.type === 'warmup') {

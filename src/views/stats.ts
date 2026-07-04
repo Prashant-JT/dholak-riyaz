@@ -6,7 +6,25 @@
 
 import { db } from '../core/supabase.js';
 import { createElement } from '../core/utils.js';
+import { TAALS } from '../data/taals/index.js';
+import { CONFIG } from '../core/config.js';
 import type { View } from '../types.js';
+
+// IDs de taals activos (misma fuente de verdad que el Riyaz)
+const ACTIVE_TAAL_IDS: string[] = CONFIG.NAVIGATION
+    .map(item => item.id)
+    .filter(id => id in TAALS);
+
+// Metadatos visuales por taal: emoji y clase CSS de color para tags/medallas
+const TAAL_META: Record<string, { emoji: string; tagCls: string }> = {
+    keherwa:    { emoji: '🔔', tagCls: 'stats-tag--orange'  },
+    dadra:      { emoji: '🌀', tagCls: 'stats-tag--blue'    },
+    rupak:      { emoji: '🎭', tagCls: 'stats-tag--purple'  },
+    deepchandi: { emoji: '🌊', tagCls: 'stats-tag--teal'    },
+    addha:      { emoji: '🥁', tagCls: 'stats-tag--amber'   },
+};
+// Fallback para taals futuros sin metadatos definidos
+const DEFAULT_TAAL_META = { emoji: '🎵', tagCls: 'stats-tag--orange' };
 
 // ── Timezone Gran Canaria ──────────────────────────────────────────────────────
 const GC_TZ = 'Atlantic/Canary';
@@ -419,12 +437,17 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
 
     // Taals distintos practicados
     const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
-    const THE_FOUR = ['Keherwa Taal', 'Dadra Taal', 'Rupak Taal', 'Deepchandi Taal'];
-    const hasAllFour = THE_FOUR.every(t => taalsSet.has(t));
-    const keherwaSession   = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Keherwa Taal'))?.saved_at;
-    const dadraSession     = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Dadra Taal'))?.saved_at;
-    const rupakSession     = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Rupak Taal'))?.saved_at;
-    const deepchandiSession = sorted.find(s => s.blocks.some(b => b.type === 'practice' && b.taal_name === 'Deepchandi Taal'))?.saved_at;
+    // Nombres completos de los taals activos (ej. 'Keherwa Taal') para comparar con taal_name guardado en DB
+    const ALL_ACTIVE_TAAL_NAMES = ACTIVE_TAAL_IDS.map(id => TAALS[id].name);
+    const hasAllActive = ALL_ACTIVE_TAAL_NAMES.every(t => taalsSet.has(t));
+    // Primera sesión en que se practicó cada taal activo
+    const firstSessionByTaal: Record<string, string | undefined> = {};
+    ACTIVE_TAAL_IDS.forEach(id => {
+        const taalName = TAALS[id].name;
+        firstSessionByTaal[id] = sorted.find(s =>
+            s.blocks.some(b => b.type === 'practice' && b.taal_name === taalName)
+        )?.saved_at;
+    });
 
     // Sesiones con canción
     const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
@@ -453,7 +476,7 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
     const bpm180Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 180))?.saved_at;
     const bpm60Session     = sorted.find(s => s.blocks.some(b => b.support_type === 'metronome' && (b.bpm_start ?? 0) <= 60))?.saved_at;
     const explorer3Session = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (seen.size >= 3) return s.saved_at; } return undefined; })();
-    const allFourSession   = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (THE_FOUR.every(t => seen.has(t))) return s.saved_at; } return undefined; })();
+    const allActiveSession = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (ALL_ACTIVE_TAAL_NAMES.every(t => seen.has(t))) return s.saved_at; } return undefined; })();
     const song5Session     = (() => { let c=0; for (const s of sorted) { if (s.blocks.some(b=>b.support_type==='song')) { c++; if (c>=5) return s.saved_at; } } return undefined; })();
     const session10At      = sorted[9]?.saved_at;
     const session50At      = sorted[49]?.saved_at;
@@ -529,12 +552,19 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         // Variedad
         mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session,
             `${taalsSet.size} de 3 taals`, Math.min(100, Math.round((taalsSet.size / 3) * 100))),
-        mk('keherwa',    '🔔', 'Primer Keherwa',     'Primera sesión practicando Keherwa Taal',           keherwaSession !== undefined,   keherwaSession),
-        mk('dadra',      '🌀', 'Primer Dadra',       'Primera sesión practicando Dadra Taal',             dadraSession !== undefined,     dadraSession),
-        mk('rupak',      '🎭', 'Primer Rupak',       'Primera sesión practicando Rupak Taal',             rupakSession !== undefined,     rupakSession),
-        mk('deepchandi', '🌊', 'Primer Deepchandi',  'Primera sesión practicando Deepchandi Taal',        deepchandiSession !== undefined, deepchandiSession),
-        mk('allFour',    '🌐', 'Polirítmico',        'Los 4 taals: Keherwa, Dadra, Rupak y Deepchandi',  hasAllFour,                     allFourSession,
-            `${THE_FOUR.filter(t => taalsSet.has(t)).length} de 4 taals`, Math.min(100, Math.round((THE_FOUR.filter(t => taalsSet.has(t)).length / 4) * 100))),
+        // Medallas "Primer <Taal>" — generadas dinámicamente desde ACTIVE_TAAL_IDS
+        ...ACTIVE_TAAL_IDS.map(id => {
+            const taal    = TAALS[id];
+            const meta    = TAAL_META[id] ?? DEFAULT_TAAL_META;
+            const firstWord = taal.name.split(' ')[0];   // ej. 'Keherwa', 'Addha'
+            const when    = firstSessionByTaal[id];
+            return mk(id, meta.emoji, `Primer ${firstWord}`, `Primera sesión practicando ${taal.name}`, when !== undefined, when);
+        }),
+        mk('allActive',  '🌐', 'Polirítmico',
+            `Todos los taals activos: ${ACTIVE_TAAL_IDS.map(id => TAALS[id].name.split(' ')[0]).join(', ')}`,
+            hasAllActive, allActiveSession,
+            `${ALL_ACTIVE_TAAL_NAMES.filter(t => taalsSet.has(t)).length} de ${ALL_ACTIVE_TAAL_NAMES.length} taals`,
+            Math.min(100, Math.round((ALL_ACTIVE_TAAL_NAMES.filter(t => taalsSet.has(t)).length / ALL_ACTIVE_TAAL_NAMES.length) * 100))),
         mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session,
             `${songSessions.length} de 5 sesiones`, Math.min(100, Math.round((songSessions.length / 5) * 100))),
         // BPM
@@ -1012,23 +1042,28 @@ export class StatsView implements View {
         const mmById = Object.fromEntries(mm.map(x => [x.id, x]));
 
         const COMPARE_GROUPS = [
-            { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
-            { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: 'Variedad + Velocidad', ids: ['explorer','keherwa','dadra','rupak','deepchandi','allFour','songs5','slow','bpm120','bpm180'] },
+            { label: 'Constancia',           ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
+            { label: 'Volumen',              ids: ['h1','h10','h50','h100','long','marathon'] },
+            { label: 'Variedad + Velocidad', ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5','slow','bpm120','bpm180'] },
             { label: 'Conjunto',             ids: ['jugalbandi','duo5','superjugal'] },
         ];
 
         // Leyenda una sola vez
+        const pEarned = pm.filter(m => m.earned).length;
+        const mEarned = mm.filter(m => m.earned).length;
+        const total   = pm.length;
+
         const legendCard = this.card();
         legendCard.style.paddingBottom = '12px';
         legendCard.style.marginBottom  = '8px';
         const legendTitle = createElement('div', { className: 'medals-compare-legend' });
         legendTitle.appendChild(this.cardTitle('Medallas'));
         const dots = createElement('div', { className: 'medals-compare-legend-dots' });
-        [['p','Prashant'],['m','Meera']].forEach(([k,name]) => {
+        ([['p', 'Prashant', pEarned], ['m', 'Meera', mEarned]] as [string, string, number][]).forEach(([k, name, earned]) => {
             const item = createElement('span', { className: 'medals-compare-legend-item' });
             item.appendChild(createElement('span', { className: `medals-compare-dot medals-compare-dot--${k}` }));
-            item.appendChild(document.createTextNode(name));
+            item.appendChild(document.createTextNode(`${name} `));
+            item.appendChild(createElement('span', { className: `medals-compare-count medals-compare-count--${k}` }, `${earned}/${total}`));
             dots.appendChild(item);
         });
         legendTitle.appendChild(dots);
@@ -1437,12 +1472,14 @@ export class StatsView implements View {
             return '<p class="text-muted text-sm" style="padding:12px 0">Sin sesiones registradas todavía.</p>';
         }
 
-        const tagCls = (b: string) =>
-            b === 'Warm Up'    ? 'stats-tag--slate'  :
-            b === 'Dadra'      ? 'stats-tag--blue'   :
-            b === 'Rupak'      ? 'stats-tag--purple' :
-            b === 'Deepchandi' ? 'stats-tag--teal'   :
-            'stats-tag--orange';
+        // Colores de tags derivados de TAAL_META — funciona para cualquier taal activo presente o futuro
+        const tagCls = (b: string) => {
+            if (b === 'Warm Up') return 'stats-tag--slate';
+            if (b === 'Pickup')  return 'stats-tag--slate';
+            // Buscar por primera palabra del nombre del taal (ej. 'Keherwa', 'Addha')
+            const match = ACTIVE_TAAL_IDS.find(id => TAALS[id].name.startsWith(b));
+            return (match ? TAAL_META[match] : undefined)?.tagCls ?? DEFAULT_TAAL_META.tagCls;
+        };
 
         const rows = d.history.map((r, i) => {
             const tags   = r.blocks.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
@@ -1517,7 +1554,7 @@ export class StatsView implements View {
         const GROUPS = [
             { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
             { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: 'Variedad',   ids: ['explorer','keherwa','dadra','rupak','deepchandi','allFour','songs5'] },
+            { label: 'Variedad',   ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
             { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
             { label: 'Conjunto',   ids: ['jugalbandi','duo5','superjugal'] },
         ];
