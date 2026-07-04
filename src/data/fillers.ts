@@ -28,6 +28,10 @@ export const FILLERS: Filler[] = [
                 name: 'Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)',
                 link: 'https://www.youtube.com/watch?v=m5ryRabj5Fc',
                 note: "'Ne es como Te'"
+            },
+            {
+                name: 'Ta (x8) Takite Ta TaTa (x2) DhaGeNa Dha TaDha',
+                note: 'Versión más simple del anterior'
             }
         ]
     },
