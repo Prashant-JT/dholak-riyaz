@@ -240,26 +240,16 @@ export class TaalView implements View {
                 const isMobile = window.innerWidth < 768;
                 
                 if (!isMobile) {
-                    // Dadra (6 beats: 3+3)
-                    if (this.taalData.beats === 6 && matra.matra === 3) {
-                        cell.style.borderRight = '4px solid #f97316';
-                        cell.style.paddingRight = '0.5rem';
-                    }
-                    
-                    // Rupak (7 beats: 3+2+2)
-                    if (this.taalData.beats === 7 && (matra.matra === 3 || matra.matra === 5)) {
-                        cell.style.borderRight = '4px solid #f97316';
-                        cell.style.paddingRight = '0.5rem';
-                    }
-                    
-                    // Keherwa (8 beats: 4+4)
-                    if (this.taalData.beats === 8 && matra.matra === 4) {
-                        cell.style.borderRight = '4px solid #f97316';
-                        cell.style.paddingRight = '0.5rem';
-                    }
-                    
-                    // Deepchandi (14 beats: 3+4+3+4)
-                    if (this.taalData.beats === 14 && (matra.matra === 3 || matra.matra === 7 || matra.matra === 10)) {
+                    const b = this.taalData.beats;
+                    // Divisores de vibhag (línea naranja derecha) según estructura del taal
+                    const VIBHAG_DIVIDERS: Record<number, number[]> = {
+                        6:  [3],              // Dadra:      3+3
+                        7:  [3, 5],           // Rupak:      3+2+2
+                        8:  [4],              // Keherwa:    4+4
+                        14: [3, 7, 10],       // Deepchandi: 3+4+3+4
+                        16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
+                    };
+                    if (VIBHAG_DIVIDERS[b]?.includes(matra.matra)) {
                         cell.style.borderRight = '4px solid #f97316';
                         cell.style.paddingRight = '0.5rem';
                     }

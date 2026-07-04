@@ -173,6 +173,22 @@ export class KaydasView implements View {
                         }, matra.technique));
                     }
 
+                    // Divisores de vibhag (línea naranja) según beats del kayda
+                    const isMobileKayda = window.innerWidth < 768;
+                    if (!isMobileKayda) {
+                        const VIBHAG_DIVIDERS: Record<number, number[]> = {
+                            6:  [3],
+                            7:  [3, 5],
+                            8:  [4],
+                            14: [3, 7, 10],
+                            16: [4, 8, 12],
+                        };
+                        if (VIBHAG_DIVIDERS[kayda.beats]?.includes(matra.matra)) {
+                            cell.style.borderRight = '4px solid #f97316';
+                            cell.style.paddingRight = '0.5rem';
+                        }
+                    }
+
                     grid.appendChild(cell);
                 });
 
