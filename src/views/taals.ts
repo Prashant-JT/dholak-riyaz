@@ -250,7 +250,7 @@ export class TaalView implements View {
                         16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
                     };
                     if (VIBHAG_DIVIDERS[b]?.includes(matra.matra)) {
-                        cell.style.borderRight = '4px solid #f97316';
+                        cell.style.borderRight = '4px solid var(--orange-500)';
                         cell.style.paddingRight = '0.5rem';
                     }
                 }

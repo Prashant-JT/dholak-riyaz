@@ -184,7 +184,7 @@ export class KaydasView implements View {
                             16: [4, 8, 12],
                         };
                         if (VIBHAG_DIVIDERS[kayda.beats]?.includes(matra.matra)) {
-                            cell.style.borderRight = '4px solid #f97316';
+                            cell.style.borderRight = '4px solid var(--orange-500)';
                             cell.style.paddingRight = '0.5rem';
                         }
                     }
