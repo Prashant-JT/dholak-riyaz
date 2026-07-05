@@ -74,7 +74,8 @@ Each taal includes: matra table with Taali/Khali markers, variations and visual 
 | **Chart.js** (CDN) | Statistics charts |
 | **Tailwind CSS** (CDN) | Layout utilities |
 | **CSS Variables** | Light/dark theme system |
-| **GitHub Actions** | Automated CI/CD |
+| **Vitest** | Unit & data integrity tests |
+| **GitHub Actions** | Automated CI/CD (build + test) |
 | **GitHub Pages** | Hosting |
 
 ---
@@ -145,6 +146,12 @@ npm install
 # Compile TypeScript
 npm run build
 
+# Run tests
+npm test
+
+# Watch mode for tests (runs on every file change)
+npm run test:watch
+
 # Watch mode (development)
 npm run watch
 
@@ -172,11 +179,14 @@ After each class, edit the relevant file in `src/data/` and recompile:
 # 2. Compile
 npm run build
 
-# 3. Verify in the browser, then commit
+# 3. Run tests (catches structural errors in your data)
+npm test
+
+# 4. Verify in the browser, then commit
 git add .
 git commit -m "data: add new content from class"
 git push
-# GitHub Actions compiles and deploys automatically (~2 min)
+# GitHub Actions runs tests + compiles + deploys automatically (~2 min)
 ```
 
 To add a **brand-new Taal**, follow the 7-step checklist in `AGENTS.md`.

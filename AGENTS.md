@@ -500,6 +500,7 @@ Before considering a task complete, verify:
 
 - [ ] ✅ All `.ts` files compile without errors
 - [ ] ✅ `npm run build` runs successfully
+- [ ] ✅ `npm test` passes — all 267+ tests green
 - [ ] ✅ `dist/` folder exists with `.js` files
 - [ ] ✅ `index.html` loads `dist/app.js`
 - [ ] ✅ CSS has all required classes
