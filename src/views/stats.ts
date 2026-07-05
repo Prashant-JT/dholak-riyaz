@@ -30,7 +30,7 @@ const TAAL_META: Record<string, { emoji: string; tagCls: string }> = {
 const DEFAULT_TAAL_META = { emoji: '🎵', tagCls: 'stats-tag--orange' };
 
 // ── Timezone Gran Canaria ──────────────────────────────────────────────────────
-const GC_TZ = 'Atlantic/Canary';
+const GC_TZ = CONFIG.TIMEZONE;
 
 /** Devuelve 'YYYY-MM-DD' en hora canaria a partir de un ISO string UTC */
 function gcDateStr(iso: string): string {

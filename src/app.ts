@@ -102,7 +102,7 @@ class Application {
 
         // Cerrar sidebar al navegar en móvil
         window.addEventListener('navigate', () => {
-            if (window.innerWidth < 768) this.closeSidebar();
+            if (window.innerWidth < CONFIG.MOBILE_BREAKPOINT) this.closeSidebar();
         });
     }
 
@@ -122,7 +122,7 @@ class Application {
         if (!btn || !main) return;
 
         main.addEventListener('scroll', () => {
-            btn.classList.toggle('visible', main.scrollTop > 300);
+            btn.classList.toggle('visible', main.scrollTop > CONFIG.SCROLL_TOP_THRESHOLD);
         });
 
         btn.addEventListener('click', () => {
@@ -175,7 +175,7 @@ class Application {
      * BPM preset buttons
      */
     private initBpmPresets(): void {
-        const presets = [60, 120, 180, 240];
+        const presets = CONFIG.BPM_PRESETS;
         presets.forEach(bpm => {
             const btn = document.getElementById(`preset-${bpm}`) as HTMLButtonElement | null;
             if (!btn) return;

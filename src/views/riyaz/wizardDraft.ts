@@ -6,6 +6,7 @@
 
 import type { SessionBlock, SessionState } from '../../types.js';
 import { DEFAULT_TEMPLATES } from '../../data/defaultTemplates.js';
+import { CONFIG } from '../../core/config.js';
 
 // ─── Draft de sesión en curso ────────────────────────────────────────────────
 
@@ -56,8 +57,8 @@ export function updateSessionBadge(): void {
 export interface SavedTemplate { id: string; name: string; blocks: SessionBlock[]; }
 
 const LS_TEMPLATES_KEY = 'dholak_session_templates';
-// Incrementar este número cada vez que se añadan/modifiquen plantillas default.
-const LS_SEEDED_KEY    = 'dholak_templates_seeded_v3';
+// Incrementar CONFIG.LS_SEEDED_KEY cada vez que se añadan/modifiquen plantillas default.
+const LS_SEEDED_KEY    = CONFIG.LS_SEEDED_KEY;
 
 export function loadSavedTemplates(): SavedTemplate[] {
     try { return JSON.parse(localStorage.getItem(LS_TEMPLATES_KEY) ?? '[]'); } catch { return []; }

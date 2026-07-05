@@ -120,7 +120,7 @@ export class DashboardView implements View {
         
         // Marcas para BPMs comunes de riyaz
         const marks = createElement('div', { className: 'bpm-marks' });
-        const commonBPMs = [60, 80, 120, 180, 240, 300, 400];
+        const commonBPMs = CONFIG.BPM_MARKS;
         commonBPMs.forEach(bpm => {
             const position = ((bpm - CONFIG.METRONOME.MIN_BPM) / (CONFIG.METRONOME.MAX_BPM - CONFIG.METRONOME.MIN_BPM)) * 100;
             const mark = createElement('div', {

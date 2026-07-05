@@ -170,6 +170,12 @@ export interface AppConfig {
     METRONOME: MetronomeConfig;
     VIEWS: ViewsConfig;
     NAVIGATION: NavigationItem[];
+    MOBILE_BREAKPOINT: number;
+    SCROLL_TOP_THRESHOLD: number;
+    TIMEZONE: string;
+    BPM_MARKS: number[];
+    BPM_PRESETS: number[];
+    LS_SEEDED_KEY: string;
 }
 
 // ============================================================================
