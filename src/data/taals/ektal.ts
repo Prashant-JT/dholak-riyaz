@@ -31,6 +31,9 @@ export const ektal: Taal = {
             { matra: 12, bol: 'Na',       technique: '' }
         ]
     ],
+    songs: [
+        { title: 'Garaj Garaj', url: 'https://www.youtube.com/watch?v=CME-R5uz82w' }
+    ],
     tip: {
         title: 'Seis Grupos de Dos',
         text: 'Ektal tiene 6 vibhags de 2 tiempos cada uno, lo que crea una sensación de flujo continuo muy diferente a Teental. En Vilambit (tempo lento) cada Matra se estira enormemente, dando espacio para ornamentación. Comienza a 40-50 BPM para sentir la amplitud de cada ciclo antes de añadir melodía.',

@@ -35,6 +35,9 @@ export const teental: Taal = {
             { matra: 16, bol: 'Dha',  technique: '' }
         ]
     ],
+    songs: [
+        { title: 'Madhuban Mein Radhika Nache Re', url: 'https://www.youtube.com/watch?v=FtObMbpIJLQ' }
+    ],
     tip: {
         title: 'El Taal Rey',
         text: 'Teental (también llamado Trital) es el ciclo de 16 tiempos más usado en la música clásica Hindustani. Su estructura simétrica 4+4+4+4 lo hace accesible como punto de entrada al aprendizaje clásico. El Sam (M1) y el Khali (M9) son los dos puntos de referencia fundamentales. Las kaydas del proyecto están en Teental.',

@@ -318,6 +318,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Teental (16 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=FtObMbpIJLQ"
+    },
+    {
+        title: "Garaj Garaj",
+        artist: "Bollywood",
+        taal: "Ektal (12 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=CME-R5uz82w"
     }
 ];
 
