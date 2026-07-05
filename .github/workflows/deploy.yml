@@ -31,7 +31,7 @@ jobs:
 
       - name: Generate supabase.ts from secrets
         run: |
-          cat > src/core/supabase.ts << 'TSEOF'
+          cat > src/core/supabase.ts << TSEOF
           declare const supabase: {
               createClient: (url: string, key: string) => any;
           };
