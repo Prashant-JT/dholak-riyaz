@@ -4,7 +4,7 @@
  * canción / lehra), patrón visual y botón de siguiente / finalizar.
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray } from '../../core/utils.js';
 import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
@@ -24,13 +24,6 @@ const activeTaals: string[] = CONFIG.NAVIGATION
 const TAAL_SONG_PREFIXES: Record<string, string> = Object.fromEntries(
     activeTaals.map(id => [id, TAALS[id].name.split(' ')[0]])
 );
-
-/** Divide un array en grupos de tamaño n */
-function chunkArray<T>(arr: T[], size: number): T[][] {
-    const chunks: T[][] = [];
-    for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
-    return chunks;
-}
 
 export interface Step2State {
     metronome:      MetronomeEngine | null;

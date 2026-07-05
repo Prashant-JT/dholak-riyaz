@@ -3,7 +3,7 @@
  * Vista de kaydas — renderiza todos los kaydas del objeto KAYDAS
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS, chunkArray } from '../core/utils.js';
 import { KAYDAS } from '../data/kaydas.js';
 import type { View, Kayda } from '../types.js';
 
@@ -83,17 +83,6 @@ export class KaydasView implements View {
         return section;
     }
 
-    /**
-     * Divide un array en grupos de tamaño n
-     */
-    private chunkArray<T>(arr: T[], size: number): T[][] {
-        const chunks: T[][] = [];
-        for (let i = 0; i < arr.length; i += size) {
-            chunks.push(arr.slice(i, i + size));
-        }
-        return chunks;
-    }
-
     private createKaydaCard(kayda: Kayda): HTMLElement {
         const card = createElement('div', { className: 'card p-8 mb-6' });
 
@@ -137,7 +126,7 @@ export class KaydasView implements View {
         kayda.rows.forEach((row, rowIndex) => {
             const isMobile = window.innerWidth < 768;
             const groups = isMobile
-                ? this.chunkArray(row.matras, 4)
+                ? chunkArray(row.matras, 4)
                 : [row.matras];
 
             groups.forEach((group, groupIndex) => {
@@ -176,13 +165,6 @@ export class KaydasView implements View {
                     // Divisores de vibhag (línea naranja) según beats del kayda
                     const isMobileKayda = window.innerWidth < 768;
                     if (!isMobileKayda) {
-                        const VIBHAG_DIVIDERS: Record<number, number[]> = {
-                            6:  [3],
-                            7:  [3, 5],
-                            8:  [4],
-                            14: [3, 7, 10],
-                            16: [4, 8, 12],
-                        };
                         if (VIBHAG_DIVIDERS[kayda.beats]?.includes(matra.matra)) {
                             cell.style.borderRight = '4px solid var(--orange-500)';
                             cell.style.paddingRight = '0.5rem';

@@ -139,4 +139,30 @@ export function applyBolIndicators(container: HTMLElement, bolText: string): voi
     }
 }
 
+/**
+ * Divisores de vibhag por número de beats.
+ * Los valores son los números de matra después de los cuales
+ * aparece una línea separadora naranja vertical (desktop).
+ */
+export const VIBHAG_DIVIDERS: Record<number, number[]> = {
+    6:  [3],              // Dadra:      3+3
+    7:  [3, 5],           // Rupak:      3+2+2
+    8:  [4],              // Keherwa:    4+4
+    10: [2, 5, 7],        // Jhaptal:    2+3+2+3
+    12: [2, 4, 6, 8, 10], // Ektal:      2+2+2+2+2+2
+    14: [3, 7, 10],       // Deepchandi: 3+4+3+4
+    16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
+};
+
+/**
+ * Divide un array en sub-arrays de tamaño `size`.
+ */
+export function chunkArray<T>(arr: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) {
+        chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+}
+
 // Made with Bob

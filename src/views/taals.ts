@@ -3,7 +3,7 @@
  * Vista genérica para mostrar taals
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend } from '../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
 import type { View, Taal } from '../types.js';
 
@@ -257,16 +257,6 @@ export class TaalView implements View {
                 
                 if (!isMobile) {
                     const b = this.taalData.beats;
-                    // Divisores de vibhag (línea naranja derecha) según estructura del taal
-                    const VIBHAG_DIVIDERS: Record<number, number[]> = {
-                        6:  [3],              // Dadra:      3+3
-                        7:  [3, 5],           // Rupak:      3+2+2
-                        8:  [4],              // Keherwa:    4+4
-                        10: [2, 5, 7],        // Jhaptal:    2+3+2+3
-                        12: [2, 4, 6, 8, 10], // Ektal:      2+2+2+2+2+2
-                        14: [3, 7, 10],       // Deepchandi: 3+4+3+4
-                        16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
-                    };
                     if (VIBHAG_DIVIDERS[b]?.includes(matra.matra)) {
                         cell.style.borderRight = '4px solid var(--orange-500)';
                         cell.style.paddingRight = '0.5rem';
