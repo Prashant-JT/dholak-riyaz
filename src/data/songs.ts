@@ -312,6 +312,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=3E9y8BWQyXQ"
+    },
+    {
+        title: "Madhuban Mein Radhika Nache Re",
+        artist: "Bollywood",
+        taal: "Teental (16 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=FtObMbpIJLQ"
     }
 ];
 
