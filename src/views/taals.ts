@@ -296,7 +296,8 @@ export class TaalView implements View {
         });
         
         // Add songs and tutorials stacked vertically
-        const hasSongs = variation?.songs && variation.songs.length > 0;
+        const songsList = variation?.songs ?? (!variation ? this.taalData.songs : undefined);
+        const hasSongs = songsList && songsList.length > 0;
         const hasTutorials = variation?.tutorials && variation.tutorials.length > 0;
         
         if (hasSongs || hasTutorials) {
@@ -319,7 +320,7 @@ export class TaalView implements View {
                 
                 const songsGrid = createElement('div', { className: 'grid gap-2' });
                 
-                variation.songs.forEach((song: any) => {
+                songsList.forEach((song: any) => {
                     const songCard = createElement('div', { className: 'song-card' });
                     const link = createElement('a', {
                         href: song.url,
