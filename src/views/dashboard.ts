@@ -201,14 +201,14 @@ export class DashboardView implements View {
             className: 'flex gap-4 items-center justify-center mt-6'
         });
         
-        // Botón Play/Stop
+        // Play/Stop button
         const playButton = createElement('button', {
             id: 'playStopBtn',
             className: 'btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg min-w-[140px]'
         }, 'Iniciar');
         buttonContainer.appendChild(playButton);
         
-        // Botón Reset Ciclos
+        // Reset Cycles button
         const resetButton = createElement('button', {
             id: 'resetCyclesBtn',
             className: 'btn-secondary py-4 px-8 text-lg'

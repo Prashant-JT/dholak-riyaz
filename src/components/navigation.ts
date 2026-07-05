@@ -29,7 +29,7 @@ export class NavigationController {
     public render(): void {
         CONFIG.NAVIGATION.forEach(item => {
             if (item.disabled) {
-                // Item deshabilitado — visible con badge, sin navegación
+                // Disabled item — visible with badge, not navigable
                 const wrapper = createElement('div', {
                     className: 'nav-item-disabled w-full px-4 py-3 rounded-lg mb-2 flex items-center justify-between'
                 });
@@ -50,7 +50,7 @@ export class NavigationController {
                 this.menuElement.appendChild(button);
             }
 
-            // Separador después del item si está marcado
+            // Divider after the item if marked
             if (item.separator) {
                 const divider = createElement('div', { className: 'nav-divider' });
                 this.menuElement.appendChild(divider);

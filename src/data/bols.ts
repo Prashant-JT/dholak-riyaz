@@ -62,7 +62,7 @@ export const BOLS_BY_CATEGORY = {
     ]
 };
 
-// Mantener compatibilidad con código existente
+// Keep backwards compatibility with existing code
 export const BOLS: Bol[] = [
     ...BOLS_BY_CATEGORY.chatti,
     ...BOLS_BY_CATEGORY.bayan,

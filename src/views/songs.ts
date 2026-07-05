@@ -6,10 +6,10 @@ import { createElement } from '../core/utils.js';
 import { SONGS } from '../data/songs.js';
 import type { View } from '../types.js';
 
-// Extraer taals únicos preservando orden de aparición
+// Extract unique taals preserving order of appearance
 const TAAL_OPTIONS = ['Todos', ...Array.from(new Set(SONGS.map(s => s.taal)))];
 
-// Canciones ordenadas: orden de taal preservado, alfabético dentro de cada taal
+// Sorted songs: taal order preserved, alphabetical within each taal
 const TAAL_ORDER = Array.from(new Set(SONGS.map(s => s.taal)));
 const SONGS_SORTED = [...SONGS].sort((a, b) => {
     const taalDiff = TAAL_ORDER.indexOf(a.taal) - TAAL_ORDER.indexOf(b.taal);
@@ -35,7 +35,7 @@ export class SongsView implements View {
         }) as HTMLInputElement;
         searchWrapper.appendChild(searchInput);
 
-        // Selector de taal
+        // Taal selector
         const taalSelect = createElement('select', {
             id: 'songsTaalFilter',
             className: 'songs-taal-select'
@@ -48,19 +48,19 @@ export class SongsView implements View {
 
         container.appendChild(searchWrapper);
 
-        // Contador
+        // Counter
         const counter = createElement('p', {
             id: 'songsCounter',
             className: 'text-muted text-sm mb-4'
         }, `${SONGS.length} canciones`);
         container.appendChild(counter);
 
-        // Lista de canciones
+        // Song list
         const list = createElement('div', { id: 'songsList' });
         SONGS_SORTED.forEach(song => list.appendChild(this.createSongCard(song)));
         container.appendChild(list);
 
-        // Estado vacío
+        // Empty state
         const emptyState = createElement('p', {
             id: 'songsEmpty',
             className: 'text-muted text-center py-12 hidden'

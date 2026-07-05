@@ -72,7 +72,7 @@ export function renderStep3(
     textarea.addEventListener('input', () => { sessionState.notes = textarea.value; });
     notesCard.appendChild(textarea);
 
-    // Toggle sesión conjunta
+    // Joint session toggle
     const jointRow = createElement('div', {
         style: {
             display: 'flex', alignItems: 'center', gap: '0.75rem',
@@ -92,7 +92,7 @@ export function renderStep3(
 
     container.appendChild(notesCard);
 
-    // Botones de acción
+    // Action buttons
     const actionArea = createElement('div', {});
     const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
     saveBtn.addEventListener('click', () => {
@@ -107,7 +107,7 @@ export function renderStep3(
     });
     actionArea.appendChild(saveBtn);
 
-    // Descartar con confirmación inline
+    // Discard with inline confirmation
     const discardWrapper = createElement('div', { style: { marginTop: '0.75rem' } });
     const discardBtn = createElement('button', { className: 'btn-secondary session-start-btn session-discard-btn' }, 'Descartar sesión');
     const confirmRow = createElement('div', { className: 'session-discard-confirm', style: { display: 'none' } });
@@ -199,7 +199,7 @@ function buildTaalBreakdown(taalTimes: Record<string, number>, totalSecs: number
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Modal de guardado con autenticación
+// Save modal with authentication
 // ─────────────────────────────────────────────────────────────────────────────
 
 function showSaveModal(
@@ -223,7 +223,7 @@ function showSaveModal(
     if (jointSession) {
         modal.appendChild(createElement('p', { className: 'save-modal__sub' },
             'Sesión conjunta — se guardará para Prashant y Meera'));
-        // En sesión conjunta solo se autentica con la contraseña de Prashant
+        // In a joint session only Prashant's password is required for auth
         modal.appendChild(createElement('p', { className: 'save-modal__sub' },
             'Introduce la contraseña de Prashant para confirmar'));
     } else {
@@ -231,7 +231,7 @@ function showSaveModal(
             'Introduce tus credenciales para guardar en la base de datos'));
     }
 
-    // Selector de usuario (oculto en sesión conjunta, siempre prashant)
+    // User selector (hidden for joint sessions, always prashant)
     const userField = createElement('div', { className: 'save-modal__field' });
     userField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Usuario'));
     const userSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
@@ -294,10 +294,10 @@ function showSaveModal(
             pickup_taal:      b.pickupTaalCategory,
         }));
 
-        // saved_at = momento de inicio de la sesión (ISO 8601)
+        // saved_at = session start time (ISO 8601)
         const savedAt = new Date(startedAt).toISOString();
 
-        // En sesión conjunta se insertan dos registros: uno por usuario
+        // Joint session inserts two records: one per user
         const records = jointSession
             ? [
                 { user_id: 'prashant', saved_at: savedAt, total_secs: totalSecs, notes: notes || null, blocks: blocksMapped },

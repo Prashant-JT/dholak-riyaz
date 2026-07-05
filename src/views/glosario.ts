@@ -1,6 +1,6 @@
 /**
  * GLOSARIO VIEW
- * Vista del glosario de bols
+ * Bol glossary view
  */
 
 import { createElement, createBolIndicatorsLegend, createSectionHeader } from '../core/utils.js';
@@ -16,13 +16,13 @@ export class GlosarioView implements View {
         
         section.appendChild(createSectionHeader('Teoría', 'Conceptos fundamentales y glosario de Bols del Dholak'));
         
-        // Teoría de Taal
+        // Taal theory
         const theorySection = createElement('div', { className: 'card p-8 mb-8' });
         theorySection.appendChild(createElement('h3', {
             className: 'text-2xl font-bold mb-6'
         }, 'El concepto de Taal (El Ciclo)'));
         
-        // Diagrama visual de conceptos
+        // Visual concept diagram
         const diagram = this.createTaalDiagram();
         theorySection.appendChild(diagram);
         
@@ -74,18 +74,18 @@ export class GlosarioView implements View {
         
         section.appendChild(theorySection);
         
-        // Glosario de Bols - Tres columnas
+        // Bol glossary - three columns
         const bolsHeader = createElement('h3', {
             className: 'section-title'
         }, 'Glosario de Bols');
         section.appendChild(bolsHeader);
         
-        // Contenedor de tres columnas
+        // Three-column container
         const columnsContainer = createElement('div', {
             className: 'grid grid-cols-1 md:grid-cols-3 gap-6'
         });
         
-        // Columna 1: Chatti (Dayan - Agudo)
+        // Column 1: Chatti (Dayan - Treble)
         const chattiColumn = this.createBolColumn(
             'Chatti (Dayan)',
             'Parche Agudo',
@@ -94,7 +94,7 @@ export class GlosarioView implements View {
         );
         columnsContainer.appendChild(chattiColumn);
         
-        // Columna 2: Bayan (Grave)
+        // Column 2: Bayan (Bass)
         const bayanColumn = this.createBolColumn(
             'Bayan',
             'Parche Grave',
@@ -103,7 +103,7 @@ export class GlosarioView implements View {
         );
         columnsContainer.appendChild(bayanColumn);
         
-        // Columna 3: Compuestos
+        // Column 3: Compound bols
         const compuestosColumn = this.createBolColumn(
             'Compuestos',
             'Dha & Dhi',
@@ -124,17 +124,17 @@ export class GlosarioView implements View {
             className: 'taal-diagram mb-8'
         });
         
-        // TAAL (nodo principal)
+        // TAAL (main node)
         const taalNode = createElement('div', {
             className: 'diagram-node diagram-node-main'
         }, 'TAAL');
         diagramContainer.appendChild(taalNode);
         
-        // Línea conectora principal
+        // Main connector line
         const mainLine = createElement('div', { className: 'diagram-line-main' });
         diagramContainer.appendChild(mainLine);
         
-        // Contenedor de nodos secundarios
+        // Secondary nodes container
         const secondaryNodes = createElement('div', { className: 'diagram-secondary-row' });
         
         const nodes = [
@@ -179,7 +179,7 @@ export class GlosarioView implements View {
             className: `glosario-col ${colorClass}`
         });
         
-        // Header de la columna
+        // Column header
         const header = createElement('div', { className: 'mb-6' });
         header.appendChild(createElement('h4', {
             className: 'text-2xl font-bold mb-1'
@@ -189,19 +189,19 @@ export class GlosarioView implements View {
         }, subtitle));
         column.appendChild(header);
         
-        // Bols de esta categoría
+        // Bols in this category
         bols.forEach((bol) => {
             const bolSection = createElement('div', {
                 className: 'glosario-col__bol'
             });
             
-            // Header del bol: nombre + indicadores
+            // Bol header: name + indicators
             const bolHeader = createElement('div', { className: 'glosario-col__bol-header' });
             bolHeader.appendChild(createElement('h5', {
                 className: 'text-xl font-bold'
             }, bol.name));
             
-            // Indicadores de thapki / ghuisa
+            // Thapki / ghuisa indicators
             if (bol.thapki || bol.ghuisa) {
                 const indicators = createElement('div', { className: 'bol-indicators' });
                 if (bol.thapki) {
@@ -222,12 +222,12 @@ export class GlosarioView implements View {
             }
             bolSection.appendChild(bolHeader);
             
-            // Técnica
+            // Technique
             const tecnicaP = createElement('p', { className: 'text-muted mb-1 mt-2' });
             tecnicaP.innerHTML = `<strong>Técnica:</strong> ${bol.technique}`;
             bolSection.appendChild(tecnicaP);
             
-            // Descripción
+            // Description
             bolSection.appendChild(createElement('p', {
                 className: 'text-muted'
             }, bol.description));

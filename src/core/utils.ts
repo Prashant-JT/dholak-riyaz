@@ -1,16 +1,16 @@
 /**
  * UTILITY FUNCTIONS
- * Funciones auxiliares reutilizables
+ * Reusable helper functions
  */
 
 import type { ElementAttributes } from '../types';
 
 /**
- * Crea un elemento HTML con atributos y contenido
- * @param tag - Nombre de la etiqueta HTML
- * @param attributes - Atributos del elemento
- * @param content - Contenido del elemento
- * @returns Elemento HTML creado
+ * Creates an HTML element with attributes and content
+ * @param tag - HTML tag name
+ * @param attributes - Element attributes
+ * @param content - Element content
+ * @returns Created HTML element
  */
 export function createElement(
     tag: string,
@@ -51,8 +51,8 @@ export function createElement(
 }
 
 /**
- * Crea la leyenda de colores de indicadores (thapki/ghuisa).
- * Se puede insertar en cualquier vista que muestre celdas de bols.
+ * Creates the colour legend for bol indicators (thapki/ghuisa).
+ * Can be inserted into any view that shows bol cells.
  */
 export function createBolIndicatorsLegend(): HTMLElement {
     const legend = document.createElement('div');
@@ -62,12 +62,12 @@ export function createBolIndicatorsLegend(): HTMLElement {
         {
             cls: 'bol-indicator--thapki',
             label: 'Thapki',
-            desc: 'golpe de espejo en el Dayan (agudo)'
+            desc: 'mirror stroke on the Dayan (treble)'
         },
         {
             cls: 'bol-indicator--ghuisa',
             label: 'Ghuisa',
-            desc: 'deslizamiento en el Bayan (grave)'
+            desc: 'slide on the Bayan (bass)'
         }
     ];
 
@@ -93,25 +93,25 @@ export function createBolIndicatorsLegend(): HTMLElement {
 const _bolIndicatorPattern = /\(thapki[^)]*\)|\(g[uh]is[ao][^)]*\)/i;
 
 /**
- * Devuelve true si el texto JSON de las filas contiene "(thapki)" o "(ghisa)".
- * Funciona con cualquier estructura de filas (Taal rows o KaydaRow[]).
+ * Returns true if the JSON text of the rows contains "(thapki)" or "(ghisa)".
+ * Works with any row structure (Taal rows or KaydaRow[]).
  */
 export function bolsHaveIndicators(rows: unknown): boolean {
     return _bolIndicatorPattern.test(JSON.stringify(rows));
 }
 
 /**
- * Parsea el texto de un bol buscando "(thapki)" y/o "(ghisa)"/"(ghuisa)".
- * Devuelve el nombre limpio y añade puntos de color indicadores al contenedor dado.
+ * Parses bol text looking for "(thapki)" and/or "(ghisa)"/"(ghuisa)".
+ * Returns the clean name and appends colour indicator dots to the given container.
  *
- * Uso: en lugar de `createElement('div', {className:'bol-text'}, matra.bol)`,
- *      crear el div vacío y llamar `applyBolIndicators(div, matra.bol)`.
+ * Usage: instead of `createElement('div', {className:'bol-text'}, matra.bol)`,
+ *        create an empty div and call `applyBolIndicators(div, matra.bol)`.
  */
 export function applyBolIndicators(container: HTMLElement, bolText: string): void {
     const hasThapki = /\(thapki[^)]*\)/i.test(bolText);
     const hasGhisa  = /\(g[uh]is[ao][^)]*\)/i.test(bolText);
 
-    // Nombre limpio: quitar todos los paréntesis con thapki/ghisa/ghuisa
+    // Clean name: strip all parentheses containing thapki/ghisa/ghuisa
     const cleanName = bolText
         .replace(/\s*\(thapki[^)]*\)/gi, '')
         .replace(/\s*\(g[uh]is[ao][^)]*\)/gi, '')
@@ -140,9 +140,9 @@ export function applyBolIndicators(container: HTMLElement, bolText: string): voi
 }
 
 /**
- * Divisores de vibhag por número de beats.
- * Los valores son los números de matra después de los cuales
- * aparece una línea separadora naranja vertical (desktop).
+ * Vibhag dividers by beat count.
+ * Values are the matra numbers after which an orange vertical
+ * separator line appears (desktop only).
  */
 export const VIBHAG_DIVIDERS: Record<number, number[]> = {
     6:  [3],              // Dadra:      3+3
@@ -155,7 +155,7 @@ export const VIBHAG_DIVIDERS: Record<number, number[]> = {
 };
 
 /**
- * Divide un array en sub-arrays de tamaño `size`.
+ * Splits an array into sub-arrays of size `size`.
  */
 export function chunkArray<T>(arr: T[], size: number): T[][] {
     const chunks: T[][] = [];
@@ -166,7 +166,7 @@ export function chunkArray<T>(arr: T[], size: number): T[][] {
 }
 
 /**
- * Crea un header de sección estándar con título y subtítulo.
+ * Creates a standard section header with title and subtitle.
  */
 export function createSectionHeader(title: string, subtitle: string): HTMLElement {
     const header = createElement('div', { className: 'mb-8' });
@@ -176,9 +176,9 @@ export function createSectionHeader(title: string, subtitle: string): HTMLElemen
 }
 
 /**
- * Conecta un input de búsqueda con una lista de cards filtrables.
- * Cada item tiene `el` (el elemento DOM) e `index` (texto buscable en minúsculas).
- * Muestra `emptyMsg` cuando ningún item coincide.
+ * Connects a search input to a list of filterable cards.
+ * Each item has `el` (the DOM element) and `index` (searchable text in lowercase).
+ * Shows `emptyMsg` when no item matches.
  */
 export function setupSearchFilter(
     searchInput: HTMLInputElement,

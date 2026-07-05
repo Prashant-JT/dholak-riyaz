@@ -94,7 +94,7 @@ export function renderStep2(
         container.appendChild(renderSecondaryMetronome(block, cb));
     }
 
-    // Botón ✏️ Editar + panel — justo antes del botón de siguiente/finalizar
+    // ✏️ Edit button + panel — just before the next/finish button
     const editBtn = createElement('button', { className: 'session-edit-btn' }, '✏️ Editar bloque');
     container.appendChild(editBtn);
 
@@ -159,7 +159,7 @@ export function completeCurrentBlock(
         flash.classList.remove('session-block-complete-flash--visible');
         flash.classList.add('session-block-complete-flash--hide');
         setTimeout(() => {
-            // Siempre incrementar — onComplete en sessionWizard decide si hay más bloques
+            // Always increment — onComplete in sessionWizard decides if there are more blocks
             sessionState.currentBlockIndex++;
             if (isLast) {
                 saveSessionDraft(sessionState, blockStartTime, true);
@@ -172,7 +172,7 @@ export function completeCurrentBlock(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Soporte rítmico
+// Rhythmic support
 // ─────────────────────────────────────────────────────────────────────────────
 
 function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement {
@@ -234,7 +234,7 @@ function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UI del metrónomo
+// Metronome UI
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function buildMetronomeUI(
@@ -338,7 +338,7 @@ export function buildMetronomeUI(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Metrónomo secundario colapsable
+// Collapsible secondary metronome
 // ─────────────────────────────────────────────────────────────────────────────
 
 function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTMLElement {
@@ -396,7 +396,7 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Patrón visual del taal / kayda
+// Taal / kayda visual pattern
 // ─────────────────────────────────────────────────────────────────────────────
 
 function renderPatternZone(block: SessionBlock): HTMLElement {
@@ -450,7 +450,7 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
         return card;
     }
 
-    // Bloque de práctica
+    // Practice block
     let rows: Matra[][] = [];
     if (block.taalId) {
         const taal = TAALS[block.taalId];
@@ -529,7 +529,7 @@ function toEmbedUrl(url: string): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Panel de edición inline de un bloque durante la sesión
+// Inline block edit panel during a session
 // ─────────────────────────────────────────────────────────────────────────────
 
 function renderEditPanel(
@@ -668,7 +668,7 @@ function renderEditPanel(
                 varSelect.appendChild(opt);
             }
         });
-        // Pre-select Patrón Principal si era el bloque actual
+        // Pre-select main pattern if it was the current block's variation
         if ((currentVarName ?? block.variationName) === 'Patrón Principal') {
             (varSelect.options[0] as HTMLOptionElement).selected = true;
         }
@@ -711,7 +711,7 @@ function renderEditPanel(
         if (supportType === 'song') {
             subContainer.appendChild(createElement('label', {}, 'Canción'));
 
-            // Búsqueda de canciones
+            // Song search
             const searchInput = createElement('input', {
                 type: 'text', placeholder: '🔍 Buscar canción…',
                 className: 'w-full session-song-search',
@@ -794,7 +794,7 @@ function renderEditPanel(
             block.bpmStart  = parseInt(bpmInput.value, 10);
             block.supportRef = `${bpmInput.value} BPM`;
             block.supportUrl = '';
-            // Resetear metrónomo con nuevo taal y BPM
+            // Reset metronome with new taal and BPM
             stopMetronome(cb);
         } else if (supportType === 'song' && subSel?.value === '__custom__') {
             const ct = subContainer.querySelector('[data-custom-title]') as HTMLInputElement | null;

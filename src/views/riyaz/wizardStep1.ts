@@ -98,7 +98,7 @@ export function extractShareHash(): string | null {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Barra de resumen + botón compartir
+// Summary bar + share button
 // ─────────────────────────────────────────────────────────────────────────────
 
 function renderPlanBar(blocks: SessionBlock[], _cb: Step1Callbacks): HTMLElement {
@@ -159,7 +159,7 @@ function showSharePopup(blocks: SessionBlock[], anchor: HTMLElement): void {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Modal de sesión recibida vía URL
+// Modal for session received via URL
 // ─────────────────────────────────────────────────────────────────────────────
 
 function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: Step1Callbacks): HTMLElement {
@@ -383,7 +383,7 @@ function createBlockSummaryCard(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Formularios de adición de bloques
+// Block addition forms
 // ─────────────────────────────────────────────────────────────────────────────
 
 function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): HTMLElement {
@@ -591,7 +591,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
         if (supportType === 'song') {
             subSelectorContainer.appendChild(createElement('label', {}, 'Canción'));
 
-            // Búsqueda de canciones
+            // Song search
             const searchInput = createElement('input', {
                 type: 'text', placeholder: '🔍 Buscar canción…',
                 className: 'w-full session-song-search',

@@ -152,17 +152,17 @@ export class TaalView implements View {
     
     /**
      * Divide los matras en vibhags según la estructura del taal
-     * Solo en móvil (< 768px)
+     * Mobile only (< 768px)
      */
     private getVibhagStructure(row: any[]): any[][] {
         const isMobile = window.innerWidth < 768;
         
-        // Si no es móvil, devolver la fila completa
+        // Not mobile — return the full row
         if (!isMobile) {
             return [row];
         }
         
-        // Dividir según el número de beats del taal
+        // Split according to the taal's beat count
         const beats = this.taalData.beats;
         
         switch (beats) {
@@ -213,7 +213,7 @@ export class TaalView implements View {
                     row.slice(12, 16)
                 ];
             default:
-                // Para otros taals, dividir en grupos de 4
+                // For other taals, split into groups of 4
                 const vibhags: any[][] = [];
                 for (let i = 0; i < row.length; i += 4) {
                     vibhags.push(row.slice(i, i + 4));
@@ -237,7 +237,7 @@ export class TaalView implements View {
         }
         
         rows.forEach((row, index) => {
-            // Dividir en vibhags para móvil
+            // Split into vibhags for mobile
             const vibhags = this.getVibhagStructure(row);
             
             vibhags.forEach((vibhag, vibhagIndex) => {
@@ -270,7 +270,7 @@ export class TaalView implements View {
                 applyBolIndicators(bolTextEl, matra.bol);
                 cell.appendChild(bolTextEl);
                 
-                // Solo mostrar badge en el patrón principal (variation === undefined)
+                // Only show badge on the main pattern (variation === undefined)
                 if (!variation && (matra.technique === 'Khali' || matra.technique === 'Taali')) {
                     cell.appendChild(createElement('span', {
                         className: 'technique-badge'

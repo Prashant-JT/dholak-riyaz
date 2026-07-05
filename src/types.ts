@@ -1,6 +1,6 @@
 /**
  * TYPE DEFINITIONS
- * Definiciones de tipos globales para la aplicación
+ * Global type definitions for the application
  */
 
 // ============================================================================
@@ -12,8 +12,8 @@ export interface Bol {
     technique: string;
     description: string;
     badge: string;
-    thapki?: boolean;   // El bol admite variación con thapki
-    ghuisa?: boolean;   // El bol admite variación con ghuisa (deslizamiento)
+    thapki?: boolean;   // The bol supports a thapki variation
+    ghuisa?: boolean;   // The bol supports a ghuisa (slide) variation
 }
 
 // ============================================================================
@@ -44,7 +44,7 @@ export interface TaalVariation {
     songs?: Song[];
     tutorials?: string[];
     notes?: string[];
-    special?: boolean;  // Variación pedagógica/especial, se muestra al final con divisor
+    special?: boolean;  // Pedagogical/special variation, shown at the end with a divider
 }
 
 export interface TaalTheory {
@@ -119,7 +119,7 @@ export interface FillerPattern {
     link?: string | null;
     hasAudio?: boolean;
     note?: string;
-    special?: boolean;  // Patrón destacado, se muestra al final separado con divisor
+    special?: boolean;  // Featured pattern, shown at the end separated by a divider
 }
 
 export interface Filler {
@@ -162,8 +162,8 @@ export interface ViewsConfig {
 export interface NavigationItem {
     id: string;
     label: string;
-    separator?: boolean; // Línea divisoria DESPUÉS de este item
-    disabled?: boolean;  // Item visible pero no navegable (ej: "Próximamente")
+    separator?: boolean; // Divider line AFTER this item
+    disabled?: boolean;  // Item visible but not navigable (e.g. "Coming soon")
 }
 
 export interface AppConfig {
@@ -211,7 +211,7 @@ export interface ElementAttributes {
 // ============================================================================
 
 export interface SessionBlock {
-    id: string;                     // identificador único local (crypto.randomUUID)
+    id: string;                     // unique local identifier (crypto.randomUUID)
     type: 'warmup' | 'practice' | 'pickup';
 
     // Warm Up
@@ -223,26 +223,26 @@ export interface SessionBlock {
     // Practice
     taalId?: string;
     taalName?: string;
-    variationName?: string;         // 'Patrón Principal' o nombre de variación
+    variationName?: string;         // 'Patrón Principal' or variation name
     supportType?: 'metronome' | 'song' | 'lehra';
-    supportRef?: string;            // título de canción o label de lehra
+    supportRef?: string;            // song title or lehra label
     supportUrl?: string;            // URL YouTube
     bpmStart?: number;
     bpmEnd?: number;                // BPM al finalizar el bloque (puede cambiar)
 
     // Pickup
-    pickupName?: string;            // nombre del patrón (ej. 'Na Na Ti (x2) Na')
-    pickupTaalCategory?: string;    // categoría del filler (ej. 'Keherwa')
+    pickupName?: string;            // pattern name (e.g. 'Na Na Ti (x2) Na')
+    pickupTaalCategory?: string;    // filler category (e.g. 'Keherwa')
     pickupVideoUrl?: string;        // URL del tutorial YouTube (opcional)
 
     // Timer
     timerMode: 'free' | 'fixed';
     timerMinutes?: number;          // solo si timerMode === 'fixed'
 
-    // Resultado (se rellena al completar el bloque durante la ejecución)
+    // Result (filled in when the block is completed during execution)
     durationSecs?: number;
     completedAt?: number;           // timestamp Date.now()
-    cyclesCompleted?: number;       // solo si supportType === 'metronome'
+    cyclesCompleted?: number;       // only if supportType === 'metronome'
 }
 
 export interface SessionState {

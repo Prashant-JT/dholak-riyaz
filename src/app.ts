@@ -1,6 +1,6 @@
 /**
  * APPLICATION CONTROLLER
- * Punto de entrada principal de la aplicación
+ * Main application entry point
  */
 
 import { NavigationController } from './components/navigation.js';
@@ -22,15 +22,15 @@ class Application {
     }
     
     /**
-     * Inicializa la aplicación
+     * Initialise the application
      */
     public init(): void {
-        // Inicializar navegación
+        // Initialise navigation
         this.navigationController = new NavigationController('navigationMenu', 'mainContent');
         this.navigationController.render();
         
-        // Inicializar gestor de vistas
-        // Si hay un link compartido (#share=...) redirigir siempre al Riyaz
+        // Initialise view manager
+        // If there is a shared link (#share=...) always redirect to Riyaz
         this.viewManager = new ViewManager('mainContent');
         const hasShareHash = window.location.hash.startsWith('#share=');
         const lastView = hasShareHash
@@ -39,10 +39,10 @@ class Application {
         this.viewManager.showView(lastView);
         this.navigationController.navigateTo(lastView);
         
-        // Añadir toggle de modo oscuro al body
+        // Add dark mode toggle to body
         document.body.appendChild(this.darkModeToggle.render());
         
-        // Escuchar eventos de navegación
+        // Listen for navigation events
         window.addEventListener('navigate', (e: Event) => {
             const customEvent = e as CustomEvent<NavigateEventDetail>;
             const viewId = customEvent.detail.viewId;
@@ -50,17 +50,17 @@ class Application {
                 this.viewManager.showView(viewId);
                 localStorage.setItem('lastView', viewId);
             }
-            // Reinicializar controles después de cambiar de vista
+            // Re-initialise controls after switching view
             setTimeout(() => this.initializeControls(), 100);
         });
         
-        // Inicializar badge de sesión activa (persiste entre navegaciones)
+        // Initialise active session badge (persists across navigation)
         updateSessionBadge();
 
-        // Inicializar controles de la vista inicial
+        // Initialise controls for the initial view
         setTimeout(() => this.initializeControls(), 100);
 
-        // Home link — navega al dashboard al hacer clic en el título
+        // Home link — navigate to dashboard when clicking the title
         const homeLink = document.getElementById('homeLink');
         if (homeLink) {
             homeLink.addEventListener('click', (e) => {
@@ -78,7 +78,7 @@ class Application {
     }
 
     /**
-     * Sidebar colapsable en móvil
+     * Collapsible sidebar on mobile
      */
     private initHamburger(): void {
         const btn = document.getElementById('hamburgerBtn');
@@ -100,7 +100,7 @@ class Application {
 
         overlay.addEventListener('click', () => this.closeSidebar());
 
-        // Cerrar sidebar al navegar en móvil
+        // Close sidebar when navigating on mobile
         window.addEventListener('navigate', () => {
             if (window.innerWidth < CONFIG.MOBILE_BREAKPOINT) this.closeSidebar();
         });
@@ -131,7 +131,7 @@ class Application {
     }
     
     /**
-     * Inicializa los controles interactivos
+     * Initialise interactive controls
      */
     private initializeControls(): void {
         this.initMetronomeControls();
@@ -148,7 +148,7 @@ class Application {
         const plus  = document.getElementById('bpmPlus')  as HTMLButtonElement | null;
         if (!minus || !plus) return;
 
-        // Clonar para evitar listeners duplicados en re-inicializaciones
+        // Clone to avoid duplicate listeners on re-initialisations
         const newMinus = minus.cloneNode(true) as HTMLButtonElement;
         const newPlus  = plus.cloneNode(true)  as HTMLButtonElement;
         minus.parentNode?.replaceChild(newMinus, minus);
@@ -195,7 +195,7 @@ class Application {
     }
     
     /**
-     * Inicializa los controles del metrónomo
+     * Initialise metronome controls
      */
     private initMetronomeControls(): void {
         const bpmSlider = document.getElementById('bpmSlider') as HTMLInputElement | null;
@@ -220,7 +220,7 @@ class Application {
         
         // BPM Slider
         if (bpmSlider && bpmDisplay) {
-            // Remover listeners anteriores
+            // Remove previous listeners
             const newSlider = bpmSlider.cloneNode(true) as HTMLInputElement;
             bpmSlider.parentNode?.replaceChild(newSlider, bpmSlider);
             
@@ -233,7 +233,7 @@ class Application {
         
         // Beats per measure select
         if (beatsSelect) {
-            // Remover listeners anteriores
+            // Remove previous listeners
             const newBeatsSelect = beatsSelect.cloneNode(true) as HTMLSelectElement;
             beatsSelect.parentNode?.replaceChild(newBeatsSelect, beatsSelect);
             
@@ -248,7 +248,7 @@ class Application {
         }
         
         if (playButton) {
-            // Remover listeners anteriores
+            // Remove previous listeners
             const newButton = playButton.cloneNode(true) as HTMLButtonElement;
             playButton.parentNode?.replaceChild(newButton, playButton);
             
@@ -281,11 +281,11 @@ class Application {
             resetButton.parentNode?.replaceChild(newResetButton, resetButton);
             
             newResetButton.addEventListener('click', () => {
-                // Si está tocando, detenerlo primero
+                // If playing, stop it first
                 if (this.metronome.getPlayingState()) {
                     this.metronome.stop();
                     
-                    // Obtener el botón de play/stop actualizado del DOM
+                    // Get the updated play/stop button from the DOM
                     const currentPlayButton = document.getElementById('playStopBtn') as HTMLButtonElement | null;
                     if (currentPlayButton) {
                         currentPlayButton.textContent = 'Iniciar';
@@ -294,13 +294,13 @@ class Application {
                     }
                 }
                 
-                // Resetear ciclos
+                // Reset cycles
                 this.metronome.resetCycles();
                 if (cycleDisplay) {
                     cycleDisplay.textContent = '0';
                 }
                 
-                // Resetear indicadores visuales al estado inicial
+                // Reset visual indicators to initial state
                 this.updateBeatIndicators(-1);
             });
         }
@@ -340,7 +340,7 @@ class Application {
     }
     
     /**
-     * Inicializa los controles de lehras
+     * Initialise lehra controls
      */
     private initLehrasControls(): void {
         const select = document.getElementById('lehraSelect') as HTMLSelectElement | null;
@@ -348,7 +348,7 @@ class Application {
         const iframe = document.getElementById('lehraIframe') as HTMLIFrameElement | null;
         
         if (select && container && iframe) {
-            // Remover listeners anteriores
+            // Remove previous listeners
             const newSelect = select.cloneNode(true) as HTMLSelectElement;
             select.parentNode?.replaceChild(newSelect, select);
             
@@ -367,7 +367,7 @@ class Application {
     }
 }
 
-// Inicializar aplicación cuando el DOM esté listo
+// Initialise application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     const app = new Application();
     app.init();

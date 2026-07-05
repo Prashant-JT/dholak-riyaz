@@ -40,8 +40,8 @@ export class MetronomeEngine {
         oscillator.connect(gainNode);
         gainNode.connect(this.audioContext.destination);
         
-        // Sam suena más agudo (1200 Hz) y más fuerte
-        // Beats normales suenan a 800 Hz
+        // Sam sounds higher (1200 Hz) and louder
+        // Normal beats sound at 800 Hz
         oscillator.frequency.value = isSam ? 1200 : CONFIG.METRONOME.CLICK_FREQUENCY;
         oscillator.type = 'sine';
         

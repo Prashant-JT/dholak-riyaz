@@ -9,14 +9,14 @@
 
 import type { TaalsData } from '../../types';
 
-// ── Taals activos (visibles en navegación) ───────────────────────────────────
+// ── Active taals (visible in navigation) ─────────────────────────────────────
 import { keherwa }    from './keherwa.js';
 import { dadra }      from './dadra.js';
 import { rupak }      from './rupak.js';
 import { deepchandi } from './deepchandi.js';
 import { addha }      from './addha.js';
 
-// ── Taals preparados (datos listos, pendientes de añadir a la navegación) ────
+// ── Ready taals (data complete, pending addition to navigation) ───────────────
 import { teental }    from './teental.js';
 import { ektal }      from './ektal.js';
 import { jhaptal }    from './jhaptal.js';
@@ -28,7 +28,7 @@ export const TAALS: TaalsData = {
     rupak,
     deepchandi,
     addha,
-    // Preparados — descomentar entrada en config.ts > NAVIGATION para activar
+    // Ready — uncomment entry in config.ts > NAVIGATION to activate
     teental,
     ektal,
     jhaptal,

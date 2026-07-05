@@ -40,7 +40,7 @@ export class SessionWizardView implements View {
     private sessionState!: SessionState;
     private blockStartTime: number = 0;
 
-    // Estado del step2 — gestionado aquí para poder pasarlo por referencia
+    // Step2 state — managed here so it can be passed by reference
     private step2State: Step2State = {
         metronome:     null,
         timerInterval: null,
@@ -59,7 +59,7 @@ export class SessionWizardView implements View {
             return this.container;
         }
 
-        // 2. Recuperar sesión interrumpida
+        // 2. Recover interrupted session
         const draft = loadSessionDraft();
         if (draft) {
             this.renderDraftRecovery(draft);
@@ -71,7 +71,7 @@ export class SessionWizardView implements View {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Coordinación entre pasos
+    // Step coordination
     // ─────────────────────────────────────────────────────────────────────────
 
     private doStep1(blocks: SessionBlock[] = [], share: { name: string; blocks: SessionBlock[] } | null = null): void {
@@ -106,8 +106,8 @@ export class SessionWizardView implements View {
     private makeStep2Callbacks(): Step2Callbacks {
         return {
             onComplete: () => {
-                // currentBlockIndex ya fue incrementado por completeCurrentBlock.
-                // Si el índice supera el último bloque, la sesión terminó.
+                // currentBlockIndex was already incremented by completeCurrentBlock.
+                // If the index exceeds the last block, the session is done.
                 const done = this.sessionState.currentBlockIndex >= this.sessionState.blocks.length;
                 if (!done) {
                     this.blockStartTime = Date.now();
@@ -131,7 +131,7 @@ export class SessionWizardView implements View {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Banner de recuperación de sesión interrumpida
+    // Interrupted session recovery banner
     // ─────────────────────────────────────────────────────────────────────────
 
     private renderDraftRecovery(draft: SessionDraft): void {

@@ -1,6 +1,6 @@
 /**
  * VIEW MANAGER
- * Gestiona el renderizado de vistas
+ * Manages view rendering
  */
 
 import { CONFIG } from '../core/config.js';
@@ -32,10 +32,10 @@ export class ViewManager {
     }
     
     /**
-     * Inicializa todas las vistas
+     * Initialise all views
      */
     private initializeViews(): void {
-        // Vistas fijas
+        // Fixed views
         this.views.set(CONFIG.VIEWS.RIYAZ,     new SessionWizardView());
         this.views.set(CONFIG.VIEWS.STATS,      new StatsView());
         this.views.set(CONFIG.VIEWS.DASHBOARD,  new DashboardView());
@@ -44,25 +44,25 @@ export class ViewManager {
         this.views.set(CONFIG.VIEWS.SONGS,      new SongsView());
         this.views.set('fillers',               new FillersView());
 
-        // Vistas de taals — generadas automáticamente desde NAVIGATION
+        // Taal views — generated automatically from NAVIGATION
         CONFIG.NAVIGATION
             .filter(item => item.id in TAALS)
             .forEach(item => this.views.set(item.id, new TaalView(item.id)));
     }
     
     /**
-     * Muestra una vista específica
-     * @param viewId - ID de la vista
+     * Show a specific view
+     * @param viewId - View ID
      */
     public showView(viewId: string): void {
         const view = this.views.get(viewId);
         if (!view) {
-            console.warn(`[ViewManager] Vista no encontrada: "${viewId}"`);
+            console.warn(`[ViewManager] View not found: "${viewId}"`);
             this.contentElement.innerHTML = '';
             this.contentElement.appendChild(
                 Object.assign(document.createElement('p'), {
                     className: 'text-muted text-center py-12',
-                    textContent: `Vista "${viewId}" no encontrada.`
+                    textContent: `View "${viewId}" not found.`
                 })
             );
             return;
@@ -71,7 +71,7 @@ export class ViewManager {
         try {
             this.contentElement.appendChild(view.render());
         } catch (error) {
-            console.error(`[ViewManager] Error al renderizar "${viewId}":`, error);
+            console.error(`[ViewManager] Error rendering "${viewId}":`, error);
         }
     }
 }

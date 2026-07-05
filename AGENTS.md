@@ -471,6 +471,12 @@ export function createButton(text: string): HTMLElement {
   ```
 - ❌ NEVER in Spanish: `"añade canción"`, `"corrige error"`, `"mejora diseño"`
 
+### Code Comments
+- **ALL inline comments and JSDoc must be in English** — no exceptions
+- This applies to every `.ts` file: `//` comments, `/** */` JSDoc blocks, and section dividers
+- ❌ NEVER in Spanish: `// Inicializar navegación`, `// Remover listeners anteriores`
+- ✅ CORRECT: `// Initialise navigation`, `// Remove previous listeners`
+
 ### ⚠️ Mandatory flow before commit/push
 - **NEVER run `git commit` or `git push` automatically.**
 - **ALWAYS ask the user** before committing: _"Did you test it locally? Shall I commit and push?"_

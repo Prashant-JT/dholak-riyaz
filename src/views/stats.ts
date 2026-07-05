@@ -81,7 +81,7 @@ interface UserStats {
     insight: string;
     weekLabels: string[];
     weekly: number[];
-    weekDays: number[][];   // 16 semanas × 7 días (Lun-Dom), minutos por día
+    weekDays: number[][];   // 16 weeks × 7 days (Mon-Sun), minutes per day
     bpm: Record<string, number[]>;
     donut: Record<string, number>;
     cycles: number[];
@@ -90,10 +90,10 @@ interface UserStats {
     rawSessions: SupabaseSession[];   // todas las sesiones, para filtrado client-side
 }
 
-// ── Fetch desde Supabase ──────────────────────────────────────────────────────
+// ── Fetch from Supabase ──────────────────────────────────────────────────────
 
 async function fetchUserStats(userId: string): Promise<UserStats> {
-    // Supabase v2: el QueryBuilder es un PromiseLike — await directo es correcto
+    // Supabase v2: QueryBuilder is a PromiseLike — direct await is correct
     const { data, error } = await db
         .from('sessions')
         .select('*')
@@ -104,13 +104,13 @@ async function fetchUserStats(userId: string): Promise<UserStats> {
     return transformSessionsToStats((data as SupabaseSession[]) ?? []);
 }
 
-// ── Transformación de datos ───────────────────────────────────────────────────
+// ── Data transformation ───────────────────────────────────────────────────────
 
 /**
- * Calcula los segundos reales de una sesión.
- * Usa la suma de blocks[].duration_secs como fuente de verdad
- * (así las ediciones manuales en el JSON de Supabase se reflejan),
- * y cae a total_secs solo si los bloques no tienen duración registrada.
+ * Computes the real seconds for a session.
+ * Uses the sum of blocks[].duration_secs as the source of truth
+ * (so manual edits to the Supabase JSON are reflected),
+ * and falls back to total_secs only if blocks have no recorded duration.
  */
 function effectiveSecs(s: SupabaseSession): number {
     const fromBlocks = s.blocks.reduce((sum, b) => sum + (b.duration_secs ?? 0), 0);
@@ -121,11 +121,11 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const now   = new Date();
     const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
 
-    // ── Últimas 16 semanas desde hoy ─────────────────────────────────────────
+    // ── Last 16 weeks from today ──────────────────────────────────────────────
     const weekStarts: Date[] = [];
     for (let i = 15; i >= 0; i--) {
         const d = new Date(now.getTime() - i * MS_WEEK);
-        // Lunes de esa semana
+        // Monday of that week
         const day = d.getDay();
         const diff = (day === 0 ? -6 : 1 - day);
         d.setDate(d.getDate() + diff);
@@ -136,7 +136,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     const weekLabels = weekStarts.map(d => `${d.getDate()} ${MONTH_ES[d.getMonth()]}`);
 
-    // ── Índice de sesión → semana ─────────────────────────────────────────────
+    // ── Session → week index ──────────────────────────────────────────────────
     const getWeekIdx = (isoDate: string): number => {
         const d = new Date(isoDate);
         for (let i = weekStarts.length - 1; i >= 0; i--) {
@@ -146,7 +146,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         return -1;
     };
 
-    // ── Weekly minutos + desglose diario (Lun=0 … Dom=6) ─────────────────────
+    // ── Weekly minutes + daily breakdown (Mon=0 … Sun=6) ─────────────────────
     const weekly  = new Array(16).fill(0);
     const weekDays: number[][] = Array.from({ length: 16 }, () => new Array(7).fill(0));
     sessions.forEach(s => {
@@ -154,13 +154,13 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         if (idx < 0) return;
         const mins = Math.round(effectiveSecs(s) / 60);
         weekly[idx] += mins;
-        // Día de la semana normalizado a Lun=0 … Dom=6
+        // Day of week normalised to Mon=0 … Sun=6
         const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay();
         const dayIdx = dow === 0 ? 6 : dow - 1;
         weekDays[idx][dayIdx] += mins;
     });
 
-    // ── BPM máx. por taal por semana ──────────────────────────────────────────
+    // ── Max BPM per taal per week ─────────────────────────────────────────────
     const bpmMap: Record<string, number[]> = {};
     sessions.forEach(s => {
         const idx = getWeekIdx(s.saved_at);
@@ -173,14 +173,14 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             }
         });
     });
-    // Rellenar nulls con el último valor conocido (carry-forward)
+    // Fill nulls with the last known value (carry-forward)
     Object.values(bpmMap).forEach(arr => {
         let last: number | null = null;
         for (let i = 0; i < arr.length; i++) {
             if (arr[i] !== null) { last = arr[i]; }
             else if (last !== null) { arr[i] = last; }
         }
-        // Quitar nulls iniciales con el primer valor encontrado (carry-back)
+        // Remove leading nulls using the first found value (carry-back)
         let first: number | null = null;
         for (let i = 0; i < arr.length; i++) { if (arr[i] !== null) { first = arr[i]; break; } }
         for (let i = 0; i < arr.length; i++) { if (arr[i] === null) arr[i] = first ?? 0; }
@@ -204,7 +204,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         donut[k] = totalDonutSecs > 0 ? Math.round((v / totalDonutSecs) * 100) : 0;
     });
 
-    // ── Ciclos: últimas 20 sesiones con metrónomo ─────────────────────────────
+    // ── Cycles: last 20 sessions with metronome ───────────────────────────────
     const metroSessions = [...sessions]
         .reverse()
         .filter(s => s.blocks.some(b => b.support_type === 'metronome' && b.cycles_completed))
@@ -215,10 +215,10 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
                 .reduce((sum, b) => sum + (b.cycles_completed ?? 0), 0)
     );
 
-    // ── Historial: últimas 10 sesiones ────────────────────────────────────────
+    // ── History: last 10 sessions ─────────────────────────────────────────────
     const recentSessions = [...sessions].reverse().slice(0, 10);
     const history = recentSessions.map(s => {
-        const gcStr = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' en hora canaria
+        const gcStr = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' in Canary time
         const d = new Date(gcStr + 'T12:00:00Z');
         const date = `${d.getUTCDate()} ${MONTH_ES[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
         const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
@@ -241,7 +241,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         };
     });
 
-    // ── Heatmap: últimos 4 meses ──────────────────────────────────────────────
+    // ── Heatmap: last 4 months ────────────────────────────────────────────────
     const heatmap: { label: string; days: number[] }[] = [];
     for (let m = 3; m >= 0; m--) {
         const gcNow = gcTodayStr();
@@ -256,7 +256,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             if (sd.getUTCFullYear() === ref.getUTCFullYear() && sd.getUTCMonth() === ref.getUTCMonth()) {
                 const dayIdx = sd.getUTCDate() - 1;
                 const mins = Math.round(effectiveSecs(s) / 60);
-                // Nivel 1 mínimo para cualquier sesión registrada (aunque sea de prueba/corta)
+                // Minimum level 1 for any recorded session (even short or test sessions)
                 const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : effectiveSecs(s) > 0 ? 1 : 0;
                 days[dayIdx] = Math.min(4, days[dayIdx] + level);
             }
@@ -312,8 +312,8 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         weekStreak = lastWeek.toISOString().slice(0, 10) === thisMonday.toISOString().slice(0, 10) ? ws : 0;
     }
 
-    // ── Insight automático ────────────────────────────────────────────────────
-    // Excluir Warm Up y Pickups del insight de taal
+    // ── Automatic insight ─────────────────────────────────────────────────────
+    // Exclude Warm Up and Pickups from the taal insight
     const taalOnlyEntries = Object.entries(donutSecs).filter(([k]) => !k.startsWith('Warm Up') && !k.startsWith('Pickup'));
     const topTaal   = taalOnlyEntries.reduce((best, cur) => cur[1] > best[1] ? cur : best, taalOnlyEntries[0] ?? ['—', 0])[0];
     const leastTaal = taalOnlyEntries.reduce((worst, cur) => cur[1] < worst[1] ? cur : worst, taalOnlyEntries[0] ?? ['—', 0])[0];
@@ -338,7 +338,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     };
 }
 
-// ── Estado vacío para cuando no hay datos ─────────────────────────────────────
+// ── Empty state for when there is no data ────────────────────────────────────
 
 function emptyStats(): UserStats {
     const now = new Date();
@@ -398,22 +398,22 @@ interface Medal {
     name: string;
     desc: string;
     earned: boolean;
-    earnedAt?: string;   // fecha legible si está ganada
-    progress?: string;   // texto de progreso para celdas bloqueadas
-    progressPct?: number; // 0-100 para barra visual
+    earnedAt?: string;   // human-readable date if earned
+    progress?: string;   // progress text for locked cells
+    progressPct?: number; // 0-100 for progress bar
 }
 
 function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
     const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     const fmt = (iso: string) => { const d = new Date(iso); return `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`; };
 
-    // Sesiones ordenadas cronológicamente
+    // Sessions sorted chronologically
     const sorted = [...sessions].sort((a, b) => a.saved_at.localeCompare(b.saved_at));
 
     const totalMins = Math.round(sorted.reduce((s, x) => s + effectiveSecs(x), 0) / 60);
     const totalSessions = sorted.length;
 
-    // Racha diaria máxima — fechas en hora canaria
+    // Maximum daily streak — dates in Canary time
     const allDayStrs = Array.from(new Set(sorted.map(s => gcDateStr(s.saved_at)))).sort();
     const allDays = allDayStrs.map(d => new Date(d + 'T00:00:00Z'));
     let maxStreak = 0; let curStreak = 0;
@@ -426,7 +426,7 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         if (curStreak > maxStreak) maxStreak = curStreak;
     }
 
-    // Racha semanal máxima — semanas en hora canaria
+    // Maximum weekly streak — weeks in Canary time
     const sessionWeeks = Array.from(new Set(sorted.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
     let maxWeekStreak = 0; let curWStreak = 0;
     for (let i = 0; i < sessionWeeks.length; i++) {
@@ -440,10 +440,10 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
 
     // Taals distintos practicados
     const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
-    // Nombres completos de los taals activos (ej. 'Keherwa Taal') para comparar con taal_name guardado en DB
+    // Full names of active taals (e.g. 'Keherwa Taal') to compare with taal_name stored in DB
     const ALL_ACTIVE_TAAL_NAMES = ACTIVE_TAAL_IDS.map(id => TAALS[id].name);
     const hasAllActive = ALL_ACTIVE_TAAL_NAMES.every(t => taalsSet.has(t));
-    // Primera sesión en que se practicó cada taal activo
+    // First session in which each active taal was practised
     const firstSessionByTaal: Record<string, string | undefined> = {};
     ACTIVE_TAAL_IDS.forEach(id => {
         const taalName = TAALS[id].name;
@@ -452,13 +452,13 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         )?.saved_at;
     });
 
-    // Sesiones con canción
+    // Sessions with a song
     const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
 
-    // BPM máximo global
+    // Global maximum BPM
     const maxBpm = sorted.reduce((mx, s) => Math.max(mx, ...s.blocks.map(b => b.bpm_end ?? 0)), 0);
 
-    // Sesión más larga
+    // Longest session
     const maxSessionMins = sorted.reduce((mx, s) => Math.max(mx, Math.round(effectiveSecs(s) / 60)), 0);
 
     // Fechas para when-earned
@@ -552,10 +552,10 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
             `máx. sesión: ${maxSessionMins} min`, Math.min(100, Math.round((maxSessionMins / 60) * 100))),
         mk('marathon',  '🦾', 'Maratoniano',        'Una sesión de al menos 90 minutos',               maxSessionMins >= 90, marathonSession,
             `máx. sesión: ${maxSessionMins} min`, Math.min(100, Math.round((maxSessionMins / 90) * 100))),
-        // Variedad
+        // Variety
         mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session,
             `${taalsSet.size} de 3 taals`, Math.min(100, Math.round((taalsSet.size / 3) * 100))),
-        // Medallas "Primer <Taal>" — generadas dinámicamente desde ACTIVE_TAAL_IDS
+        // "First <Taal>" badges — generated dynamically from ACTIVE_TAAL_IDS
         ...ACTIVE_TAAL_IDS.map(id => {
             const taal    = TAALS[id];
             const meta    = TAAL_META[id] ?? DEFAULT_TAAL_META;
@@ -570,13 +570,13 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
             Math.min(100, Math.round((ALL_ACTIVE_TAAL_NAMES.filter(t => taalsSet.has(t)).length / ALL_ACTIVE_TAAL_NAMES.length) * 100))),
         mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session,
             `${songSessions.length} de 5 sesiones`, Math.min(100, Math.round((songSessions.length / 5) * 100))),
-        // BPM
+        // BPM badges
         mk('slow',      '🐢', 'Base sólida',        'Practicado con metrónomo a ≤ 60 BPM',             maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
         mk('bpm120',    '⚡', 'Velocista',          'Alcanzado ≥ 120 BPM en metrónomo',                maxBpm >= 120, bpm120Session,
             `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),
         mk('bpm180',    '🚀', 'Fuego',              'Alcanzado ≥ 180 BPM en metrónomo',                maxBpm >= 180, bpm180Session,
             `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 180) / 180) * 100))),
-        // Sesión conjunta
+        // Joint session badges
         ...(() => {
             if (otherSessions.length === 0) return [];
             const otherTimes    = new Set(otherSessions.map(s => s.saved_at));
@@ -594,7 +594,7 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
     ];
 }
 
-// ── Vista ─────────────────────────────────────────────────────────────────────
+// ── View ──────────────────────────────────────────────────────────────────────
 
 export class StatsView implements View {
     private activeUser: string = 'prashant';   // 'prashant' | 'meera' | 'compare'
@@ -602,13 +602,13 @@ export class StatsView implements View {
     private userData: Record<string, UserStats> = {};
     private section!: HTMLElement;
     private weeklyMode: 'weeks' | 'days' = 'weeks';
-    private weeklySelectedIdx: number = 15;   // índice de la semana activa en modo días
+    private weeklySelectedIdx: number = 15;   // active week index in days mode
     private weeklyChart: any = null;
 
     public render(): HTMLElement {
         this.section = createElement('section', { id: 'stats', className: 'view-section' });
 
-        // Cabecera
+        // Header
         const header = createElement('div', { className: 'mb-6' });
         header.appendChild(createElement('h2', { className: 'section-title' }, 'Estadísticas'));
         header.appendChild(createElement('p', { className: 'section-subtitle' },
@@ -636,19 +636,19 @@ export class StatsView implements View {
         });
         this.section.appendChild(tabsWrap);
 
-        // Contenedor dinámico
+        // Dynamic container
         const content = createElement('div', { id: 'stats-content' });
         this.section.appendChild(content);
 
-        // Mostrar loading y cargar datos — pasamos la referencia directa
-        // para no depender de document.getElementById (que falla antes del mount)
+        // Show loading and load data — pass direct reference
+        // to avoid depending on document.getElementById (which fails before mount)
         this.showLoading(content);
         this.loadAndRender(content);
 
         return this.section;
     }
 
-    // ── Carga de datos ────────────────────────────────────────────────────────
+    // ── Data loading ─────────────────────────────────────────────────────────
 
     private showLoading(container: HTMLElement): void {
         container.innerHTML = '';
@@ -665,7 +665,7 @@ export class StatsView implements View {
         wrap.appendChild(hint);
         container.appendChild(wrap);
 
-        // Animación de progreso indeterminada: avanza hasta ~90% mientras carga
+        // Indeterminate progress animation: advances to ~90% while loading
         let pct = 0;
         const tick = setInterval(() => {
             pct = pct < 70 ? pct + 8 : pct < 88 ? pct + 1 : pct;
@@ -772,12 +772,12 @@ export class StatsView implements View {
         return p;
     }
 
-    // ── Gráfica semanal con toggle Semanas / Días ─────────────────────────────
+    // ── Weekly chart with Weeks / Days toggle ────────────────────────────────
 
     private buildWeeklyCard(d: UserStats): HTMLElement {
         const card = this.card();
 
-        // Cabecera: título + toggle
+        // Header: title + toggle
         const headerRow = createElement('div', { className: 'stats-weekly-header' });
         const titleWrap = createElement('div');
         titleWrap.appendChild(this.cardTitle('Minutos practicados'));
@@ -788,7 +788,7 @@ export class StatsView implements View {
         titleWrap.appendChild(subEl);
         headerRow.appendChild(titleWrap);
 
-        // Toggle Semanas / Días
+        // Weeks / Days toggle
         const toggle = createElement('div', { className: 'stats-weekly-toggle' });
         const btnWeeks = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks' }, 'Semanas');
         const btnDays  = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'  }, 'Días');
@@ -819,7 +819,7 @@ export class StatsView implements View {
         wrap.appendChild(createElement('canvas', { id: 'stats-chart-weekly' }));
         card.appendChild(wrap);
 
-        // Lógica toggle
+        // Toggle logic
         const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
         const updateSub = () => {
@@ -941,7 +941,7 @@ export class StatsView implements View {
         });
         this.charts.push(this.weeklyChart);
 
-        // Restaurar estado del toggle si venía en modo días
+        // Restore toggle state if previously in days mode
         if (this.weeklyMode === 'days') {
             const btnDays  = document.getElementById('stats-toggle-days');
             const btnWeeks = document.getElementById('stats-toggle-weeks');
@@ -1010,7 +1010,7 @@ export class StatsView implements View {
         kpiSection.appendChild(kpiGrid);
         content.appendChild(kpiSection);
 
-        // ── Gráfica semanal dual ──────────────────────────────────────────────
+        // ── Dual weekly chart ──────────────────────────────────────────────────
         const chartCard = this.card();
         chartCard.appendChild(this.cardTitle('Minutos por semana'));
         chartCard.appendChild(this.cardSub('Prashant (naranja) · Meera (azul) · últimas 16 semanas'));
@@ -1021,7 +1021,7 @@ export class StatsView implements View {
         chartCard.appendChild(wrap);
         content.appendChild(chartCard);
 
-        // ── Distribución lado a lado ──────────────────────────────────────────
+        // ── Side-by-side distribution ─────────────────────────────────────────
         const distRow = createElement('div', { className: 'stats-chart-row' });
         [
             { title: 'Distribución · Prashant', id: 'stats-chart-compare-donut-p' },
@@ -1091,7 +1091,7 @@ export class StatsView implements View {
                 const cell = createElement('div', { className: 'medals-cmp-cell' });
                 cell.title = pm_.desc;
 
-                // Emoji — no aplicar grayscale aquí, solo opacidad
+                // Emoji — do not apply grayscale here, only opacity
                 const emojiEl = createElement('span', {
                     className: `medals-cmp-emoji${(!pm_.earned && !mm_.earned) ? ' medals-cmp-emoji--locked' : ''}`,
                 }, pm_.emoji);
@@ -1131,7 +1131,7 @@ export class StatsView implements View {
         Chart.defaults.font.size   = 12;
         Chart.defaults.color       = textCol;
 
-        // Gráfica semanal dual
+        // Dual weekly chart
         const compareCanvas = document.getElementById('stats-chart-compare') as HTMLCanvasElement | null;
         if (compareCanvas) {
             this.charts.push(new Chart(compareCanvas, {
@@ -1154,7 +1154,7 @@ export class StatsView implements View {
             }));
         }
 
-        // Donuts de distribución
+        // Distribution donuts
         const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
         [
             { canvasId: 'stats-chart-compare-donut-p', donut: p.donut },
@@ -1198,7 +1198,7 @@ export class StatsView implements View {
             grid.appendChild(card);
         });
 
-        // Racha — card especial con dos valores: días y semanas
+        // Streak — special card with two values: days and weeks
         const streakCard = createElement('div', { className: 'card stats-kpi-card stats-streak-card' });
         streakCard.appendChild(createElement('div', { className: 'stats-kpi-label' }, 'Racha activa'));
 
@@ -1264,13 +1264,13 @@ export class StatsView implements View {
             return t >= prevMonday.getTime() && t < thisMonday.getTime();
         });
 
-        // BPM máx esta semana / semana pasada
+        // Max BPM this week / last week
         const maxBpmOf = (ss: SupabaseSession[]) =>
             ss.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0)).reduce((m, v) => Math.max(m, v), 0);
         const bpmThis = maxBpmOf(sessionsThis);
         const bpmPrev = maxBpmOf(sessionsPrev);
 
-        // Helper: delta con flecha y color
+        // Helper: delta with arrow and colour
         const delta = (curr: number, prev: number, unit: string): { text: string; cls: string } => {
             if (prev === 0 && curr === 0) return { text: '—', cls: 'week-cmp-delta--neutral' };
             if (prev === 0) return { text: `+${curr} ${unit}`, cls: 'week-cmp-delta--up' };
@@ -1596,7 +1596,7 @@ export class StatsView implements View {
                     cell.appendChild(progressWrap);
                 }
 
-                // Tooltip con descripción completa al hacer hover (title nativo)
+                // Tooltip with full description on hover (native title attribute)
                 cell.title = m.earned ? `${m.name} · ${m.earnedAt ?? ''}` : (m.progress ? `${m.desc} · ${m.progress}` : m.desc);
 
                 grid.appendChild(cell);

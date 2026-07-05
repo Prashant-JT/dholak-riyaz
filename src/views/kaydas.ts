@@ -1,6 +1,6 @@
 /**
  * KAYDAS VIEW
- * Vista de kaydas — renderiza todos los kaydas del objeto KAYDAS
+ * Kaydas view — renders all kaydas from the KAYDAS object
  */
 
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS, chunkArray, createSectionHeader, setupSearchFilter } from '../core/utils.js';
@@ -46,7 +46,7 @@ export class KaydasView implements View {
 
         setupSearchFilter(searchInput, kaydaCards, emptyMsg as HTMLElement);
 
-        // Teoría
+        // Theory
         const theory = createElement('div', { 
             className: 'info-box info-box--indigo mt-6'
         });
@@ -75,7 +75,7 @@ export class KaydasView implements View {
             className: 'text-muted mb-4'
         }, kayda.description));
 
-        // Tutorial link (si existe)
+        // Tutorial link (if present)
         if (kayda.tutorial) {
             const tutorialDiv = createElement('div', {
                 className: 'resource-box resource-box--tutorials mb-6'
@@ -103,7 +103,7 @@ export class KaydasView implements View {
             card.appendChild(tutorialDiv);
         }
 
-        // Filas de matras — en móvil se dividen en grupos de 4
+        // Matra rows — split into groups of 4 on mobile
         kayda.rows.forEach((row, rowIndex) => {
             const isMobile = window.innerWidth < 768;
             const groups = isMobile
@@ -143,7 +143,7 @@ export class KaydasView implements View {
                         }, matra.technique));
                     }
 
-                    // Divisores de vibhag (línea naranja) según beats del kayda
+                    // Vibhag dividers (orange line) based on kayda beats
                     const isMobileKayda = window.innerWidth < 768;
                     if (!isMobileKayda) {
                         if (VIBHAG_DIVIDERS[kayda.beats]?.includes(matra.matra)) {
