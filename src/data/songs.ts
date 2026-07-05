@@ -300,6 +300,18 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=pwsjRraWgdA"
+    },
+    {
+        title: "Jab Deep Jale / Maan Hari Ke Gun Gaana",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=ah1T5cTZmo8"
+    },
+    {
+        title: "Aapne Yaad Dilaya Toh Mujhe / Swami Teoonram Vaña Toh Ta",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=3E9y8BWQyXQ"
     }
 ];
 
