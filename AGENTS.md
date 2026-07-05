@@ -290,6 +290,96 @@ Cada vez que se añade un nuevo taal al proyecto, se deben tocar **obligatoriame
 
 ---
 
+## 🥁 Convenciones de Datos: Taal `rows` (vibhags)
+
+### ⚠️ OBLIGATORIO — Dividir los beats en filas según los vibhags
+
+El campo `rows` de un `Taal` es un **array de arrays**. Cada sub-array representa una **fila visual** en la tabla del taal, y la vista genera automáticamente una **línea de color separadora** entre filas (`taal-row-separator`). Si todos los beats van en un único array, **no aparece ningún separador** y el taal se ve como un bloque plano sin estructura.
+
+**Regla:** agrupar los beats en filas que reflejen la estructura de vibhags del taal:
+
+| Taal | Beats | Vibhags | Filas recomendadas |
+|---|---|---|---|
+| Keherwa | 8 | 2+2+2+2 | 1 fila de 8 (o 2×4) |
+| Dadra | 6 | 3+3 | 1 fila de 6 (o 2×3) |
+| Rupak | 7 | 3+2+2 | 1 fila de 7 |
+| Deepchandi | 14 | 3+4+3+4 | 2 filas de 7 |
+| Addha | 16 | 4+4+4+4 | 2 filas de 8 |
+| Teental | 16 | 4+4+4+4 | 2 filas de 8 |
+| Ektal | 12 | 2+2+2+2+2+2 | 2 filas de 6 |
+| Jhaptal | 10 | 2+3+2+3 | 2 filas de 5 |
+
+```typescript
+// ❌ INCORRECTO — todos en una fila, sin separadores visuales
+rows: [
+    [
+        { matra: 1, bol: 'Dhin', technique: 'Taali' },
+        // ... los 12 beats juntos
+        { matra: 12, bol: 'Na', technique: '' }
+    ]
+]
+
+// ✅ CORRECTO — dividido en 2 filas (ejemplo Ektal)
+rows: [
+    [
+        { matra: 1, bol: 'Dhin',     technique: 'Taali' },
+        { matra: 2, bol: 'Dhin',     technique: '' },
+        { matra: 3, bol: 'DhaGe',    technique: 'Taali' },
+        { matra: 4, bol: 'TireKite', technique: '' },
+        { matra: 5, bol: 'Tin',      technique: 'Khali' },
+        { matra: 6, bol: 'Na',       technique: '' }
+    ],
+    [
+        { matra: 7,  bol: 'Ke',       technique: 'Taali' },
+        { matra: 8,  bol: 'Ta',       technique: '' },
+        { matra: 9,  bol: 'DhaGe',    technique: 'Taali' },
+        { matra: 10, bol: 'TireKite', technique: '' },
+        { matra: 11, bol: 'Dhi',      technique: 'Khali' },
+        { matra: 12, bol: 'Na',       technique: '' }
+    ]
+]
+```
+
+Lo mismo aplica a las `variations[].rows` — cada variación también debe respetar la división por vibhags.
+
+### ⚠️ OBLIGATORIO — Registrar el taal en los dos mecanismos de divisores de `src/views/taals.ts`
+
+Al añadir un taal nuevo hay que actualizar **dos lugares** dentro de [`src/views/taals.ts`](src/views/taals.ts):
+
+#### 1. `VIBHAG_DIVIDERS` (divisor naranja vertical en desktop)
+Objeto `Record<number, number[]>` indexado por el número de beats. El array contiene los números de matra **después de los cuales** aparece la línea naranja derecha:
+
+```typescript
+const VIBHAG_DIVIDERS: Record<number, number[]> = {
+    6:  [3],              // Dadra:      3+3
+    7:  [3, 5],           // Rupak:      3+2+2
+    8:  [4],              // Keherwa:    4+4
+    12: [2, 4, 6, 8, 10], // Ektal:      2+2+2+2+2+2
+    14: [3, 7, 10],       // Deepchandi: 3+4+3+4
+    16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
+};
+```
+
+#### 2. `getVibhagStructure()` (división en sub-filas en móvil)
+Switch por número de beats que parte cada fila en grupos según los vibhags del taal:
+
+```typescript
+case 12: // Ektal: 2+2+2+2+2+2
+    return [
+        row.slice(0, 2),
+        row.slice(2, 4),
+        row.slice(4, 6),
+        row.slice(6, 8),
+        row.slice(8, 10),
+        row.slice(10, 12)
+    ];
+```
+
+> Si no se añade el caso en `getVibhagStructure`, el taal caerá en el `default` (grupos de 4) y los vibhags en móvil no se agruparán correctamente.
+> Si no se añade en `VIBHAG_DIVIDERS`, no aparecerán las líneas naranjas verticales en desktop.
+
+---
+
 ## 🚫 Errores Comunes a EVITAR
 
 ### 1. ❌ Mezclar JavaScript y TypeScript

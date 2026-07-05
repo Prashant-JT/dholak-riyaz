@@ -151,6 +151,8 @@ export interface ViewsConfig {
     RUPAK: string;
     DEEPCHANDI: string;
     ADDHA: string;
+    TEENTAL: string;
+    EKTAL: string;
     KAYDAS: string;
     SONGS: string;
     RIYAZ: string;
