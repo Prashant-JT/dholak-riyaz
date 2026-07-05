@@ -72,6 +72,11 @@ export class ViewManager {
             this.contentElement.appendChild(view.render());
         } catch (error) {
             console.error(`[ViewManager] Error rendering "${viewId}":`, error);
+            // Show a visible error instead of a blank screen so the user is not stuck
+            const msg = document.createElement('div');
+            msg.style.cssText = 'padding:2rem;text-align:center;color:var(--text-muted)';
+            msg.innerHTML = '<p style="font-size:1.1rem;margin-bottom:0.5rem">⚠️ Algo ha fallado al cargar esta vista.</p><p style="font-size:0.9rem">Recarga la página para continuar. Tu sesión está guardada.</p>';
+            this.contentElement.appendChild(msg);
         }
     }
 }

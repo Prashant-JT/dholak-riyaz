@@ -138,7 +138,7 @@ export function renderStep2(
     cb.setState({
         cycleCount: sessionState.blocks[sessionState.currentBlockIndex]?.cyclesCompleted ?? 0
     });
-    startTimer(timerDisplay, blockStartTime, cb);
+    startTimer(timerDisplay, blockStartTime, cb, sessionState);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -502,10 +502,24 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
 // Timer y helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-function startTimer(display: HTMLElement, blockStartTime: number, cb: Step2Callbacks): void {
+function startTimer(
+    display: HTMLElement,
+    blockStartTime: number,
+    cb: Step2Callbacks,
+    sessionState: SessionState,
+): void {
+    let tickCount = 0;
     const interval = window.setInterval(() => {
         const elapsed = Math.floor((Date.now() - blockStartTime) / 1000);
         display.textContent = formatTime(elapsed);
+        // Every 10 ticks (10 s) persist durationSecs so a crash mid-block
+        // does not lose elapsed practice time on draft recovery.
+        tickCount++;
+        if (tickCount % 10 === 0) {
+            const block = sessionState.blocks[sessionState.currentBlockIndex];
+            if (block) block.durationSecs = elapsed;
+            saveSessionDraft(sessionState, blockStartTime);
+        }
     }, 1000);
     cb.setState({ timerInterval: interval });
 }

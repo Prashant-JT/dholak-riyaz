@@ -22,7 +22,13 @@ export class MetronomeEngine {
      */
     private initAudioContext(): void {
         if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            try {
+                this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            } catch {
+                // AudioContext may be blocked by the browser (e.g. Safari before user gesture).
+                // The metronome simply won't play — the session continues normally.
+                this.audioContext = null;
+            }
         }
     }
     

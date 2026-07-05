@@ -29,6 +29,8 @@ import {
 
 import {
     renderStep2,
+    stopTimer,
+    stopMetronome,
     type Step2State,
     type Step2Callbacks,
 } from './wizardStep2.js';
@@ -48,6 +50,16 @@ export class SessionWizardView implements View {
     };
 
     public render(): HTMLElement {
+        // Clean up any leftover timer/metronome from a previous render
+        // (e.g. user navigated away mid-session and came back)
+        const cleanupCb = {
+            getState:  () => this.step2State,
+            setState:  (patch: Partial<Step2State>) => { Object.assign(this.step2State, patch); },
+            onComplete: () => { /* no-op for cleanup */ },
+        };
+        stopTimer(cleanupCb);
+        stopMetronome(cleanupCb);
+
         seedDefaultTemplates();
         this.container = createElement('section', { id: 'riyaz', className: 'view-section' });
 
