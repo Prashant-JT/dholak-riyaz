@@ -30,6 +30,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate supabase.ts stub for tests
+        run: |
+          cat > src/core/supabase.ts << 'TSEOF'
+          export interface SupabaseClient {
+              from: (table: string) => any;
+              auth: any;
+          }
+          export const db: SupabaseClient = {} as SupabaseClient;
+          TSEOF
+
+      - name: Run tests
+        run: npm test
+
       - name: Generate supabase.ts from secrets
         run: |
           cat > src/core/supabase.ts << 'TSEOF'

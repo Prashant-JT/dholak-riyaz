@@ -90,10 +90,10 @@ export function createBolIndicatorsLegend(): HTMLElement {
     return legend;
 }
 
-const _bolIndicatorPattern = /\(thapki[^)]*\)|\(g[uh]is[ao][^)]*\)/i;
+const _bolIndicatorPattern = /\(thapki[^)]*\)|\(ghu?is[ao][^)]*\)/i;
 
 /**
- * Returns true if the JSON text of the rows contains "(thapki)" or "(ghisa)".
+ * Returns true if the JSON text of the rows contains "(thapki)", "(ghisa)" or "(ghuisa)".
  * Works with any row structure (Taal rows or KaydaRow[]).
  */
 export function bolsHaveIndicators(rows: unknown): boolean {
@@ -109,12 +109,12 @@ export function bolsHaveIndicators(rows: unknown): boolean {
  */
 export function applyBolIndicators(container: HTMLElement, bolText: string): void {
     const hasThapki = /\(thapki[^)]*\)/i.test(bolText);
-    const hasGhisa  = /\(g[uh]is[ao][^)]*\)/i.test(bolText);
+    const hasGhisa  = /\(ghu?is[ao][^)]*\)/i.test(bolText);
 
     // Clean name: strip all parentheses containing thapki/ghisa/ghuisa
     const cleanName = bolText
         .replace(/\s*\(thapki[^)]*\)/gi, '')
-        .replace(/\s*\(g[uh]is[ao][^)]*\)/gi, '')
+        .replace(/\s*\(ghu?is[ao][^)]*\)/gi, '')
         .trim();
 
     container.textContent = cleanName;

@@ -2,6 +2,7 @@
   "name": "dholak-riyaz",
   "version": "2.0.0",
   "description": "Sistema de práctica profesional para Dholak con TypeScript",
+  "type": "module",
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
@@ -10,7 +11,10 @@
     "rebuild": "npm run clean && npm run build",
     "dev": "tsc --watch",
     "serve": "node server.js",
-    "start": "npm run build && npm run serve"
+    "start": "npm run build && npm run serve",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "dholak",
@@ -22,7 +26,10 @@
   "author": "Prashant",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "@vitest/coverage-v8": "^4.1.9",
+    "happy-dom": "^20.10.6",
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2"
