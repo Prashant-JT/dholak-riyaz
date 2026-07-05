@@ -151,11 +151,11 @@ export const keherwa: Taal = {
                 [
                     { matra: 1, bol: 'Ghe (ghisa)', technique: '' },
                     { matra: 2, bol: '—', technique: '' },
-                    { matra: 3, bol: 'Tit (thapki)', technique: '' },
+                    { matra: 3, bol: 'Ti (thapki)', technique: '' },
                     { matra: 4, bol: 'Ta', technique: '' },
                     { matra: 5, bol: '—', technique: '' },
                     { matra: 6, bol: 'Ghe', technique: '' },
-                    { matra: 7, bol: 'Dhit (thapki)', technique: '' },
+                    { matra: 7, bol: 'Dhi (thapki)', technique: '' },
                     { matra: 8, bol: 'Ta', technique: '' }
                 ]
             ],
