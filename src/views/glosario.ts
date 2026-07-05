@@ -3,7 +3,7 @@
  * Vista del glosario de bols
  */
 
-import { createElement, createBolIndicatorsLegend } from '../core/utils.js';
+import { createElement, createBolIndicatorsLegend, createSectionHeader } from '../core/utils.js';
 import { BOLS_BY_CATEGORY } from '../data/bols.js';
 import type { View, Bol } from '../types.js';
 
@@ -14,14 +14,7 @@ export class GlosarioView implements View {
             className: 'view-section' 
         });
         
-        const header = createElement('div', { className: 'mb-8' });
-        header.appendChild(createElement('h2', {
-            className: 'section-title'
-        }, 'Teoría'));
-        header.appendChild(createElement('p', {
-            className: 'section-subtitle'
-        }, 'Conceptos fundamentales y glosario de Bols del Dholak'));
-        section.appendChild(header);
+        section.appendChild(createSectionHeader('Teoría', 'Conceptos fundamentales y glosario de Bols del Dholak'));
         
         // Teoría de Taal
         const theorySection = createElement('div', { className: 'card p-8 mb-8' });

@@ -1,4 +1,4 @@
-import { createElement } from '../core/utils.js';
+import { createElement, createSectionHeader } from '../core/utils.js';
 import type { View } from '../types.js';
 import { FILLERS } from '../data/fillers.js';
 
@@ -10,14 +10,7 @@ export class FillersView implements View {
         });
 
         // Header
-        const header = createElement('div', { className: 'mb-8' });
-        header.appendChild(createElement('h2', {
-            className: 'section-title'
-        }, 'Pickups / Fillers / Cuts'));
-        header.appendChild(createElement('p', {
-            className: 'section-subtitle'
-        }, 'Patrones rítmicos de relleno y transición'));
-        container.appendChild(header);
+        container.appendChild(createSectionHeader('Pickups / Fillers / Cuts', 'Patrones rítmicos de relleno y transición'));
 
         // Search bar
         const searchWrapper = createElement('div', { className: 'songs-search-wrapper mb-6' });
@@ -45,7 +38,7 @@ export class FillersView implements View {
             categorySections.push({ section, cards });
         });
 
-        // Filter logic
+        // Filter logic: hide cards + hide empty category sections
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
             let anyVisible = false;

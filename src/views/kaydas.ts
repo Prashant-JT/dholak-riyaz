@@ -3,7 +3,7 @@
  * Vista de kaydas — renderiza todos los kaydas del objeto KAYDAS
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS, chunkArray } from '../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS, chunkArray, createSectionHeader, setupSearchFilter } from '../core/utils.js';
 import { KAYDAS } from '../data/kaydas.js';
 import type { View, Kayda } from '../types.js';
 
@@ -14,14 +14,7 @@ export class KaydasView implements View {
             className: 'view-section'
         });
         
-        const header = createElement('div', { className: 'mb-8' });
-        header.appendChild(createElement('h2', {
-            className: 'section-title'
-        }, 'Kaydas'));
-        header.appendChild(createElement('p', {
-            className: 'section-subtitle'
-        }, 'Composiciones avanzadas y variaciones temáticas'));
-        section.appendChild(header);
+        section.appendChild(createSectionHeader('Kaydas', 'Composiciones avanzadas y variaciones temáticas'));
 
         // Search bar
         const searchWrapper = createElement('div', { className: 'songs-search-wrapper mb-6' });
@@ -51,19 +44,7 @@ export class KaydasView implements View {
             kaydaCards.push({ el: card, index });
         });
 
-        // Filter logic
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            let anyVisible = false;
-
-            kaydaCards.forEach(({ el, index }) => {
-                const visible = query === '' || index.includes(query);
-                el.style.display = visible ? '' : 'none';
-                if (visible) anyVisible = true;
-            });
-
-            (emptyMsg as HTMLElement).style.display = anyVisible ? 'none' : '';
-        });
+        setupSearchFilter(searchInput, kaydaCards, emptyMsg as HTMLElement);
 
         // Teoría
         const theory = createElement('div', { 

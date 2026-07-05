@@ -165,4 +165,36 @@ export function chunkArray<T>(arr: T[], size: number): T[][] {
     return chunks;
 }
 
+/**
+ * Crea un header de sección estándar con título y subtítulo.
+ */
+export function createSectionHeader(title: string, subtitle: string): HTMLElement {
+    const header = createElement('div', { className: 'mb-8' });
+    header.appendChild(createElement('h2', { className: 'section-title' }, title));
+    header.appendChild(createElement('p', { className: 'section-subtitle' }, subtitle));
+    return header;
+}
+
+/**
+ * Conecta un input de búsqueda con una lista de cards filtrables.
+ * Cada item tiene `el` (el elemento DOM) e `index` (texto buscable en minúsculas).
+ * Muestra `emptyMsg` cuando ningún item coincide.
+ */
+export function setupSearchFilter(
+    searchInput: HTMLInputElement,
+    items: Array<{ el: HTMLElement; index: string }>,
+    emptyMsg: HTMLElement
+): void {
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim().toLowerCase();
+        let anyVisible = false;
+        items.forEach(({ el, index }) => {
+            const visible = query === '' || index.includes(query);
+            el.style.display = visible ? '' : 'none';
+            if (visible) anyVisible = true;
+        });
+        emptyMsg.style.display = anyVisible ? 'none' : '';
+    });
+}
+
 // Made with Bob

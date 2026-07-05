@@ -3,7 +3,7 @@
  * Vista principal con metrónomo y lehras
  */
 
-import { createElement } from '../core/utils.js';
+import { createElement, createSectionHeader } from '../core/utils.js';
 import { CONFIG } from '../core/config.js';
 import { LEHRAS } from '../data/lehras.js';
 import type { View } from '../types.js';
@@ -15,14 +15,7 @@ export class DashboardView implements View {
             className: 'view-section active' 
         });
         
-        const header = createElement('div', { className: 'mb-8' });
-        header.appendChild(createElement('h2', {
-            className: 'section-title'
-        }, 'Riyaz'));
-        header.appendChild(createElement('p', {
-            className: 'section-subtitle'
-        }, 'Metrónomo y Herramientas de Práctica'));
-        section.appendChild(header);
+        section.appendChild(createSectionHeader('Riyaz', 'Metrónomo y Herramientas de Práctica'));
 
         section.appendChild(this.createMetronomeCard());
         section.appendChild(this.createLehrasCard());
