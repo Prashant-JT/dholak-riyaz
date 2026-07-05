@@ -206,4 +206,4 @@ Personal music practice project — MIT.
 
 ---
 
-**Version:** 2.0.0 · **Last updated:** 2025-07-14
+**Version:** 2.0.0 · **Last updated:** 2026-07-05

@@ -589,5 +589,5 @@ If you find inconsistencies in this document or in the code, document them here 
 ---
 
 **Version**: 1.2.0
-**Last updated**: 2025-07-14
+**Last updated**: 2026-07-05
 **Maintainer**: Bob (AI Assistant)
