@@ -582,6 +582,36 @@ Before considering a task complete, verify:
 
 ---
 
+## 🚀 Release Management (Bob's responsibility)
+
+Bob (AI assistant) is responsible for tracking releases and deciding when to propose a new one. The user must **never** be asked to manage versions manually.
+
+### Current release
+| Tag | Date | Summary |
+|---|---|---|
+| `v2.0.0` | 2026-07-05 | Full practice system — 7 taals, Riyaz planner, Stats, dark mode |
+
+### When to propose a new release
+Bob must propose a new GitHub release when **any of these thresholds are reached**:
+- A new Taal is activated
+- 3 or more songs/kaydas/fillers added in a single session
+- A significant new feature is implemented (new view, new wizard step, etc.)
+- A major bug fix that affected production
+
+### Release workflow (Bob's steps)
+1. Propose the release to the user: _"I think we're ready for vX.Y.Z — shall I create the tag and prepare the release notes?"_
+2. Wait for user confirmation that it was tested in the browser
+3. Run: `git tag -a vX.Y.Z -m "..."` and `git push origin vX.Y.Z`
+4. Provide the release notes text for the user to paste into GitHub UI
+5. Update the **Current release** table above
+
+### Versioning rules (Semantic Versioning)
+- **MAJOR** (`v3.0.0`): Complete redesign or architectural overhaul
+- **MINOR** (`v2.1.0`): New taal, new feature, new view
+- **PATCH** (`v2.0.1`): Bug fixes, data additions, style tweaks
+
+---
+
 ## 📞 Contact
 
 If you find inconsistencies in this document or in the code, document them here for future reference.
