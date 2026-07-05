@@ -150,6 +150,9 @@ npm run watch
 
 # Start local server
 npm start
+
+# Alternatively, use the start script (builds + serves in one step)
+./start.sh
 ```
 
 ---
