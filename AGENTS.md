@@ -456,6 +456,14 @@ export function createButton(text: string): HTMLElement {
 
 ---
 
+## ⚙️ GitHub Actions — Critical Rules
+
+- **`environment: github-pages` on the `build` job is MANDATORY** — this is what grants access to repository secrets (`SUPABASE_URL`, `SUPABASE_ANON_KEY`). Removing it causes secrets to arrive empty and the app to break at runtime.
+- **Never touch the workflow to fix transient GitHub Pages errors** (`Deployment failed, try again`) — these are server-side and resolve on their own. Re-running the workflow is the correct response, not editing the file.
+- **Before editing any workflow file**, check `git log` to understand what was working and why. If the same line has been stable for many commits, it is correct — do not change it.
+
+---
+
 ## 📝 Git Conventions
 
 ### Commits
