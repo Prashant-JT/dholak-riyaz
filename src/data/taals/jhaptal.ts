@@ -3,8 +3,7 @@
  * 10 beats — estructura 2+3+2+3
  * Taal asimétrico muy usado en composiciones clásicas lentas (Vilambit)
  *
- * ESTADO: preparado pero NO mostrado en navegación todavía
- * Para activar: añadir { id: 'jhaptal', label: 'Jhaptal (10B)' } en src/core/config.ts > NAVIGATION
+ * ESTADO: preparado, pendiente de activar en src/core/config.ts > NAVIGATION
  */
 
 import type { Taal } from '../../types';

@@ -56,13 +56,22 @@ export class ViewManager {
      */
     public showView(viewId: string): void {
         const view = this.views.get(viewId);
-        if (view) {
+        if (!view) {
+            console.warn(`[ViewManager] Vista no encontrada: "${viewId}"`);
             this.contentElement.innerHTML = '';
-            try {
-                this.contentElement.appendChild(view.render());
-            } catch (error) {
-                console.error('Error rendering view:', error);
-            }
+            this.contentElement.appendChild(
+                Object.assign(document.createElement('p'), {
+                    className: 'text-muted text-center py-12',
+                    textContent: `Vista "${viewId}" no encontrada.`
+                })
+            );
+            return;
+        }
+        this.contentElement.innerHTML = '';
+        try {
+            this.contentElement.appendChild(view.render());
+        } catch (error) {
+            console.error(`[ViewManager] Error al renderizar "${viewId}":`, error);
         }
     }
 }

@@ -3,8 +3,7 @@
  * 16 beats — estructura 4+4+4+4
  * El taal más importante de la música clásica del norte de India (Hindustani)
  *
- * ESTADO: preparado pero NO mostrado en navegación todavía
- * Para activar: añadir { id: 'teental', label: 'Teental (16B)' } en src/core/config.ts > NAVIGATION
+ * ESTADO: activo en navegación (src/core/config.ts > NAVIGATION)
  */
 
 import type { Taal } from '../../types';
