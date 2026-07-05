@@ -3,40 +3,40 @@
 echo "🥁 Dholak Riyaz"
 echo ""
 
-# Cargar nvm si existe
+# Load nvm if available
 if [ -f "$HOME/.nvm/nvm.sh" ]; then
     source "$HOME/.nvm/nvm.sh"
     nvm use 2>/dev/null || nvm install
 fi
 
-# Compilar TypeScript inicial
-echo "Compilando..."
+# Initial TypeScript compile
+echo "Compiling..."
 npm run build
 
 if [ $? -ne 0 ]; then
-    echo "❌ Error al compilar"
+    echo "❌ Compilation error"
     exit 1
 fi
 
-echo "✅ Compilado"
+echo "✅ Compiled"
 echo ""
 
-# Matar procesos en puerto 8080 si existen
+# Kill any processes on port 8080
 lsof -ti:8080 | xargs kill -9 2>/dev/null
 
-# Iniciar compilación automática en segundo plano
-echo "🔄 Compilación automática activada"
+# Start watch compilation in the background
+echo "🔄 Watch mode active"
 npx tsc --watch &
 TSC_PID=$!
 
-echo "🌐 Servidor: http://localhost:8080"
-echo "   Presiona Ctrl+C para detener"
+echo "🌐 Server: http://localhost:8080"
+echo "   Press Ctrl+C to stop"
 echo ""
 
-# Función para limpiar procesos al salir
+# Clean up processes on exit
 cleanup() {
     echo ""
-    echo "🛑 Deteniendo servicios..."
+    echo "🛑 Stopping services..."
     kill $TSC_PID 2>/dev/null
     lsof -ti:8080 | xargs kill -9 2>/dev/null
     exit 0
@@ -44,7 +44,7 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-# Usar Python en puerto 8080
+# Serve with Python on port 8080
 python3 -m http.server 8080
 
 # Made with Bob

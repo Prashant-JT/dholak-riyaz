@@ -1,6 +1,6 @@
 /**
  * DHOLAK RIYAZ - STYLES
- * Estilos principales de la aplicación
+ * Main application styles
  */
 
 /* ============================================
@@ -100,14 +100,14 @@ body.dark {
     --sidebar-text: #f8fafc;
     --sidebar-text-muted: #64748b;
     
-    /* Orange accent - más brillante en dark mode */
+    /* Orange accent - brighter in dark mode */
     --orange-50: #431407;
     --orange-100: #7c2d12;
     --orange-500: #fb923c;
     --orange-600: #f97316;
     --orange-700: #ea580c;
     
-    /* Blue accent - más brillante en dark mode */
+    /* Blue accent - brighter in dark mode */
     --blue-50: #1e3a8a;
     --blue-100: #1e40af;
     --blue-500: #60a5fa;
@@ -476,7 +476,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     left: 0;
     top: 0;
     height: 100vh;
-    height: 100dvh; /* descuenta la barra del navegador en móvil */
+    height: 100dvh; /* subtracts browser bar on mobile */
     width: 280px;
     background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
     color: white;
@@ -827,7 +827,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 .hamburger-btn.open span:nth-child(2) { opacity: 0; }
 .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Bloquear scroll del fondo cuando el sidebar está abierto en móvil */
+/* Lock background scroll when sidebar is open on mobile */
 @media (max-width: 768px) {
     body.sidebar-open {
         overflow: hidden;
@@ -839,7 +839,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     }
 }
 
-/* Overlay para cerrar sidebar en móvil */
+/* Overlay to close sidebar on mobile */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -862,14 +862,14 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
         padding: 4rem 1rem 1rem 1rem;
     }
     
-    /* Celdas de bols más pequeñas en móvil */
+    /* Smaller bol cells on mobile */
     .bol-cell {
         min-height: 60px;
         padding: 0.5rem 0.25rem;
-        border-right: none !important; /* Quitar divisores internos en móvil */
+        border-right: none !important; /* Remove internal dividers on mobile */
     }
     
-    /* Separación entre vibhags en móvil */
+    /* Gap between vibhags on mobile */
     .mobile-vibhag {
         margin-top: 0.5rem !important;
     }
@@ -894,7 +894,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
         margin-top: 0.25rem;
     }
     
-    /* Títulos más pequeños */
+    /* Smaller titles */
     .section-title {
         font-size: 1.5rem;
     }
@@ -903,12 +903,12 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
         font-size: 0.875rem;
     }
     
-    /* Cards con menos padding */
+    /* Cards with less padding */
     .card {
         padding: 1rem !important;
     }
     
-    /* Metrónomo más compacto */
+    /* More compact metronome */
     .metronome-display {
         font-size: 3rem;
     }
@@ -919,14 +919,14 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
         margin: 4px;
     }
     
-    /* Botones más pequeños */
+    /* Smaller buttons */
     .btn-primary,
     .btn-danger {
         padding: 0.75rem 1.5rem !important;
         font-size: 0.875rem !important;
     }
     
-    /* Grid gap más pequeño */
+    /* Smaller grid gap */
     .grid {
         gap: 0.5rem !important;
     }
@@ -1075,7 +1075,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     flex-shrink: 0;
 }
 
-/* Versión inline: va pegada al nombre del bol dentro de la celda */
+/* Inline version: attached to the bol name inside the cell */
 .bol-indicators--inline {
     display: inline-flex;
     align-items: center;
@@ -1100,7 +1100,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     transform: scale(1.4);
 }
 
-/* Thapki → dorado/ámbar */
+/* Thapki → gold/amber */
 .bol-indicator--thapki {
     background-color: #f59e0b;
     box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
@@ -1533,7 +1533,7 @@ body.dark .technique-badge {
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
     box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
     transition: all 0.1s ease;
-    margin: 0 8px; /* Separación entre círculos */
+    margin: 0 8px; /* Gap between circles */
 }
 
 /* Sam (primer beat) - Siempre rojo */
@@ -1825,7 +1825,7 @@ select:disabled {
    RIYAZ SESSION WIZARD
    ============================================ */
 
-/* ── Bloques añadidos (resumen) ─────────────────────────────────────── */
+/* ── Added blocks (summary) ─────────────────────────────────────────── */
 .session-block-card {
     background: var(--card-bg);
     border: 2px solid var(--border-primary);
@@ -1939,9 +1939,9 @@ select:disabled {
     background: rgba(239, 68, 68, 0.06);
 }
 
-/* ── Formularios de configuración ───────────────────────────────────── */
+/* ── Configuration forms ─────────────────────────────────────────────── */
 
-/* Cabecera de sección: "Warm Up" / "Nuevo bloque de práctica" */
+/* Section header: "Warm Up" / "New practice block" */
 .session-section-header {
     display: flex;
     align-items: center;
@@ -1981,7 +1981,7 @@ select:disabled {
     margin-bottom: 0.5rem;
 }
 
-/* Título interno del card (Warm Up / Bloque de práctica) */
+/* Internal card title (Warm Up / Practice block) */
 .session-form-card__title {
     font-size: 1rem;
     font-weight: 700;
@@ -2010,7 +2010,7 @@ select:disabled {
     letter-spacing: 0.04em;
 }
 
-/* Inputs de texto/número del wizard */
+/* Wizard text/number inputs */
 .session-form-field input[type="number"],
 .session-form-field input[type="text"] {
     width: 100%;
@@ -2039,7 +2039,7 @@ select:disabled {
 }
 
 /* Preview de bols */
-/* Patrón de bols de pickup cuando no hay vídeo */
+/* Pickup bol pattern when there is no video */
 .session-pickup-pattern {
     font-family: 'JetBrains Mono', monospace;
     font-size: 1.125rem;
@@ -2126,7 +2126,7 @@ select:disabled {
     background: var(--orange-50);
 }
 
-/* ── Botones ↑↓ de reordenación ─────────────────────────────────────── */
+/* ── ↑↓ reorder buttons ──────────────────────────────────────────────── */
 .session-block-card__reorder {
     display: flex;
     flex-direction: column;
@@ -2221,7 +2221,7 @@ select:disabled {
     background: var(--bg-hover);
 }
 
-/* ── Modal sesión recibida ───────────────────────────────────────────── */
+/* ── Received session modal ──────────────────────────────────────────── */
 .session-share-modal {
     background: var(--card-bg);
     border: 2px solid var(--orange-500);
@@ -2503,7 +2503,7 @@ select:disabled {
     border-color: var(--orange-500);
 }
 
-/* Botones de acción del wizard */
+/* Wizard action buttons */
 .session-add-btn {
     width: 100%;
     margin-top: 1.25rem;
@@ -2516,7 +2516,7 @@ select:disabled {
     font-size: 1.0625rem;
 }
 
-/* ── Paso 2 — Ejecución ─────────────────────────────────────────────── */
+/* ── Step 2 — Execution ──────────────────────────────────────────────── */
 .session-next-btn {
     width: 100%;
     font-size: 1.1rem;
@@ -2542,7 +2542,7 @@ select:disabled {
     margin-bottom: 0;
 }
 
-/* Botón destructivo (descartar sesión) */
+/* Destructive button (discard session) */
 .btn-danger {
     display: inline-flex;
     align-items: center;
@@ -2565,7 +2565,7 @@ select:disabled {
     color: #dc2626;
 }
 
-/* Card de confirmación de descarte */
+/* Discard confirmation card */
 .session-discard-confirm {
     background: var(--card-bg);
     border: 1.5px solid #ef4444;
@@ -2574,7 +2574,7 @@ select:disabled {
     margin-top: 0.75rem;
 }
 
-/* Enlace "Nueva sesión" al fondo del paso 3 */
+/* "New session" link at the bottom of step 3 */
 .session-new-link {
     display: block;
     width: 100%;
@@ -2810,7 +2810,7 @@ body.dark .stats-insight-box {
 
 /* ── Stats responsive ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    /* KPI: 2 columnas en móvil */
+    /* KPI: 2 columns on mobile */
     .stats-kpi-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
@@ -2824,17 +2824,17 @@ body.dark .stats-insight-box {
         font-size: 1.75rem;
     }
 
-    /* Charts: 1 columna en móvil */
+    /* Charts: 1 column on mobile */
     .stats-chart-row {
         grid-template-columns: 1fr;
     }
 
-    /* Reducir altura de canvas en móvil */
+    /* Reduce canvas height on mobile */
     .stats-canvas-tall   { height: 200px !important; }
     .stats-canvas-medium { height: 200px !important; }
     .stats-canvas-short  { height: 160px !important; }
 
-    /* Ocultar columna BPM en tabla historial en móvil */
+    /* Hide BPM column in history table on mobile */
     .stats-history-table .stats-col-bpm  { display: none; }
 
     /* Tabs ocupan todo el ancho */
@@ -2944,7 +2944,7 @@ body.dark .stats-insight-box {
     }
 }
 
-/* Weekly toggle: cabecera con título + botones */
+/* Weekly toggle: header with title + buttons */
 .stats-weekly-header {
     display: flex;
     align-items: flex-start;
@@ -2980,7 +2980,7 @@ body.dark .stats-insight-box {
     color: #ffffff;
 }
 
-/* Selector de semana (modo Días) */
+/* Week selector (Days mode) */
 .stats-week-selector {
     display: flex;
     align-items: center;
@@ -3121,7 +3121,7 @@ body.dark .stats-insight-box {
     line-height: 1.6;
 }
 
-/* Botón 📝 clickable */
+/* Clickable 📝 button */
 .stats-note-btn {
     background: none;
     border: none;
@@ -3332,7 +3332,7 @@ body.dark .save-modal__error {
     margin-top: 20px;
 }
 
-/* Input de contraseña — mismo estilo que select/input del sistema */
+/* Password input — same style as system select/input */
 .save-modal__pass-input {
     width: 100%;
     padding: 0.65rem 0.875rem;
@@ -3352,7 +3352,7 @@ body.dark .save-modal__error {
     border-color: var(--orange-500);
 }
 
-/* Feedback de acción (guardado / descartado) */
+/* Action feedback (saved / discarded) */
 .session-action-feedback {
     padding: 16px 20px;
     border-radius: 12px;
@@ -3380,7 +3380,7 @@ body.dark .session-action-feedback--success {
     border-color: #166534;
 }
 
-/* ── Banner de recuperación de sesión interrumpida ───────────────────── */
+/* ── Interrupted session recovery banner ────────────────────────────── */
 .session-draft-recovery {
     background: var(--card-bg);
     border: 2px solid var(--orange-500);
@@ -3446,7 +3446,7 @@ body.dark .session-action-feedback--success {
     text-decoration: underline;
 }
 
-/* ── Badge de sesión activa en el sidebar ───────────────────────────────── */
+/* ── Active session badge in the sidebar ───────────────────────────────── */
 .session-active-badge {
     margin: 0.75rem 0.75rem 0;
     padding: 0.5rem 0.75rem;
@@ -3499,7 +3499,7 @@ body.dark .session-action-feedback--success {
 }
 
 /* ============================================
-   EDIT BLOCK PANEL — edición inline durante sesión
+   EDIT BLOCK PANEL — inline edit during session
    ============================================ */
 
 /* ── Dots de progreso de bloques ─────────────────────────────────────────── */
@@ -3530,7 +3530,7 @@ body.dark .session-action-feedback--success {
     transform: scale(1.35);
 }
 
-/* ── Búsqueda de canciones ───────────────────────────────────────────────── */
+/* ── Song search ──────────────────────────────────────────────────────────── */
 .session-song-search {
     width: 100%;
     background: var(--card-bg);
@@ -3555,7 +3555,7 @@ body.dark .session-action-feedback--success {
     color: var(--text-muted);
 }
 
-/* Fila header: título + botón editar alineados */
+/* Header row: title + edit button aligned */
 .session-edit-header-row {
     display: flex;
     align-items: flex-start;
@@ -3568,7 +3568,7 @@ body.dark .session-action-feedback--success {
     flex: 1;
 }
 
-/* Botón ✏️ Editar bloque */
+/* ✏️ Edit block button */
 .session-edit-btn {
     display: block;
     width: 100%;
@@ -3591,7 +3591,7 @@ body.dark .session-action-feedback--success {
     background: rgba(249, 115, 22, 0.06);
 }
 
-/* Panel desplegable de edición */
+/* Collapsible edit panel */
 .session-edit-panel {
     margin-top: 1rem;
     padding: 1.25rem;
@@ -3606,7 +3606,7 @@ body.dark .session-action-feedback--success {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Botón confirmar dentro del panel */
+/* Confirm button inside the panel */
 .session-edit-confirm-btn {
     width: 100%;
     margin-top: 0.25rem;
