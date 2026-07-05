@@ -182,6 +182,13 @@ export class TaalView implements View {
                     row.slice(0, 4),
                     row.slice(4, 8)
                 ];
+            case 10: // Jhaptal: 2+3+2+3
+                return [
+                    row.slice(0, 2),
+                    row.slice(2, 5),
+                    row.slice(5, 7),
+                    row.slice(7, 10)
+                ];
             case 12: // Ektal: 2+2+2+2+2+2
                 return [
                     row.slice(0, 2),
@@ -255,6 +262,7 @@ export class TaalView implements View {
                         6:  [3],              // Dadra:      3+3
                         7:  [3, 5],           // Rupak:      3+2+2
                         8:  [4],              // Keherwa:    4+4
+                        10: [2, 5, 7],        // Jhaptal:    2+3+2+3
                         12: [2, 4, 6, 8, 10], // Ektal:      2+2+2+2+2+2
                         14: [3, 7, 10],       // Deepchandi: 3+4+3+4
                         16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
