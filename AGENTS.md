@@ -480,10 +480,11 @@ export function createButton(text: string): HTMLElement {
 - ❌ NEVER in Spanish: `"añade canción"`, `"corrige error"`, `"mejora diseño"`
 
 ### Code Comments
-- **ALL inline comments and JSDoc must be in English** — no exceptions
-- This applies to every `.ts` file: `//` comments, `/** */` JSDoc blocks, and section dividers
-- ❌ NEVER in Spanish: `// Inicializar navegación`, `// Remover listeners anteriores`
-- ✅ CORRECT: `// Initialise navigation`, `// Remove previous listeners`
+- **ALL comments and output strings must be in English across every file type** — no exceptions
+- This applies to: `.ts`, `.css`, `.yml`, `.sh`, `.md` — every file in the repo
+- Includes: `//` comments, `/** */` JSDoc, `/* */` CSS comments, `#` shell/YAML comments, `echo` strings in shell scripts
+- ❌ NEVER in Spanish: `// Inicializar navegación`, `/* Estilos principales */`, `# Cargar nvm`, `echo "Compilando..."`
+- ✅ CORRECT: `// Initialise navigation`, `/* Main styles */`, `# Load nvm`, `echo "Compiling..."`
 
 ### ⚠️ Mandatory flow before commit/push
 - **NEVER run `git commit` or `git push` automatically.**
