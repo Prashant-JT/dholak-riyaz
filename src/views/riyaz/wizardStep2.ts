@@ -52,6 +52,15 @@ export function renderStep2(
     container.innerHTML = '';
 
     const block = sessionState.blocks[sessionState.currentBlockIndex];
+    // Safety guard: if the block index is out of bounds (e.g. a draft saved
+    // mid-animation after the last block), show a recovery message instead of crashing.
+    if (!block) {
+        container.appendChild(Object.assign(document.createElement('p'), {
+            className: 'text-muted text-center py-12',
+            textContent: 'No se pudo cargar el bloque. Por favor, recarga la página.',
+        }));
+        return;
+    }
     const isLast = sessionState.currentBlockIndex === sessionState.blocks.length - 1;
     const blockNum = sessionState.currentBlockIndex + 1;
 
@@ -119,7 +128,11 @@ export function renderStep2(
 
     const nextBtn = createElement('button', { className: 'btn-primary session-next-btn' },
         isLast ? '✓ Finalizar sesión' : 'Siguiente bloque →');
-    nextBtn.addEventListener('click', () => completeCurrentBlock(container, sessionState, blockStartTime, cb));
+    nextBtn.addEventListener('click', () => {
+        // Disable immediately to prevent double-click triggering two completions
+        nextBtn.setAttribute('disabled', 'true');
+        completeCurrentBlock(container, sessionState, blockStartTime, cb);
+    });
     container.appendChild(nextBtn);
 
     cb.setState({
@@ -148,26 +161,26 @@ export function completeCurrentBlock(
     const isLast = sessionState.currentBlockIndex === sessionState.blocks.length - 1;
 
     const flash = createElement('div', { className: 'session-block-complete-flash' });
-    flash.innerHTML = isLast
-        ? '<span class="session-block-complete-flash__icon">🎉</span><span>¡Sesión completada!</span>'
-        : '<span class="session-block-complete-flash__icon">✓</span><span>Bloque completado</span>';
+    const iconSpan = createElement('span', { className: 'session-block-complete-flash__icon' }, isLast ? '🎉' : '✓');
+    const textSpan = createElement('span', {}, isLast ? '¡Sesión completada!' : 'Bloque completado');
+    flash.appendChild(iconSpan);
+    flash.appendChild(textSpan);
     container.appendChild(flash);
-    flash.getBoundingClientRect();
+    // Force reflow so the CSS transition fires (needed in all browsers including Safari)
+    void flash.offsetWidth;
     flash.classList.add('session-block-complete-flash--visible');
 
+    // Single timeout — advance state and navigate when the flash is done.
+    // Guard: if the container was removed from the DOM (e.g. user navigated away),
+    // still save the draft so no data is lost.
     setTimeout(() => {
-        flash.classList.remove('session-block-complete-flash--visible');
-        flash.classList.add('session-block-complete-flash--hide');
-        setTimeout(() => {
-            // Always increment — onComplete in sessionWizard decides if there are more blocks
-            sessionState.currentBlockIndex++;
-            if (isLast) {
-                saveSessionDraft(sessionState, blockStartTime, true);
-            } else {
-                saveSessionDraft(sessionState, Date.now());
-            }
-            cb.onComplete();
-        }, 350);
+        sessionState.currentBlockIndex++;
+        if (isLast) {
+            saveSessionDraft(sessionState, blockStartTime, true);
+        } else {
+            saveSessionDraft(sessionState, Date.now());
+        }
+        cb.onComplete();
     }, 900);
 }
 

@@ -3436,6 +3436,23 @@ body.dark .session-action-feedback--success {
     gap: 0.625rem;
 }
 
+.session-draft-recovery__finish-early {
+    background: transparent;
+    border: 1.5px solid var(--orange-500);
+    color: var(--orange-500);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.session-draft-recovery__finish-early:hover {
+    background: var(--orange-500);
+    color: #fff;
+}
+
 .session-draft-recovery__discard {
     background: transparent;
     border: none;

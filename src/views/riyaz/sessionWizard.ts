@@ -144,41 +144,74 @@ export class SessionWizardView implements View {
             return;
         }
 
+        const allBlocksDone = draft.state.currentBlockIndex >= draft.state.blocks.length;
+
         const elapsedMin = Math.round((Date.now() - draft.savedAt) / 60000);
         const timeLabel = elapsedMin < 1 ? 'hace menos de 1 min'
             : elapsedMin === 1 ? 'hace 1 min'
             : `hace ${elapsedMin} min`;
 
+        const completedCount = draft.state.blocks.filter(b => b.completedAt !== undefined).length;
+        const totalBlocks = draft.state.blocks.length;
+
         const card = createElement('div', { className: 'session-draft-recovery' });
-        card.appendChild(createElement('div', { className: 'session-draft-recovery__icon' }, '🔄'));
-        card.appendChild(createElement('h3', { className: 'session-draft-recovery__title' }, 'Sesión interrumpida'));
+        card.appendChild(createElement('div', { className: 'session-draft-recovery__icon' }, allBlocksDone ? '🎉' : '🔄'));
+        card.appendChild(createElement('h3', { className: 'session-draft-recovery__title' },
+            allBlocksDone ? 'Sesión lista para guardar' : 'Sesión interrumpida'));
         card.appendChild(createElement('p', { className: 'session-draft-recovery__meta' },
-            `${draft.state.blocks.length} bloque${draft.state.blocks.length !== 1 ? 's' : ''} · Bloque ${draft.state.currentBlockIndex + 1} en curso · ${timeLabel}`));
+            allBlocksDone
+                ? `${totalBlocks} bloque${totalBlocks !== 1 ? 's' : ''} completados · ${timeLabel}`
+                : `${completedCount} de ${totalBlocks} bloques completados · Bloque ${draft.state.currentBlockIndex + 1} en curso · ${timeLabel}`));
 
         const list = createElement('ul', { className: 'session-draft-recovery__list' });
         draft.state.blocks.forEach((b, i) => {
-            const isCurrent = i === draft.state.currentBlockIndex;
+            const isCurrent = !allBlocksDone && i === draft.state.currentBlockIndex;
+            const isDone = b.completedAt !== undefined;
             const label = b.type === 'warmup'
                 ? `Warm Up — ${b.kaydaName ?? ''}`
                 : b.type === 'pickup'
                     ? `Pickup — ${b.pickupName ?? ''}`
                     : `${b.taalName ?? ''} · ${b.variationName ?? ''}`;
+            const prefix = isCurrent ? '▶ ' : isDone ? '✓ ' : '';
             const li = createElement('li', {
                 className: isCurrent ? 'session-draft-recovery__list-item--current' : ''
-            }, `${isCurrent ? '▶ ' : ''}${label}${b.durationSecs ? ` (${Math.floor(b.durationSecs / 60)}:${String(b.durationSecs % 60).padStart(2, '0')})` : ''}`);
+            }, `${prefix}${label}${b.durationSecs ? ` (${Math.floor(b.durationSecs / 60)}:${String(b.durationSecs % 60).padStart(2, '0')})` : ''}`);
             list.appendChild(li);
         });
         card.appendChild(list);
 
         const actions = createElement('div', { className: 'session-draft-recovery__actions' });
 
-        const continueBtn = createElement('button', { className: 'btn-primary' }, '▶ Continuar sesión');
-        continueBtn.addEventListener('click', () => {
-            this.sessionState = draft.state;
-            this.blockStartTime = Date.now() - draft.elapsedSecs * 1000;
-            this.doStep2();
-        });
-        actions.appendChild(continueBtn);
+        if (allBlocksDone) {
+            // All blocks done but session was not saved — go straight to summary
+            const finishBtn = createElement('button', { className: 'btn-primary' }, '💾 Finalizar y guardar sesión');
+            finishBtn.addEventListener('click', () => {
+                this.sessionState = draft.state;
+                this.blockStartTime = 0;
+                this.doStep3();
+            });
+            actions.appendChild(finishBtn);
+        } else {
+            // Session still in progress — offer continue or finish early
+            const continueBtn = createElement('button', { className: 'btn-primary' }, '▶ Continuar sesión');
+            continueBtn.addEventListener('click', () => {
+                this.sessionState = draft.state;
+                this.blockStartTime = Date.now() - draft.elapsedSecs * 1000;
+                this.doStep2();
+            });
+            actions.appendChild(continueBtn);
+
+            // Escape hatch: finish early with the blocks already done
+            if (completedCount > 0) {
+                const finishEarlyBtn = createElement('button', { className: 'session-draft-recovery__finish-early' }, `💾 Guardar lo que hay (${completedCount} bloque${completedCount !== 1 ? 's' : ''})`);
+                finishEarlyBtn.addEventListener('click', () => {
+                    this.sessionState = draft.state;
+                    this.blockStartTime = 0;
+                    this.doStep3();
+                });
+                actions.appendChild(finishEarlyBtn);
+            }
+        }
 
         const discardBtn = createElement('button', { className: 'session-draft-recovery__discard' }, 'Descartar y empezar de nuevo');
         discardBtn.addEventListener('click', () => {
