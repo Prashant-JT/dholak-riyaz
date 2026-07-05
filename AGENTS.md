@@ -1,133 +1,155 @@
-# 🤖 AGENTS.md - Guía de Buenas Prácticas para Desarrollo
+# 🤖 AGENTS.md - Development Best Practices Guide
 
-## 📋 Propósito
-Este documento establece los estándares y buenas prácticas que TODOS los agentes de IA deben seguir al trabajar en este proyecto. La consistencia es clave.
+## 📋 Purpose
+This document establishes the standards and best practices that ALL AI agents must follow when working on this project. Consistency is key.
 
 ---
 
-## 🎯 Principios Fundamentales
+## 🎯 Core Principles
 
 ### 1. **Mobile-First Design**
-- **PRIORIDAD ABSOLUTA**: La aplicación se usa principalmente en móvil mientras se sostiene el instrumento
-- Diseño responsive con breakpoint principal en 768px
-- Touch targets mínimos de 44x44px
-- Texto legible a 1 metro de distancia (mínimo 16px base)
-- Scroll horizontal solo cuando sea absolutamente necesario
-- Layouts que se adapten verticalmente en pantallas pequeñas
+- **ABSOLUTE PRIORITY**: The app is primarily used on mobile while holding the instrument
+- Responsive design with main breakpoint at 768px
+- Minimum touch targets of 44×44px
+- Text readable at 1 metre distance (minimum 16px base)
+- Horizontal scroll only when absolutely necessary
+- Layouts that adapt vertically on small screens
 
-### 2. **Consistencia Visual Absoluta**
-- **TODAS las vistas deben seguir el mismo patrón de diseño**
-- Usa cards con: `bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200`
+### 2. **Absolute Visual Consistency**
+- **ALL views must follow the same design pattern**
+- Use cards with: `bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200`
 - Hover states: `hover:border-orange-300 hover:shadow-md transition-all duration-200`
-- Títulos de sección: `text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-orange-500`
-- Grid layouts: `grid grid-cols-1 gap-4` (mobile) → `md:grid-cols-2` o `md:grid-cols-3` (desktop)
-- NO uses tablas HTML a menos que sea estrictamente necesario - prefiere cards
+- Section titles: `text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-orange-500`
+- Grid layouts: `grid grid-cols-1 gap-4` (mobile) → `md:grid-cols-2` or `md:grid-cols-3` (desktop)
+- Do NOT use HTML tables unless strictly necessary — prefer cards
 
-### 3. **Sistema de Temas: Modo Claro y Oscuro (OBLIGATORIO)**
-- **REGLA DE ORO**: El CSS global (`css/styles.css`) usa **variables CSS** (`var(--card-bg)`, `var(--text-primary)`, etc.) que se adaptan automáticamente al tema activo. Las clases Tailwind hardcodeadas como `bg-white` o `text-slate-800` **rompen** el modo oscuro.
-- **✅ CORRECTO — Usar clases CSS del sistema de temas:**
+### 3. **Theme System: Light and Dark Mode (MANDATORY)**
+- **GOLDEN RULE**: The global CSS (`css/styles.css`) uses **CSS variables** (`var(--card-bg)`, `var(--text-primary)`, etc.) that adapt automatically to the active theme. Hardcoded Tailwind classes like `bg-white` or `text-slate-800` **break** dark mode.
+- **✅ CORRECT — Use theme system CSS classes:**
   ```typescript
-  // Cards → usa clase 'card' (usa var(--card-bg) automáticamente)
+  // Cards → use class 'card' (uses var(--card-bg) automatically)
   className: 'card p-6 mb-4'
   
-  // Títulos de sección → usa clase 'section-title'
+  // Section titles → use class 'section-title'
   className: 'section-title'
   
-  // Subtítulos → usa clase 'section-subtitle'
+  // Subtitles → use class 'section-subtitle'
   className: 'section-subtitle'
   
-  // Texto secundario/muted → usa clase 'text-muted'
+  // Secondary/muted text → use class 'text-muted'
   className: 'text-muted italic text-sm'
   
-  // Selects → NO añadir bg-white ni colores; el CSS global ya los maneja
+  // Selects → do NOT add bg-white or colours; global CSS already handles them
   className: 'w-full'
   ```
-- **❌ INCORRECTO — Nunca hardcodear colores sin variante dark:**
+- **❌ INCORRECT — Never hardcode colours without a dark variant:**
   ```typescript
-  // ❌ Rompe modo oscuro
+  // ❌ Breaks dark mode
   className: 'bg-white rounded-xl p-6 border-2 border-slate-200'
   className: 'text-slate-800 font-bold'
-  className: 'bg-white' // en un select
+  className: 'bg-white' // on a select
   
-  // ✅ Si usas Tailwind puro, SIEMPRE añadir variante dark:
+  // ✅ If using pure Tailwind, ALWAYS add dark variant:
   className: 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100'
   ```
-- **Clases CSS globales disponibles** (definidas en `css/styles.css`):
-  | Clase | Uso |
+- **Available global CSS classes** (defined in `css/styles.css`):
+  | Class | Usage |
   |---|---|
-  | `.card` | Contenedor principal de sección |
-  | `.section-title` | Título h2/h3 de vista |
-  | `.section-subtitle` | Subtítulo descriptivo |
-  | `.text-muted` | Texto secundario/notas |
-  | `.btn-primary` | Botón acción principal (naranja) |
-  | `.btn-secondary` | Botón acción secundaria (contorno) |
-  | `.bol-cell` | Celda de matra en tabla de Taal |
-  | `.taal-row-separator` | Separador de fila de Taal |
+  | `.card` | Main section container |
+  | `.section-title` | View h2/h3 title |
+  | `.section-subtitle` | Descriptive subtitle |
+  | `.text-muted` | Secondary/note text |
+  | `.btn-primary` | Primary action button (orange) |
+  | `.btn-secondary` | Secondary action button (outline) |
+  | `.bol-cell` | Matra cell in Taal table |
+  | `.taal-row-separator` | Taal row separator |
 
-### 3. **TypeScript Estricto**
-- Todos los archivos deben ser `.ts`
-- Usa tipos explícitos, no `any`
-- Aprovecha las interfaces y tipos definidos en `src/types.ts`
+### 4. **Strict TypeScript**
+- All files must be `.ts`
+- Use explicit types, no `any`
+- Leverage the interfaces and types defined in `src/types.ts`
 
-### 4. **Modularidad**
-- Cada archivo tiene UNA responsabilidad
-- No mezcles lógica de diferentes dominios
-- Usa imports/exports de ES6
+### 5. **Modularity**
+- Each file has ONE responsibility
+- Do not mix logic from different domains
+- Use ES6 imports/exports
 
 ---
 
-## 📁 Estructura de Archivos (INMUTABLE)
+## 📁 File Structure (IMMUTABLE)
 
 ```
 Dholak/
-├── src/                    # Código fuente TypeScript
-│   ├── types.ts           # TODAS las definiciones de tipos
-│   ├── app.ts             # Entry point principal
-│   ├── data/              # 📝 SOLO DATOS (editables semanalmente)
+├── src/                    # TypeScript source code
+│   ├── types.ts           # ALL type definitions
+│   ├── app.ts             # Main entry point
+│   ├── data/              # 📝 DATA ONLY (editable weekly)
 │   │   ├── bols.ts
-│   │   ├── taals.ts
 │   │   ├── kaydas.ts
-│   │   └── lehras.ts
-│   ├── core/              # Núcleo (NO TOCAR sin razón)
+│   │   ├── fillers.ts
+│   │   ├── lehras.ts
+│   │   ├── songs.ts
+│   │   ├── defaultTemplates.ts
+│   │   └── taals/
+│   │       ├── index.ts
+│   │       ├── dadra.ts
+│   │       ├── rupak.ts
+│   │       ├── keherwa.ts
+│   │       ├── ektal.ts
+│   │       ├── deepchandi.ts
+│   │       ├── addha.ts
+│   │       └── teental.ts
+│   ├── core/              # Core (DO NOT TOUCH without reason)
 │   │   ├── config.ts
-│   │   └── utils.ts
-│   ├── components/        # Componentes reutilizables
+│   │   ├── utils.ts
+│   │   └── supabase.ts
+│   ├── components/        # Reusable components
 │   │   ├── metronome.ts
 │   │   ├── navigation.ts
-│   │   └── viewManager.ts
-│   └── views/             # Vistas de la aplicación
+│   │   ├── viewManager.ts
+│   │   └── darkModeToggle.ts
+│   └── views/             # Application views
 │       ├── dashboard.ts
 │       ├── glosario.ts
 │       ├── taals.ts
-│       └── kaydas.ts
-├── dist/                   # JavaScript compilado (GENERADO)
+│       ├── kaydas.ts
+│       ├── fillers.ts
+│       ├── songs.ts
+│       ├── stats.ts
+│       └── riyaz/
+│           ├── sessionWizard.ts
+│           ├── wizardDraft.ts
+│           ├── wizardStep1.ts
+│           ├── wizardStep2.ts
+│           └── wizardStep3.ts
+├── dist/                   # Compiled JavaScript (GENERATED)
 ├── css/
-│   └── styles.css         # Estilos completos
-├── index.html             # HTML mínimo
-├── tsconfig.json          # Config TypeScript
-├── package.json           # Dependencias
-└── README.md              # Documentación usuario
+│   └── styles.css         # Full styles
+├── index.html             # Minimal HTML
+├── tsconfig.json          # TypeScript config
+├── package.json           # Dependencies
+└── README.md              # User documentation
 ```
 
 ---
 
-## 🔧 Convenciones de Código TypeScript
+## 🔧 TypeScript Code Conventions
 
 ### Imports
 ```typescript
-// ✅ CORRECTO - Imports explícitos
+// ✅ CORRECT - Explicit imports
 import { CONFIG } from '../core/config';
 import { createElement } from '../core/utils';
 import { BOLS } from '../data/bols';
 import type { View, Bol } from '../types';
 
-// ❌ INCORRECTO - Imports genéricos
+// ❌ INCORRECT - Generic imports
 import * as utils from '../core/utils';
 ```
 
-### Clases
+### Classes
 ```typescript
-// ✅ CORRECTO - Clase con tipos explícitos
+// ✅ CORRECT - Class with explicit types
 export class DashboardView implements View {
     public render(): HTMLElement {
         // ...
@@ -138,7 +160,7 @@ export class DashboardView implements View {
     }
 }
 
-// ❌ INCORRECTO - Sin tipos
+// ❌ INCORRECT - No types
 export class DashboardView {
     render() {
         // ...
@@ -146,9 +168,9 @@ export class DashboardView {
 }
 ```
 
-### Funciones
+### Functions
 ```typescript
-// ✅ CORRECTO - Tipos explícitos en parámetros y retorno
+// ✅ CORRECT - Explicit types on parameters and return
 export function createElement(
     tag: string,
     attributes: ElementAttributes = {},
@@ -157,25 +179,25 @@ export function createElement(
     // ...
 }
 
-// ❌ INCORRECTO - Sin tipos
+// ❌ INCORRECT - No types
 export function createElement(tag, attributes, content) {
     // ...
 }
 ```
 
-### Constantes y Datos
+### Constants and Data
 ```typescript
-// ✅ CORRECTO - Tipo explícito y export
+// ✅ CORRECT - Explicit type and export
 export const BOLS: Bol[] = [
     {
         name: 'Na / Ta',
-        technique: 'Dedo índice...',
-        description: 'Sonido seco...',
-        badge: 'Kinar - Agudo'
+        technique: 'Index finger on the kinar...',
+        description: 'Dry, bright sound...',
+        badge: 'Kinar - Treble'
     }
 ];
 
-// ❌ INCORRECTO - Sin tipo
+// ❌ INCORRECT - No type
 const BOLS = [
     { name: 'Na / Ta', ... }
 ];
@@ -183,11 +205,11 @@ const BOLS = [
 
 ---
 
-## 🎨 Convenciones de CSS
+## 🎨 CSS Conventions
 
-### Estructura
+### Structure
 ```css
-/* ✅ CORRECTO - Secciones claramente delimitadas */
+/* ✅ CORRECT - Clearly delimited sections */
 /* ============================================
    SECTION NAME
    ============================================ */
@@ -196,132 +218,132 @@ const BOLS = [
     property: value;
 }
 
-/* ❌ INCORRECTO - Sin organización */
+/* ❌ INCORRECT - No organisation */
 .class1 { ... }
 .class2 { ... }
 ```
 
-### Nomenclatura
+### Naming
 - **Kebab-case**: `.nav-item`, `.bol-cell`, `.metronome-display`
-- **BEM cuando sea necesario**: `.card__header`, `.card__body`
-- **Prefijos de estado**: `.is-active`, `.is-hidden`
+- **BEM when necessary**: `.card__header`, `.card__body`
+- **State prefixes**: `.is-active`, `.is-hidden`
 
-### Orden de Propiedades
-1. Posicionamiento (`position`, `top`, `left`, etc.)
+### Property Order
+1. Positioning (`position`, `top`, `left`, etc.)
 2. Box model (`display`, `width`, `height`, `margin`, `padding`)
-3. Tipografía (`font-*`, `text-*`, `line-height`)
+3. Typography (`font-*`, `text-*`, `line-height`)
 4. Visual (`background`, `border`, `box-shadow`)
-5. Otros (`cursor`, `transition`, `animation`)
+5. Other (`cursor`, `transition`, `animation`)
 
 ---
 
-## 📝 Convenciones de HTML
+## 📝 HTML Conventions
 
-### Estructura Mínima
+### Minimal Structure
 ```html
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dholak Riyaz - Sistema de Práctica</title>
+    <title>Dholak Riyaz - Practice System</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Contenido semántico -->
+    <!-- Semantic content -->
     <aside class="sidebar">...</aside>
     <main class="main-content" id="mainContent"></main>
     
-    <!-- Scripts al final -->
+    <!-- Scripts at the end -->
     <script type="module" src="dist/app.js"></script>
 </body>
 </html>
 ```
 
-### Reglas
-- ✅ Usa etiquetas semánticas (`<aside>`, `<main>`, `<nav>`, `<section>`)
-- ✅ IDs solo para JavaScript hooks
-- ✅ Classes para estilos
+### Rules
+- ✅ Use semantic tags (`<aside>`, `<main>`, `<nav>`, `<section>`)
+- ✅ IDs only for JavaScript hooks
+- ✅ Classes for styles
 - ❌ NO inline styles
-- ❌ NO scripts inline
+- ❌ NO inline scripts
 
 ---
 
-## 🔄 Flujo de Trabajo
+## 🔄 Workflow
 
-### 1. Antes de Modificar Código
+### 1. Before Modifying Code
 ```bash
-# Verificar que existe dist/
+# Verify dist/ exists
 ls dist/
 
-# Si no existe, compilar
+# If it doesn't exist, compile
 npm run build
 ```
 
-### 2. Al Agregar Nuevas Funcionalidades
-1. Definir tipos en `src/types.ts`
-2. Crear/modificar archivos en `src/`
-3. Compilar: `npm run build`
-4. Verificar en navegador
+### 2. When Adding New Features
+1. Define types in `src/types.ts`
+2. Create/modify files in `src/`
+3. Compile: `npm run build`
+4. Verify in browser
 
-### 3. Al Agregar Datos Semanales
-- **SOLO** editar archivos en `src/data/`
-- Mantener la estructura de tipos existente
-- Compilar después de editar
+### 3. When Adding Weekly Data
+- **ONLY** edit files in `src/data/`
+- Keep the existing type structure
+- Compile after editing
 
 ---
 
-## ✅ Checklist: Añadir un Nuevo Taal (OBLIGATORIO)
+## ✅ Checklist: Adding a New Taal (MANDATORY)
 
-Cada vez que se añade o activa un nuevo taal, se deben tocar **obligatoriamente** estos 7 archivos/lugares. Olvidar cualquiera causa que el taal no aparezca, no tenga divisores visuales o no aparezca correctamente en las estadísticas:
+Every time a new taal is added or activated, these **7 files/locations must be touched**. Missing any one of them causes the taal not to appear, have no visual dividers, or not show up correctly in statistics:
 
-| # | Archivo | Qué añadir |
+| # | File | What to add |
 |---|---|---|
-| 1 | `src/data/taals/<nombre>.ts` | Crear el archivo con la definición completa del taal. **Dividir `rows` en sub-arrays por vibhags** (ver sección "Convenciones de Datos: Taal `rows`") |
-| 2 | `src/data/taals/index.ts` | Import + entrada en el objeto `TAALS` |
-| 3 | `src/core/config.ts` | Campo en `VIEWS` + item en array `NAVIGATION` (**ordenado de menor a mayor beats**) |
-| 4 | `src/types.ts` | Campo en interfaz `ViewsConfig` |
-| 5 | `src/views/taals.ts` → `VIBHAG_DIVIDERS` | Entrada `beats: [matrasTrasLasQueVaDivisor]` para líneas naranjas verticales en desktop |
-| 6 | `src/views/taals.ts` → `getVibhagStructure()` | Caso `case beats:` con los slices correctos para división en móvil |
-| 7 | `src/views/stats.ts` → `TAAL_META` | Entrada con emoji y clase CSS de color (`stats-tag--orange/blue/purple/teal/amber`) — **SIEMPRE obligatorio** |
+| 1 | `src/data/taals/<name>.ts` | Create the file with the full taal definition. **Split `rows` into sub-arrays per vibhag** (see "Data Conventions: Taal `rows`") |
+| 2 | `src/data/taals/index.ts` | Import + entry in the `TAALS` object |
+| 3 | `src/core/config.ts` | Field in `VIEWS` + item in `NAVIGATION` array (**ordered by beats ascending**) |
+| 4 | `src/types.ts` | Field in `ViewsConfig` interface |
+| 5 | `src/views/taals.ts` → `VIBHAG_DIVIDERS` | Entry `beats: [matraAfterWhichDividerAppears]` for orange vertical lines on desktop |
+| 6 | `src/views/taals.ts` → `getVibhagStructure()` | `case beats:` with the correct slices for mobile grouping |
+| 7 | `src/views/stats.ts` → `TAAL_META` | Entry with emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
 
-> ✅ **Automático** — no hay que tocar nada más:
-> - `src/components/viewManager.ts`: registra TaalViews dinámicamente desde `CONFIG.NAVIGATION`
-> - Bloques de práctica del Riyaz (`wizardStep1.ts`, `wizardStep2.ts`): derivan taals activos de `CONFIG.NAVIGATION`
-> - Estadísticas (`stats.ts`): medallas "Primer X" y medalla "Polirítmico" se generan dinámicamente desde `ACTIVE_TAAL_IDS`
+> ✅ **Automatic** — nothing else needs to be touched:
+> - `src/components/viewManager.ts`: registers TaalViews dynamically from `CONFIG.NAVIGATION`
+> - Riyaz practice blocks (`wizardStep1.ts`, `wizardStep2.ts`): derive active taals from `CONFIG.NAVIGATION`
+> - Statistics (`stats.ts`): "First X" badges and "Polyrhythmic" badge are generated dynamically from `ACTIVE_TAAL_IDS`
 
 ---
 
-## 🥁 Convenciones de Datos: Taal `rows` (vibhags)
+## 🥁 Data Conventions: Taal `rows` (vibhags)
 
-### ⚠️ OBLIGATORIO — Dividir los beats en filas según los vibhags
+### ⚠️ MANDATORY — Split beats into rows according to vibhags
 
-El campo `rows` de un `Taal` es un **array de arrays**. Cada sub-array representa una **fila visual** en la tabla del taal, y la vista genera automáticamente una **línea de color separadora** entre filas (`taal-row-separator`). Si todos los beats van en un único array, **no aparece ningún separador** y el taal se ve como un bloque plano sin estructura.
+The `rows` field of a `Taal` is an **array of arrays**. Each sub-array represents a **visual row** in the taal table, and the view automatically generates a **coloured separator line** between rows (`taal-row-separator`). If all beats go in a single array, **no separator appears** and the taal looks like a flat, unstructured block.
 
-**Regla:** agrupar los beats en filas que reflejen la estructura de vibhags del taal:
+**Rule:** group beats into rows that reflect the taal's vibhag structure:
 
-| Taal | Beats | Vibhags | Filas recomendadas |
+| Taal | Beats | Vibhags | Recommended rows |
 |---|---|---|---|
-| Keherwa | 8 | 2+2+2+2 | 1 fila de 8 (o 2×4) |
-| Dadra | 6 | 3+3 | 1 fila de 6 (o 2×3) |
-| Rupak | 7 | 3+2+2 | 1 fila de 7 |
-| Deepchandi | 14 | 3+4+3+4 | 2 filas de 7 |
-| Addha | 16 | 4+4+4+4 | 2 filas de 8 |
-| Teental | 16 | 4+4+4+4 | 2 filas de 8 |
-| Ektal | 12 | 2+2+2+2+2+2 | 2 filas de 6 |
-| Jhaptal | 10 | 2+3+2+3 | 2 filas de 5 |
+| Keherwa | 8 | 2+2+2+2 | 1 row of 8 (or 2×4) |
+| Dadra | 6 | 3+3 | 1 row of 6 (or 2×3) |
+| Rupak | 7 | 3+2+2 | 1 row of 7 |
+| Deepchandi | 14 | 3+4+3+4 | 2 rows of 7 |
+| Addha | 16 | 4+4+4+4 | 2 rows of 8 |
+| Teental | 16 | 4+4+4+4 | 2 rows of 8 |
+| Ektal | 12 | 2+2+2+2+2+2 | 2 rows of 6 |
+| Jhaptal | 10 | 2+3+2+3 | 2 rows of 5 |
 
 ```typescript
-// ❌ INCORRECTO — todos en una fila, sin separadores visuales
+// ❌ INCORRECT — all in one row, no visual separators
 rows: [
     [
         { matra: 1, bol: 'Dhin', technique: 'Taali' },
-        // ... los 12 beats juntos
+        // ... all 12 beats together
         { matra: 12, bol: 'Na', technique: '' }
     ]
 ]
 
-// ✅ CORRECTO — dividido en 2 filas (ejemplo Ektal)
+// ✅ CORRECT — split into 2 rows (Ektal example)
 rows: [
     [
         { matra: 1, bol: 'Dhin',     technique: 'Taali' },
@@ -342,28 +364,28 @@ rows: [
 ]
 ```
 
-Lo mismo aplica a las `variations[].rows` — cada variación también debe respetar la división por vibhags.
+The same applies to `variations[].rows` — each variation must also respect the vibhag split.
 
-### ⚠️ OBLIGATORIO — Registrar el taal en los dos mecanismos de divisores de `src/views/taals.ts`
+### ⚠️ MANDATORY — Register the taal in both divider mechanisms in `src/views/taals.ts`
 
-Al añadir un taal nuevo hay que actualizar **dos lugares** dentro de [`src/views/taals.ts`](src/views/taals.ts):
+When adding a new taal, **two locations** inside [`src/views/taals.ts`](src/views/taals.ts) must be updated:
 
-#### 1. `VIBHAG_DIVIDERS` (divisor naranja vertical en desktop)
-Objeto `Record<number, number[]>` indexado por el número de beats. El array contiene los números de matra **después de los cuales** aparece la línea naranja derecha:
+#### 1. `VIBHAG_DIVIDERS` (orange vertical divider on desktop)
+`Record<number, number[]>` object indexed by beat count. The array contains the matra numbers **after which** the orange right border appears:
 
 ```typescript
 const VIBHAG_DIVIDERS: Record<number, number[]> = {
-    6:  [3],              // Dadra:      3+3
-    7:  [3, 5],           // Rupak:      3+2+2
-    8:  [4],              // Keherwa:    4+4
-    12: [2, 4, 6, 8, 10], // Ektal:      2+2+2+2+2+2
-    14: [3, 7, 10],       // Deepchandi: 3+4+3+4
-    16: [4, 8, 12],       // Addha/Teental: 4+4+4+4
+    6:  [3],              // Dadra:          3+3
+    7:  [3, 5],           // Rupak:          3+2+2
+    8:  [4],              // Keherwa:        4+4
+    12: [2, 4, 6, 8, 10], // Ektal:          2+2+2+2+2+2
+    14: [3, 7, 10],       // Deepchandi:     3+4+3+4
+    16: [4, 8, 12],       // Addha/Teental:  4+4+4+4
 };
 ```
 
-#### 2. `getVibhagStructure()` (división en sub-filas en móvil)
-Switch por número de beats que parte cada fila en grupos según los vibhags del taal:
+#### 2. `getVibhagStructure()` (sub-row split on mobile)
+Switch by beat count that splits each row into groups according to the taal's vibhags:
 
 ```typescript
 case 12: // Ektal: 2+2+2+2+2+2
@@ -377,55 +399,55 @@ case 12: // Ektal: 2+2+2+2+2+2
     ];
 ```
 
-> Si no se añade el caso en `getVibhagStructure`, el taal caerá en el `default` (grupos de 4) y los vibhags en móvil no se agruparán correctamente.
-> Si no se añade en `VIBHAG_DIVIDERS`, no aparecerán las líneas naranjas verticales en desktop.
+> If the case is not added to `getVibhagStructure`, the taal will fall through to the `default` (groups of 4) and vibhags on mobile will not be grouped correctly.
+> If not added to `VIBHAG_DIVIDERS`, the orange vertical lines will not appear on desktop.
 
 ---
 
-## 🚫 Errores Comunes a EVITAR
+## 🚫 Common Mistakes to AVOID
 
-### 1. ❌ Mezclar JavaScript y TypeScript
+### 1. ❌ Mixing JavaScript and TypeScript
 ```typescript
-// ❌ INCORRECTO
+// ❌ INCORRECT
 const data = require('./data.js');
 
-// ✅ CORRECTO
+// ✅ CORRECT
 import { data } from './data';
 ```
 
-### 2. ❌ Usar `any`
+### 2. ❌ Using `any`
 ```typescript
-// ❌ INCORRECTO
+// ❌ INCORRECT
 function process(data: any): any {
     return data;
 }
 
-// ✅ CORRECTO
+// ✅ CORRECT
 function process(data: Bol[]): HTMLElement {
     return createElement('div', {}, '...');
 }
 ```
 
-### 3. ❌ Olvidar Compilar
+### 3. ❌ Forgetting to Compile
 ```bash
-# ❌ INCORRECTO - Editar .ts y abrir navegador directamente
+# ❌ INCORRECT - Edit .ts and open the browser directly
 
-# ✅ CORRECTO
-npm run build  # Primero compilar
-# Luego abrir navegador
+# ✅ CORRECT
+npm run build  # Compile first
+# Then open the browser
 ```
 
-### 4. ❌ Duplicar Lógica
+### 4. ❌ Duplicating Logic
 ```typescript
-// ❌ INCORRECTO - Lógica duplicada en cada vista
+// ❌ INCORRECT - Duplicated logic in each view
 class View1 {
-    createButton() { /* código */ }
+    createButton() { /* code */ }
 }
 class View2 {
-    createButton() { /* mismo código */ }
+    createButton() { /* same code */ }
 }
 
-// ✅ CORRECTO - Función reutilizable en utils
+// ✅ CORRECT - Reusable function in utils
 // src/core/utils.ts
 export function createButton(text: string): HTMLElement {
     return createElement('button', { className: 'btn' }, text);
@@ -434,81 +456,81 @@ export function createButton(text: string): HTMLElement {
 
 ---
 
-## 📝 Convenciones de Git
+## 📝 Git Conventions
 
 ### Commits
-- **SIEMPRE en inglés** — sin excepción
-- Formato: `type: short description in English`
-- Tipos: `feat`, `fix`, `data`, `style`, `refactor`, `docs`, `chore`
-- Ejemplos correctos:
+- **ALWAYS in English** — no exceptions
+- Format: `type: short description in English`
+- Types: `feat`, `fix`, `data`, `style`, `refactor`, `docs`, `chore`
+- Correct examples:
   ```
   feat: add thapki/ghuisa visual indicators on bol cells
   data: add Aaye Ho Meri Zindagi Mein song (Dadra)
   fix: remove trailing space in song URL
   style: improve legend layout for dark mode
   ```
-- ❌ NUNCA en español: `"añade canción"`, `"corrige error"`, `"mejora diseño"`
+- ❌ NEVER in Spanish: `"añade canción"`, `"corrige error"`, `"mejora diseño"`
 
-### ⚠️ Flujo obligatorio antes de commit/push
-- **NUNCA hacer `git commit` ni `git push` de forma automática.**
-- **SIEMPRE preguntar al usuario** antes de commitear: _"¿Probaste en local? ¿Hago commit y push?"_
-- El usuario debe confirmar explícitamente que la funcionalidad fue probada en el navegador.
-- Solo entonces ejecutar `git add`, `git commit` y `git push`.
+### ⚠️ Mandatory flow before commit/push
+- **NEVER run `git commit` or `git push` automatically.**
+- **ALWAYS ask the user** before committing: _"Did you test it locally? Shall I commit and push?"_
+- The user must explicitly confirm that the feature was tested in the browser.
+- Only then run `git add`, `git commit` and `git push`.
 
 ---
 
-## 🎯 Checklist Pre-Commit
+## 🎯 Pre-Commit Checklist
 
-Antes de considerar una tarea completa, verificar:
+Before considering a task complete, verify:
 
-- [ ] ✅ Todos los archivos `.ts` compilan sin errores
-- [ ] ✅ `npm run build` ejecuta exitosamente
-- [ ] ✅ Existe carpeta `dist/` con archivos `.js`
-- [ ] ✅ `index.html` carga `dist/app.js`
-- [ ] ✅ CSS tiene todas las clases necesarias
-- [ ] ✅ La aplicación se ve correctamente en el navegador
-- [ ] ✅ No hay errores en la consola del navegador
-- [ ] ✅ Navegación funciona entre vistas
-- [ ] ✅ Metrónomo reproduce sonido
-- [ ] ✅ README.md está actualizado
+- [ ] ✅ All `.ts` files compile without errors
+- [ ] ✅ `npm run build` runs successfully
+- [ ] ✅ `dist/` folder exists with `.js` files
+- [ ] ✅ `index.html` loads `dist/app.js`
+- [ ] ✅ CSS has all required classes
+- [ ] ✅ App renders correctly in the browser
+- [ ] ✅ No errors in the browser console
+- [ ] ✅ Navigation works between views
+- [ ] ✅ Metronome plays sound
+- [ ] ✅ README.md is up to date
 
 ---
 
 ## 🐛 Debugging
 
-### Si no se ve nada en el navegador:
+### If nothing appears in the browser:
 
-1. **Verificar consola del navegador** (F12)
-   - ¿Hay errores de módulos?
-   - ¿Hay errores 404?
+1. **Check the browser console** (F12)
+   - Any module errors?
+   - Any 404 errors?
 
-2. **Verificar que dist/ existe**
+2. **Verify dist/ exists**
    ```bash
    ls -la dist/
    ```
 
-3. **Verificar que app.js existe**
+3. **Verify app.js exists**
    ```bash
    ls -la dist/app.js
    ```
 
-4. **Recompilar desde cero**
+4. **Rebuild from scratch**
    ```bash
    npm run clean
    npm run build
    ```
 
-5. **Verificar index.html**
-   - ¿Carga `dist/app.js`?
-   - ¿Tiene `type="module"`?
+5. **Check index.html**
+   - Does it load `dist/app.js`?
+   - Does it have `type="module"`?
 
-6. **Verificar CSS**
-   - ¿Está linkeado correctamente?
-   - ¿Tiene las clases necesarias?
+6. **Check CSS**
+   - Is it linked correctly?
+   - Does it have the required classes?
 
 ---
 
-## 📚 Recursos de Referencia
+## 📚 Reference Resources
 
 ### TypeScript
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
@@ -522,35 +544,35 @@ Antes de considerar una tarea completa, verificar:
 
 ---
 
-## 🔐 Reglas de Oro
+## 🔐 Golden Rules
 
-1. **NUNCA** cambiar la estructura de carpetas sin documentar
-2. **SIEMPRE** usar TypeScript, nunca JavaScript puro
-3. **SIEMPRE** compilar antes de probar en navegador
-4. **SIEMPRE** mantener tipos explícitos
-5. **SIEMPRE** seguir las convenciones de este documento
-6. **NUNCA** usar `any` sin justificación extrema
-7. **SIEMPRE** verificar que la app funciona antes de terminar
-8. **SIEMPRE** actualizar este documento si cambias convenciones
-9. **NUNCA hardcodear datos en las vistas** — Los datos viven en `src/data/`. Las vistas deben iterar sobre ellos dinámicamente. Si añades un nuevo kayda, taal, canción o filler a los archivos de datos, debe aparecer automáticamente en la UI sin tocar ningún archivo de vista.
+1. **NEVER** change the folder structure without documenting it
+2. **ALWAYS** use TypeScript, never plain JavaScript
+3. **ALWAYS** compile before testing in the browser
+4. **ALWAYS** keep explicit types
+5. **ALWAYS** follow the conventions in this document
+6. **NEVER** use `any` without extreme justification
+7. **ALWAYS** verify the app works before finishing
+8. **ALWAYS** update this document if you change conventions
+9. **NEVER hardcode data in views** — Data lives in `src/data/`. Views must iterate over it dynamically. If you add a new kayda, taal, song or filler to the data files, it must appear automatically in the UI without touching any view file.
    ```typescript
-   // ❌ INCORRECTO — hardcodeado
+   // ❌ INCORRECT — hardcoded
    const kayda = KAYDAS.fundamental;
    renderKayda(kayda);
 
-   // ✅ CORRECTO — dinámico
+   // ✅ CORRECT — dynamic
    Object.values(KAYDAS).forEach(kayda => renderKayda(kayda));
    ```
-10. **Al añadir un nuevo Taal, actualizar TODOS los 7 archivos del checklist** — Ver sección "✅ Checklist: Añadir un Nuevo Taal". En especial no olvidar `viewManager.ts` (sin esto la vista no carga) y los dos archivos de `wizardStep*.ts` (sin esto el taal no aparece en los bloques de práctica del Riyaz).
+10. **When adding a new Taal, update ALL 7 files in the checklist** — See the "✅ Checklist: Adding a New Taal" section. In particular, do not forget `viewManager.ts` (without this the view won't load) and both `wizardStep*.ts` files (without this the taal won't appear in Riyaz practice blocks).
 
 ---
 
-## 📞 Contacto
+## 📞 Contact
 
-Si encuentras inconsistencias en este documento o en el código, documéntalas aquí para futuras referencias.
+If you find inconsistencies in this document or in the code, document them here for future reference.
 
 ---
 
-**Versión**: 1.1.0
-**Última actualización**: 2026-06-24
-**Mantenedor**: Bob (AI Assistant)
+**Version**: 1.2.0
+**Last updated**: 2025-07-14
+**Maintainer**: Bob (AI Assistant)
