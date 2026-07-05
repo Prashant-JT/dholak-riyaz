@@ -273,20 +273,22 @@ npm run build
 
 ## ✅ Checklist: Añadir un Nuevo Taal (OBLIGATORIO)
 
-Cada vez que se añade un nuevo taal al proyecto, se deben tocar **obligatoriamente** estos 4 archivos. Olvidar cualquiera causa que el taal no aparezca o no funcione en alguna parte de la app:
+Cada vez que se añade o activa un nuevo taal, se deben tocar **obligatoriamente** estos 7 archivos/lugares. Olvidar cualquiera causa que el taal no aparezca, no tenga divisores visuales o no aparezca correctamente en las estadísticas:
 
 | # | Archivo | Qué añadir |
 |---|---|---|
-| 1 | `src/data/taals/<nombre>.ts` | Crear el archivo con la definición completa del taal |
+| 1 | `src/data/taals/<nombre>.ts` | Crear el archivo con la definición completa del taal. **Dividir `rows` en sub-arrays por vibhags** (ver sección "Convenciones de Datos: Taal `rows`") |
 | 2 | `src/data/taals/index.ts` | Import + entrada en el objeto `TAALS` |
-| 3 | `src/core/config.ts` | Campo en `VIEWS` + item en array `NAVIGATION` |
+| 3 | `src/core/config.ts` | Campo en `VIEWS` + item en array `NAVIGATION` (**ordenado de menor a mayor beats**) |
 | 4 | `src/types.ts` | Campo en interfaz `ViewsConfig` |
+| 5 | `src/views/taals.ts` → `VIBHAG_DIVIDERS` | Entrada `beats: [matrasTrasLasQueVaDivisor]` para líneas naranjas verticales en desktop |
+| 6 | `src/views/taals.ts` → `getVibhagStructure()` | Caso `case beats:` con los slices correctos para división en móvil |
+| 7 | `src/views/stats.ts` → `TAAL_META` | Entrada con emoji y clase CSS de color (`stats-tag--orange/blue/purple/teal/amber`) — **SIEMPRE obligatorio** |
 
 > ✅ **Automático** — no hay que tocar nada más:
 > - `src/components/viewManager.ts`: registra TaalViews dinámicamente desde `CONFIG.NAVIGATION`
 > - Bloques de práctica del Riyaz (`wizardStep1.ts`, `wizardStep2.ts`): derivan taals activos de `CONFIG.NAVIGATION`
-> - Estadísticas (`stats.ts`): medallas "Primer X", medalla "Polirítmico" y colores de tags se generan dinámicamente desde `ACTIVE_TAAL_IDS`
-> - Solo si el taal nuevo necesita color/emoji propio en las stats: añadir entrada en `TAAL_META` al inicio de `stats.ts`
+> - Estadísticas (`stats.ts`): medallas "Primer X" y medalla "Polirítmico" se generan dinámicamente desde `ACTIVE_TAAL_IDS`
 
 ---
 

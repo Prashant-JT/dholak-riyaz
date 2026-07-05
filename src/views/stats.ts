@@ -22,6 +22,9 @@ const TAAL_META: Record<string, { emoji: string; tagCls: string }> = {
     rupak:      { emoji: '🎭', tagCls: 'stats-tag--purple'  },
     deepchandi: { emoji: '🌊', tagCls: 'stats-tag--teal'    },
     addha:      { emoji: '🥁', tagCls: 'stats-tag--amber'   },
+    teental:    { emoji: '👑', tagCls: 'stats-tag--blue'    },
+    ektal:      { emoji: '🔁', tagCls: 'stats-tag--purple'  },
+    jhaptal:    { emoji: '⚡', tagCls: 'stats-tag--teal'    },
 };
 // Fallback para taals futuros sin metadatos definidos
 const DEFAULT_TAAL_META = { emoji: '🎵', tagCls: 'stats-tag--orange' };
