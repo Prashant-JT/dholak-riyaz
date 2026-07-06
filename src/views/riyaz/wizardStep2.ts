@@ -4,7 +4,7 @@
  * canción / lehra), patrón visual y botón de siguiente / finalizar.
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray } from '../../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray, VIBHAG_DIVIDERS } from '../../core/utils.js';
 import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
@@ -474,6 +474,7 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
         }
     }
 
+    const taalBeats = block.taalId ? (TAALS[block.taalId]?.beats ?? 0) : 0;
     rows.forEach((row, rowIndex) => {
         const rowDiv = createElement('div', { className: `taal-row-separator ${rowIndex > 0 ? 'mt-6' : ''}` });
         const grid = createElement('div', {
@@ -482,6 +483,11 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
         });
         row.forEach((matra: Matra) => {
             const cell = createElement('div', { className: 'bol-cell' });
+            // Apply orange right-border dividers on desktop (same logic as taals view)
+            if (window.innerWidth >= 768 && VIBHAG_DIVIDERS[taalBeats]?.includes(matra.matra)) {
+                cell.style.borderRight = '4px solid var(--orange-500)';
+                cell.style.paddingRight = '0.5rem';
+            }
             cell.appendChild(createElement('div', { className: 'matra-number mono-font' }, `M${matra.matra}`));
             const bolEl = createElement('div', { className: 'bol-text' });
             applyBolIndicators(bolEl, matra.bol);
@@ -508,6 +514,10 @@ function startTimer(
     cb: Step2Callbacks,
     sessionState: SessionState,
 ): void {
+    // Render immediately so a recovered session shows the correct elapsed time
+    // right away instead of showing 00:00 for the first second.
+    display.textContent = formatTime(Math.floor((Date.now() - blockStartTime) / 1000));
+
     let tickCount = 0;
     const interval = window.setInterval(() => {
         const elapsed = Math.floor((Date.now() - blockStartTime) / 1000);

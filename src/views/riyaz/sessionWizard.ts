@@ -225,12 +225,32 @@ export class SessionWizardView implements View {
             }
         }
 
+        const discardWrapper = createElement('div', { className: 'session-draft-recovery__discard-wrapper' });
         const discardBtn = createElement('button', { className: 'session-draft-recovery__discard' }, 'Descartar y empezar de nuevo');
-        discardBtn.addEventListener('click', () => {
+        const confirmRow = createElement('div', { className: 'session-discard-confirm', style: { display: 'none' } });
+        confirmRow.appendChild(createElement('span', { className: 'text-muted text-sm' },
+            '¿Seguro? Se perderá la sesión interrumpida.'));
+        const confirmBtns = createElement('div', { className: 'flex gap-3 mt-3' });
+        const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, 'Sí, descartar');
+        yesBtn.addEventListener('click', () => {
             clearSessionDraft();
             this.doStep1();
         });
-        actions.appendChild(discardBtn);
+        const noBtn = createElement('button', { className: 'btn-secondary flex-1' }, 'Cancelar');
+        noBtn.addEventListener('click', () => {
+            confirmRow.style.display = 'none';
+            discardBtn.style.display = '';
+        });
+        confirmBtns.appendChild(yesBtn);
+        confirmBtns.appendChild(noBtn);
+        confirmRow.appendChild(confirmBtns);
+        discardBtn.addEventListener('click', () => {
+            discardBtn.style.display = 'none';
+            confirmRow.style.display = '';
+        });
+        discardWrapper.appendChild(discardBtn);
+        discardWrapper.appendChild(confirmRow);
+        actions.appendChild(discardWrapper);
 
         card.appendChild(actions);
         this.container.appendChild(card);
