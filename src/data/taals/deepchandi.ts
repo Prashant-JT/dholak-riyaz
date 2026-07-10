@@ -32,10 +32,7 @@ export const deepchandi: Taal = {
         ]
     ],
     songs: [
-        { title: 'Phero Na Nazar Se Najariya', url: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q' },
         { title: 'Aaj Jaane Ki Zid Na Karo', url: 'https://www.youtube.com/watch?v=CfUDuYAasjE' },
-        { title: 'Pakhiyun Akhero Chadiyo', url: 'https://www.youtube.com/watch?v=UoWMQimowm8' },
-        { title: 'Aji Rooth Kar Ab Kahan Jaiyega', url: 'https://www.youtube.com/watch?v=tbVKu36_4ZU' }
     ],
     notes: [
         'El significado de _',
@@ -98,31 +95,38 @@ export const deepchandi: Taal = {
                     { matra: 14, bol: 'TeTe', technique: '' }
                 ]
             ],
-            description: '3+4+3+4 — variación con Na Na Te Te al cierre'
+            description: '3+4+3+4 — variación con Na Na Te Te al cierre',
+            songs: [
+                {title: 'Pakhiyun Akhero Chadiyo', url: 'https://www.youtube.com/watch?v=UoWMQimowm8' }
+            ]
         },
         {
             name: 'Deepchandi variación 3 (simple)',
             rows: [
                 [
-                    { matra: 1,  bol: 'Dha', technique: 'Taali' },
-                    { matra: 2,  bol: 'Dhin', technique: '' },
-                    { matra: 3,  bol: '—',   technique: '' },
-                    { matra: 4,  bol: 'Dha', technique: 'Taali' },
-                    { matra: 5,  bol: 'Dha', technique: '' },
-                    { matra: 6,  bol: 'Ti',  technique: '' },
-                    { matra: 7,  bol: '—',   technique: '' }
+                    { matra: 1, bol: 'Dha', technique: 'Taali' },
+                    { matra: 2, bol: 'Dhin', technique: '' },
+                    { matra: 3, bol: '—', technique: '' },
+                    { matra: 4, bol: 'Dha', technique: 'Taali' },
+                    { matra: 5, bol: 'Dha', technique: '' },
+                    { matra: 6, bol: 'Ti', technique: '' },
+                    { matra: 7, bol: '—', technique: '' }
                 ],
                 [
-                    { matra: 8,  bol: 'Ta',  technique: 'Khali' },
-                    { matra: 9,  bol: 'Tin', technique: '' },
-                    { matra: 10, bol: '—',   technique: '' },
+                    { matra: 8, bol: 'Ta', technique: 'Khali' },
+                    { matra: 9, bol: 'Tin', technique: '' },
+                    { matra: 10, bol: '—', technique: '' },
                     { matra: 11, bol: 'Dha', technique: 'Taali' },
                     { matra: 12, bol: 'Dha', technique: '' },
-                    { matra: 13, bol: '—',   technique: '' },
-                    { matra: 14, bol: '—',   technique: '' }
+                    { matra: 13, bol: '—', technique: '' },
+                    { matra: 14, bol: '—', technique: '' }
                 ]
             ],
-            description: '3+4+3+4 — Dha Dhin — Dha Dha Ti — / Ta Tin — Dha Dha — —'
+            description: '3+4+3+4 — Dha Dhin — Dha Dha Ti — / Ta Tin — Dha Dha — —',
+            songs: [
+                { title: 'Aji Rooth Kar Ab Kahan Jaiyega', url: 'https://www.youtube.com/watch?v=tbVKu36_4ZU' },
+                { title: 'Phero Na Nazar Se Najariya', url: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q' }
+            ]
         },
         {
             name: 'Deepchandi variación 4 (Thapki pattern)',
@@ -137,13 +141,13 @@ export const deepchandi: Taal = {
                     { matra: 7, bol: 'Na', technique: '' }
                 ],
                 [
-                    { matra: 8,  bol: 'Dha',  technique: 'Khali' },
-                    { matra: 9,  bol: 'Ti (thapki)', technique: '' },
-                    { matra: 10, bol: '—',   technique: '' },
+                    { matra: 8, bol: 'Dha', technique: 'Khali' },
+                    { matra: 9, bol: 'Ti (thapki)', technique: '' },
+                    { matra: 10, bol: '—', technique: '' },
                     { matra: 11, bol: 'TaTa', technique: 'Taali' },
                     { matra: 12, bol: 'KeTe', technique: '' },
                     { matra: 13, bol: 'TaTa', technique: '' },
-                    { matra: 14, bol: 'KeTe',   technique: '' }
+                    { matra: 14, bol: 'KeTe', technique: '' }
                 ]
             ],
             description: '3+4+3+4 — variación con tutorial en video',
