@@ -128,10 +128,10 @@ export const deepchandi: Taal = {
             name: 'Deepchandi variación 4 (Thapki pattern)',
             rows: [
                 [
-                    { matra: 1, bol: 'Dhi (thapki + ghuisa)', technique: 'Taali' },
+                    { matra: 1, bol: 'Dhi (thapki)(ghuisa)', technique: 'Taali' },
                     { matra: 2, bol: 'Dhi', technique: '' },
                     { matra: 3, bol: 'Na', technique: '' },
-                    { matra: 4, bol: 'Dhi', technique: 'Taali' },
+                    { matra: 4, bol: 'Dhi (ghuisa)', technique: 'Taali' },
                     { matra: 5, bol: 'Dhi', technique: '' },
                     { matra: 6, bol: 'Na', technique: '' },
                     { matra: 7, bol: 'Na', technique: '' }
