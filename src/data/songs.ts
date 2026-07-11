@@ -324,6 +324,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Ektal (12 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=CME-R5uz82w"
+    },
+    {
+        title: "Jai Jai Jag Janani Devi",
+        artist: "Devocional",
+        taal: "Ektal (12 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=HWaz9aSKytc"
     }
 ];
 
