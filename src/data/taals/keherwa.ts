@@ -345,6 +345,22 @@ export const keherwa: Taal = {
             songs: [
                 { title: 'In Ankhon Ki Masti', url: 'https://www.youtube.com/watch?v=pwsjRraWgdA' }
             ]
+        },
+        {
+            name: 'Keherwa variación Thapki 2 (Dhit Tata)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhit (thapki)', technique: '' },
+                    { matra: 2, bol: 'TaTa',           technique: '' },
+                    { matra: 3, bol: 'Tit (thapki)',   technique: '' },
+                    { matra: 4, bol: 'Dha',   technique: '' },
+                    { matra: 5, bol: 'Ta',    technique: '' },
+                    { matra: 6, bol: 'DhiGe', technique: '' },
+                    { matra: 7, bol: 'Ta',  technique: '' },
+                    { matra: 8, bol: 'Ta',     technique: '' }
+                ]
+            ],
+            description: '4 beats + 4 beats — variación thapki con Dhit y Dhige'
         }
     ]
 };

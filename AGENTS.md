@@ -404,6 +404,57 @@ case 12: // Ektal: 2+2+2+2+2+2
 
 ---
 
+## 🥁 Data Conventions: Thapki & Ghisa visual indicators
+
+The taal view automatically renders a **coloured dot** inside a bol cell when the `bol` text contains specific keywords in parentheses. This is parsed by [`applyBolIndicators()`](src/core/utils.ts) — no extra code is needed.
+
+### Syntax — embed the keyword inside the bol string
+
+| Indicator | Keyword in `bol` text | Dot colour | Example |
+|---|---|---|---|
+| Thapki only | `(thapki)` | 🟡 Gold/amber | `'Dhit (thapki)'` |
+| Ghisa only | `(ghisa)` or `(ghuisa)` | 🔵 Blue | `'Dhi (ghisa)'` |
+| Both (thapki + ghisa) | both keywords | 🟡+🔵 Two dots | `'Dhit (thapki) (ghisa)'` |
+
+### Rules
+- The keyword must be **inside parentheses** and **part of the `bol` field** — it is **not** the `technique` field.
+- The display name shown in the cell has the `(thapki)`/`(ghisa)` part **stripped automatically** — the user sees only the clean bol name.
+- Capitalisation is ignored (`(Thapki)`, `(THAPKI)` all work), but lowercase is the convention.
+- The legend (🟡 Thapki / 🔵 Ghisa) is shown automatically below the taal table whenever at least one indicator is present in that variation.
+
+### ✅ Correct examples
+
+```typescript
+// Thapki only
+{ matra: 1, bol: 'Dhit (thapki)',         technique: '' }
+{ matra: 3, bol: 'Tit (thapki)',           technique: '' }
+
+// Ghisa only
+{ matra: 1, bol: 'Ghe (ghisa)',            technique: '' }
+{ matra: 1, bol: 'Dhi (ghuisa)',           technique: '' }
+
+// Both on the same bol
+{ matra: 1, bol: 'Dhit (thapki) (ghisa)', technique: 'Taali' }
+
+// Thapki inside longer bol name is fine too
+{ matra: 2, bol: 'Dha (thapki)',           technique: 'Khali' }
+```
+
+### ❌ Incorrect — will NOT show the dot
+
+```typescript
+// ❌ technique field — ignored by the indicator parser
+{ matra: 1, bol: 'Dhit', technique: 'Thapki' }
+
+// ❌ No parentheses
+{ matra: 1, bol: 'Dhit thapki', technique: '' }
+
+// ❌ Wrong spelling
+{ matra: 1, bol: 'Dhit (tapki)', technique: '' }
+```
+
+---
+
 ## 🚫 Common Mistakes to AVOID
 
 ### 1. ❌ Mixing JavaScript and TypeScript
