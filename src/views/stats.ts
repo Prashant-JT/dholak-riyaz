@@ -481,8 +481,18 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
     const explorer3Session = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (seen.size >= 3) return s.saved_at; } return undefined; })();
     const allActiveSession = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (ALL_ACTIVE_TAAL_NAMES.every(t => seen.has(t))) return s.saved_at; } return undefined; })();
     const song5Session     = (() => { let c=0; for (const s of sorted) { if (s.blocks.some(b=>b.support_type==='song')) { c++; if (c>=5) return s.saved_at; } } return undefined; })();
+    const session5At       = sorted[4]?.saved_at;
     const session10At      = sorted[9]?.saved_at;
+    const session15At      = sorted[14]?.saved_at;
+    const session25At      = sorted[24]?.saved_at;
     const session50At      = sorted[49]?.saved_at;
+    const session100At     = sorted[99]?.saved_at;
+    const first3hSession   = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 180)?.saved_at;
+    const first5hSession   = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 300)?.saved_at;
+    const first25hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 1500)?.saved_at;
+    const streak14Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=14)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
+    const week8Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=8)  return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
+    const week12Session    = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=12) return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
 
     const mk = (id: string, emoji: string, name: string, desc: string, cond: boolean, when?: string, progress?: string, progressPct?: number): Medal => ({
         id, emoji, name, desc,
@@ -522,13 +532,23 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
 
     return [
         // Constancia
-        mk('first',     '🌱', 'Primera sesión',    'Guardaste tu primera sesión',                    totalSessions >= 1,  firstSession),
-        mk('s10',       '🎯', '10 sesiones',        '10 sesiones guardadas',                           totalSessions >= 10, session10At,
+        mk('first',     '🌱', 'Primera sesión',    'Guardaste tu primera sesión',                    totalSessions >= 1,   firstSession),
+        mk('s5',        '⭐', '5 sesiones',         '5 sesiones guardadas',                            totalSessions >= 5,   session5At,
+            `${totalSessions} de 5 sesiones`, Math.min(100, Math.round((totalSessions / 5) * 100))),
+        mk('s10',       '🎯', '10 sesiones',        '10 sesiones guardadas',                           totalSessions >= 10,  session10At,
             `${totalSessions} de 10 sesiones`, Math.min(100, Math.round((totalSessions / 10) * 100))),
-        mk('s50',       '🏅', '50 sesiones',        '50 sesiones guardadas',                           totalSessions >= 50, session50At,
+        mk('s15',       '🥉', '15 sesiones',        '15 sesiones guardadas',                           totalSessions >= 15,  session15At,
+            `${totalSessions} de 15 sesiones`, Math.min(100, Math.round((totalSessions / 15) * 100))),
+        mk('s25',       '🥈', '25 sesiones',        '25 sesiones guardadas',                           totalSessions >= 25,  session25At,
+            `${totalSessions} de 25 sesiones`, Math.min(100, Math.round((totalSessions / 25) * 100))),
+        mk('s50',       '🏅', '50 sesiones',        '50 sesiones guardadas',                           totalSessions >= 50,  session50At,
             `${totalSessions} de 50 sesiones`, Math.min(100, Math.round((totalSessions / 50) * 100))),
+        mk('s100',      '🎗️', '100 sesiones',       '100 sesiones guardadas',                          totalSessions >= 100, session100At,
+            `${totalSessions} de 100 sesiones`, Math.min(100, Math.round((totalSessions / 100) * 100))),
         mk('streak7',   '🔥', 'Racha de 7 días',    '7 días consecutivos practicando',                maxStreak >= 7,   streak7Session,
             `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 7) * 100))),
+        mk('streak14',  '🌙', 'Racha de 14 días',   '14 días consecutivos sin parar',                 maxStreak >= 14,  streak14Session,
+            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 14) * 100))),
         mk('streak30',  '💎', 'Racha de 30 días',   '30 días consecutivos sin parar',                 maxStreak >= 30,  streak30Session,
             `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 30) * 100))),
         mk('streak60',  '🌟', 'Racha de 60 días',   '60 días consecutivos practicando',               maxStreak >= 60,  streak60Session,
@@ -537,13 +557,23 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
             `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 100) * 100))),
         mk('streak365', '🎖️', 'Un año entero',      '365 días consecutivos — leyenda absoluta',       maxStreak >= 365, streak365Session,
             `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 365) * 100))),
-        mk('week4',     '🗓️', '4 semanas seguidas', 'Practicado al menos una vez en 4 semanas seguidas', maxWeekStreak >= 4, week4Session,
+        mk('week4',     '🗓️', '4 semanas seguidas',  'Practicado al menos una vez en 4 semanas seguidas',  maxWeekStreak >= 4,  week4Session,
             `${currentWeekStreak} de 4 semanas`, Math.min(100, Math.round((currentWeekStreak / 4) * 100))),
+        mk('week8',     '📆', '8 semanas seguidas',  'Practicado al menos una vez en 8 semanas seguidas',  maxWeekStreak >= 8,  week8Session,
+            `${currentWeekStreak} de 8 semanas`, Math.min(100, Math.round((currentWeekStreak / 8) * 100))),
+        mk('week12',    '📅', '12 semanas seguidas', 'Practicado al menos una vez en 12 semanas seguidas', maxWeekStreak >= 12, week12Session,
+            `${currentWeekStreak} de 12 semanas`, Math.min(100, Math.round((currentWeekStreak / 12) * 100))),
         // Volumen
         mk('h1',        '⏱️', 'Primera hora',       'Acumulado total ≥ 1 hora',                        totalMins >= 60,   firstHourSession,
             `${totalMins} de 60 min`, Math.min(100, Math.round((totalMins / 60) * 100))),
+        mk('h3',        '🕑', '3 horas',            'Acumulado total ≥ 3 horas',                       totalMins >= 180,  first3hSession,
+            `${Math.round(totalMins / 60 * 10) / 10} de 3 h`, Math.min(100, Math.round((totalMins / 180) * 100))),
+        mk('h5',        '🕔', '5 horas',            'Acumulado total ≥ 5 horas',                       totalMins >= 300,  first5hSession,
+            `${Math.round(totalMins / 60 * 10) / 10} de 5 h`, Math.min(100, Math.round((totalMins / 300) * 100))),
         mk('h10',       '🕐', '10 horas',           'Acumulado total ≥ 10 horas',                      totalMins >= 600,  first10hSession,
             `${Math.round(totalMins / 60 * 10) / 10} de 10 h`, Math.min(100, Math.round((totalMins / 600) * 100))),
+        mk('h25',       '🕰️', '25 horas',           'Acumulado total ≥ 25 horas',                      totalMins >= 1500, first25hSession,
+            `${Math.round(totalMins / 60 * 10) / 10} de 25 h`, Math.min(100, Math.round((totalMins / 1500) * 100))),
         mk('h50',       '🏆', '50 horas',           'Acumulado total ≥ 50 horas',                      totalMins >= 3000, first50hSession,
             `${Math.round(totalMins / 60 * 10) / 10} de 50 h`, Math.min(100, Math.round((totalMins / 3000) * 100))),
         mk('h100',      '🥇', '100 horas',          'Acumulado total ≥ 100 horas',                     totalMins >= 6000, first100hSession,
