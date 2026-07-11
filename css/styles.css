@@ -3170,6 +3170,57 @@ body.dark .stats-insight-box {
     transform: rotate(90deg);
     color: var(--orange-500);
 }
+/* Pagination */
+.stats-hist-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-primary);
+    flex-wrap: wrap;
+}
+
+.stats-page-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1.5px solid var(--card-border);
+    border-radius: 7px;
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.stats-page-btn:hover:not(.stats-page-btn--disabled):not(.stats-page-btn--active) {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    background: var(--card-bg);
+}
+
+.stats-page-btn--active {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    background: var(--card-bg);
+    cursor: default;
+}
+
+.stats-page-btn--disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.stats-page-ellipsis {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    padding: 0 2px;
+}
+
 
 /* Detail row */
 .stats-detail-row td {

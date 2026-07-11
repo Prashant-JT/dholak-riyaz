@@ -723,6 +723,15 @@ export class StatsView implements View {
         content.appendChild(this.buildWeekCompare(d));
         content.appendChild(this.buildWeeklyCard(d));
 
+        const heatCard = this.card();
+        heatCard.appendChild(this.cardTitle('Mapa de actividad'));
+        heatCard.appendChild(this.cardSub('Intensidad de práctica por día (minutos)'));
+        heatCard.appendChild(createElement('div', { id: 'stats-heatmap' }));
+        heatCard.appendChild(this.buildHeatmapLegend());
+        content.appendChild(heatCard);
+
+        content.appendChild(this.buildHistoryCard(d));
+
         const row2 = createElement('div', { className: 'stats-chart-row' });
         row2.appendChild(this.buildChartCard('Evolución de BPM por taal', 'Progresión técnica real', 'stats-chart-bpm', 260, 'stats-canvas-medium'));
         row2.appendChild(this.buildChartCard('Distribución de práctica', 'Tiempo por taal / tipo', 'stats-chart-donut', 260, 'stats-canvas-medium'));
@@ -732,14 +741,6 @@ export class StatsView implements View {
             content.appendChild(this.buildChartCard('Ciclos completados por sesión', 'Resistencia — últimas sesiones con metrónomo', 'stats-chart-cycles', 190, 'stats-canvas-short'));
         }
 
-        const heatCard = this.card();
-        heatCard.appendChild(this.cardTitle('Mapa de actividad'));
-        heatCard.appendChild(this.cardSub('Intensidad de práctica por día (minutos)'));
-        heatCard.appendChild(createElement('div', { id: 'stats-heatmap' }));
-        heatCard.appendChild(this.buildHeatmapLegend());
-        content.appendChild(heatCard);
-
-        content.appendChild(this.buildHistoryCard(d));
         content.appendChild(this.buildMedalsCard(d));
 
         requestAnimationFrame(() => {
@@ -1374,6 +1375,7 @@ export class StatsView implements View {
     // ── Historial con filtros ─────────────────────────────────────────────────
 
     private buildHistoryCard(d: UserStats): HTMLElement {
+        const PAGE_SIZE = 5;
         const card = this.card();
         card.appendChild(this.cardTitle('Historial de sesiones'));
 
@@ -1396,7 +1398,7 @@ export class StatsView implements View {
         monthSel.appendChild(createElement('option', { value: '' }, 'Todos los meses') as HTMLOptionElement);
         const monthsSeen = new Set<string>();
         d.rawSessions.forEach(s => {
-            const gc = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' hora canaria
+            const gc = gcDateStr(s.saved_at);
             monthsSeen.add(`${gc.slice(0,4)}-${String(parseInt(gc.slice(5,7)) - 1).padStart(2,'0')}`);
         });
         [...monthsSeen].sort().reverse().forEach(key => {
@@ -1416,7 +1418,68 @@ export class StatsView implements View {
         const tableWrap = createElement('div', { style: { overflowX: 'auto' } });
         card.appendChild(tableWrap);
 
+        // ── Paginación ────────────────────────────────────────────────────────
+        const pagination = createElement('div', { className: 'stats-hist-pagination' });
+        card.appendChild(pagination);
+
         const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+        let currentPage = 0;
+
+        const render = (filtered: SupabaseSession[]) => {
+            const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+            if (currentPage >= totalPages) currentPage = totalPages - 1;
+
+            const shown = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+
+            // Update count label
+            const start = filtered.length === 0 ? 0 : currentPage * PAGE_SIZE + 1;
+            const end   = Math.min((currentPage + 1) * PAGE_SIZE, filtered.length);
+            resultCount.textContent = filtered.length === 0
+                ? '0 sesiones'
+                : `${start}–${end} de ${filtered.length} sesión${filtered.length !== 1 ? 'es' : ''}`;
+
+            // Render table
+            tableWrap.innerHTML = this.buildHistoryHTML(shown, MONTH_ES);
+            this.bindHistoryNotes(tableWrap);
+
+            // Render pagination controls
+            pagination.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const prevBtn = createElement('button', { className: `stats-page-btn${currentPage === 0 ? ' stats-page-btn--disabled' : ''}` }, '‹');
+            if (currentPage > 0) {
+                prevBtn.addEventListener('click', () => { currentPage--; render(filtered); });
+            }
+            pagination.appendChild(prevBtn);
+
+            // Page number buttons (show max 5 around current page)
+            const range = 2;
+            const from  = Math.max(0, currentPage - range);
+            const to    = Math.min(totalPages - 1, currentPage + range);
+            if (from > 0) {
+                const dots = createElement('span', { className: 'stats-page-ellipsis' }, '…');
+                pagination.appendChild(dots);
+            }
+            for (let p = from; p <= to; p++) {
+                const btn = createElement('button', {
+                    className: `stats-page-btn${p === currentPage ? ' stats-page-btn--active' : ''}`
+                }, String(p + 1));
+                const page = p;
+                btn.addEventListener('click', () => { currentPage = page; render(filtered); });
+                pagination.appendChild(btn);
+            }
+            if (to < totalPages - 1) {
+                const dots = createElement('span', { className: 'stats-page-ellipsis' }, '…');
+                pagination.appendChild(dots);
+            }
+
+            const nextBtn = createElement('button', { className: `stats-page-btn${currentPage === totalPages - 1 ? ' stats-page-btn--disabled' : ''}` }, '›');
+            if (currentPage < totalPages - 1) {
+                nextBtn.addEventListener('click', () => { currentPage++; render(filtered); });
+            }
+            pagination.appendChild(nextBtn);
+        };
 
         const applyFilters = () => {
             const taalFilter  = taalSel.value;
@@ -1437,14 +1500,8 @@ export class StatsView implements View {
                 });
             }
 
-            // Limitar a 25 resultados
-            const shown = filtered.slice(0, 25);
-            resultCount.textContent = filtered.length > 25
-                ? `Mostrando 25 de ${filtered.length}`
-                : `${filtered.length} sesión${filtered.length !== 1 ? 'es' : ''}`;
-
-            tableWrap.innerHTML = this.buildHistoryHTML(shown, MONTH_ES);
-            this.bindHistoryNotes(tableWrap);
+            currentPage = 0;   // Reset to first page on filter change
+            render(filtered);
         };
 
         taalSel.addEventListener('change', applyFilters);
@@ -1485,9 +1542,6 @@ export class StatsView implements View {
                 : b.type === 'pickup' ? 'Pickup'
                 : (b.taal_name ?? 'Práctica')
             );
-            const maxBpm = s.blocks.reduce((m, b) => Math.max(m, b.bpm_end ?? 0), 0);
-            const bpmStr = maxBpm > 0 ? String(maxBpm) : '—';
-
             const tags = blockNames.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
 
             const noteText = s.notes
@@ -1534,15 +1588,13 @@ export class StatsView implements View {
                 <td style="white-space:nowrap;font-weight:600">${date}</td>
                 <td style="white-space:nowrap;color:var(--text-muted)">${dur}</td>
                 <td>${tags}</td>
-                <td class="stats-col-bpm" style="font-weight:700;color:var(--orange-500)">${bpmStr}</td>
                 <td><span class="stats-expand-btn" title="Ver detalle de bloques">▶</span></td>
             </tr>${detailRow}`;
         }).join('');
 
         return `<table class="stats-history-table">
             <thead><tr>
-                <th>Fecha</th><th>Duración</th><th>Bloques</th>
-                <th class="stats-col-bpm">BPM máx</th><th></th>
+                <th>Fecha</th><th>Duración</th><th>Bloques</th><th></th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
