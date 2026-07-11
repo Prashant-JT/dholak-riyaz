@@ -3148,6 +3148,115 @@ body.dark .stats-insight-box {
     cursor: default;
 }
 
+/* Expandable session rows */
+.stats-history-row--expandable {
+    cursor: pointer;
+}
+
+.stats-history-row--expandable:hover {
+    background: var(--bg-secondary);
+}
+
+.stats-expand-btn {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    transition: transform 0.2s, color 0.2s;
+    user-select: none;
+    padding: 2px 4px;
+}
+
+.stats-expand-btn--open {
+    transform: rotate(90deg);
+    color: var(--orange-500);
+}
+
+/* Detail row */
+.stats-detail-row td {
+    border-bottom: none;
+    padding: 0;
+}
+
+.stats-detail-cell {
+    padding: 0 !important;
+    background: var(--bg-secondary);
+}
+
+.stats-detail-inner {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--border-primary);
+    border-bottom: 2px solid var(--orange-200, #fed7aa);
+}
+
+/* Individual block row inside detail */
+.stats-block-detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--border-primary);
+}
+
+.stats-block-detail-row:last-of-type {
+    border-bottom: none;
+}
+
+.stats-block-detail-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--orange-500);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+}
+
+.stats-block-detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.stats-block-detail-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stats-block-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.stats-block-meta-item {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    padding: 1px 7px;
+}
+
+/* Note inside detail panel */
+.stats-block-note {
+    margin-top: 10px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    background: var(--card-bg);
+    border-radius: 6px;
+    border-left: 3px solid var(--orange-300, #fdba74);
+    line-height: 1.5;
+}
+
 /* Tags */
 .stats-tag {
     display: inline-block;

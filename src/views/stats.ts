@@ -1443,23 +1443,7 @@ export class StatsView implements View {
                 ? `Mostrando 25 de ${filtered.length}`
                 : `${filtered.length} sesión${filtered.length !== 1 ? 'es' : ''}`;
 
-            // Convertir a formato history — fechas en hora canaria
-            const histEntries = shown.map(s => {
-                const gcStr = gcDateStr(s.saved_at);
-                const date2 = new Date(gcStr + 'T12:00:00Z');
-                const date  = `${date2.getUTCDate()} ${MONTH_ES[date2.getUTCMonth()]} ${date2.getUTCFullYear()}`;
-                const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
-                const blocks = s.blocks.map(b =>
-                    b.type === 'warmup' ? 'Warm Up'
-                    : b.type === 'pickup' ? 'Pickup'
-                    : (b.taal_name ?? 'Práctica')
-                );
-                const maxBpm = s.blocks.filter(b => b.bpm_end).reduce((m, b) => Math.max(m, b.bpm_end ?? 0), 0);
-                return { date, dur, blocks, bpm: maxBpm > 0 ? String(maxBpm) : '—', notes: s.notes ?? null };
-            });
-
-            const fakeD = { ...d, history: histEntries };
-            tableWrap.innerHTML = this.buildHistoryHTML(fakeD);
+            tableWrap.innerHTML = this.buildHistoryHTML(shown, MONTH_ES);
             this.bindHistoryNotes(tableWrap);
         };
 
@@ -1470,61 +1454,110 @@ export class StatsView implements View {
         return card;
     }
 
-    private buildHistoryHTML(d: UserStats): string {
-        if (d.history.length === 0) {
+    private buildHistoryHTML(sessions: SupabaseSession[], monthNames: string[]): string {
+        if (sessions.length === 0) {
             return '<p class="text-muted text-sm" style="padding:12px 0">Sin sesiones registradas todavía.</p>';
         }
 
-        // Colores de tags derivados de TAAL_META — funciona para cualquier taal activo presente o futuro
-        const tagCls = (b: string) => {
-            if (b === 'Warm Up') return 'stats-tag--slate';
-            if (b === 'Pickup')  return 'stats-tag--slate';
-            // Buscar por primera palabra del nombre del taal (ej. 'Keherwa', 'Addha')
-            const match = ACTIVE_TAAL_IDS.find(id => TAALS[id].name.startsWith(b));
+        // Tag colour derived from TAAL_META
+        const tagCls = (name: string) => {
+            if (name === 'Warm Up' || name === 'Pickup') return 'stats-tag--slate';
+            const match = ACTIVE_TAAL_IDS.find(id => TAALS[id].name.startsWith(name));
             return (match ? TAAL_META[match] : undefined)?.tagCls ?? DEFAULT_TAAL_META.tagCls;
         };
 
-        const rows = d.history.map((r, i) => {
-            const tags   = r.blocks.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
-            const noteId = `stats-note-row-${i}`;
-            const noteCell = r.notes
-                ? `<button class="stats-note-btn" data-target="${noteId}" title="Ver nota">📝</button>`
-                : `<span style="color:var(--text-muted)">—</span>`;
-            // Escapar el texto de la nota para HTML
-            const noteText = r.notes
-                ? r.notes.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        // Support type label
+        const supportLabel = (b: SupabaseBlock): string => {
+            if (!b.support_type) return '';
+            if (b.support_type === 'metronome') return '🎛 Metrónomo';
+            if (b.support_type === 'song')  return `🎵 ${b.support_ref ?? 'Canción'}`;
+            if (b.support_type === 'lehra') return `🎶 ${b.support_ref ?? 'Lehra'}`;
+            return b.support_type;
+        };
+
+        const rows = sessions.map((s, i) => {
+            const gcStr = gcDateStr(s.saved_at);
+            const date2 = new Date(gcStr + 'T12:00:00Z');
+            const date  = `${date2.getUTCDate()} ${monthNames[date2.getUTCMonth()]} ${date2.getUTCFullYear()}`;
+            const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
+            const blockNames = s.blocks.map(b =>
+                b.type === 'warmup' ? 'Warm Up'
+                : b.type === 'pickup' ? 'Pickup'
+                : (b.taal_name ?? 'Práctica')
+            );
+            const maxBpm = s.blocks.reduce((m, b) => Math.max(m, b.bpm_end ?? 0), 0);
+            const bpmStr = maxBpm > 0 ? String(maxBpm) : '—';
+
+            const tags = blockNames.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
+
+            const noteText = s.notes
+                ? s.notes.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 : '';
-            const noteRow = r.notes
-                ? `<tr id="${noteId}" class="stats-note-row" style="display:none">
-                       <td colspan="5" class="stats-note-cell">💬 ${noteText}</td>
-                   </tr>`
+            const noteHtml = s.notes
+                ? `<div class="stats-block-note">💬 ${noteText}</div>`
                 : '';
-            return `<tr class="stats-history-row${r.notes ? ' stats-history-row--has-note' : ''}" data-note="${noteId}">
-                <td style="white-space:nowrap;font-weight:600">${r.date}</td>
-                <td style="white-space:nowrap;color:var(--text-muted)">${r.dur}</td>
+
+            // ── Block detail rows ─────────────────────────────────────
+            const detailId = `stats-detail-row-${i}`;
+            const blockDetailRows = s.blocks.map((b, bi) => {
+                const blockLabel = b.type === 'warmup' ? 'Warm Up'
+                    : b.type === 'pickup' ? `Pickup: ${b.pickup_name ?? ''}`
+                    : `${b.taal_name ?? 'Práctica'}${b.variation_name ? ` · ${b.variation_name}` : ''}`;
+                const kayda  = b.kayda_name  ? `<span class="stats-block-meta-item">📋 ${b.kayda_name}</span>` : '';
+                const bpmStr2 = (b.bpm_start || b.bpm_end)
+                    ? `<span class="stats-block-meta-item">🎯 ${b.bpm_start ?? '?'} → ${b.bpm_end ?? '?'} BPM</span>` : '';
+                const durStr  = b.duration_secs
+                    ? `<span class="stats-block-meta-item">⏱ ${Math.round(b.duration_secs / 60)} min</span>` : '';
+                const cycStr  = b.cycles_completed
+                    ? `<span class="stats-block-meta-item">🔁 ${b.cycles_completed} ciclos</span>` : '';
+                const supStr  = b.support_type
+                    ? `<span class="stats-block-meta-item">${supportLabel(b)}</span>` : '';
+                return `<div class="stats-block-detail-row">
+                    <span class="stats-block-detail-num">${bi + 1}</span>
+                    <div class="stats-block-detail-body">
+                        <span class="stats-block-detail-label">${blockLabel}</span>
+                        <div class="stats-block-meta">${bpmStr2}${durStr}${cycStr}${kayda}${supStr}</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const detailRow = `<tr id="${detailId}" class="stats-detail-row" style="display:none">
+                <td colspan="5" class="stats-detail-cell">
+                    <div class="stats-detail-inner">
+                        ${blockDetailRows}
+                        ${noteHtml}
+                    </div>
+                </td>
+            </tr>`;
+
+            return `<tr class="stats-history-row stats-history-row--expandable" data-detail="${detailId}">
+                <td style="white-space:nowrap;font-weight:600">${date}</td>
+                <td style="white-space:nowrap;color:var(--text-muted)">${dur}</td>
                 <td>${tags}</td>
-                <td class="stats-col-bpm" style="font-weight:700;color:var(--orange-500)">${r.bpm}</td>
-                <td>${noteCell}</td>
-            </tr>${noteRow}`;
+                <td class="stats-col-bpm" style="font-weight:700;color:var(--orange-500)">${bpmStr}</td>
+                <td><span class="stats-expand-btn" title="Ver detalle de bloques">▶</span></td>
+            </tr>${detailRow}`;
         }).join('');
 
         return `<table class="stats-history-table">
             <thead><tr>
                 <th>Fecha</th><th>Duración</th><th>Bloques</th>
-                <th class="stats-col-bpm">BPM final</th><th>Notas</th>
+                <th class="stats-col-bpm">BPM máx</th><th></th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
     }
 
     private bindHistoryNotes(container: HTMLElement): void {
-        container.querySelectorAll<HTMLButtonElement>('.stats-note-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = document.getElementById(btn.dataset.target ?? '');
-                if (!target) return;
-                const isOpen = target.style.display !== 'none';
-                target.style.display = isOpen ? 'none' : 'table-row';
-                btn.classList.toggle('stats-note-btn--open', !isOpen);
+        container.querySelectorAll<HTMLTableRowElement>('.stats-history-row--expandable').forEach(row => {
+            row.addEventListener('click', () => {
+                const targetId = row.dataset.detail ?? '';
+                const detail = document.getElementById(targetId);
+                if (!detail) return;
+                const isOpen = detail.style.display !== 'none';
+                detail.style.display = isOpen ? 'none' : 'table-row';
+                const btn = row.querySelector<HTMLElement>('.stats-expand-btn');
+                if (btn) btn.classList.toggle('stats-expand-btn--open', !isOpen);
             });
         });
     }
