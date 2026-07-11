@@ -57,7 +57,7 @@ export const FILLERS: Filler[] = [
                 hasAudio: true
             },
             {
-                name: 'TaTi (x3) Ta Tirekite Tit Ta',
+                name: 'TaTi (x3) Ta Tirekite Tak Ta',
                 note: 'Bhar Do Jholi style'
             },
             {
