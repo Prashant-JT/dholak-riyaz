@@ -313,7 +313,7 @@ export const keherwa: Taal = {
             ]
         },
         {
-            name: 'Keherwa variación 12 (Thapki Dha Ghe)',
+            name: 'Keherwa variación Thapki 1 (Dha Ghe)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha (thapki)', technique: 'Taali' },

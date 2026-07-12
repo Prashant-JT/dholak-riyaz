@@ -53,9 +53,6 @@ export const dadra: Taal = {
                 ]
             ],
             description: '3 beats + 3 beats',
-            songs: [
-                { title: 'Lab Par Aaye', url: 'https://www.youtube.com/watch?v=7kR6tqaq_zY' }
-            ]
         },
         {
             name: 'Dadra variación principal',
@@ -111,7 +108,6 @@ export const dadra: Taal = {
             songs: [
                 { title: 'Thumaka Chalata Ramachandra', url: 'https://www.youtube.com/watch?v=lGaQSumuSpA' },
                 { title: 'Ye Daulat Bhi Lelo Ye Shohrat Bhi Lelo', url: 'https://www.youtube.com/watch?v=L7iFS5iYAiI' },
-                { title: 'Lab Par Aaye', url: 'https://www.youtube.com/watch?v=7kR6tqag_zY' }
             ]
         },
         {
@@ -217,18 +213,17 @@ export const dadra: Taal = {
             ],
             description: '3 beats + 3 beats',
             songs: [
-                { title: 'Aaj Humare Dil mein', url: 'https://youtu.be/ABqsJBSBNBw?si=rwJaRwI78MFxwoT6' }
+                { title: 'Aaj Humare Dil Mein', url: 'https://youtu.be/ABqsJBSBNBw?si=rwJaRwI78MFxwoT6' }
             ],
             notes: [
-                'HAY UNA VARIACIÓN PARA UNA PARTE DE ESTA CANCIÓN',
+                'Hay una variación para una parte de la canción',
                 '',
                 'Dha Ghe Ta Tin',
-                'Pick up: NA NA TE TE',
-                '         NA NA TE TE'
+                'Pickup: Na Na Te Te (x2)'
             ]
         },
         {
-            name: 'Dadra taal variación thapki',
+            name: 'Dadra variación Thapki 1',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -245,7 +240,7 @@ export const dadra: Taal = {
             ],
         },
         {
-            name: 'Dadra taal thapki pattern',
+            name: 'Dadra variación Thapki 2',
             rows: [
                 [
                     { matra: 1, bol: 'Dhit (thapki) (ghisa)', technique: 'Bhari' },
@@ -262,7 +257,7 @@ export const dadra: Taal = {
             ],
         },
         {
-            name: 'Dadra taal ulti thapki pattern',
+            name: 'Dadra variación Ulti Thapki',
             rows: [
                 [
                     { matra: 1, bol: 'Dha (ghisa)', technique: 'Bhari' },
@@ -279,7 +274,7 @@ export const dadra: Taal = {
             ],
         },
         {
-            name: 'Dadra variación (Dha Tin Tin)',
+            name: 'Dadra variación 4 (Dha Tin Tin)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },

@@ -21,15 +21,15 @@ export const KAYDAS: KaydasData = {
                     { matra: 4, bol: 'Te', technique: '' },
                     { matra: 5, bol: 'Dha', technique: 'Taali' },
                     { matra: 6, bol: 'Dha', technique: '' },
-                    { matra: 7, bol: 'Thi', technique: '' },
+                    { matra: 7, bol: 'Ti', technique: '' },
                     { matra: 8, bol: 'Na', technique: '' }
                 ]
             },
             {
                 label: 'Khali (Matras 9-16)',
                 matras: [
-                    { matra: 9, bol: 'Taa', technique: 'Khali' },
-                    { matra: 10, bol: 'Taa', technique: '' },
+                    { matra: 9, bol: 'Ta', technique: 'Khali' },
+                    { matra: 10, bol: 'Ta', technique: '' },
                     { matra: 11, bol: 'Te', technique: '' },
                     { matra: 12, bol: 'Te', technique: '' },
                     { matra: 13, bol: 'Dha', technique: 'Taali' },
