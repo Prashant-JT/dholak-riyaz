@@ -129,35 +129,27 @@ export const DEFAULT_TEMPLATES: SavedTemplate[] = [
         ],
     },
 
-    // ── DEEPCHANDI + RUPAK + KEHERWA PICKUP ──────────────────────────────────
+    // ── Favorite 1 ────────────────────────────────────────────────────────────
     {
-        id: 'default-deepchandi-rupak-pickup',
-        name: 'Deepchandi + Rupak + Keherwa pickup sesión (foco en TeTe)',
+        id: 'favorite-1',
+        name: 'Sesión favorita (Deepchandi thapki + Rupak + Dadra thapki + pickup)',
         blocks: [
             {
-                id: 'drp-wu', type: 'warmup',
+                id: 'f-wu', type: 'warmup',
                 lehraUrl: LEHRA_9MIN_URL, lehraLabel: LEHRA_9MIN_LABEL,
                 kaydaId: 'kayda3', kaydaName: 'Kayda 3',
                 timerMode: 'free',
             },
             {
-                id: 'drp-1', type: 'practice',
+                id: 'f-1', type: 'practice',
                 taalId: 'deepchandi', taalName: 'Deepchandi Taal',
-                variationName: 'Deepchandi variación 2 (NaNa TeTe)',
-                supportType: 'metronome', supportRef: '120 BPM', supportUrl: '',
-                bpmStart: 120, timerMode: 'free',
-            },
-            {
-                id: 'drp-2', type: 'practice',
-                taalId: 'deepchandi', taalName: 'Deepchandi Taal',
-                variationName: 'Deepchandi variación 2 (NaNa TeTe)',
-                supportType: 'song',
-                supportRef: 'Aji Rooth Kar Ab Kahan Jaiyega — Bollywood',
-                supportUrl: 'https://www.youtube.com/watch?v=tbVKu36_4ZU',
+                variationName: 'Deepchandi variación 4 (Thapki pattern)',
+                supportType: 'song', supportRef: 'Phero Na Nazar Se Najariya — Bollywood', 
+                supportUrl: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q',
                 timerMode: 'free',
             },
             {
-                id: 'drp-3', type: 'practice',
+                id: 'f-3', type: 'practice',
                 taalId: 'rupak', taalName: 'Rupak Taal',
                 variationName: 'Rupak variación 1 (TiNa TeTe)',
                 supportType: 'song',
@@ -166,49 +158,17 @@ export const DEFAULT_TEMPLATES: SavedTemplate[] = [
                 timerMode: 'free',
             },
             {
-                id: 'drp-pk', type: 'pickup',
+                id: 'f-4', type: 'practice',
+                taalId: 'dadra', taalName: 'Dadra Taal',
+                variationName: 'Dadra variación Thapki 2',
+                supportType: 'metronome', supportRef: '120 BPM', supportUrl: '',
+                bpmStart: 120, timerMode: 'free',
+            },
+            {
+                id: 'f-pk', type: 'pickup',
                 pickupName: 'Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)',
                 pickupTaalCategory: 'Keherwa',
                 pickupVideoUrl: 'https://www.youtube.com/watch?v=m5ryRabj5Fc',
-                timerMode: 'free',
-            },
-        ],
-    },
-
-    // ── DEEPCHANDI ────────────────────────────────────────────────────────────
-    {
-        id: 'default-deepchandi',
-        name: 'Foco Deepchandi',
-        blocks: [
-            {
-                id: 'ddc-wu', type: 'warmup',
-                lehraUrl: LEHRA_9MIN_URL, lehraLabel: LEHRA_9MIN_LABEL,
-                kaydaId: 'kayda3', kaydaName: 'Kayda 3',
-                timerMode: 'free',
-            },
-            {
-                id: 'ddc-1', type: 'practice',
-                taalId: 'deepchandi', taalName: 'Deepchandi Taal',
-                variationName: 'Patrón Principal',
-                supportType: 'metronome', supportRef: '60 BPM', supportUrl: '',
-                bpmStart: 60, timerMode: 'free',
-            },
-            {
-                id: 'ddc-2', type: 'practice',
-                taalId: 'deepchandi', taalName: 'Deepchandi Taal',
-                variationName: 'Patrón Principal',
-                supportType: 'song',
-                supportRef: 'Aaj Jaane Ki Zid Na Karo — Farida Khanum',
-                supportUrl: 'https://www.youtube.com/watch?v=CfUDuYAasiE',
-                timerMode: 'free',
-            },
-            {
-                id: 'ddc-3', type: 'practice',
-                taalId: 'deepchandi', taalName: 'Deepchandi Taal',
-                variationName: 'Deepchandi variación 1 (Ta Tin Ta Tin)',
-                supportType: 'song',
-                supportRef: 'Phero Na Nazar Se Najariya — Bollywood',
-                supportUrl: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q',
                 timerMode: 'free',
             },
         ],
