@@ -1670,8 +1670,8 @@ export class StatsView implements View {
 
         // Grid de medallas
         const GROUPS = [
-            { label: 'Constancia', ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
-            { label: 'Volumen',    ids: ['h1','h10','h50','h100','long','marathon'] },
+            { label: 'Constancia', ids: ['first','s5','s10','s15','s25','s50','s100','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
+            { label: 'Volumen',    ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
             { label: 'Variedad',   ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
             { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
             { label: 'Conjunto',   ids: ['jugalbandi','duo5','superjugal'] },
