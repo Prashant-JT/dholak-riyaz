@@ -77,7 +77,7 @@ export interface SupabaseBlock {
 }
 
 interface UserStats {
-    kpi: { sessions: number; time: string; bpm: number; streak: number; weekStreak: number };
+    kpi: { sessions: number; time: string; bpm: number; streak: number; weekStreak: number; maxStreak: number };
     insight: string;
     weekLabels: string[];
     weekly: number[];
@@ -279,7 +279,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const todayGC = gcTodayStr();
     const sessionDaysSet = new Set(sessions.map(s => gcDateStr(s.saved_at)));
     const allDaysKpi = Array.from(sessionDaysSet).sort();
-    let streak = 0;
+    let streak = 0; let maxStreak = 0;
     if (allDaysKpi.length > 0) {
         let s = 1;
         for (let i = allDaysKpi.length - 1; i > 0; i--) {
@@ -292,6 +292,14 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         const todayDay = new Date(todayGC + 'T00:00:00Z');
         const diffToToday = Math.round((todayDay.getTime() - lastDay.getTime()) / 86400000);
         streak = diffToToday <= 1 ? s : 0;
+        // Max historical streak
+        let cur = 1;
+        for (let i = 1; i < allDaysKpi.length; i++) {
+            const diff = (new Date(allDaysKpi[i] + 'T00:00:00Z').getTime() - new Date(allDaysKpi[i-1] + 'T00:00:00Z').getTime()) / 86400000;
+            cur = diff === 1 ? cur + 1 : 1;
+            if (cur > maxStreak) maxStreak = cur;
+        }
+        if (allDaysKpi.length === 1) maxStreak = 1;
     }
 
     // Racha semanal — semanas ISO en hora canaria
@@ -324,7 +332,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             : `<strong>Taal más practicado:</strong> ${topTaal}. <strong>A equilibrar:</strong> ${leastTaal} tiene el menor tiempo registrado — prueba a incluirlo más en tus sesiones.`;
 
     return {
-        kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak },
+        kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak, maxStreak },
         insight,
         weekLabels,
         weekly,
@@ -350,7 +358,7 @@ function emptyStats(): UserStats {
         weekLabels.push(`${d.getDate()} ${MONTH_ES[d.getMonth()]}`);
     }
     return {
-        kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0, weekStreak: 0 },
+        kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0, weekStreak: 0, maxStreak: 0 },
         insight: 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!',
         weekLabels,
         weekly:      new Array(16).fill(0),
@@ -370,13 +378,13 @@ declare const Chart: any;
 // ── Colores ───────────────────────────────────────────────────────────────────
 const C = {
     orange:  '#f97316',
-    orangeA: 'rgba(249,115,22,0.15)',
+    orangeA: 'rgba(249,115,22,0.7)',
     blue:    '#3b82f6',
-    blueA:   'rgba(59,130,246,0.15)',
+    blueA:   'rgba(59,130,246,0.7)',
     purple:  '#8b5cf6',
-    purpleA: 'rgba(139,92,246,0.15)',
+    purpleA: 'rgba(139,92,246,0.7)',
     teal:    '#14b8a6',
-    tealA:   'rgba(20,184,166,0.15)',
+    tealA:   'rgba(20,184,166,0.7)',
     amber:   '#f59e0b',
     grid:    () => getComputedStyle(document.documentElement).getPropertyValue('--border-primary').trim() || '#e2e8f0',
     text:    () => getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim()    || '#64748b',
@@ -771,6 +779,7 @@ export class StatsView implements View {
             content.appendChild(this.buildChartCard('Ciclos completados por sesión', 'Resistencia — últimas sesiones con metrónomo', 'stats-chart-cycles', 190, 'stats-canvas-short'));
         }
 
+        content.appendChild(this.buildNextMedalCard(d));
         content.appendChild(this.buildMedalsCard(d));
 
         requestAnimationFrame(() => {
@@ -1214,10 +1223,52 @@ export class StatsView implements View {
     private buildKPIs(d: UserStats): HTMLElement {
         const grid = createElement('div', { className: 'stats-kpi-grid' });
 
+        const avgMins = d.kpi.sessions > 0
+            ? Math.round(d.rawSessions.reduce((s, x) => s + effectiveSecs(x), 0) / 60 / d.kpi.sessions)
+            : 0;
+        const avgStr = avgMins >= 60
+            ? `${Math.floor(avgMins / 60)}h ${avgMins % 60 > 0 ? (avgMins % 60) + 'm' : ''}`.trim()
+            : `${avgMins}m`;
+
+        const DAY_NAMES_FULL = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const sessionsByDay = new Array(7).fill(0);
+        d.rawSessions.forEach(s => {
+            const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay(); // 0=Sun
+            const idx = dow === 0 ? 6 : dow - 1; // Mon=0 … Sun=6
+            sessionsByDay[idx]++;
+        });
+        const bestDayIdx = sessionsByDay.indexOf(Math.max(...sessionsByDay));
+        const bestDayValue = d.kpi.sessions > 0 ? DAY_NAMES_FULL[bestDayIdx] : '—';
+        const bestDaySub   = d.kpi.sessions > 0 ? `${sessionsByDay[bestDayIdx]} sesiones` : 'sin datos';
+
+        const maxSessionMins = d.kpi.sessions > 0
+            ? Math.max(...d.rawSessions.map(s => Math.round(effectiveSecs(s) / 60)))
+            : 0;
+        const maxSessionStr = maxSessionMins >= 60
+            ? `${Math.floor(maxSessionMins / 60)}h ${maxSessionMins % 60 > 0 ? (maxSessionMins % 60) + 'm' : ''}`.trim()
+            : `${maxSessionMins}m`;
+
+        const nowGC = new Date(gcTodayStr() + 'T12:00:00Z');
+        const thisMonth = nowGC.getUTCMonth();
+        const thisYear  = nowGC.getUTCFullYear();
+        const daysInMonth = new Date(Date.UTC(thisYear, thisMonth + 1, 0)).getUTCDate();
+        const daysThisMonth = new Set(
+            d.rawSessions
+                .map(s => gcDateStr(s.saved_at))
+                .filter(dateStr => {
+                    const d2 = new Date(dateStr + 'T12:00:00Z');
+                    return d2.getUTCMonth() === thisMonth && d2.getUTCFullYear() === thisYear;
+                })
+        ).size;
+
         const kpis = [
-            { label: 'Sesiones totales',   value: String(d.kpi.sessions), sub: 'registradas',  badge: '📊 histórico',  badgeCls: 'stats-badge--up'     },
-            { label: 'Tiempo total',       value: d.kpi.time,             sub: 'acumulado',     badge: '⏱ en práctica', badgeCls: 'stats-badge--up'     },
-            { label: 'BPM máx. alcanzado', value: d.kpi.bpm > 0 ? String(d.kpi.bpm) : '—', sub: 'mejor marca', badge: '🎯 récord', badgeCls: 'stats-badge--up' },
+            { label: 'Sesiones totales',       value: String(d.kpi.sessions),                        sub: 'registradas',     badge: '📊 histórico',  badgeCls: 'stats-badge--up' },
+            { label: 'Tiempo total',           value: d.kpi.time,                                    sub: 'acumulado',       badge: '⏱ en práctica', badgeCls: 'stats-badge--up' },
+            { label: 'Media por sesión',       value: d.kpi.sessions > 0 ? avgStr : '—',             sub: 'promedio',        badge: '📈 media',       badgeCls: 'stats-badge--up' },
+            { label: 'Sesión más larga',       value: d.kpi.sessions > 0 ? maxSessionStr : '—',      sub: 'récord personal', badge: '💪 máximo',      badgeCls: 'stats-badge--up' },
+            { label: 'BPM máx. alcanzado',     value: d.kpi.bpm > 0 ? String(d.kpi.bpm) : '—',      sub: 'mejor marca',     badge: '🎯 récord',      badgeCls: 'stats-badge--up' },
+            { label: 'Día con más sesiones',   value: bestDayValue,                                  sub: bestDaySub,        badge: '📅 favorito',    badgeCls: 'stats-badge--up' },
+            { label: 'Días practicados',       value: d.kpi.sessions > 0 ? String(daysThisMonth) : '—', sub: `de ${daysInMonth} este mes`, badge: '📆 este mes', badgeCls: 'stats-badge--up' },
         ];
 
         kpis.forEach(k => {
@@ -1229,7 +1280,7 @@ export class StatsView implements View {
             grid.appendChild(card);
         });
 
-        // Streak — special card with two values: days and weeks
+        // Streak — special card with three values: active days, active weeks, max historical streak
         const streakCard = createElement('div', { className: 'card stats-kpi-card stats-streak-card' });
         streakCard.appendChild(createElement('div', { className: 'stats-kpi-label' }, 'Racha activa'));
 
@@ -1247,6 +1298,16 @@ export class StatsView implements View {
         weekBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.weekStreak)));
         weekBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, 'semanas'));
         streakRow.appendChild(weekBlock);
+
+        const divider2 = createElement('div', { className: 'stats-streak-divider' });
+        streakRow.appendChild(divider2);
+
+        const maxStreakBlock = createElement('div', { className: 'stats-streak-block stats-streak-block--record' });
+        const maxStreakValue = createElement('div', { className: 'stats-kpi-value stats-streak-record-value' }, String(d.kpi.maxStreak));
+        const maxStreakSub   = createElement('div', { className: 'stats-kpi-sub' }, '🏆 récord personal');
+        maxStreakBlock.appendChild(maxStreakValue);
+        maxStreakBlock.appendChild(maxStreakSub);
+        streakRow.appendChild(maxStreakBlock);
 
         streakCard.appendChild(streakRow);
         const streakBadge = d.kpi.weekStreak > 0
@@ -1642,6 +1703,57 @@ export class StatsView implements View {
                 if (btn) btn.classList.toggle('stats-expand-btn--open', !isOpen);
             });
         });
+    }
+
+    // ── Próxima medalla ───────────────────────────────────────────────────────
+
+    private buildNextMedalCard(d: UserStats): HTMLElement {
+        const otherUser = this.activeUser === 'prashant' ? 'meera' : 'prashant';
+        const otherSessions = this.userData[otherUser]?.rawSessions ?? [];
+        const medals = computeMedals(d.rawSessions, otherSessions);
+
+        // Pick the unearned medal closest to 100% (highest progressPct, with defined progress)
+        const candidates = medals.filter(m => !m.earned && m.progressPct !== undefined && m.progressPct > 0);
+        if (candidates.length === 0) return createElement('div');   // all earned or no data
+
+        const next = candidates.reduce((best, m) => (m.progressPct! > best.progressPct! ? m : best), candidates[0]);
+
+        const card = this.card();
+        card.style.background = 'linear-gradient(135deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 85%, #f97316 15%) 100%)';
+        card.style.borderColor = '#f97316';
+
+        const headerRow = createElement('div', { className: 'medals-header' });
+        const titleWrap = createElement('div');
+        titleWrap.appendChild(this.cardTitle('🎯 Próxima medalla'));
+        titleWrap.appendChild(this.cardSub('La que tienes más cerca de conseguir'));
+        headerRow.appendChild(titleWrap);
+        card.appendChild(headerRow);
+
+        const body = createElement('div', { className: 'stats-next-medal' });
+
+        const emojiEl = createElement('div', { className: 'stats-next-medal__emoji' }, next.emoji);
+        const info    = createElement('div', { className: 'stats-next-medal__info' });
+        const name    = createElement('div', { className: 'stats-next-medal__name' }, next.name);
+        const desc    = createElement('div', { className: 'stats-next-medal__desc' }, next.desc);
+
+        const progressWrap = createElement('div', { className: 'stats-next-medal__progress-wrap' });
+        const progressBar  = createElement('div', { className: 'stats-next-medal__progress-bar' });
+        const progressFill = createElement('div', { className: 'stats-next-medal__progress-fill' });
+        progressFill.style.width = `${next.progressPct}%`;
+        progressBar.appendChild(progressFill);
+
+        const progressText = createElement('span', { className: 'stats-next-medal__progress-text' }, `${next.progress} — ${next.progressPct}%`);
+        progressWrap.appendChild(progressBar);
+        progressWrap.appendChild(progressText);
+
+        info.appendChild(name);
+        info.appendChild(desc);
+        info.appendChild(progressWrap);
+        body.appendChild(emojiEl);
+        body.appendChild(info);
+        card.appendChild(body);
+
+        return card;
     }
 
     // ── Medallas ──────────────────────────────────────────────────────────────
