@@ -205,6 +205,30 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=0VbyQ5tdavI"
     },
     {
+        title: "Mere Humsafar",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=TAUKxUfwvwA"
+    },
+    {
+        title: "Megha Chhaye Aadhi Raat",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=magUC0KJ1Uo"
+    },
+    {
+        title: "O Basanti Pawan Pagal",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=64EI8DGd2tQ"
+    },
+    {
+        title: "Yeh Honsla Kaise Jhuke",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=3TndEMf6zws"
+    },
+    {
         title: "Ghoomar",
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
