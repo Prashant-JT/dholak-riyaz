@@ -35,7 +35,7 @@ class Application {
         const hasShareHash = window.location.hash.startsWith('#share=');
         const lastView = hasShareHash
             ? CONFIG.VIEWS.RIYAZ
-            : (localStorage.getItem('lastView') ?? CONFIG.VIEWS.DASHBOARD);
+            : CONFIG.VIEWS.RIYAZ;
         this.viewManager.showView(lastView);
         this.navigationController.navigateTo(lastView);
         

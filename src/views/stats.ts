@@ -737,8 +737,14 @@ export class StatsView implements View {
             console.error('Error cargando estadísticas:', err);
             content.innerHTML = '';
             const errWrap = createElement('div', { className: 'stats-loading' });
-            errWrap.innerHTML = `<p class="stats-loading__msg">Error al conectar con Supabase.</p>
-                <p class="stats-loading__hint">Revisa la consola del navegador (F12) para más detalles.</p>`;
+            errWrap.innerHTML = `<p class="stats-loading__msg">Sin conexión — no se pueden cargar las estadísticas.</p>
+                <p class="stats-loading__hint">Conéctate a internet y recarga la página.</p>`;
+            const backBtn = createElement('button', { className: 'btn btn-primary' }, '← Ir a Riyaz');
+            backBtn.style.marginTop = '16px';
+            backBtn.addEventListener('click', () => {
+                window.dispatchEvent(new CustomEvent('navigate', { detail: { viewId: 'riyaz' } }));
+            });
+            errWrap.appendChild(backBtn);
             content.appendChild(errWrap);
         }
     }
