@@ -61,6 +61,18 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://youtu.be/ABqsJBSBNBw?si=rwJaRwI78MFxwoT6"
     },
     {
+        title: "Rangi Sari Gulabi Chunariya Re",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=HL9fvHUweJs"
+    },
+    {
+        title: "Hungama Hai Kyon Barpa",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=qDZ6oqW6JCM"
+    },
+    {
         title: "Kuch Toh Log Kahenge",
         artist: "Kishore Kumar",
         taal: "Keherwa (8 beats)",
@@ -173,6 +185,24 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Rupak (7 beats)",
         youtubeUrl: "https://youtu.be/i88txA3Qpc8?si=kTHNn1ErPuyIHeEs"
+    },
+    {
+        title: "Do Ghadi Baitho",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=6R5DL4WQPSo"
+    },
+    {
+        title: "Allah Tero Naam, Ishwar Tero Naam",
+        artist: "Devocional",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=f-ERhzkxgEs"
+    },
+    {
+        title: "Sawan Ke Jhoole",
+        artist: "Bollywood",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=0VbyQ5tdavI"
     },
     {
         title: "Ghoomar",
