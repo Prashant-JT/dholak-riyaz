@@ -231,7 +231,7 @@ export const SONGS: Song[] = [
     {
         title: "Baat Nihare Ghanshyam",
         artist: "Devocional",
-        taal: "Rupak (7 beats)",
+        taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=NwxrNK0nGZw"
     },
     {
