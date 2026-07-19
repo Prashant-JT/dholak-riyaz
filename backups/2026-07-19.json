@@ -1,0 +1,999 @@
+{
+  "exported_at": "2026-07-19T10:17:49.793Z",
+  "total": 25,
+  "sessions": [
+    {
+      "id": "c14648c9-d850-475e-8f27-5f4d41f55d7d",
+      "user_id": "meera",
+      "saved_at": "2026-06-29T21:10:40.584124+00:00",
+      "total_secs": 1892,
+      "notes": "Keherwa taal ha ido bien, tarde un poco en coger el ritmo del Kayda y pick up me gustaría repasarlo y seguir aprendiendo lo que me quedó del vídeo ",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 2",
+          "duration_secs": 1112
+        },
+        {
+          "type": "practice",
+          "bpm_start": 120,
+          "taal_name": "Keherwa Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 299,
+          "variation_name": "Keherwa variación 11 (Dha Dhin Tin Na)"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 481
+        }
+      ]
+    },
+    {
+      "id": "90bdcf34-f8be-41bc-85de-b85d78f6eacb",
+      "user_id": "meera",
+      "saved_at": "2026-06-30T21:58:37.290469+00:00",
+      "total_secs": 1515,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 2",
+          "duration_secs": 526
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Baaje Re Muraliya Baaje — Devocional",
+          "support_type": "song",
+          "duration_secs": 989,
+          "variation_name": "Keherwa variación 1 (Base Bollywood)"
+        }
+      ]
+    },
+    {
+      "id": "4f7806a7-b474-46fb-bd6f-aae3feb7aa1d",
+      "user_id": "meera",
+      "saved_at": "2026-07-01T22:43:09.783223+00:00",
+      "total_secs": 1275,
+      "notes": "El kayda 1 bien,  practique keherwa 6 variación lo que me falta un poco coger velocidad para la parte rápida de chapa chapa, no practique ghoomar ",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 1",
+          "duration_secs": 397
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Chappa Chappa — Bollywood",
+          "support_type": "song",
+          "duration_secs": 871,
+          "variation_name": "Keherwa variación 6 (Fast)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Ghoomar — Bollywood",
+          "support_type": "song",
+          "duration_secs": 7,
+          "variation_name": "Keherwa variación Ghoomar (Rajasthani)"
+        }
+      ]
+    },
+    {
+      "id": "f069360a-f99f-4f0a-ad85-4cc4f9b60ce1",
+      "user_id": "prashant",
+      "saved_at": "2026-07-02T21:49:04.94847+00:00",
+      "total_secs": 2247,
+      "notes": "Deepchandi Taal probado con NaNa TeTe: muy mal, hay que practicar la velocidad del NaNa TeTe... Rupak no esta mal: fallo que el primer vibhag no suena limpio... Probado el pickup: segunda parte del pickup complicado.",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 454
+        },
+        {
+          "type": "practice",
+          "bpm_end": 160,
+          "bpm_start": 120,
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 313,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)",
+          "cycles_completed": 21
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Aji Rooth Kar Ab Kahan Jaiyega — Bollywood",
+          "support_type": "song",
+          "duration_secs": 396,
+          "variation_name": "Deepchandi variación 3 (simple)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Sharanagatam / Kisi Rah Par Kisi Mor Par — Bollywood",
+          "support_type": "song",
+          "duration_secs": 405,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 679
+        }
+      ]
+    },
+    {
+      "id": "d91819c2-d2f4-46d4-96b6-84b4c6f86716",
+      "user_id": "meera",
+      "saved_at": "2026-07-02T22:59:06.836958+00:00",
+      "total_secs": 783,
+      "notes": "Ya me sale mucho mejor el kayda 2, tengo que aumentar la velocidad. Necesitaba practicar el basic kehaerwa. ",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 2",
+          "duration_secs": 349
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "80 BPM - 108 ciclos - 22 mins",
+          "support_type": "lehra",
+          "duration_secs": 433,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 1
+        }
+      ]
+    },
+    {
+      "id": "b506fb85-0b54-41e3-85b7-800ec0b6594b",
+      "user_id": "meera",
+      "saved_at": "2026-07-03T21:11:31.742339+00:00",
+      "total_secs": 1984,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 2",
+          "duration_secs": 412
+        },
+        {
+          "type": "practice",
+          "bpm_start": 120,
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Itni Shakti Hai Dai / Aisi Kirpa Guru — Devocional",
+          "support_type": "song",
+          "duration_secs": 839,
+          "variation_name": "Patrón Principal",
+          "cycles_completed": 1
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 733
+        }
+      ]
+    },
+    {
+      "id": "104a466a-cde4-4417-9010-1eec0bacf2e0",
+      "user_id": "prashant",
+      "saved_at": "2026-07-03T21:40:18.344255+00:00",
+      "total_secs": 2296,
+      "notes": "Dadra variacion: que  no he practicado mucho pero mas o menos, es lo que se toca en la canción original Aaye Ho Meri Zindagi Mein... Rupak Taal variación DhiDhi NaNa: con Chupke Chupke suena muy bien, solo que es un poco complicado el tempo... Pickup favorito: poco a poco mejorando, ultima parte sigue siendo muy dificil de coordinar los Dha y Ghe",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 336
+        },
+        {
+          "type": "practice",
+          "bpm_end": 200,
+          "bpm_start": 60,
+          "taal_name": "Dadra Taal",
+          "support_ref": "60 BPM",
+          "support_type": "metronome",
+          "duration_secs": 787,
+          "variation_name": "Dadra variación (famous theka)",
+          "cycles_completed": 287
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Chupke Chupke Raat Din Aansoon Bahana Yaad Hai — Bollywood",
+          "support_type": "song",
+          "duration_secs": 510,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 663
+        }
+      ]
+    },
+    {
+      "id": "31779749-183a-4a47-bd29-5ac87e7f71f6",
+      "user_id": "prashant",
+      "saved_at": "2026-07-04T20:57:49.562+00:00",
+      "total_secs": 492,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Chupke Chupke Raat Din Aansoon Bahana Yaad Hai — Bollywood",
+          "support_type": "song",
+          "duration_secs": 492,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        }
+      ]
+    },
+    {
+      "id": "29f5d32a-f199-4f70-9172-eaaed53c7003",
+      "user_id": "meera",
+      "saved_at": "2026-07-05T19:54:53.219+00:00",
+      "total_secs": 1276,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 349
+        },
+        {
+          "type": "practice",
+          "taal_name": "Dadra Taal",
+          "support_ref": "Dagabaaz Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 240,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Shri Ramchandra Kripalu Bhajamana — Devocional",
+          "support_type": "song",
+          "duration_secs": 243,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Canción personalizada",
+          "support_type": "song",
+          "duration_secs": 444,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Tirekite Ta (x2) Tirekite Dha",
+          "pickup_taal": "Finish"
+        }
+      ]
+    },
+    {
+      "id": "04a7b7a7-f2de-435c-aea2-bf20ebbcf464",
+      "user_id": "prashant",
+      "saved_at": "2026-07-05T21:47:32.215+00:00",
+      "total_secs": 1784,
+      "notes": "Deepchandi Taal variacion NaNa TeTe: muy mas o menos aunque Pakhiyun Akhero Chadiyo es bhajan y tempo perfecto para practicar esta variación... Keherwa: mas o menos, NaNa TeTe lioso como siempre... Pickup favorito practicado mejorando poco a poco ",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 352
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Pakhiyun Akhero Chadiyo — Devocional",
+          "support_type": "song",
+          "duration_secs": 616,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 100,
+          "bpm_start": 120,
+          "taal_name": "Keherwa Taal",
+          "support_ref": "In Ankhon Ki Masti — Bollywood",
+          "support_type": "song",
+          "duration_secs": 481,
+          "variation_name": "Keherwa variación 13 (Dhin _ Na Dhi)",
+          "cycles_completed": 27
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 335
+        }
+      ]
+    },
+    {
+      "id": "6804486a-a585-498d-88ef-e637fcaa3847",
+      "user_id": "meera",
+      "saved_at": "2026-07-06T20:51:40.845+00:00",
+      "total_secs": 1365,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 270
+        },
+        {
+          "type": "practice",
+          "bpm_end": 115,
+          "bpm_start": 120,
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 214,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)",
+          "cycles_completed": 8
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Phero Na Nazar Se Najariya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 381,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Sharanagatam / Kisi Rah Par Kisi Mor Par — Bollywood",
+          "support_type": "song",
+          "duration_secs": 191,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 301
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Phero Na Nazar Se Najariya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 8,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        }
+      ]
+    },
+    {
+      "id": "67be724d-6848-4fd1-827a-08452df7250a",
+      "user_id": "prashant",
+      "saved_at": "2026-07-06T21:42:42.951+00:00",
+      "total_secs": 857,
+      "notes": "Deepchandi NaNa TeTe: regular, no muy bien si no hago un Kayda antes para calentar... Teental: primera vez tocando, bastante mal, volver a practicarlo solo con metronomo primero",
+      "blocks": [
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Pakhiyun Akhero Chadiyo — Devocional",
+          "support_type": "song",
+          "duration_secs": 355,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Teental",
+          "support_ref": "Madhuban Mein Radhika Nache Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 502,
+          "variation_name": "Patrón Principal"
+        }
+      ]
+    },
+    {
+      "id": "ab4bdc88-f235-46ea-a576-745b8c053598",
+      "user_id": "prashant",
+      "saved_at": "2026-07-07T19:55:08.174+00:00",
+      "total_secs": 1899,
+      "notes": "Deepchandi Taal (NaNa TeTe): poco a poco mejor al final del bhajan... Dadra taal thapki pattern: primer vez practicado, hace falta mucha practica pero buena variacion para empezar a usar thapki... Pickup favorito: mejorando bastante el Takite Ta Takite (usando Ke con Ta)",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 316
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Pakhiyun Akhero Chadiyo — Devocional",
+          "support_type": "song",
+          "duration_secs": 457,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 90,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 514,
+          "variation_name": "Dadra taal thapki pattern",
+          "cycles_completed": 91
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 612
+        }
+      ]
+    },
+    {
+      "id": "90f9afdd-a75f-4a8d-85e2-fc114b349704",
+      "user_id": "meera",
+      "saved_at": "2026-07-07T20:21:46.548+00:00",
+      "total_secs": 1826,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda Fundamental",
+          "duration_secs": 224
+        },
+        {
+          "type": "practice",
+          "taal_name": "Teental",
+          "support_ref": "Madhuban Mein Radhika Nache Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 481,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Chappa Chappa — Bollywood",
+          "support_type": "song",
+          "duration_secs": 385,
+          "variation_name": "Keherwa variación 6 (Fast)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Aye Mere Humsafar — Bollywood",
+          "support_type": "song",
+          "duration_secs": 315,
+          "variation_name": "Keherwa variación 4 (80s songs)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Dadra Taal",
+          "support_ref": "Hey Naam Re Sabse Bada Tera Naam — Devocional",
+          "support_type": "song",
+          "duration_secs": 192,
+          "variation_name": "Dandiya"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta TaTa (x2) DhaGeNa Dha TaDha",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 229
+        }
+      ]
+    },
+    {
+      "id": "7d5f0be2-335d-4957-b686-ca535f6e6a6f",
+      "user_id": "meera",
+      "saved_at": "2026-07-08T21:06:42.863+00:00",
+      "total_secs": 1573,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda Fundamental",
+          "duration_secs": 254
+        },
+        {
+          "type": "practice",
+          "taal_name": "Dadra Taal",
+          "support_ref": "Lab Par Aaye — Bollywood",
+          "support_type": "song",
+          "duration_secs": 257,
+          "variation_name": "Dadra variación mediano/rápido (Dha Tin Na)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Chupke Chupke Raat Din Aansoon Bahana Yaad Hai — Bollywood",
+          "support_type": "song",
+          "duration_secs": 284,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Tera Chehra Jab Nazar Aaye — Bollywood",
+          "support_type": "song",
+          "duration_secs": 388,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Teental",
+          "support_ref": "Madhuban Mein Radhika Nache Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 203,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta TaTa (x2) DhaGeNa Dha TaDha",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 187
+        }
+      ]
+    },
+    {
+      "id": "b0a8f5fd-5856-4144-bed4-2433a92ee6b5",
+      "user_id": "prashant",
+      "saved_at": "2026-07-08T21:24:15.198+00:00",
+      "total_secs": 1200,
+      "notes": "Deepchandi Taal (NaNa TeTe): mas o menos otra vez... Dadra taal thapki pattern: mejorando, añadido el primer Dha... Pickup favorito: seguir practicando ",
+      "blocks": [
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Pakhiyun Akhero Chadiyo — Devocional",
+          "support_type": "song",
+          "duration_secs": 391,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 120,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 362,
+          "variation_name": "Dadra taal thapki pattern",
+          "cycles_completed": 120
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 447
+        }
+      ]
+    },
+    {
+      "id": "223ade26-a1d9-49a9-9745-1afb273d090d",
+      "user_id": "meera",
+      "saved_at": "2026-07-09T21:07:55.205+00:00",
+      "total_secs": 1436,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 247
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Dafali Wale Dafali Baja — Devocional",
+          "support_type": "song",
+          "duration_secs": 458,
+          "variation_name": "Keherwa variación 7 (Dafli)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Dadra Taal",
+          "support_ref": "Thumaka Chalata Ramachandra — Devocional",
+          "support_type": "song",
+          "duration_secs": 247,
+          "variation_name": "Dadra variación mediano/rápido (Dha Tin Na)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Phero Na Nazar Se Najariya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 278,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Tirekite Tak Tirekite Tak",
+          "pickup_taal": "Dadra",
+          "duration_secs": 206
+        }
+      ]
+    },
+    {
+      "id": "7537f133-392e-4559-aa12-5d3d8bbd0c00",
+      "user_id": "prashant",
+      "saved_at": "2026-07-09T21:45:35.825+00:00",
+      "total_secs": 1669,
+      "notes": "Dadra taal ulti thapki pattern: raro... Pickup favorito: mejorando",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 328
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Sharanagatam / Kisi Rah Par Kisi Mor Par — Bollywood",
+          "support_type": "song",
+          "duration_secs": 359,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 150,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 467,
+          "variation_name": "Dadra taal ulti thapki pattern",
+          "cycles_completed": 66
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 515
+        }
+      ]
+    },
+    {
+      "id": "4b60c614-5478-4645-90f7-a4b14b227b47",
+      "user_id": "meera",
+      "saved_at": "2026-07-10T20:16:01.604+00:00",
+      "total_secs": 1468,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda Fundamental",
+          "duration_secs": 270
+        },
+        {
+          "type": "practice",
+          "taal_name": "Dadra Taal",
+          "support_ref": "Sambhariyaan Sada Dil Me Tokhe — Devocional",
+          "support_type": "song",
+          "duration_secs": 249,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Payoji Maine Ram Ratan Dhan Payo — Devocional",
+          "support_type": "song",
+          "duration_secs": 395,
+          "variation_name": "Keherwa variación 3 (Bhajan Theka, Classical)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Teri Bindiya Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 213,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Aji Rooth Kar Ab Kahan Jaiyega — Bollywood",
+          "support_type": "song",
+          "duration_secs": 341,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        }
+      ]
+    },
+    {
+      "id": "0dc51766-7217-4a20-b672-8bd60599393b",
+      "user_id": "prashant",
+      "saved_at": "2026-07-10T21:20:31.279+00:00",
+      "total_secs": 2191,
+      "notes": "Deepchandi variación 4 (Thapki pattern): muy guapo",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 446
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Chupke Chupke Raat Din Aansoon Bahana Yaad Hai — Bollywood",
+          "support_type": "song",
+          "duration_secs": 473,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Ae Mere Pyare Watan — Bollywood",
+          "support_type": "song",
+          "duration_secs": 741,
+          "variation_name": "Deepchandi variación 4 (Thapki pattern)"
+        },
+        {
+          "type": "practice",
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 203,
+          "variation_name": "Dadra taal thapki pattern"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 328
+        }
+      ]
+    },
+    {
+      "id": "29c31e89-048f-4cc4-bdbb-cbeb572d8269",
+      "user_id": "prashant",
+      "saved_at": "2026-07-11T21:40:12.007+00:00",
+      "total_secs": 1503,
+      "notes": "Dadra taal thapki pattern: mejorando",
+      "blocks": [
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Phero Na Nazar Se Najariya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 756,
+          "variation_name": "Deepchandi variación 4 (Thapki pattern)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 160,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 355,
+          "variation_name": "Dadra taal thapki pattern",
+          "cycles_completed": 12
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 392
+        }
+      ]
+    },
+    {
+      "id": "0bf60905-f421-43e8-acc2-349ddcb4c6d8",
+      "user_id": "prashant",
+      "saved_at": "2026-07-12T19:02:46.37+00:00",
+      "total_secs": 548,
+      "notes": "Sesion rapida antes de coger el avion ",
+      "blocks": [
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Phero Na Nazar Se Najariya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 413,
+          "variation_name": "Deepchandi variación 4 (Thapki pattern)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 160,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 135,
+          "variation_name": "Dadra taal thapki pattern",
+          "cycles_completed": 16
+        }
+      ]
+    },
+    {
+      "id": "e8ddc3f9-5a98-4252-aba8-1eab7dc1ecd1",
+      "user_id": "prashant",
+      "saved_at": "2026-07-13T21:29:24.648+00:00",
+      "total_secs": 2452,
+      "notes": "Teental: fatal... Dadra thapki: mejorando... Pickup: poco a poco cogiendo velocidad",
+      "blocks": [
+        {
+          "type": "practice",
+          "taal_name": "Teental",
+          "support_ref": "105 BPM - 108 ciclos - 16 mins",
+          "support_type": "lehra",
+          "duration_secs": 416,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 90,
+          "bpm_start": 120,
+          "taal_name": "Keherwa Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 130,
+          "variation_name": "Keherwa variación 12 (Thapki Dha Ghe)",
+          "cycles_completed": 26
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Aaj Kal Yaad Kuch Aur Rahata — Bollywood",
+          "support_type": "song",
+          "duration_secs": 771,
+          "variation_name": "Deepchandi variación 4 (Thapki pattern)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 140,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 394,
+          "variation_name": "Dadra variación Thapki 2",
+          "cycles_completed": 63
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGeNe Dha DhaGeNe (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 741
+        }
+      ]
+    },
+    {
+      "id": "e7dc742f-032f-4b84-bf21-d1992dd5bd62",
+      "user_id": "meera",
+      "saved_at": "2026-07-13T22:05:11.296+00:00",
+      "total_secs": 2987,
+      "notes": null,
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 1",
+          "duration_secs": 253
+        },
+        {
+          "type": "practice",
+          "taal_name": "Dadra Taal",
+          "support_ref": "Hey Naam Re Sabse Bada Tera Naam — Devocional",
+          "support_type": "song",
+          "duration_secs": 584,
+          "variation_name": "Dandiya"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Teri Bindiya Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 276,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Phero Na Nazar Se Najariya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 426,
+          "variation_name": "Deepchandi variación 4 (Thapki pattern)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Teental",
+          "support_ref": "Madhuban Mein Radhika Nache Re — Bollywood",
+          "support_type": "song",
+          "duration_secs": 387,
+          "variation_name": "Patrón Principal"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Ghoomar — Bollywood",
+          "support_type": "song",
+          "duration_secs": 371,
+          "variation_name": "Keherwa variación Ghoomar (más simple)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Tum Mile Dil Kile — Bollywood",
+          "support_type": "song",
+          "duration_secs": 241,
+          "variation_name": "Keherwa Western variación"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Keherwa Taal",
+          "support_ref": "Kaun Disa Mein Leke Chala Re Batohiya — Bollywood",
+          "support_type": "song",
+          "duration_secs": 260,
+          "variation_name": "Keherwa variación 8 (Rápida con TeTe)"
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta TaTa (x2) DhaGeNa Dha TaDha",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 189
+        }
+      ]
+    },
+    {
+      "id": "e8bdadb5-c5ca-4f82-a6fb-8af4ed0bd84a",
+      "user_id": "prashant",
+      "saved_at": "2026-07-14T17:10:35.029+00:00",
+      "total_secs": 2344,
+      "notes": "Hay que mejorar Rupak variación 1 (TiNa TeTe)... Dadra variación Thapki 2: mejorando poco a poco ",
+      "blocks": [
+        {
+          "type": "warmup",
+          "kayda_name": "Kayda 3",
+          "duration_secs": 424
+        },
+        {
+          "type": "practice",
+          "taal_name": "Deepchandi Taal",
+          "support_ref": "Pakhiyun Akhero Chadiyo — Devocional",
+          "support_type": "song",
+          "duration_secs": 626,
+          "variation_name": "Deepchandi variación 2 (NaNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "taal_name": "Rupak Taal",
+          "support_ref": "Sharanagatam / Kisi Rah Par Kisi Mor Par — Bollywood",
+          "support_type": "song",
+          "duration_secs": 409,
+          "variation_name": "Rupak variación 1 (TiNa TeTe)"
+        },
+        {
+          "type": "practice",
+          "bpm_end": 220,
+          "bpm_start": 120,
+          "taal_name": "Dadra Taal",
+          "support_ref": "120 BPM",
+          "support_type": "metronome",
+          "duration_secs": 436,
+          "variation_name": "Dadra variación Thapki 2",
+          "cycles_completed": 112
+        },
+        {
+          "type": "pickup",
+          "pickup_name": "Ta (x8) Takite Ta Takite (x2) DhaGe NaDha DhaGeNa (x2)",
+          "pickup_taal": "Keherwa",
+          "duration_secs": 449
+        }
+      ]
+    }
+  ]
+}
