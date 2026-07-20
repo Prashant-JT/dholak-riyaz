@@ -46,6 +46,12 @@ class Application {
         window.addEventListener('navigate', (e: Event) => {
             const customEvent = e as CustomEvent<NavigateEventDetail>;
             const viewId = customEvent.detail.viewId;
+
+            // Stop metronome automatically when switching views
+            if (this.metronome.getPlayingState()) {
+                this.metronome.stop();
+            }
+
             if (this.viewManager) {
                 this.viewManager.showView(viewId);
                 localStorage.setItem('lastView', viewId);
