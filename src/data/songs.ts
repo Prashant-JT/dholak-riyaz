@@ -402,6 +402,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=GHAMyHerv90"
+    },
+    {
+        title: "Aaj Tona Mein Aisa Banaoongi",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=BIpsnXKb7zE"
     }
 ];
 
