@@ -390,6 +390,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Ektal (12 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=HWaz9aSKytc"
+    },
+    {
+        title: "Daya Dharo Hai Guruvar Karuna Nidhana",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=mVmiN8dHl6w"
     }
 ];
 
