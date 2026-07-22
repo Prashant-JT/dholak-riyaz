@@ -396,6 +396,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=mVmiN8dHl6w"
+    },
+    {
+        title: "Kanhaiya, Yaad Hai Kuchh Bhi Hamaari",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=GHAMyHerv90"
     }
 ];
 
