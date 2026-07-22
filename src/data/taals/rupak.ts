@@ -44,7 +44,7 @@ export const rupak: Taal = {
             description: '3 beats + 2 beats + 2 beats',
             songs: [
                 { title: 'Shri Ramchandra Kripalu Bhajamana', url: 'https://www.youtube.com/watch?v=FqmMkDdpLdo' },
-                { title: 'Sharanagatam // Kisi rah par kisi mor par', url: 'https://youtu.be/i88txA3Qpc8?si=kTHNn1ErPuyIHeEs' }
+                { title: 'Sharanagatam / Kisi rah par kisi mor par', url: 'https://youtu.be/i88txA3Qpc8?si=kTHNn1ErPuyIHeEs' }
 
             ]
         }
