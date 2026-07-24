@@ -108,7 +108,7 @@ export const keherwa: Taal = {
             ]
         },
         {
-            name: 'Keherwa variación Ghoomar (Rajasthani)',
+            name: 'Keherwa variación (Ghoomar Theka, Rajasthani Style)',
             rows: [
                 [
                     { matra: 1, bol: 'DhaDhin', technique: '' },
