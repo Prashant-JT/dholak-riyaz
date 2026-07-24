@@ -32,6 +32,11 @@ export const FILLERS: Filler[] = [
             {
                 name: 'Ta (x8) Takite Ta TaTa (x2) DhaGeNa Dha TaDha',
                 note: 'Versión más simple del anterior'
+            },
+            {
+                name: 'Ta Ta / Dhin Ta / Ta GheRe Ta GheRe Ta / TaGhiNa TirKit Tak TirKit Ta',
+                link: 'https://www.youtube.com/watch?v=-5USkUheoek',
+                note: 'Are Dwarpalo Kanhaiya Se Kehdo pickup'
             }
         ]
     },
