@@ -111,36 +111,17 @@ export const keherwa: Taal = {
             name: 'Keherwa variación Ghoomar (Rajasthani)',
             rows: [
                 [
-                    { matra: 1, bol: 'Dha', technique: '' },
-                    { matra: 2, bol: 'Dhin', technique: '' },
-                    { matra: 3, bol: 'Dhi', technique: '' },
-                    { matra: 4, bol: 'NaTi', technique: '' },
-                    { matra: 5, bol: 'Dhin', technique: '' },
-                    { matra: 6, bol: 'DhaDhin', technique: '' },
-                    { matra: 7, bol: 'TeTa', technique: '' },
-                    { matra: 8, bol: 'TaTi', technique: '' }
+                    { matra: 1, bol: 'DhaDhin', technique: '' },
+                    { matra: 2, bol: 'DhiNaTi', technique: '' },
+                    { matra: 3, bol: 'Dhin',    technique: '' },
+                    { matra: 4, bol: '—',       technique: '' },
+                    { matra: 5, bol: 'DhaDhin', technique: '' },
+                    { matra: 6, bol: 'TiNaTi',  technique: '' },
+                    { matra: 7, bol: 'Tin',     technique: '' },
+                    { matra: 8, bol: '—',       technique: '' }
                 ]
             ],
-            tutorials: ['https://www.youtube.com/watch?v=WG_RByBmRcE'],
-            songs: [
-                { title: 'Ghoomar (Original song)', url: 'https://www.youtube.com/watch?v=nHhRWgkkpMk' }
-            ]
-        },
-        {
-            name: 'Keherwa variación Ghoomar (más simple)',
-            rows: [
-                [
-                    { matra: 1, bol: 'Dha', technique: '' },
-                    { matra: 2, bol: 'Dhin', technique: '' },
-                    { matra: 3, bol: 'Dhi', technique: '' },
-                    { matra: 4, bol: 'NaTi', technique: '' },
-                    { matra: 5, bol: 'Ta', technique: '' },
-                    { matra: 6, bol: 'DhinDhin', technique: '' },
-                    { matra: 7, bol: 'NaTi', technique: '' },
-                    { matra: 8, bol: 'Dhin', technique: '' }
-                ]
-            ],
-            description: '4 beats + 4 beats',
+            tutorials: ['https://www.youtube.com/watch?v=1t-yeoM9p7A'],
             songs: [
                 { title: 'Ghoomar (Original song)', url: 'https://www.youtube.com/watch?v=nHhRWgkkpMk' }
             ]
