@@ -121,7 +121,13 @@ export const keherwa: Taal = {
                     { matra: 8, bol: '—',       technique: '' }
                 ]
             ],
-            tutorials: ['https://www.youtube.com/watch?v=1t-yeoM9p7A'],
+            tutorials: [
+                'https://www.youtube.com/watch?v=1t-yeoM9p7A',
+                'https://www.youtube.com/watch?v=rwinuVIri5k'
+            ],
+            notes: [
+                'El segundo tutorial (Ghoomar Theka Lessons with Variations) explica también otras variaciones de Ghoomar y el theka con más detalle + pickups.'
+            ],
             songs: [
                 { title: 'Ghoomar (Original song)', url: 'https://www.youtube.com/watch?v=nHhRWgkkpMk' }
             ]
