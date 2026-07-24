@@ -408,6 +408,18 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=BIpsnXKb7zE"
+    },
+    {
+        title: "He Prabhu To Prem Paida Chho Kayo Sansar",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=MY1r1I6isMA"
+    },
+    {
+        title: "Vaari Veragan Vasayi",
+        artist: "Devocional",
+        taal: "Rupak (7 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=7zq7zA_HzNA"
     }
 ];
 
