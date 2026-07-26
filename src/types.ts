@@ -224,6 +224,7 @@ export interface SessionBlock {
     taalId?: string;
     taalName?: string;
     variationName?: string;         // 'Patrón Principal' or variation name
+    tutorialUrl?: string;           // first tutorial URL of the selected variation (metronome only)
     supportType?: 'metronome' | 'song' | 'lehra';
     supportRef?: string;            // song title or lehra label
     supportUrl?: string;            // URL YouTube

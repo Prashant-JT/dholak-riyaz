@@ -215,6 +215,14 @@ function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement
             card.appendChild(createElement('p', { className: 'text-muted text-sm mt-2 text-center' }, block.supportRef));
         }
     } else if (block.supportType === 'metronome') {
+        // Show tutorial video if the selected variation has one
+        if (block.tutorialUrl) {
+            card.appendChild(createElement('iframe', {
+                src: toEmbedUrl(block.tutorialUrl),
+                style: { width: '100%', height: '200px', border: 'none', borderRadius: '8px', marginBottom: '1rem' },
+                allowfullscreen: 'true'
+            }));
+        }
         const taalField = createElement('div', { className: 'session-form-field mb-4' });
         taalField.appendChild(createElement('label', {
             style: {

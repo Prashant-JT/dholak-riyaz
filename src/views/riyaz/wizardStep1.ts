@@ -675,10 +675,21 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
             supportRef = subSel.options[subSel.selectedIndex]?.text ?? '';
         }
 
+        // Resolve the tutorial URL for the selected variation (metronome only)
+        let tutorialUrl: string | undefined;
+        if (supportType === 'metronome') {
+            const taal = TAALS[taalId];
+            const variation = varSelect.value === '__main__'
+                ? null
+                : taal?.variations?.find(v => v.name === varSelect.value);
+            const tutorials = variation?.tutorials ?? taal?.tutorial ? [variation?.tutorials?.[0] ?? taal?.tutorial ?? ''] : [];
+            tutorialUrl = tutorials[0] || undefined;
+        }
+
         const block: SessionBlock = {
             id: crypto.randomUUID(), type: 'practice',
             taalId, taalName: TAALS[taalId]?.name ?? taalId,
-            variationName: varName, supportType, supportRef, supportUrl,
+            variationName: varName, tutorialUrl, supportType, supportRef, supportUrl,
             bpmStart: supportType === 'metronome' ? parseInt(bpmInput.value, 10) : undefined,
             timerMode: 'free',
         };
