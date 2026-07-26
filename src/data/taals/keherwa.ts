@@ -348,6 +348,22 @@ export const keherwa: Taal = {
                 ]
             ],
             description: '4 beats + 4 beats — variación thapki con Dhit y Dhige'
+        },
+        {
+            name: 'Keherwa variación 14 (Dhi Ge Dhit Ta)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhi', technique: '' },
+                    { matra: 2, bol: 'Ge',  technique: '' },
+                    { matra: 3, bol: 'Dhit (thapki)', technique: '' },
+                    { matra: 4, bol: 'Ta',  technique: '' },
+                    { matra: 5, bol: 'Ti',  technique: '' },
+                    { matra: 6, bol: 'Ge',  technique: '' },
+                    { matra: 7, bol: 'Dhit (thapki)', technique: '' },
+                    { matra: 8, bol: 'Ta',  technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs']
         }
     ]
 };
