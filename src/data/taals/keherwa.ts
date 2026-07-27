@@ -363,7 +363,30 @@ export const keherwa: Taal = {
                     { matra: 8, bol: 'Ta',  technique: '' }
                 ]
             ],
-            tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs']
+            tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs'],
+            songs: [
+                { title: 'Billo Rani', url: 'https://www.youtube.com/watch?v=T15qhmhqraE' }
+            ]
+        },
+        {
+            name: 'Keherwa variación Thapki (Qawwali style)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhi (thapki)',  technique: '' },
+                    { matra: 2, bol: 'Ge (ghisa)',    technique: '' },
+                    { matra: 3, bol: 'Na',            technique: '' },
+                    { matra: 4, bol: 'Na',            technique: '' },
+                    { matra: 5, bol: 'Ti (thapki)',   technique: '' },
+                    { matra: 6, bol: 'Ge',            technique: '' },
+                    { matra: 7, bol: 'Dha',           technique: '' },
+                    { matra: 8, bol: 'Na',            technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs'],
+            description: '4 beats + 4 beats — thapki en M1 y M5, ghisa en M2',
+            songs: [
+                { title: 'Billo Rani', url: 'https://www.youtube.com/watch?v=T15qhmhqraE' }
+            ]
         }
     ]
 };
