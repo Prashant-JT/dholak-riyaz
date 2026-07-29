@@ -420,6 +420,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Rupak (7 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=7zq7zA_HzNA"
+    },
+    {
+        title: "Sakal Ban",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=MohSBas5KD8"
     }
 ];
 
