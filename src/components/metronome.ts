@@ -152,7 +152,6 @@ export class MetronomeEngine {
         this.initAudioContext();
         this.isPlaying = true;
         this.currentBeat = 0;
-        this.cycleCount = 0;
         
         if (this.audioContext) {
             this.nextNoteTime = this.audioContext.currentTime;

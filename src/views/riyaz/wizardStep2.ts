@@ -345,7 +345,6 @@ export function buildMetronomeUI(
     playBtn.addEventListener('click', () => {
         playing = !playing;
         if (playing) {
-            cb.setState({ cycleCount: 0 });
             cb.getState().metronome?.start();
             playBtn.textContent = '⏹ Stop';
             playBtn.className = 'btn-secondary w-full';

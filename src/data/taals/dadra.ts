@@ -169,6 +169,7 @@ export const dadra: Taal = {
                 ]
             ],
             description: 'Frase rítmica para velocidad',
+            tutorials: ['https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s'],
             notes: [
                 '¿Qué es el Tirekite (तिरेकिट)?',
                 'Es la frase rítmica (bol) más importante para desarrollar velocidad y ornamentación.',

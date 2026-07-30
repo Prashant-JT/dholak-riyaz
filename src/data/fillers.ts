@@ -46,12 +46,30 @@ export const FILLERS: Filler[] = [
         ]
     },
     {
-        category: 'Dadra',
+        category: 'Tirekite',
         patterns: [
             {
-                name: 'Dhi Dhi Na (x3)',
+                name: 'Ti Re Ki Te Ta Ke (Tirekite Take)',
+                link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s',
+                note: 'Ejercicio base de velocidad — 4 dedos alternados'
+            },
+            {
+                name: 'Ta Ke Ti Re Ki Te (Take Tirekite)',
+                link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s',
+                note: 'Variación invertida del Tirekite'
+            },
+            {
+                name: 'Tirekite Tak Tak (x2)',
+                link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s'
+            },
+            {
+                name: 'Dha Tirekite Dha Tirekite',
+                link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s'
+            },
+            {
+                name: 'Tirekite Tak Tirekite Tak',
                 link: null,
-                note: 'Dandiya style'
+                hasAudio: true
             },
             {
                 name: 'Ta Tirekite Tit Ta',
@@ -62,9 +80,19 @@ export const FILLERS: Filler[] = [
                 link: 'https://www.youtube.com/shorts/SyUZlnS4tlo'
             },
             {
-                name: 'Tirekite Tak Tirekite Tak',
+                name: 'Tirekite Ta (x2) Tirekite Dha',
+                hasAudio: true,
+                note: 'Finish / cierre'
+            }
+        ]
+    },
+    {
+        category: 'Dadra',
+        patterns: [
+            {
+                name: 'Dhi Dhi Na (x3)',
                 link: null,
-                hasAudio: true
+                note: 'Dandiya style'
             },
             {
                 name: 'TaTi (x3) Ta Tirekite Tak Ta',
@@ -74,15 +102,6 @@ export const FILLERS: Filler[] = [
                 name: 'Ta Na Ki Te (x3)',
                 link: 'https://www.youtube.com/shorts/8dEeiONAfHw'
             }
-        ]
-    },
-    {
-        category: 'Finish',
-        patterns: [
-            {
-                name: 'Tirekite Ta (x2) Tirekite Dha',
-                hasAudio: true
-            },
         ]
     }
 ];

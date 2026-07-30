@@ -682,8 +682,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
             const variation = varSelect.value === '__main__'
                 ? null
                 : taal?.variations?.find(v => v.name === varSelect.value);
-            const tutorials = variation?.tutorials ?? taal?.tutorial ? [variation?.tutorials?.[0] ?? taal?.tutorial ?? ''] : [];
-            tutorialUrl = tutorials[0] || undefined;
+            tutorialUrl = variation?.tutorials?.[0] ?? taal?.tutorial ?? undefined;
         }
 
         const block: SessionBlock = {
