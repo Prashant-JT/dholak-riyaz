@@ -46,6 +46,37 @@ export const FILLERS: Filler[] = [
         ]
     },
     {
+        category: 'Dadra',
+        patterns: [
+            {
+                name: 'Ta Tirekite Tit Ta',
+                link: 'https://www.youtube.com/shorts/Sv0zXoy8_ZQ'
+            },
+            {
+                name: 'Take Tirekite Tit Ta',
+                link: 'https://www.youtube.com/shorts/SyUZlnS4tlo'
+            },
+            {
+                name: 'Tirekite Tak Tirekite Tak',
+                link: null,
+                hasAudio: true
+            },
+            {
+                name: 'Dhi Dhi Na (x3)',
+                link: null,
+                note: 'Dandiya style'
+            },
+            {
+                name: 'TaTi (x3) Ta Tirekite Tak Ta',
+                note: 'Bhar Do Jholi style'
+            },
+            {
+                name: 'Ta Na Ki Te (x3)',
+                link: 'https://www.youtube.com/shorts/8dEeiONAfHw'
+            }
+        ]
+    },
+    {
         category: 'Tirekite',
         patterns: [
             {
@@ -59,48 +90,9 @@ export const FILLERS: Filler[] = [
                 note: 'Variación invertida del Tirekite'
             },
             {
-                name: 'Tirekite Tak Tak (x2)',
-                link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s'
-            },
-            {
-                name: 'Dha Tirekite Dha Tirekite',
-                link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s'
-            },
-            {
-                name: 'Tirekite Tak Tirekite Tak',
-                link: null,
-                hasAudio: true
-            },
-            {
-                name: 'Ta Tirekite Tit Ta',
-                link: 'https://www.youtube.com/shorts/Sv0zXoy8_ZQ'
-            },
-            {
-                name: 'Take Tirekite Tit Ta',
-                link: 'https://www.youtube.com/shorts/SyUZlnS4tlo'
-            },
-            {
                 name: 'Tirekite Ta (x2) Tirekite Dha',
                 hasAudio: true,
                 note: 'Finish / cierre'
-            }
-        ]
-    },
-    {
-        category: 'Dadra',
-        patterns: [
-            {
-                name: 'Dhi Dhi Na (x3)',
-                link: null,
-                note: 'Dandiya style'
-            },
-            {
-                name: 'TaTi (x3) Ta Tirekite Tak Ta',
-                note: 'Bhar Do Jholi style'
-            },
-            {
-                name: 'Ta Na Ki Te (x3)',
-                link: 'https://www.youtube.com/shorts/8dEeiONAfHw'
             }
         ]
     }
