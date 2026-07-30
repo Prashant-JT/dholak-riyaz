@@ -638,6 +638,7 @@ export class StatsView implements View {
     private activeUser: string = 'prashant';   // 'prashant' | 'meera' | 'compare'
     private charts: any[] = [];
     private userData: Record<string, UserStats> = {};
+    private dataLoaded: boolean = false;
     private section!: HTMLElement;
     private weeklyMode: 'weeks' | 'days' = 'weeks';
     private weeklySelectedIdx: number = 15;   // active week index in days mode
@@ -665,6 +666,7 @@ export class StatsView implements View {
                 dataset: { user: id },
             }, label);
             btn.addEventListener('click', () => {
+                if (!this.dataLoaded) return;  // Ignore tab clicks while data is loading
                 tabsWrap.querySelectorAll('.stats-user-tab').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.activeUser = id;
@@ -732,6 +734,7 @@ export class StatsView implements View {
             await new Promise(r => setTimeout(r, 250));
 
             this.userData = { prashant: p, meera: m };
+            this.dataLoaded = true;
             this.renderContent();
         } catch (err: unknown) {
             console.error('Error cargando estadísticas:', err);
