@@ -146,6 +146,42 @@ export const KAYDAS: KaydasData = {
             }
         ]
     }
+,
+
+    kayda4: {
+        name: 'Kayda 4 (Tirekite)',
+        taal: 'Keherwa',
+        beats: 8,
+        description: 'Keherwa con Tirekite - 8 Tiempos',
+        rows: [
+            {
+                label: 'Bhari (Matras 1-8)',
+                matras: [
+                    { matra: 1, bol: 'Dha',  technique: '' },
+                    { matra: 2, bol: 'Ti',   technique: '' },
+                    { matra: 3, bol: 'Re',   technique: '' },
+                    { matra: 4, bol: 'Ki',   technique: '' },
+                    { matra: 5, bol: 'Te',   technique: '' },
+                    { matra: 6, bol: 'Ta',   technique: '' },
+                    { matra: 7, bol: 'Ke',   technique: '' },
+                    { matra: 8, bol: 'Ta',   technique: '' }
+                ]
+            },
+            {
+                label: 'Khali (Matras 1-8)',
+                matras: [
+                    { matra: 1, bol: 'Ta',   technique: '' },
+                    { matra: 2, bol: 'Ti',   technique: '' },
+                    { matra: 3, bol: 'Re',   technique: '' },
+                    { matra: 4, bol: 'Ki',   technique: '' },
+                    { matra: 5, bol: 'Te',   technique: '' },
+                    { matra: 6, bol: 'Ta',   technique: '' },
+                    { matra: 7, bol: 'Ke',   technique: '' },
+                    { matra: 8, bol: 'Dha',   technique: '' }
+                ]
+            }
+        ]
+    }
 };
 
 // Made with Bob

@@ -90,6 +90,10 @@ export const FILLERS: Filler[] = [
                 note: 'Variación invertida del Tirekite'
             },
             {
+                name: 'TeTe Ta Tirekite Tak Tirekite',
+                link: 'https://www.youtube.com/watch?v=EY7T-5Hb8g0'
+            },
+            {
                 name: 'Tirekite Ta (x2) Tirekite Dha',
                 hasAudio: true,
                 note: 'Finish / cierre'
