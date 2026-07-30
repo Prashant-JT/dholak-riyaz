@@ -642,6 +642,7 @@ Bob (AI assistant) is responsible for tracking releases and deciding when to pro
 | Tag | Date | Summary |
 |---|---|---|
 | `v2.0.0` | 2026-07-05 | Full practice system — 7 taals, Riyaz planner, Stats, dark mode |
+| `v2.2.0` | 2026-07-27 | Tirekite section, tutorial video in practice blocks, cycle counter fix, new data |
 
 ### When to propose a new release
 Bob must propose a new GitHub release when **any of these thresholds are reached**:
