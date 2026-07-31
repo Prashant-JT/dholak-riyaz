@@ -104,8 +104,9 @@ export const FILLERS: Filler[] = [
                 note: 'Práctica para mejorar Tirekite'
             },
             {
-                name: 'TeTe Ta Tirekite Tak Tirekite',
-                link: 'https://www.youtube.com/watch?v=EY7T-5Hb8g0'
+                name: 'TeTe TaTa (x2) TeTe Ta Tirekite Tak Tirekite',
+                link: 'https://www.youtube.com/watch?v=EY7T-5Hb8g0',
+                note: 'Doble pickup de Bollywood famoso'
             },
             {
                 name: 'Tirekite Ta (x2) Tirekite Dha',
