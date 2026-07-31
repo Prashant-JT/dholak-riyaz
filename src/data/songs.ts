@@ -416,6 +416,12 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=MY1r1I6isMA"
     },
     {
+        title: "Piyu Bole",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=PGPVZT3Blvs"
+    },
+    {
         title: "Vaari Veragan Vasayi",
         artist: "Devocional",
         taal: "Rupak (7 beats)",
