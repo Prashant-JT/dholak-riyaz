@@ -42,6 +42,11 @@ export const FILLERS: Filler[] = [
                 name: 'Dhit DhaNa (x2) TaGhi Na TirKit Tak TirKit',
                 link: 'https://www.youtube.com/watch?v=9NEvR1j-eBs',
                 note: 'Billo Rani pickup'
+            },
+            {
+                name: 'TaTa KiTe (x2) Tak DhaN DhaN Dha',
+                link: 'https://www.youtube.com/shorts/vnSM7PNPS-c',
+                note: 'Finish / cierre'
             }
         ]
     },
