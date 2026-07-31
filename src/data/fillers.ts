@@ -47,6 +47,10 @@ export const FILLERS: Filler[] = [
                 name: 'TaTa KiTe (x2) Tak DhaN DhaN Dha',
                 link: 'https://www.youtube.com/shorts/vnSM7PNPS-c',
                 note: 'Finish / cierre'
+            },
+            {
+                name: 'TaTa — TaK TaTa Ta Ka Ta',
+                link: 'https://www.youtube.com/shorts/UjmCL85sQ40'
             }
         ]
     },

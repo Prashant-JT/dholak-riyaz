@@ -387,6 +387,23 @@ export const keherwa: Taal = {
             songs: [
                 { title: 'Billo Rani', url: 'https://www.youtube.com/watch?v=T15qhmhqraE' }
             ]
+        },
+        {
+            name: 'Keherwa variación Garba (Rajasthani)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhit',             technique: '' },
+                    { matra: 2, bol: 'Dha',              technique: '' },
+                    { matra: 3, bol: 'Ti',               technique: '' },
+                    { matra: 4, bol: 'Ta',               technique: '' },
+                    { matra: 5, bol: 'TiKiTe (thapki)',  technique: '' },
+                    { matra: 6, bol: 'Dha',              technique: '' },
+                    { matra: 7, bol: 'Ti',               technique: '' },
+                    { matra: 8, bol: 'Dha',              technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/shorts/SOtFKpS9A0I'],
+            description: '4 beats + 4 beats — thapki en M5'
         }
     ]
 };
