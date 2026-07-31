@@ -95,6 +95,11 @@ export const FILLERS: Filler[] = [
                 note: 'Variación invertida del Tirekite'
             },
             {
+                name: 'Dha TireKite / Tak TireKite (x3)',
+                link: 'https://www.youtube.com/shorts/1GeDXgWkTcY',
+                note: 'Práctica para mejorar Tirekite'
+            },
+            {
                 name: 'TeTe Ta Tirekite Tak Tirekite',
                 link: 'https://www.youtube.com/watch?v=EY7T-5Hb8g0'
             },
