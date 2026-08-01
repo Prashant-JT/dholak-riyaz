@@ -145,8 +145,7 @@ export const KAYDAS: KaydasData = {
                 ]
             }
         ]
-    }
-,
+    },
 
     kayda4: {
         name: 'Kayda 4 (Tirekite)',
@@ -178,6 +177,147 @@ export const KAYDAS: KaydasData = {
                     { matra: 6, bol: 'Ta',   technique: '' },
                     { matra: 7, bol: 'Ke',   technique: '' },
                     { matra: 8, bol: 'Dha',   technique: '' }
+                ]
+            }
+        ]
+    },
+
+    kayda5: {
+        name: 'Kayda 5 (Tirekite avanzado)',
+        taal: 'Teental',
+        beats: 16,
+        description: 'Teental con Tirekite avanzado - 16 Tiempos',
+        rows: [
+            {
+                label: 'Bhari (Matras 1-8)',
+                matras: [
+                    { matra: 1, bol: 'Dha',         technique: '' },
+                    { matra: 2, bol: 'TireKite',    technique: '' },
+                    { matra: 3, bol: 'TakTak',      technique: '' },
+                    { matra: 4, bol: 'TireKiteTak', technique: '' },
+                    { matra: 5, bol: 'Dha',         technique: '' },
+                    { matra: 6, bol: 'TireKiteTak', technique: '' },
+                    { matra: 7, bol: 'TiNa',        technique: '' },
+                    { matra: 8, bol: 'KiteTak',     technique: '' }
+                ]
+            },
+            {
+                label: 'Khali (Matras 9-16)',
+                matras: [
+                    { matra: 9,  bol: 'Ta',         technique: '' },
+                    { matra: 10, bol: 'TireKite',   technique: '' },
+                    { matra: 11, bol: 'TakTak',     technique: '' },
+                    { matra: 12, bol: 'TireKiteTak',   technique: '' },
+                    { matra: 13, bol: 'Dha',        technique: '' },
+                    { matra: 14, bol: 'TireKiteTak',technique: '' },
+                    { matra: 15, bol: 'DhiNa',      technique: '' },
+                    { matra: 16, bol: 'KiteTak',    technique: '' }
+                ]
+            }
+        ]
+    },
+
+    kayda6: {
+        name: 'Kayda 6 (Paltas y Pickups)',
+        taal: 'Teental',
+        beats: 16,
+        description: 'Teental — ideal para construir paltas y tihai',
+        rows: [
+            {
+                label: 'Bhari (Matras 1-8)',
+                matras: [
+                    { matra: 1,  bol: 'Dha',   technique: '' },
+                    { matra: 2,  bol: 'Ti',    technique: '' },
+                    { matra: 3,  bol: 'Dha',   technique: '' },
+                    { matra: 4,  bol: 'Ge',    technique: '' },
+                    { matra: 5,  bol: 'Ti',    technique: '' },
+                    { matra: 6,  bol: 'Na',    technique: '' },
+                    { matra: 7,  bol: 'Ki',    technique: '' },
+                    { matra: 8,  bol: 'Na',    technique: '' }
+                ]
+            },
+            {
+                label: 'Khali (Matras 9-16)',
+                matras: [
+                    { matra: 9,  bol: 'Ta',    technique: '' },
+                    { matra: 10, bol: 'Ti',    technique: '' },
+                    { matra: 11, bol: 'Dha',    technique: '' },
+                    { matra: 12, bol: 'Ge',    technique: '' },
+                    { matra: 13, bol: 'Dhi',   technique: '' },
+                    { matra: 14, bol: 'Na',    technique: '' },
+                    { matra: 15, bol: 'Ghi', technique: '' },
+                    { matra: 16, bol: 'Na',  technique: '' }
+                ]
+            }
+        ]
+    },
+
+    kayda7: {
+        name: 'Kayda 7 (Velocidad y Agilidad)',
+        taal: 'Teental',
+        beats: 16,
+        description: 'Teental — parejas de 2 notas por matra, ideal para pickups rápidos',
+        rows: [
+            {
+                label: 'Bhari (Matras 1-8)',
+                matras: [
+                    { matra: 1,  bol: 'GeNa',  technique: '' },
+                    { matra: 2,  bol: 'DhaGe', technique: '' },
+                    { matra: 3,  bol: 'TiNa',  technique: '' },
+                    { matra: 4,  bol: 'KiNa',  technique: '' },
+                    { matra: 5,  bol: 'GeNa',  technique: '' },
+                    { matra: 6,  bol: 'DhaGe', technique: '' },
+                    { matra: 7,  bol: 'DhiNa', technique: '' },
+                    { matra: 8,  bol: 'GiNa',  technique: '' }
+                ]
+            },
+            {
+                label: 'Khali (Matras 9-16)',
+                matras: [
+                    { matra: 9,  bol: 'KeNa',  technique: '' },
+                    { matra: 10, bol: 'TaKe',  technique: '' },
+                    { matra: 11, bol: 'TiNa',  technique: '' },
+                    { matra: 12, bol: 'KiNa',  technique: '' },
+                    { matra: 13, bol: 'GeNa',  technique: '' },
+                    { matra: 14, bol: 'DhaGe', technique: '' },
+                    { matra: 15, bol: 'DhiNa', technique: '' },
+                    { matra: 16, bol: 'GiNa',  technique: '' }
+                ]
+            }
+        ]
+    },
+
+    kayda8: {
+        name: 'Kayda de DhaTira KitaTaka TiraKita',
+        taal: 'Teental',
+        beats: 16,
+        description: 'Teental — patrón de 3 sílabas por matra para velocidad y fluidez',
+        tutorial: 'https://www.youtube.com/watch?v=hopp5I7Tjj0&t',
+        rows: [
+            {
+                label: 'Bhari (Matras 1-8)',
+                matras: [
+                    { matra: 1,  bol: 'DhaTira',  technique: '' },
+                    { matra: 2,  bol: 'KitaTaka', technique: '' },
+                    { matra: 3,  bol: 'TiraKita', technique: '' },
+                    { matra: 4,  bol: 'DhaTira',  technique: '' },
+                    { matra: 5,  bol: 'KitaTaka', technique: '' },
+                    { matra: 6,  bol: 'TiraKita', technique: '' },
+                    { matra: 7,  bol: 'TaaTira',  technique: '' },
+                    { matra: 8,  bol: 'KitaTaka', technique: '' }
+                ]
+            },
+            {
+                label: 'Khali (Matras 9-16)',
+                matras: [
+                    { matra: 9,  bol: 'TaaTira',  technique: '' },
+                    { matra: 10, bol: 'KitaTaka', technique: '' },
+                    { matra: 11, bol: 'TiraKita', technique: '' },
+                    { matra: 12, bol: 'TaaTira',  technique: '' },
+                    { matra: 13, bol: 'KitaTaka', technique: '' },
+                    { matra: 14, bol: 'TiraKita', technique: '' },
+                    { matra: 15, bol: 'DhaTira',  technique: '' },
+                    { matra: 16, bol: 'KitaTaka', technique: '' }
                 ]
             }
         ]
