@@ -288,7 +288,7 @@ export const KAYDAS: KaydasData = {
     },
 
     kayda8: {
-        name: 'Kayda de DhaTira KitaTaka TiraKita',
+        name: 'Kayda 8 de DhaTira KitaTaka TiraKita',
         taal: 'Teental',
         beats: 16,
         description: 'Teental — patrón de 3 sílabas por matra para velocidad y fluidez',
