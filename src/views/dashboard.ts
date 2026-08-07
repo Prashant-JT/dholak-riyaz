@@ -163,11 +163,10 @@ export class DashboardView implements View {
         });
         
         const beatsOptions = [
-            { value: '4', label: '4 Beats - Bhajan' },
-            { value: '5', label: '5 Beats - Jhaptal' },
-            { value: '6', label: '6 Beats - Dadra' },
-            { value: '7', label: '7 Beats - Rupak' },
-            { value: '8', label: '8 Beats - Keherwa' },
+            { value: '4',  label: '4 Beats - Bhajan' },
+            { value: '6',  label: '6 Beats - Dadra' },
+            { value: '7',  label: '7 Beats - Rupak' },
+            { value: '8',  label: '8 Beats - Keherwa' },
             { value: '10', label: '10 Beats - Jhaptal' },
             { value: '12', label: '12 Beats - Ektal' },
             { value: '14', label: '14 Beats - Deepchandi' },

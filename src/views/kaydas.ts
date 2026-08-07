@@ -26,6 +26,12 @@ export class KaydasView implements View {
         searchWrapper.appendChild(searchInput);
         section.appendChild(searchWrapper);
 
+        // Results counter
+        const kaydaCounter = createElement('p', {
+            className: 'text-muted text-sm mb-4'
+        }, `${Object.keys(KAYDAS).length} kaydas`);
+        section.appendChild(kaydaCounter);
+
         // Empty state
         const emptyMsg = createElement('p', {
             className: 'text-muted text-center py-6',
@@ -44,7 +50,7 @@ export class KaydasView implements View {
             kaydaCards.push({ el: card, index });
         });
 
-        setupSearchFilter(searchInput, kaydaCards, emptyMsg as HTMLElement);
+        setupSearchFilter(searchInput, kaydaCards, emptyMsg as HTMLElement, kaydaCounter);
 
         // Theory
         const theory = createElement('div', { 

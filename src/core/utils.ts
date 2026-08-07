@@ -183,17 +183,29 @@ export function createSectionHeader(title: string, subtitle: string): HTMLElemen
 export function setupSearchFilter(
     searchInput: HTMLInputElement,
     items: Array<{ el: HTMLElement; index: string }>,
-    emptyMsg: HTMLElement
+    emptyMsg: HTMLElement,
+    counter?: HTMLElement
 ): void {
+    const updateCounter = (visibleCount: number, query: string) => {
+        if (!counter) return;
+        counter.textContent = query
+            ? `${visibleCount} de ${items.length} resultados`
+            : `${items.length} resultados`;
+    };
+
+    // Set initial count
+    updateCounter(items.length, '');
+
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim().toLowerCase();
-        let anyVisible = false;
+        let visibleCount = 0;
         items.forEach(({ el, index }) => {
             const visible = query === '' || index.includes(query);
             el.style.display = visible ? '' : 'none';
-            if (visible) anyVisible = true;
+            if (visible) visibleCount++;
         });
-        emptyMsg.style.display = anyVisible ? 'none' : '';
+        emptyMsg.style.display = visibleCount > 0 ? 'none' : '';
+        updateCounter(visibleCount, query);
     });
 }
 

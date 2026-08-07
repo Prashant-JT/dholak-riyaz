@@ -22,6 +22,13 @@ export class FillersView implements View {
         searchWrapper.appendChild(searchInput);
         container.appendChild(searchWrapper);
 
+        // Results counter
+        const totalPatterns = FILLERS.reduce((sum, f) => sum + f.patterns.length, 0);
+        const fillersCounter = createElement('p', {
+            className: 'text-muted text-sm mb-4'
+        }, `${totalPatterns} patrones`);
+        container.appendChild(fillersCounter);
+
         // Empty state
         const emptyMsg = createElement('p', {
             className: 'text-muted text-center py-6',
@@ -42,19 +49,23 @@ export class FillersView implements View {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
             let anyVisible = false;
+            let visibleCount = 0;
 
             categorySections.forEach(({ section, cards }) => {
                 let categoryHasVisible = false;
                 cards.forEach(({ el, index }) => {
                     const visible = query === '' || index.includes(query);
                     el.style.display = visible ? '' : 'none';
-                    if (visible) categoryHasVisible = true;
+                    if (visible) { categoryHasVisible = true; visibleCount++; }
                 });
                 section.style.display = categoryHasVisible ? '' : 'none';
                 if (categoryHasVisible) anyVisible = true;
             });
 
             (emptyMsg as HTMLElement).style.display = anyVisible ? 'none' : '';
+            fillersCounter.textContent = query
+                ? `${visibleCount} de ${totalPatterns} patrones`
+                : `${totalPatterns} patrones`;
         });
 
         return container;
