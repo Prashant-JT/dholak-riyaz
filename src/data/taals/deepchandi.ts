@@ -129,31 +129,6 @@ export const deepchandi: Taal = {
             ]
         },
         {
-            name: 'Deepchandi variación 5 (Dha Te Te)',
-            rows: [
-                [
-                    { matra: 1,  bol: 'Dha',  technique: 'Taali' },
-                    { matra: 2,  bol: 'Te',   technique: '' },
-                    { matra: 3,  bol: 'Te',   technique: '' },
-                    { matra: 4,  bol: 'Dha',  technique: 'Taali' },
-                    { matra: 5,  bol: 'Dha',  technique: '' },
-                    { matra: 6,  bol: 'Te',   technique: '' },
-                    { matra: 7,  bol: 'Te',   technique: '' }
-                ],
-                [
-                    { matra: 8,  bol: 'Dha',  technique: 'Khali' },
-                    { matra: 9,  bol: 'Te',   technique: '' },
-                    { matra: 10, bol: 'Te',   technique: '' },
-                    { matra: 11, bol: 'NaNa', technique: 'Taali' },
-                    { matra: 12, bol: 'KeTe', technique: '' },
-                    { matra: 13, bol: 'NaNa', technique: '' },
-                    { matra: 14, bol: 'KeTe', technique: '' }
-                ]
-            ],
-            description: '3+4+3+4 — Dha Te Te / Dha Dha Te Te / Dha Te Te / NaNa KeTe NaNa KeTe',
-            tutorials: ['https://www.youtube.com/shorts/FIjx_CDM2P4']
-        },
-        {
             name: 'Deepchandi variación 4 (Thapki pattern)',
             rows: [
                 [
@@ -177,6 +152,31 @@ export const deepchandi: Taal = {
             ],
             description: '3+4+3+4 — variación con tutorial en video',
             tutorials: ['https://www.youtube.com/watch?v=HOZXYb-RjS0']
+        },
+        {
+            name: 'Deepchandi variación 5 (Dha Te Te)',
+            rows: [
+                [
+                    { matra: 1,  bol: 'Dha',  technique: 'Taali' },
+                    { matra: 2,  bol: 'Te',   technique: '' },
+                    { matra: 3,  bol: 'Te',   technique: '' },
+                    { matra: 4,  bol: 'Dha',  technique: 'Taali' },
+                    { matra: 5,  bol: 'Dha',  technique: '' },
+                    { matra: 6,  bol: 'Te',   technique: '' },
+                    { matra: 7,  bol: 'Te',   technique: '' }
+                ],
+                [
+                    { matra: 8,  bol: 'Dha',  technique: 'Khali' },
+                    { matra: 9,  bol: 'Te',   technique: '' },
+                    { matra: 10, bol: 'Te',   technique: '' },
+                    { matra: 11, bol: 'NaNa', technique: 'Taali' },
+                    { matra: 12, bol: 'KeTe', technique: '' },
+                    { matra: 13, bol: 'NaNa', technique: '' },
+                    { matra: 14, bol: 'KeTe', technique: '' }
+                ]
+            ],
+            description: '3+4+3+4 — Dha Te Te / Dha Dha Te Te / Dha Te Te / NaNa KeTe NaNa KeTe',
+            tutorials: ['https://www.youtube.com/shorts/FIjx_CDM2P4']
         },
     ]
 };
