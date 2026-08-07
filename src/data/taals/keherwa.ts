@@ -404,6 +404,23 @@ export const keherwa: Taal = {
             ],
             tutorials: ['https://www.youtube.com/shorts/SOtFKpS9A0I'],
             description: '4 beats + 4 beats — thapki en M5'
+        },
+        {
+            name: 'Keherwa Duff Pattern',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhi', technique: '' },
+                    { matra: 2, bol: 'T',  technique: '' },
+                    { matra: 3, bol: 'Ta',  technique: '' },
+                    { matra: 4, bol: 'Ka',  technique: '' },
+                    { matra: 5, bol: 'Ta',  technique: '' },
+                    { matra: 6, bol: 'Ga',  technique: '' },
+                    { matra: 7, bol: 'Dhi', technique: '' },
+                    { matra: 8, bol: 'T',  technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=Km1LRzVN7FA'],
+            description: '4 beats + 4 beats — Duff style'
         }
     ]
 };
