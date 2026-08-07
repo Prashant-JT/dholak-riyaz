@@ -432,6 +432,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=MohSBas5KD8"
+    },
+    {
+        title: "Halka Halka Saroor",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=glejzVr2oPQ"
     }
 ];
 

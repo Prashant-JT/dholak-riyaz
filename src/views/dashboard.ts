@@ -90,6 +90,25 @@ export class DashboardView implements View {
         }, '0'));
         
         displayContainer.appendChild(cycleContainer);
+
+        // Play/Stop and Reset buttons (placed early so they are visible without scrolling on mobile)
+        const buttonContainer = createElement('div', {
+            className: 'flex gap-4 items-center justify-center mb-6'
+        });
+
+        const playButton = createElement('button', {
+            id: 'playStopBtn',
+            className: 'btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg min-w-[140px]'
+        }, 'Iniciar');
+        buttonContainer.appendChild(playButton);
+
+        const resetButton = createElement('button', {
+            id: 'resetCyclesBtn',
+            className: 'btn-secondary py-4 px-8 text-lg'
+        }, 'Reset');
+        buttonContainer.appendChild(resetButton);
+
+        displayContainer.appendChild(buttonContainer);
         
         // BPM Slider with marks
         const bpmSliderContainer = createElement('div', {
@@ -196,27 +215,6 @@ export class DashboardView implements View {
         presetsContainer.appendChild(presetBtns);
         displayContainer.appendChild(presetsContainer);
 
-        // Botones de control
-        const buttonContainer = createElement('div', {
-            className: 'flex gap-4 items-center justify-center mt-6'
-        });
-        
-        // Play/Stop button
-        const playButton = createElement('button', {
-            id: 'playStopBtn',
-            className: 'btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg min-w-[140px]'
-        }, 'Iniciar');
-        buttonContainer.appendChild(playButton);
-        
-        // Reset Cycles button
-        const resetButton = createElement('button', {
-            id: 'resetCyclesBtn',
-            className: 'btn-secondary py-4 px-8 text-lg'
-        }, 'Reset');
-        buttonContainer.appendChild(resetButton);
-        
-        displayContainer.appendChild(buttonContainer);
-        
         card.appendChild(displayContainer);
         
         return card;
