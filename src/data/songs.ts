@@ -444,6 +444,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=iZAv9zDeFSc"
+    },
+    {
+        title: "Sanson Ki Mala Pe Simron Mein",
+        artist: "Devocional",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=eYSaHXXFIBU"
     }
 ];
 
