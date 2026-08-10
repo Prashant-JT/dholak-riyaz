@@ -12,7 +12,8 @@ Interactive practice system for Dholak with a high-precision metronome, session 
 
 ### 🥁 Metronome
 - High-precision metronome using the **Web Audio API**
-- Range 60–400 BPM with quick presets
+- Range 60–400 BPM with +/− buttons, slider and quick presets (Lento/Medio/Rápido/Drut)
+- Iniciar/Reset buttons visible without scrolling on mobile
 - Integration with **Lehras** (YouTube practice loops at different tempos)
 
 ### 📚 Theory & Bols
@@ -20,38 +21,42 @@ Interactive practice system for Dholak with a high-precision metronome, session 
 - Technique description, strike zone and sound for each bol
 
 ### 🎵 Taals (7 active)
-| Taal | Beats | Vibhags |
-|---|---|---|
-| Dadra | 6 | 3+3 |
-| Rupak | 7 | 3+2+2 |
-| Keherwa | 8 | 4+4 |
-| Ektal | 12 | 2+2+2+2+2+2 |
-| Deepchandi | 14 | 3+4+3+4 |
-| Addha | 16 | 4+4+4+4 |
-| Teental | 16 | 4+4+4+4 |
+| Taal | Beats | Vibhags | Variations |
+|---|---|---|---|
+| Dadra | 6 | 3+3 | 4 |
+| Rupak | 7 | 3+2+2 | 5 |
+| Keherwa | 8 | 4+4 | 17 |
+| Ektal | 12 | 2+2+2+2+2+2 | 3 |
+| Deepchandi | 14 | 3+4+3+4 | 5 |
+| Addha | 16 | 4+4+4+4 | 3 |
+| Teental | 16 | 4+4+4+4 | 4 |
 
-Each taal includes: matra table with Taali/Khali markers, variations and visual vibhag dividers.
+Each taal includes: matra table with Taali/Khali markers, variations with tutorials/songs, and visual vibhag dividers.
 
 ### 🎼 Kaydas & Fillers
-- Kaydas with variations (Teental)
-- Pickups, fillers and cuts organised by taal
+- **8 Kaydas** with variations (Teental, Keherwa, Dadra)
+- Pickups, fillers and cuts organised by taal, with search and results counter
 
 ### 🎬 Practice Songs
-- Library of Bollywood and devotional songs with their taal identified
+- **70+ songs** (Bollywood + devotional) with taal identified
+- Search by title + filter by taal
 - Direct YouTube links to practise along with the original artist
 
 ### 📅 Riyaz Session Planner
 - 3-step wizard: **Configure → Practise → Summary**
-- Configurable practice blocks: warm-up, taal, kayda, rest
+- Configurable practice blocks: warm-up (kayda + lehra), taal variation, pickup/filler
 - Predefined templates per taal (Keherwa, Dadra, Teental, etc.)
+- Draft recovery — interrupted sessions are automatically restored
 - Share your session via URL (hash-encoded)
 - Per-block timer with free mode and countdown mode
 
 ### 📊 Statistics (Supabase)
-- Session history saved to a real database (Supabase)
-- Weekly/monthly practice charts with Chart.js
-- Consecutive-day streak, total minutes, taals practised
-- Achievement badges for milestones (first session per taal, polyrhythm, etc.)
+- Session history saved to a real database (Supabase) — multi-user (Prashant + Meera)
+- Weekly practice bar chart with trend line
+- **Compare view**: Prashant vs Meera side-by-side with dual trend lines, distribution donuts and medals
+- Consecutive-day streak, weekly streak, total minutes, taals practised
+- Heatmap of practice days (16 weeks)
+- Achievement badges for milestones (first session per taal, polyrhythm, joint sessions, etc.)
 
 ### 🌙 Dark / Light Mode
 - Persistent theme toggle (localStorage)
@@ -216,4 +221,4 @@ Personal music practice project — MIT.
 
 ---
 
-**Version:** 2.0.0 · **Last updated:** 2026-07-05
+**Version:** 2.2.0 · **Last updated:** 2026-08-09
