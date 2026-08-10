@@ -1183,13 +1183,24 @@ export class StatsView implements View {
         // Dual weekly chart
         const compareCanvas = document.getElementById('stats-chart-compare') as HTMLCanvasElement | null;
         if (compareCanvas) {
+            const trendP = p.weekly.map((_, i, arr) => {
+                const slice = arr.slice(Math.max(0, i - 2), i + 1);
+                return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
+            });
+            const trendM = m.weekly.map((_, i, arr) => {
+                const slice = arr.slice(Math.max(0, i - 2), i + 1);
+                return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
+            });
+
             this.charts.push(new Chart(compareCanvas, {
                 type: 'bar',
                 data: {
                     labels: p.weekLabels,
                     datasets: [
-                        { label: 'Prashant', data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
-                        { label: 'Meera',    data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                        { label: 'Prashant',          data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                        { label: 'Meera',             data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                        { label: 'Tendencia Prashant', data: trendP,  type: 'line' as const, borderColor: C.orange, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+                        { label: 'Tendencia Meera',    data: trendM,  type: 'line' as const, borderColor: C.blue,   backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
                     ],
                 },
                 options: {

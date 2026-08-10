@@ -51,9 +51,9 @@ export const CONFIG: AppConfig = {
         { id: 'ektal', label: 'Ektal (12B)' },
         { id: 'deepchandi', label: 'Deepchandi (14B)' },
         { id: 'addha', label: 'Addha (16B)' },
-        { id: 'teental', label: 'Teental (16B)' },
-        { id: 'fillers', label: 'Pickups/Fillers', separator: true },
+        { id: 'teental', label: 'Teental (16B)', separator: true },
         { id: 'kaydas', label: 'Kaydas' },
+        { id: 'fillers', label: 'Pickups/Fillers' },
         { id: 'songs', label: 'Canciones' }
     ]
 };
