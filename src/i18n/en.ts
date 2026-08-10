@@ -195,6 +195,7 @@ export const en: Strings = {
         blockMetronome: (bpm: number) => `Metronome · ${bpm} BPM`,
         blockFreeTimer: 'Free timer',
         blockPatternMain: 'Main Pattern',
+        shareBlockCount: (n: number) => `${n} block${n !== 1 ? 's' : ''}`,
     },
 
     step2: {
@@ -232,6 +233,7 @@ export const en: Strings = {
         discardNo:      'Cancel',
         savedMsg:       '✓ <strong>Session saved.</strong> Redirecting...',
         discardedMsg:   '✕ <strong>Session discarded.</strong> Redirecting...',
+        cycles:         'cycles',
         saveModalTitle: '💾 Save session',
         saveModalJoint: 'Joint session — will be saved for Prashant and Meera',
         saveModalJointAuth: 'Enter Prashant\'s password to confirm',

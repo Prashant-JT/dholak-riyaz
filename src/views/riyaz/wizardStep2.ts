@@ -80,8 +80,8 @@ export function renderStep2(
 
     const subtitleEl = createElement('p', { className: 'section-subtitle' });
     const getSubtitleText = (b: SessionBlock): string =>
-        b.type === 'warmup'  ? `Warm Up — ${b.kaydaName}`
-        : b.type === 'pickup'  ? `Pickup — ${b.pickupTaalCategory ?? ''}`
+        b.type === 'warmup'  ? `${t('step3.warmUp')} — ${b.kaydaName}`
+        : b.type === 'pickup'  ? `${t('step3.pickup')} — ${b.pickupTaalCategory ?? ''}`
         : `${b.taalName} · ${b.variationName}`;
     subtitleEl.textContent = getSubtitleText(block);
     header.appendChild(subtitleEl);
@@ -434,7 +434,7 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
         const kayda = KAYDAS[block.kaydaId];
         if (kayda) {
             card.appendChild(createElement('p', { className: 'text-muted text-sm mb-4' },
-                `${kayda.taal} · ${kayda.beats} tiempos`));
+                `${kayda.taal} · ${t('kaydas.beatsUnit', kayda.beats)}`));
 
             kayda.rows.forEach((row, rowIndex) => {
                 const isMobile = window.innerWidth < 768;

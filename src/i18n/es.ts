@@ -201,6 +201,7 @@ export const es = {
         blockMetronome: (bpm: number) => `Metrónomo · ${bpm} BPM`,
         blockFreeTimer: 'Tiempo libre',
         blockPatternMain: 'Patrón Principal',
+        shareBlockCount: (n: number) => `${n} bloque${n !== 1 ? 's' : ''}`,
     },
 
     // ── Sesión Riyaz — Step 2 ─────────────────────────────────────────────────
@@ -240,6 +241,7 @@ export const es = {
         discardNo:      'Cancelar',
         savedMsg:       '✓ <strong>Sesión guardada.</strong> Redirigiendo...',
         discardedMsg:   '✕ <strong>Sesión descartada.</strong> Redirigiendo...',
+        cycles:         'ciclos',
         saveModalTitle: '💾 Guardar sesión',
         saveModalJoint: 'Sesión conjunta — se guardará para Prashant y Meera',
         saveModalJointAuth: 'Introduce la contraseña de Prashant para confirmar',

@@ -167,13 +167,13 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
     modal.appendChild(createElement('h3', { className: 'session-share-modal__title' }, t('step1.shareReceived')));
     modal.appendChild(createElement('p', { className: 'session-share-modal__name' }, share.name));
     modal.appendChild(createElement('p', { className: 'session-share-modal__meta' },
-        `${share.blocks.length} bloque${share.blocks.length !== 1 ? 's' : ''}`));
+        t('step1.shareBlockCount', share.blocks.length)));
 
     const list = createElement('ul', { className: 'session-share-modal__list' });
     share.blocks.forEach(b => {
         const text = b.type === 'warmup'
-            ? `🥁 Warm Up — ${b.kaydaName ?? ''}`
-            : `${b.taalName ?? b.taalId} · ${b.variationName ?? 'Patrón Principal'}${b.supportRef ? ' · ' + b.supportRef : ''}`;
+            ? `🥁 ${t('step3.warmUp')} — ${b.kaydaName ?? ''}`
+            : `${b.taalName ?? b.taalId} · ${b.variationName ?? t('step1.blockPatternMain')}${b.supportRef ? ' · ' + b.supportRef : ''}`;
         list.appendChild(createElement('li', {}, text));
     });
     modal.appendChild(list);
@@ -246,7 +246,7 @@ function renderTemplatesPanel(currentBlocks: SessionBlock[], cb: Step1Callbacks)
                 const info = createElement('div', { className: 'session-template-row__info' });
                 info.appendChild(createElement('span', { className: 'session-template-row__name' }, tmpl.name));
                 info.appendChild(createElement('span', { className: 'session-template-row__meta' },
-                    `${tmpl.blocks.length} bloque${tmpl.blocks.length !== 1 ? 's' : ''}`));
+                    t('step1.shareBlockCount', tmpl.blocks.length)));
                 row.appendChild(info);
 
                 const acts = createElement('div', { className: 'session-template-row__actions' });

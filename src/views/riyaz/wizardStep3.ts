@@ -46,9 +46,9 @@ export function renderStep3(
     // Breakdown por taal
     const taalTimes: Record<string, number> = {};
     sessionState.blocks.forEach(b => {
-        const key = b.type === 'warmup' ? 'Warm Up'
-            : b.type === 'pickup' ? 'Pickups'
-            : (b.taalName ?? 'Desconocido');
+        const key = b.type === 'warmup' ? t('step3.warmUp')
+            : b.type === 'pickup' ? t('step3.pickup')
+            : (b.taalName ?? t('stats.chartOther'));
         taalTimes[key] = (taalTimes[key] ?? 0) + (b.durationSecs ?? 0);
     });
     if (Object.keys(taalTimes).length > 0) {
@@ -164,7 +164,7 @@ function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
         const meta = createElement('span', { className: 'text-muted text-sm text-right' });
         const dur = formatTime(block.durationSecs ?? 0);
         const bpmInfo = block.supportType === 'metronome' && block.bpmStart ? ` · ${block.bpmEnd ?? block.bpmStart} BPM` : '';
-        const cyclesInfo = block.cyclesCompleted ? ` · ${block.cyclesCompleted} ciclos` : '';
+        const cyclesInfo = block.cyclesCompleted ? ` · ${block.cyclesCompleted} ${t('step3.cycles')}` : '';
         const songInfo = block.supportRef && block.supportType !== 'metronome' ? ` · ${block.supportRef}` : '';
         meta.textContent = `${dur}${bpmInfo}${cyclesInfo}${songInfo}`;
         row.appendChild(meta);

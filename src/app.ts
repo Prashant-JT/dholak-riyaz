@@ -9,6 +9,7 @@ import { MetronomeEngine } from './components/metronome.js';
 import { DarkModeToggle } from './components/darkModeToggle.js';
 import { CONFIG } from './core/config.js';
 import { updateSessionBadge } from './views/riyaz/sessionWizard.js';
+import { t } from './i18n/index.js';
 import type { NavigateEventDetail } from './types.js';
 
 class Application {
@@ -261,7 +262,7 @@ class Application {
             newButton.addEventListener('click', () => {
                 if (!this.metronome.getPlayingState()) {
                     this.metronome.start();
-                    newButton.textContent = 'Detener';
+                    newButton.textContent = t('metronome.stop');
                     newButton.classList.remove('btn-primary');
                     newButton.classList.add('btn-danger');
                     // Reset cycle counter display
@@ -270,7 +271,7 @@ class Application {
                     }
                 } else {
                     this.metronome.stop();
-                    newButton.textContent = 'Iniciar';
+                    newButton.textContent = t('metronome.start');
                     newButton.classList.remove('btn-danger');
                     newButton.classList.add('btn-primary');
                     // Reset all indicators
@@ -294,7 +295,7 @@ class Application {
                     // Get the updated play/stop button from the DOM
                     const currentPlayButton = document.getElementById('playStopBtn') as HTMLButtonElement | null;
                     if (currentPlayButton) {
-                        currentPlayButton.textContent = 'Iniciar';
+                        currentPlayButton.textContent = t('metronome.start');
                         currentPlayButton.classList.remove('btn-danger');
                         currentPlayButton.classList.add('btn-primary');
                     }
