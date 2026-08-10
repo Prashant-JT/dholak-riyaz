@@ -31,7 +31,8 @@ export const FILLERS: Filler[] = [
             },
             {
                 name: 'Ta (x8) Takite Ta TaTa (x2) DhaGeNa Dha TaDha',
-                note: 'Versión más simple del anterior'
+                note: 'Versión más simple del anterior',
+                note_en: 'Simpler version of the previous one'
             },
             {
                 name: 'Ta Ta / Dhin Ta / Ta GheRe Ta GheRe Ta / TaGhiNa TirKit Tak TirKit Ta',
@@ -46,7 +47,8 @@ export const FILLERS: Filler[] = [
             {
                 name: 'TaTa KiTe (x2) Tak DhaN DhaN Dha',
                 link: 'https://www.youtube.com/shorts/vnSM7PNPS-c',
-                note: 'Finish / cierre'
+                note: 'Finish / cierre',
+                note_en: 'Finish / closing'
             },
             {
                 name: 'TaTa — TaK TaTa Ta Ka Ta',
@@ -91,27 +93,32 @@ export const FILLERS: Filler[] = [
             {
                 name: 'Ti Re Ki Te Ta Ke (Tirekite Take)',
                 link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s',
-                note: 'Ejercicio base de velocidad — 4 dedos alternados'
+                note: 'Ejercicio base de velocidad — 4 dedos alternados',
+                note_en: 'Base speed exercise — 4 alternating fingers'
             },
             {
                 name: 'Ta Ke Ti Re Ki Te (Take Tirekite)',
                 link: 'https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s',
-                note: 'Variación invertida del Tirekite'
+                note: 'Variación invertida del Tirekite',
+                note_en: 'Inverted variation of Tirekite'
             },
             {
                 name: 'Dha TireKite / Tak TireKite (x3)',
                 link: 'https://www.youtube.com/shorts/1GeDXgWkTcY',
-                note: 'Práctica para mejorar Tirekite'
+                note: 'Práctica para mejorar Tirekite',
+                note_en: 'Practice to improve Tirekite'
             },
             {
                 name: 'TeTe TaTa (x2) TeTe Ta Tirekite Tak Tirekite',
                 link: 'https://www.youtube.com/watch?v=EY7T-5Hb8g0',
-                note: 'Doble pickup de Bollywood famoso'
+                note: 'Doble pickup de Bollywood famoso',
+                note_en: 'Famous Bollywood double pickup'
             },
             {
                 name: 'Tirekite Ta (x2) Tirekite Dha',
                 hasAudio: true,
-                note: 'Finish / cierre'
+                note: 'Finish / cierre',
+                note_en: 'Finish / closing'
             }
         ]
     }

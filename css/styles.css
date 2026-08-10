@@ -4112,3 +4112,36 @@ body.dark .session-action-feedback--success {
 
 /* Made with Bob */
 
+
+/* ── Language selector ──────────────────────────────────────────────────── */
+.lang-selector {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem 0.75rem;
+}
+
+.lang-btn {
+    flex: 1;
+    padding: 0.4rem 0;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1.5px solid var(--border-primary);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.lang-btn:hover {
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--orange-500);
+    border-color: var(--orange-500);
+}
+
+.lang-btn--active {
+    background: var(--orange-500);
+    color: #fff;
+    border-color: var(--orange-500);
+}

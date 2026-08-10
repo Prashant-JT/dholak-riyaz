@@ -1,4 +1,5 @@
 import { createElement, createSectionHeader } from '../core/utils.js';
+import { t, getLang } from '../i18n/index.js';
 import type { View } from '../types.js';
 import { FILLERS } from '../data/fillers.js';
 
@@ -10,14 +11,14 @@ export class FillersView implements View {
         });
 
         // Header
-        container.appendChild(createSectionHeader('Pickups / Fillers / Cuts', 'Patrones rítmicos de relleno y transición'));
+        container.appendChild(createSectionHeader(t('fillers.pageTitle'), t('fillers.pageSubtitle')));
 
         // Search bar
         const searchWrapper = createElement('div', { className: 'songs-search-wrapper mb-6' });
         const searchInput = createElement('input', {
             type: 'text',
             className: 'songs-search-input',
-            placeholder: 'Buscar patrón o categoría...'
+            placeholder: t('fillers.searchPlaceholder')
         }) as HTMLInputElement;
         searchWrapper.appendChild(searchInput);
         container.appendChild(searchWrapper);
@@ -26,14 +27,14 @@ export class FillersView implements View {
         const totalPatterns = FILLERS.reduce((sum, f) => sum + f.patterns.length, 0);
         const fillersCounter = createElement('p', {
             className: 'text-muted text-sm mb-4'
-        }, `${totalPatterns} patrones`);
+        }, t('fillers.counter', totalPatterns));
         container.appendChild(fillersCounter);
 
         // Empty state
         const emptyMsg = createElement('p', {
             className: 'text-muted text-center py-6',
             style: { display: 'none' }
-        }, 'No hay patrones que coincidan con la búsqueda.');
+        }, t('fillers.empty'));
         container.appendChild(emptyMsg);
 
         // Render each category and track sections + cards
@@ -64,8 +65,8 @@ export class FillersView implements View {
 
             (emptyMsg as HTMLElement).style.display = anyVisible ? 'none' : '';
             fillersCounter.textContent = query
-                ? `${visibleCount} de ${totalPatterns} patrones`
-                : `${totalPatterns} patrones`;
+                ? t('fillers.counterFiltered', visibleCount, totalPatterns)
+                : t('fillers.counter', totalPatterns);
         });
 
         return container;
@@ -119,17 +120,18 @@ export class FillersView implements View {
                 rel: 'noopener noreferrer',
                 className: 'songs-yt-btn'
             });
-            linkBtn.innerHTML = '▶ Tutorial';
+            linkBtn.innerHTML = t('fillers.tutorialBtn');
             nameDiv.appendChild(linkBtn);
         }
 
         card.appendChild(nameDiv);
 
         // Note (if exists)
-        if (pattern.note) {
+        const noteText = getLang() === 'en' && pattern.note_en ? pattern.note_en : pattern.note;
+        if (noteText) {
             const note = createElement('p', {
                 className: 'text-muted italic text-sm mt-2'
-            }, pattern.note);
+            }, noteText);
             card.appendChild(note);
         }
 

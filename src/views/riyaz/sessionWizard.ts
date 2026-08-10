@@ -10,6 +10,7 @@
  */
 
 import { createElement } from '../../core/utils.js';
+import { t } from '../../i18n/index.js';
 import type { View, SessionBlock, SessionState } from '../../types.js';
 
 import {
@@ -159,9 +160,9 @@ export class SessionWizardView implements View {
         const allBlocksDone = draft.state.currentBlockIndex >= draft.state.blocks.length;
 
         const elapsedMin = Math.round((Date.now() - draft.savedAt) / 60000);
-        const timeLabel = elapsedMin < 1 ? 'hace menos de 1 min'
-            : elapsedMin === 1 ? 'hace 1 min'
-            : `hace ${elapsedMin} min`;
+        const timeLabel = elapsedMin < 1 ? t('recovery.timeAgoLessThan1')
+            : elapsedMin === 1 ? t('recovery.timeAgo1')
+            : t('recovery.timeAgoN', elapsedMin);
 
         const completedCount = draft.state.blocks.filter(b => b.completedAt !== undefined).length;
         const totalBlocks = draft.state.blocks.length;
@@ -169,11 +170,11 @@ export class SessionWizardView implements View {
         const card = createElement('div', { className: 'session-draft-recovery' });
         card.appendChild(createElement('div', { className: 'session-draft-recovery__icon' }, allBlocksDone ? '🎉' : '🔄'));
         card.appendChild(createElement('h3', { className: 'session-draft-recovery__title' },
-            allBlocksDone ? 'Sesión lista para guardar' : 'Sesión interrumpida'));
+            allBlocksDone ? t('recovery.doneTitle') : t('recovery.interTitle')));
         card.appendChild(createElement('p', { className: 'session-draft-recovery__meta' },
             allBlocksDone
-                ? `${totalBlocks} bloque${totalBlocks !== 1 ? 's' : ''} completados · ${timeLabel}`
-                : `${completedCount} de ${totalBlocks} bloques completados · Bloque ${draft.state.currentBlockIndex + 1} en curso · ${timeLabel}`));
+                ? t('recovery.doneBlocks', totalBlocks, timeLabel)
+                : t('recovery.interMeta', completedCount, totalBlocks, draft.state.currentBlockIndex + 1, timeLabel)));
 
         const list = createElement('ul', { className: 'session-draft-recovery__list' });
         draft.state.blocks.forEach((b, i) => {
@@ -196,7 +197,7 @@ export class SessionWizardView implements View {
 
         if (allBlocksDone) {
             // All blocks done but session was not saved — go straight to summary
-            const finishBtn = createElement('button', { className: 'btn-primary' }, '💾 Finalizar y guardar sesión');
+            const finishBtn = createElement('button', { className: 'btn-primary' }, t('recovery.finishBtn'));
             finishBtn.addEventListener('click', () => {
                 this.sessionState = draft.state;
                 this.blockStartTime = 0;
@@ -205,7 +206,7 @@ export class SessionWizardView implements View {
             actions.appendChild(finishBtn);
         } else {
             // Session still in progress — offer continue or finish early
-            const continueBtn = createElement('button', { className: 'btn-primary' }, '▶ Continuar sesión');
+            const continueBtn = createElement('button', { className: 'btn-primary' }, t('recovery.continueBtn'));
             continueBtn.addEventListener('click', () => {
                 this.sessionState = draft.state;
                 this.blockStartTime = Date.now() - draft.elapsedSecs * 1000;
@@ -215,7 +216,7 @@ export class SessionWizardView implements View {
 
             // Escape hatch: finish early with the blocks already done
             if (completedCount > 0) {
-                const finishEarlyBtn = createElement('button', { className: 'session-draft-recovery__finish-early' }, `💾 Guardar lo que hay (${completedCount} bloque${completedCount !== 1 ? 's' : ''})`);
+                const finishEarlyBtn = createElement('button', { className: 'session-draft-recovery__finish-early' }, t('recovery.finishEarly', completedCount));
                 finishEarlyBtn.addEventListener('click', () => {
                     this.sessionState = draft.state;
                     this.blockStartTime = 0;
@@ -226,17 +227,16 @@ export class SessionWizardView implements View {
         }
 
         const discardWrapper = createElement('div', { className: 'session-draft-recovery__discard-wrapper' });
-        const discardBtn = createElement('button', { className: 'session-draft-recovery__discard' }, 'Descartar y empezar de nuevo');
+        const discardBtn = createElement('button', { className: 'session-draft-recovery__discard' }, t('recovery.discardBtn'));
         const confirmRow = createElement('div', { className: 'session-discard-confirm', style: { display: 'none' } });
-        confirmRow.appendChild(createElement('span', { className: 'text-muted text-sm' },
-            '¿Seguro? Se perderá la sesión interrumpida.'));
+        confirmRow.appendChild(createElement('span', { className: 'text-muted text-sm' }, t('recovery.discardConfirm')));
         const confirmBtns = createElement('div', { className: 'flex gap-3 mt-3' });
-        const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, 'Sí, descartar');
+        const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, t('recovery.discardYes'));
         yesBtn.addEventListener('click', () => {
             clearSessionDraft();
             this.doStep1();
         });
-        const noBtn = createElement('button', { className: 'btn-secondary flex-1' }, 'Cancelar');
+        const noBtn = createElement('button', { className: 'btn-secondary flex-1' }, t('recovery.discardNo'));
         noBtn.addEventListener('click', () => {
             confirmRow.style.display = 'none';
             discardBtn.style.display = '';

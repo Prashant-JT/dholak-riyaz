@@ -10,7 +10,9 @@ export const rupak: Taal = {
     name: 'Rupak Taal',
     beats: 7,
     description: 'Métrica asimétrica',
+    description_en: 'Asymmetric metre',
     subtitle: 'Estructura 3+2+2',
+    subtitle_en: '3+2+2 structure',
     rows: [
         [
             { matra: 1, bol: 'Ti', technique: 'Khali' },
@@ -24,12 +26,15 @@ export const rupak: Taal = {
     ],
     tip: {
         title: 'Desafío Técnico',
+        title_en: 'Technical Challenge',
         text: 'Rupak es uno de los taals más desafiantes debido a su estructura asimétrica 3+2+2. La división irregular requiere un fuerte sentido interno del pulso. Comienza muy lento (60 BPM) y enfócate en sentir los tres grupos distintos antes de aumentar la velocidad.',
+        text_en: 'Rupak is one of the most challenging taals due to its asymmetric 3+2+2 structure. The irregular division requires a strong internal sense of pulse. Start very slow (60 BPM) and focus on feeling the three distinct groups before increasing tempo.',
         color: 'amber'
     },
     variations: [
         {
             name: 'Rupak variación 1 (TiNa TeTe)',
+            name_en: 'Rupak variation 1 (TiNa TeTe)',
             rows: [
                 [
                     { matra: 1, bol: 'Ti', technique: 'Khali' },

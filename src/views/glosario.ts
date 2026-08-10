@@ -5,6 +5,7 @@
 
 import { createElement, createBolIndicatorsLegend, createSectionHeader } from '../core/utils.js';
 import { BOLS_BY_CATEGORY } from '../data/bols.js';
+import { t, getLang } from '../i18n/index.js';
 import type { View, Bol } from '../types.js';
 
 export class GlosarioView implements View {
@@ -14,52 +15,23 @@ export class GlosarioView implements View {
             className: 'view-section' 
         });
         
-        section.appendChild(createSectionHeader('Teoría', 'Conceptos fundamentales y glosario de Bols del Dholak'));
+        section.appendChild(createSectionHeader(t('glosario.pageTitle'), t('glosario.pageSubtitle')));
         
         // Taal theory
         const theorySection = createElement('div', { className: 'card p-8 mb-8' });
         theorySection.appendChild(createElement('h3', {
             className: 'text-2xl font-bold mb-6'
-        }, 'El concepto de Taal (El Ciclo)'));
+        }, t('glosario.taalConcept')));
         
         // Visual concept diagram
         const diagram = this.createTaalDiagram();
         theorySection.appendChild(diagram);
         
-        const concepts = [
-            {
-                term: 'Matra',
-                definition: 'Los tiempos o pulsos (como el 1, 2, 3, 4).'
-            },
-            {
-                term: 'Vibhag',
-                definition: 'Cómo se dividen esos tiempos (por ejemplo, el ritmo de 8 tiempos se divide en 4+4).'
-            },
-            {
-                term: 'Sam (सम)',
-                definition: 'El tiempo número 1, el más importante, donde todo empieza y termina. Marcado en ROJO en el metrónomo.'
-            },
-            {
-                term: 'Khali (खाली)',
-                definition: 'Tiempo "vacío" o débil, contrapunto del Sam. Marca la segunda mitad del ciclo.'
-            },
-            {
-                term: 'Bhari (भरी)',
-                definition: 'Tiempo "lleno" o fuerte. Incluye el Sam y otros tiempos acentuados.'
-            },
-            {
-                term: 'Lay',
-                definition: 'Ritmo o movimiento uniforme. La velocidad del tempo.'
-            },
-            {
-                term: 'Bol',
-                definition: 'Lo que se toca sobre el tabla, el pakhawaj o dholak. Las sílabas rítmicas.'
-            },
-            {
-                term: 'Avartan (आवर्तन)',
-                definition: 'Un ciclo completo del Taal. El contador de ciclos muestra cuántos Avartans has completado.'
-            }
-        ];
+        const conceptKeys = ['matra','vibhag','sam','khali','bhari','lay','bol','avartan'] as const;
+        const concepts = conceptKeys.map(k => ({
+            term: t(`glosario.concepts.${k}.term`),
+            definition: t(`glosario.concepts.${k}.def`),
+        }));
         
         concepts.forEach(concept => {
             const conceptDiv = createElement('div', { className: 'mb-4' });
@@ -77,7 +49,7 @@ export class GlosarioView implements View {
         // Bol glossary - three columns
         const bolsHeader = createElement('h3', {
             className: 'section-title'
-        }, 'Glosario de Bols');
+        }, t('glosario.bolsTitle'));
         section.appendChild(bolsHeader);
         
         // Three-column container
@@ -85,30 +57,21 @@ export class GlosarioView implements View {
             className: 'grid grid-cols-1 md:grid-cols-3 gap-6'
         });
         
-        // Column 1: Chatti (Dayan - Treble)
         const chattiColumn = this.createBolColumn(
-            'Chatti (Dayan)',
-            'Parche Agudo',
-            BOLS_BY_CATEGORY.chatti,
-            'glosario-col--orange'
+            t('glosario.colChatti'), t('glosario.colChattiSub'),
+            BOLS_BY_CATEGORY.chatti, 'glosario-col--orange'
         );
         columnsContainer.appendChild(chattiColumn);
         
-        // Column 2: Bayan (Bass)
         const bayanColumn = this.createBolColumn(
-            'Bayan',
-            'Parche Grave',
-            BOLS_BY_CATEGORY.bayan,
-            'glosario-col--blue'
+            t('glosario.colBayan'), t('glosario.colBayanSub'),
+            BOLS_BY_CATEGORY.bayan, 'glosario-col--blue'
         );
         columnsContainer.appendChild(bayanColumn);
         
-        // Column 3: Compound bols
         const compuestosColumn = this.createBolColumn(
-            'Compuestos',
-            'Dha & Dhi',
-            BOLS_BY_CATEGORY.compuestos,
-            'glosario-col--purple'
+            t('glosario.colCompuestos'), t('glosario.colCompuestosSub'),
+            BOLS_BY_CATEGORY.compuestos, 'glosario-col--purple'
         );
         columnsContainer.appendChild(compuestosColumn);
         
@@ -138,10 +101,10 @@ export class GlosarioView implements View {
         const secondaryNodes = createElement('div', { className: 'diagram-secondary-row' });
         
         const nodes = [
-            { label: 'LAY', desc: 'Ritmo o movimiento uniforme' },
-            { label: 'MATRA', desc: 'Para medir el tiempo' },
-            { label: 'VIBHAG', desc: 'Cada taal se divide, a lo cual se le llama vibhag (secciones)' },
-            { label: 'BOL', desc: 'Lo que se toca sobre el tabla, el pakhawaj o dholak' }
+            { label: t('glosario.diagramNodes.lay'),    desc: t('glosario.diagramNodes.layDesc') },
+            { label: t('glosario.diagramNodes.matra'),  desc: t('glosario.diagramNodes.matraDesc') },
+            { label: t('glosario.diagramNodes.vibhag'), desc: t('glosario.diagramNodes.vibhagDesc') },
+            { label: t('glosario.diagramNodes.bol'),    desc: t('glosario.diagramNodes.bolDesc') },
         ];
         
         nodes.forEach(node => {
@@ -160,7 +123,11 @@ export class GlosarioView implements View {
         
         // LAY subdivisions
         const laySubdivisions = createElement('div', { className: 'diagram-tertiary-row' });
-        const layTypes = ['DRUT\n(FAST)', 'MADHYA\n(MEDIUM)', 'VILAMBIT\n(SLOW)'];
+        const layTypes = [
+            t('glosario.diagramNodes.drut'),
+            t('glosario.diagramNodes.madhya'),
+            t('glosario.diagramNodes.vilambit'),
+        ];
         
         layTypes.forEach(type => {
             const subNode = createElement('div', {
@@ -207,14 +174,14 @@ export class GlosarioView implements View {
                 if (bol.thapki) {
                     const dot = createElement('span', {
                         className: 'bol-indicator bol-indicator--thapki',
-                        title: 'Admite variación con Thapki'
+                        title: t('glosario.thapkiTitle')
                     }, '');
                     indicators.appendChild(dot);
                 }
                 if (bol.ghuisa) {
                     const dot = createElement('span', {
                         className: 'bol-indicator bol-indicator--ghuisa',
-                        title: 'Admite variación con Ghuisa'
+                        title: t('glosario.ghuisaTitle')
                     }, '');
                     indicators.appendChild(dot);
                 }
@@ -223,14 +190,15 @@ export class GlosarioView implements View {
             bolSection.appendChild(bolHeader);
             
             // Technique
+            const isEn = getLang() === 'en';
             const tecnicaP = createElement('p', { className: 'text-muted mb-1 mt-2' });
-            tecnicaP.innerHTML = `<strong>Técnica:</strong> ${bol.technique}`;
+            tecnicaP.innerHTML = `<strong>${t('glosario.technique')}</strong> ${isEn && bol.technique_en ? bol.technique_en : bol.technique}`;
             bolSection.appendChild(tecnicaP);
             
             // Description
             bolSection.appendChild(createElement('p', {
                 className: 'text-muted'
-            }, bol.description));
+            }, isEn && bol.description_en ? bol.description_en : bol.description));
             
             column.appendChild(bolSection);
         });

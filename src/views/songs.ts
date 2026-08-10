@@ -4,9 +4,11 @@
 
 import { createElement } from '../core/utils.js';
 import { SONGS } from '../data/songs.js';
+import { t } from '../i18n/index.js';
 import type { View } from '../types.js';
 
 // Extract unique taals preserving order of appearance
+// 'Todos' sentinel stays as 'Todos' in value; label is translated at render time
 const TAAL_OPTIONS = ['Todos', ...Array.from(new Set(SONGS.map(s => s.taal)))];
 
 // Sorted songs: taal order preserved, alphabetical within each taal
@@ -21,16 +23,15 @@ export class SongsView implements View {
     public render(): HTMLElement {
         const container = createElement('div', { className: 'view-container' });
 
-        container.appendChild(createElement('h1', { className: 'section-title' }, 'Canciones'));
-        container.appendChild(createElement('p', { className: 'section-subtitle mb-6' },
-            'Colección de canciones para practicar. Haz clic en ▶ YouTube para abrir el video.'));
+        container.appendChild(createElement('h1', { className: 'section-title' }, t('songs.pageTitle')));
+        container.appendChild(createElement('p', { className: 'section-subtitle mb-6' }, t('songs.pageSubtitle')));
 
         // Search input
         const searchWrapper = createElement('div', { className: 'songs-search-wrapper' });
         const searchInput = createElement('input', {
             type: 'text',
             id: 'songsSearch',
-            placeholder: 'Buscar canción...',
+            placeholder: t('songs.searchPlaceholder'),
             className: 'songs-search-input'
         }) as HTMLInputElement;
         searchWrapper.appendChild(searchInput);
@@ -40,9 +41,9 @@ export class SongsView implements View {
             id: 'songsTaalFilter',
             className: 'songs-taal-select'
         }) as HTMLSelectElement;
-        TAAL_OPTIONS.forEach(t => {
-            const label = t === 'Todos' ? 'Todos' : t.replace(/\s*\(.*\)$/, '');
-            taalSelect.appendChild(createElement('option', { value: t }, label) as HTMLOptionElement);
+        TAAL_OPTIONS.forEach(opt => {
+            const label = opt === 'Todos' ? t('songs.filterAll') : opt.replace(/\s*\(.*\)$/, '');
+            taalSelect.appendChild(createElement('option', { value: opt }, label) as HTMLOptionElement);
         });
         searchWrapper.appendChild(taalSelect);
 
@@ -52,7 +53,7 @@ export class SongsView implements View {
         const counter = createElement('p', {
             id: 'songsCounter',
             className: 'text-muted text-sm mb-4'
-        }, `${SONGS.length} canciones`);
+        }, t('songs.counter', SONGS.length));
         container.appendChild(counter);
 
         // Song list
@@ -64,7 +65,7 @@ export class SongsView implements View {
         const emptyState = createElement('p', {
             id: 'songsEmpty',
             className: 'text-muted text-center py-12 hidden'
-        }, 'No se encontraron canciones.');
+        }, t('songs.empty'));
         container.appendChild(emptyState);
 
         requestAnimationFrame(() => this.initFilters());
@@ -98,8 +99,8 @@ export class SongsView implements View {
 
             const total = SONGS_SORTED.length;
             counter.textContent = (query || taalVal !== 'Todos')
-                ? `${visible} de ${total} canciones`
-                : `${total} canciones`;
+                ? t('songs.counterFiltered', visible, total)
+                : t('songs.counter', total);
 
             emptyState.classList.toggle('hidden', visible > 0);
         };
@@ -128,7 +129,7 @@ export class SongsView implements View {
             target: '_blank',
             rel: 'noopener noreferrer',
             className: 'songs-yt-btn'
-        }, '▶ YouTube');
+        }, t('songs.ytButton'));
 
         row.appendChild(title);
         row.appendChild(button);

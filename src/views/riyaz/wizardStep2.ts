@@ -12,6 +12,7 @@ import { SONGS } from '../../data/songs.js';
 import { FILLERS } from '../../data/fillers.js';
 import { CONFIG } from '../../core/config.js';
 import { MetronomeEngine } from '../../components/metronome.js';
+import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState, Matra } from '../../types.js';
 import { saveSessionDraft } from './wizardDraft.js';
 
@@ -57,7 +58,7 @@ export function renderStep2(
     if (!block) {
         container.appendChild(Object.assign(document.createElement('p'), {
             className: 'text-muted text-center py-12',
-            textContent: 'No se pudo cargar el bloque. Por favor, recarga la página.',
+            textContent: t('step2.blockLoadError'),
         }));
         return;
     }
@@ -93,7 +94,7 @@ export function renderStep2(
         style: { fontSize: '4rem', letterSpacing: '2px' }
     }, '00:00');
     timerCard.appendChild(timerDisplay);
-    timerCard.appendChild(createElement('p', { className: 'text-muted text-sm' }, 'Cronómetro libre'));
+    timerCard.appendChild(createElement('p', { className: 'text-muted text-sm' }, t('step2.freeTimer')));
     container.appendChild(timerCard);
 
     container.appendChild(renderSupportZone(block, cb));
@@ -104,7 +105,7 @@ export function renderStep2(
     }
 
     // ✏️ Edit button + panel — just before the next/finish button
-    const editBtn = createElement('button', { className: 'session-edit-btn' }, '✏️ Editar bloque');
+    const editBtn = createElement('button', { className: 'session-edit-btn' }, t('step2.editBtn'));
     container.appendChild(editBtn);
 
     const editPanel = createElement('div', { className: 'session-edit-panel', style: { display: 'none' } });
@@ -114,7 +115,7 @@ export function renderStep2(
         const isOpen = editPanel.style.display !== 'none';
         if (isOpen) {
             editPanel.style.display = 'none';
-            editBtn.textContent = '✏️ Editar bloque';
+            editBtn.textContent = t('step2.editBtn');
         } else {
             editPanel.innerHTML = '';
             renderEditPanel(editPanel, block, sessionState, blockStartTime, cb, () => {
@@ -122,12 +123,12 @@ export function renderStep2(
                 renderStep2(container, sessionState, blockStartTime, cb);
             });
             editPanel.style.display = '';
-            editBtn.textContent = '✕ Cerrar';
+            editBtn.textContent = t('step2.editClose');
         }
     });
 
     const nextBtn = createElement('button', { className: 'btn-primary session-next-btn' },
-        isLast ? '✓ Finalizar sesión' : 'Siguiente bloque →');
+        isLast ? t('step2.finishBtn') : t('step2.nextBtn'));
     nextBtn.addEventListener('click', () => {
         // Disable immediately to prevent double-click triggering two completions
         nextBtn.setAttribute('disabled', 'true');
@@ -162,7 +163,7 @@ export function completeCurrentBlock(
 
     const flash = createElement('div', { className: 'session-block-complete-flash' });
     const iconSpan = createElement('span', { className: 'session-block-complete-flash__icon' }, isLast ? '🎉' : '✓');
-    const textSpan = createElement('span', {}, isLast ? '¡Sesión completada!' : 'Bloque completado');
+    const textSpan = createElement('span', {}, isLast ? t('step2.sessionDone') : t('step2.blockDone'));
     flash.appendChild(iconSpan);
     flash.appendChild(textSpan);
     container.appendChild(flash);
@@ -230,7 +231,7 @@ function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement
                 color: 'var(--text-secondary)', marginBottom: '0.375rem',
                 textTransform: 'uppercase', letterSpacing: '0.04em'
             }
-        }, 'Taal'));
+        }, t('step2.taalLabel')));
         const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
         Object.keys(TAALS).forEach(id => {
             const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
@@ -295,14 +296,14 @@ export function buildMetronomeUI(
     }, `${initialBpm} BPM`);
     container.appendChild(bpmDisplay);
 
-    const cycleDisplay = createElement('div', { className: 'text-muted text-sm text-center mb-3' }, 'Ciclos: 0');
+    const cycleDisplay = createElement('div', { className: 'text-muted text-sm text-center mb-3' }, `${t('step2.cyclesLabel')} 0`);
     container.appendChild(cycleDisplay);
 
     metro.onCycle((_cycle: number) => {
         const state = cb.getState();
         const newCount = state.cycleCount + 1;
         cb.setState({ cycleCount: newCount });
-        cycleDisplay.textContent = `Ciclos: ${newCount}`;
+        cycleDisplay.textContent = `${t('step2.cyclesLabel')} ${newCount}`;
         if (block) block.cyclesCompleted = newCount;
     });
 
@@ -330,14 +331,14 @@ export function buildMetronomeUI(
 
     const playBtn = createElement('button', {
         className: 'btn-primary w-full', style: { fontSize: '1.1rem', padding: '0.875rem' }
-    }, '▶ Play');
+    }, t('step2.playBtn'));
     let playing = false;
 
     const stopPlayback = () => {
         playing = false;
         cb.getState().metronome?.stop();
         indicators.forEach(d => d.classList.remove('active'));
-        playBtn.textContent = '▶ Play';
+        playBtn.textContent = t('step2.playBtn');
         playBtn.className = 'btn-primary w-full';
         (playBtn as HTMLElement).style.padding = '0.875rem';
     };
@@ -346,7 +347,7 @@ export function buildMetronomeUI(
         playing = !playing;
         if (playing) {
             cb.getState().metronome?.start();
-            playBtn.textContent = '⏹ Stop';
+            playBtn.textContent = t('step2.stopBtn');
             playBtn.className = 'btn-secondary w-full';
             (playBtn as HTMLElement).style.padding = '0.875rem';
         } else {
@@ -364,7 +365,7 @@ export function buildMetronomeUI(
 function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTMLElement {
     const wrapper = createElement('div', { className: 'session-metro-wrapper' });
 
-    const toggleBtn = createElement('button', { className: 'btn-secondary session-metro-toggle' }, 'Metrónomo de apoyo');
+    const toggleBtn = createElement('button', { className: 'btn-secondary session-metro-toggle' }, t('step2.supportMetronome'));
     const metroCard = createElement('div', {
         className: 'card p-6 session-metro-card', style: { display: 'none' }
     });
@@ -376,7 +377,7 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
             color: 'var(--text-secondary)', marginBottom: '0.375rem',
             textTransform: 'uppercase', letterSpacing: '0.04em'
         }
-    }, 'Taal'));
+    }, t('step2.taalLabel')));
     const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     Object.keys(TAALS).forEach(id => {
         const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
@@ -402,11 +403,11 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
         if (isOpen) {
             stopMetronome(cb);
             metroCard.style.display = 'none';
-            toggleBtn.textContent = 'Metrónomo de apoyo';
+            toggleBtn.textContent = t('step2.supportMetronome');
         } else {
             if (!metroBuilt) { buildForTaal(taalSelect.value); metroBuilt = true; }
             metroCard.style.display = '';
-            toggleBtn.textContent = 'Ocultar metrónomo';
+            toggleBtn.textContent = t('step2.supportHide');
         }
     });
 
@@ -588,7 +589,7 @@ function renderEditPanel(
     // ── WARM UP ───────────────────────────────────────────────────────────────
     if (block.type === 'warmup') {
         const lehraField = createElement('div', { className: 'session-form-field' });
-        lehraField.appendChild(createElement('label', {}, 'Lehra'));
+        lehraField.appendChild(createElement('label', {}, t('step1.warmUpLehra')));
         const lehraSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
         LEHRAS.filter(l => l.url).forEach(l => {
             const opt = createElement('option', { value: l.url }, l.label) as HTMLOptionElement;
@@ -599,7 +600,7 @@ function renderEditPanel(
         panel.appendChild(lehraField);
 
         const kaydaField = createElement('div', { className: 'session-form-field' });
-        kaydaField.appendChild(createElement('label', {}, 'Kayda'));
+        kaydaField.appendChild(createElement('label', {}, t('step1.warmUpKayda')));
         const kaydaSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
         Object.entries(KAYDAS).forEach(([id, k]) => {
             const opt = createElement('option', { value: id }, k.name) as HTMLOptionElement;
@@ -609,7 +610,7 @@ function renderEditPanel(
         kaydaField.appendChild(kaydaSelect);
         panel.appendChild(kaydaField);
 
-        const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, '✓ Confirmar cambios');
+        const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, t('step2.confirmChanges'));
         confirmBtn.addEventListener('click', () => {
             const lehraIdx = LEHRAS.findIndex(l => l.url === lehraSelect.value);
             block.lehraUrl   = lehraSelect.value;
@@ -626,7 +627,7 @@ function renderEditPanel(
     // ── PICKUP ────────────────────────────────────────────────────────────────
     if (block.type === 'pickup') {
         const catField = createElement('div', { className: 'session-form-field' });
-        catField.appendChild(createElement('label', {}, 'Taal / Categoría'));
+        catField.appendChild(createElement('label', {}, t('step1.pickupCat')));
         const catSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
         const categories = [...new Set(FILLERS.map(f => f.category))];
         categories.forEach(cat => {
@@ -638,7 +639,7 @@ function renderEditPanel(
         panel.appendChild(catField);
 
         const patField = createElement('div', { className: 'session-form-field' });
-        patField.appendChild(createElement('label', {}, 'Patrón'));
+        patField.appendChild(createElement('label', {}, t('step1.pickupPattern')));
         const patSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
         patField.appendChild(patSelect);
         panel.appendChild(patField);
@@ -657,7 +658,7 @@ function renderEditPanel(
         refreshPatterns(catSelect.value);
         catSelect.addEventListener('change', () => refreshPatterns(catSelect.value));
 
-        const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, '✓ Confirmar cambios');
+        const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, t('step2.confirmChanges'));
         confirmBtn.addEventListener('click', () => {
             try {
                 const parsed = JSON.parse(patSelect.value) as { name: string; link: string };
@@ -674,7 +675,7 @@ function renderEditPanel(
 
     // ── PRACTICE ──────────────────────────────────────────────────────────────
     const taalField = createElement('div', { className: 'session-form-field' });
-    taalField.appendChild(createElement('label', {}, 'Taal'));
+    taalField.appendChild(createElement('label', {}, t('step2.taalLabel')));
     const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     activeTaals.forEach(id => {
         const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
@@ -685,7 +686,7 @@ function renderEditPanel(
     panel.appendChild(taalField);
 
     const varField = createElement('div', { className: 'session-form-field' });
-    varField.appendChild(createElement('label', {}, 'Variación'));
+    varField.appendChild(createElement('label', {}, t('step1.variationLabel')));
     const varSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     varField.appendChild(varSelect);
     panel.appendChild(varField);
@@ -704,7 +705,7 @@ function renderEditPanel(
 
     const refreshVariations = (taalId: string, currentVarName?: string) => {
         varSelect.innerHTML = '';
-        varSelect.appendChild(createElement('option', { value: '__main__' }, 'Patrón Principal') as HTMLOptionElement);
+        varSelect.appendChild(createElement('option', { value: '__main__' }, t('step1.blockPatternMain')) as HTMLOptionElement);
         (TAALS[taalId]?.variations ?? []).forEach(v => {
             if (!v.special) {
                 const opt = createElement('option', { value: v.name }, v.name) as HTMLOptionElement;
@@ -713,7 +714,7 @@ function renderEditPanel(
             }
         });
         // Pre-select main pattern if it was the current block's variation
-        if ((currentVarName ?? block.variationName) === 'Patrón Principal') {
+        if ((currentVarName ?? block.variationName) === 'Patrón Principal' || (currentVarName ?? block.variationName) === t('step1.blockPatternMain')) {
             (varSelect.options[0] as HTMLOptionElement).selected = true;
         }
         bolPreview.textContent = getBolsPreview(taalId, varSelect.value);
@@ -725,10 +726,10 @@ function renderEditPanel(
     });
 
     const supportField = createElement('div', { className: 'session-form-field' });
-    supportField.appendChild(createElement('label', {}, 'Soporte rítmico'));
+    supportField.appendChild(createElement('label', {}, t('step1.supportLabel')));
     const supportSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     ['song', 'lehra', 'metronome'].forEach(s => {
-        const labels: Record<string, string> = { metronome: 'Metrónomo', song: 'Canción', lehra: 'Lehra' };
+        const labels: Record<string, string> = { metronome: t('step1.supportMetronome'), song: t('step1.supportSong'), lehra: t('step1.supportLehra') };
         const opt = createElement('option', { value: s }, labels[s]) as HTMLOptionElement;
         if (s === block.supportType) opt.selected = true;
         supportSelect.appendChild(opt);
@@ -740,7 +741,7 @@ function renderEditPanel(
     panel.appendChild(subContainer);
 
     const bpmRow = createElement('div', { className: 'session-form-field' });
-    bpmRow.appendChild(createElement('label', {}, 'BPM inicial'));
+    bpmRow.appendChild(createElement('label', {}, t('step1.bpmLabel')));
     const bpmInput = createElement('input', {
         type: 'number', min: '40', max: '400',
         value: String(block.bpmStart ?? 120), className: 'w-full'
@@ -753,11 +754,11 @@ function renderEditPanel(
         bpmRow.style.display = supportType === 'metronome' ? '' : 'none';
 
         if (supportType === 'song') {
-            subContainer.appendChild(createElement('label', {}, 'Canción'));
+            subContainer.appendChild(createElement('label', {}, t('step1.supportSong')));
 
             // Song search
             const searchInput = createElement('input', {
-                type: 'text', placeholder: '🔍 Buscar canción…',
+                type: 'text', placeholder: t('step1.songSearchPlaceholder'),
                 className: 'w-full session-song-search',
             }) as HTMLInputElement;
             subContainer.appendChild(searchInput);
@@ -778,7 +779,7 @@ function renderEditPanel(
                     s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
                 ) : allSongs;
                 if (visible.length === 0) {
-                    sel.appendChild(createElement('option', { value: '' }, 'Sin resultados') as HTMLOptionElement);
+                    sel.appendChild(createElement('option', { value: '' }, t('step1.songNoResults')) as HTMLOptionElement);
                 } else {
                     visible.forEach(s => {
                         const opt = createElement('option', { value: s.youtubeUrl }, `${s.title} — ${s.artist}`) as HTMLOptionElement;
@@ -786,12 +787,12 @@ function renderEditPanel(
                         sel.appendChild(opt);
                     });
                 }
-                sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
+                sel.appendChild(createElement('option', { value: '__custom__' }, t('step1.songCustomOption')) as HTMLOptionElement);
                 customWrap.style.display = 'none';
             };
 
             const customTitle = createElement('input', {
-                type: 'text', placeholder: 'Título de la canción', className: 'w-full session-custom-input', 'data-custom-title': 'true',
+                type: 'text', placeholder: t('step1.songCustomTitle'), className: 'w-full session-custom-input', 'data-custom-title': 'true',
             }) as HTMLInputElement;
             const customUrl = createElement('input', {
                 type: 'url', placeholder: 'URL de YouTube (https://…)', className: 'w-full session-custom-input', 'data-custom-url': 'true',
@@ -806,7 +807,7 @@ function renderEditPanel(
             searchInput.addEventListener('input', () => rebuildOptions(searchInput.value));
             sel.addEventListener('change', () => { customWrap.style.display = sel.value === '__custom__' ? '' : 'none'; });
         } else if (supportType === 'lehra') {
-            subContainer.appendChild(createElement('label', {}, 'Lehra'));
+            subContainer.appendChild(createElement('label', {}, t('step1.supportLehra')));
             const sel = createElement('select', { className: 'w-full', 'data-sub-select': 'lehra' }) as HTMLSelectElement;
             LEHRAS.filter(l => l.url).forEach(l => {
                 const opt = createElement('option', { value: l.url }, l.label) as HTMLOptionElement;
@@ -822,10 +823,10 @@ function renderEditPanel(
         if (supportSelect.value === 'song') refreshSubSelector('song');
     });
 
-    const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, '✓ Confirmar cambios');
+    const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, t('step2.confirmChanges'));
     confirmBtn.addEventListener('click', () => {
         const taalId     = taalSelect.value;
-        const varName    = varSelect.value === '__main__' ? 'Patrón Principal' : varSelect.value;
+        const varName    = varSelect.value === '__main__' ? 'Patrón Principal' : varSelect.value;  // always Spanish for DB storage
         const supportType = supportSelect.value as 'metronome' | 'song' | 'lehra';
         const subSel     = subContainer.querySelector('[data-sub-select]') as HTMLSelectElement | null;
 
@@ -843,7 +844,7 @@ function renderEditPanel(
         } else if (supportType === 'song' && subSel?.value === '__custom__') {
             const ct = subContainer.querySelector('[data-custom-title]') as HTMLInputElement | null;
             const cu = subContainer.querySelector('[data-custom-url]') as HTMLInputElement | null;
-            block.supportRef = ct?.value.trim() || 'Canción personalizada';
+            block.supportRef = ct?.value.trim() || t('step1.songCustomFallback');
             block.supportUrl = cu?.value.trim() ?? '';
         } else if (subSel) {
             block.supportUrl = subSel.value;

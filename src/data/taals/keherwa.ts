@@ -10,7 +10,9 @@ export const keherwa: Taal = {
     name: 'Keherwa Taal',
     beats: 8,
     description: 'Métrica base sincopada',
+    description_en: 'Syncopated base metre',
     subtitle: 'Estructura 4+4 beats',
+    subtitle_en: '4+4 beat structure',
     rows: [
         [
             { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -27,11 +29,14 @@ export const keherwa: Taal = {
     tip: {
         title: 'Tip Técnico de Ejecución',
         text: 'Ghe: Tocar utilizando dedo índice. Dha: Tocar utilizando dedo medio para alternar correctamente.',
-        color: 'emerald'
+        color: 'emerald',
+        title_en: 'Technical Execution Tip',
+        text_en: 'Ghe: Play using the index finger. Dha: Play using the middle finger to alternate correctly.',
     },
     variations: [
         {
             name: 'Keherwa variación 1 (Base Bollywood)',
+            name_en: 'Keherwa variation 1 (Base Bollywood)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -52,6 +57,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 2 (Punjabi Dhol)',
+            name_en: 'Keherwa variation 2 (Punjabi Dhol)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -71,6 +77,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 3 (Bhajan Theka, Classical)',
+            name_en: 'Keherwa variation 3 (Bhajan Theka, Classical)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhin', technique: '' },
@@ -90,6 +97,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa Western variación',
+            name_en: 'Keherwa Western variation',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -109,6 +117,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación (Ghoomar Theka, Rajasthani Style)',
+            name_en: 'Keherwa variation (Ghoomar Theka, Rajasthani Style)',
             rows: [
                 [
                     { matra: 1, bol: 'DhaDhin', technique: '' },
@@ -128,12 +137,16 @@ export const keherwa: Taal = {
             notes: [
                 'El segundo tutorial (Ghoomar Theka Lessons with Variations) explica también otras variaciones de Ghoomar y el theka con más detalle + pickups.'
             ],
+            notes_en: [
+                'The second tutorial (Ghoomar Theka Lessons with Variations) also explains other Ghoomar variations and the theka in more detail + pickups.'
+            ],
             songs: [
                 { title: 'Ghoomar (Original song)', url: 'https://www.youtube.com/watch?v=nHhRWgkkpMk' }
             ]
         },
         {
             name: 'Keherwa variación Thapki',
+            name_en: 'Keherwa Thapki variation',
             rows: [
                 [
                     { matra: 1, bol: 'Ghe (ghisa)', technique: '' },
@@ -151,6 +164,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 4 (80s songs)',
+            name_en: 'Keherwa variation 4 (80s songs)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhin', technique: '' },
@@ -169,6 +183,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 5 (Horse Beat)',
+            name_en: 'Keherwa variation 5 (Horse Beat)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhin', technique: '' },
@@ -187,6 +202,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 6 (Fast)',
+            name_en: 'Keherwa variation 6 (Fast)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -205,6 +221,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 7 (Dafli)',
+            name_en: 'Keherwa variation 7 (Dafli)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhin', technique: '' },
@@ -223,6 +240,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 8 (Rápida con TeTe)',
+            name_en: 'Keherwa variation 8 (Fast with TeTe)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -241,10 +259,14 @@ export const keherwa: Taal = {
             description: '4 beats + 4 beats',
             notes: [
                 'Nota: TeTe - 3 dedos primero'
+            ],
+            notes_en: [
+                'Note: TeTe — 3 fingers first'
             ]
         },
         {
             name: 'Keherwa variación 9 (Dhi Dhi Na)',
+            name_en: 'Keherwa variation 9 (Dhi Dhi Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi', technique: '' },
@@ -264,6 +286,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 10 (Kite Ta Ti)',
+            name_en: 'Keherwa variation 10 (Kite Ta Ti)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -283,6 +306,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación 11 (Dha Dhin Tin Na)',
+            name_en: 'Keherwa variation 11 (Dha Dhin Tin Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: '' },
@@ -301,6 +325,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación Thapki 1 (Dha Ghe)',
+            name_en: 'Keherwa Thapki variation 1 (Dha Ghe)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha (thapki)', technique: 'Taali' },
@@ -313,10 +338,12 @@ export const keherwa: Taal = {
                     { matra: 8, bol: 'Ti',            technique: '' }
                 ]
             ],
-            description: '4 beats + 4 beats — thapki en Sam y en Khali'
+            description: '4 beats + 4 beats — thapki en Sam y en Khali',
+            description_en: '4 beats + 4 beats — thapki on Sam and Khali'
         },
         {
             name: 'Keherwa variación 13 (Dhin _ Na Dhi)',
+            name_en: 'Keherwa variation 13 (Dhin _ Na Dhi)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhin',  technique: '' },
@@ -335,6 +362,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación Thapki 2 (Dhit Tata)',
+            name_en: 'Keherwa Thapki variation 2 (Dhit Tata)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhit (thapki)', technique: '' },
@@ -347,10 +375,12 @@ export const keherwa: Taal = {
                     { matra: 8, bol: 'Ta',     technique: '' }
                 ]
             ],
-            description: '4 beats + 4 beats — variación thapki con Dhit y Dhige'
+            description: '4 beats + 4 beats — variación thapki con Dhit y Dhige',
+            description_en: '4 beats + 4 beats — thapki variation with Dhit and Dhige'
         },
         {
             name: 'Keherwa variación 14 (Dhi Ge Dhit Ta)',
+            name_en: 'Keherwa variation 14 (Dhi Ge Dhit Ta)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi', technique: '' },
@@ -370,6 +400,7 @@ export const keherwa: Taal = {
         },
         {
             name: 'Keherwa variación Thapki (Qawwali style)',
+            name_en: 'Keherwa Thapki variation (Qawwali style)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi (thapki)',  technique: '' },
@@ -384,12 +415,14 @@ export const keherwa: Taal = {
             ],
             tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs'],
             description: '4 beats + 4 beats — thapki en M1 y M5, ghisa en M2',
+            description_en: '4 beats + 4 beats — thapki on M1 and M5, ghisa on M2',
             songs: [
                 { title: 'Billo Rani', url: 'https://www.youtube.com/watch?v=T15qhmhqraE' }
             ]
         },
         {
             name: 'Keherwa variación Garba (Rajasthani)',
+            name_en: 'Keherwa Garba variation (Rajasthani)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhit',             technique: '' },
@@ -403,7 +436,8 @@ export const keherwa: Taal = {
                 ]
             ],
             tutorials: ['https://www.youtube.com/shorts/SOtFKpS9A0I'],
-            description: '4 beats + 4 beats — thapki en M5'
+            description: '4 beats + 4 beats — thapki en M5',
+            description_en: '4 beats + 4 beats — thapki on M5'
         },
         {
             name: 'Keherwa Duff Pattern',
@@ -420,7 +454,8 @@ export const keherwa: Taal = {
                 ]
             ],
             tutorials: ['https://www.youtube.com/watch?v=Km1LRzVN7FA'],
-            description: '4 beats + 4 beats — Duff style'
+            description: '4 beats + 4 beats — Duff style',
+            description_en: '4 beats + 4 beats — Duff style'
         }
     ]
 };

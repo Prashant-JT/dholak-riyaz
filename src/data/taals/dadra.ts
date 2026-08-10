@@ -10,7 +10,9 @@ export const dadra: Taal = {
     name: 'Dadra Taal',
     beats: 6,
     description: 'Estilo Balanceo',
+    description_en: 'Swaying style',
     subtitle: 'Métrica ligera y fluida (3+3 beats)',
+    subtitle_en: 'Light and fluid metre (3+3 beats)',
     rows: [
         [
             { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -25,6 +27,7 @@ export const dadra: Taal = {
     variations: [
         {
             name: 'Dadra variación 1 (DhiDhi NaNa)',
+            name_en: 'Dadra variation 1 (DhiDhi NaNa)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -42,6 +45,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra variación 2 (Dha Tin Na)',
+            name_en: 'Dadra variation 2 (Dha Tin Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -56,6 +60,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra variación principal',
+            name_en: 'Dadra main variation',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi', technique: 'Bhari' },
@@ -77,6 +82,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra Western variación',
+            name_en: 'Dadra Western variation',
             rows: [
                 [
                     { matra: 1, bol: 'DhaTi', technique: 'Bhari' },
@@ -94,6 +100,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra variación mediano/rápido (Dha Tin Na)',
+            name_en: 'Dadra medium/fast variation (Dha Tin Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -112,6 +119,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra variación (famous theka)',
+            name_en: 'Dadra variation (famous theka)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi (ghisa)', technique: 'Bhari' },
@@ -153,10 +161,19 @@ export const dadra: Taal = {
                 'Inicio (6 tiempos): Patrón completo Dhin Na DhiNa | TeTe Na DhiNa',
                 'La Frase (3 tiempos): Dhi Dhi Na (x3)',
                 'La Resolución (6 tiempos): Patrón completo Dhi Dhi Na | Ge Dhi Na'
+            ],
+            notes_en: [
+                'What is a Tihai?',
+                'It is a rhythmic device consisting of repeating an exact phrase exactly three times (x3) with the aim of breaking the rhythmic inertia and "landing" with maximum precision and energy right on the Sam (Beat 1) of the next cycle.',
+                '',
+                'Opening (6 beats): Full pattern Dhin Na DhiNa | TeTe Na DhiNa',
+                'The Phrase (3 beats): Dhi Dhi Na (x3)',
+                'The Resolution (6 beats): Full pattern Dhi Dhi Na | Ge Dhi Na'
             ]
         },
         {
             name: 'Tirekite Take',
+            name_en: 'Tirekite Take',
             special: true,
             rows: [
                 [
@@ -169,6 +186,7 @@ export const dadra: Taal = {
                 ]
             ],
             description: 'Frase rítmica para velocidad',
+            description_en: 'Rhythmic phrase for speed',
             tutorials: ['https://www.youtube.com/watch?v=z1ilRtaKuVU&t=88s'],
             notes: [
                 '¿Qué es el Tirekite (तिरेकिट)?',
@@ -183,10 +201,25 @@ export const dadra: Taal = {
                 '• Desarrolla la independencia de dedos: Te obliga a separar el movimiento del dedo índice del bloque que forman el dedo medio y anular. Es el ejercicio definitivo para desbloquear la agilidad.',
                 '• Es la base de los "Fillers" (Mukhdas): Los fillers son los pequeños cortes o redobles que usas para rellenar los huecos musicales. El 90% de los fillers avanzados en la música india utilizan el Tirekite como motor de velocidad.',
                 '• Conexión Musical (Pickups): Sirve como puente dinámico. Te permite avisar al oyente (y a los cantantes) de que la canción va a cambiar de sección, por ejemplo, al pasar de una estrofa suave a un estribillo con mucha energía (Dandiya style).'
+            ],
+            notes_en: [
+                'What is Tirekite (तिरेकिट)?',
+                'It is the most important rhythmic phrase (bol) for developing speed and ornamentation.',
+                'It consists of 4 ultra-fast syllables combining both hands in an alternating pattern:',
+                '',
+                '- Ti - Re: Fingers of the left hand (treble) in the centre.',
+                '- Ki: Muffled stroke of the right hand (bass).',
+                '- Te: Closure in the centre of the treble.',
+                '',
+                'Why is it so important in learning?',
+                '• Develops finger independence: Forces you to separate the movement of the index finger from the block formed by the middle and ring fingers. It is the definitive exercise to unlock agility.',
+                '• It is the basis of "Fillers" (Mukhdas): Fillers are the small cuts or rolls used to fill musical gaps. 90% of advanced fillers in Indian music use Tirekite as their speed engine.',
+                '• Musical connection (Pickups): Acts as a dynamic bridge. Allows you to signal to the listener (and singers) that the song is about to change section — for example, transitioning from a gentle verse to a high-energy chorus (Dandiya style).'
             ]
         },
         {
             name: 'Take Tirekite',
+            name_en: 'Take Tirekite',
             special: true,
             rows: [
                 [
@@ -199,9 +232,11 @@ export const dadra: Taal = {
                 ]
             ],
             description: 'Variación invertida',
+            description_en: 'Inverted variation',
         },
         {
             name: 'Dadra variación 3 (Ghe Na Na)',
+            name_en: 'Dadra variation 3 (Ghe Na Na)',
             rows: [
                 [
                     { matra: 1, bol: 'Ghe', technique: 'Bhari' },
@@ -221,10 +256,17 @@ export const dadra: Taal = {
                 '',
                 'Dha Ghe Ta Tin',
                 'Pickup: Na Na Te Te (x2)'
+            ],
+            notes_en: [
+                'There is a variation for part of the song',
+                '',
+                'Dha Ghe Ta Tin',
+                'Pickup: Na Na Te Te (x2)'
             ]
         },
         {
             name: 'Dadra variación Thapki 1',
+            name_en: 'Dadra Thapki variation 1',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -242,6 +284,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra variación Thapki 2',
+            name_en: 'Dadra Thapki variation 2',
             rows: [
                 [
                     { matra: 1, bol: 'Dhit (thapki) (ghisa)', technique: 'Bhari' },
@@ -259,6 +302,7 @@ export const dadra: Taal = {
         },
         {
             name: 'Dadra variación Ulti Thapki',
+            name_en: 'Dadra Ulti Thapki variation',
             rows: [
                 [
                     { matra: 1, bol: 'Dha (ghisa)', technique: 'Bhari' },
@@ -270,12 +314,14 @@ export const dadra: Taal = {
                 ]
             ],
             description: '3 beats + 3 beats (variación)',
+            description_en: '3 beats + 3 beats (variation)',
             tutorials: [
                 'https://www.youtube.com/shorts/vNBI3bv9m20'
             ],
         },
         {
             name: 'Dadra variación 4 (Dha Tin Tin)',
+            name_en: 'Dadra variation 4 (Dha Tin Tin)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Bhari' },
@@ -295,7 +341,9 @@ export const dadra: Taal = {
     tip: {
         title: 'Contexto Musical',
         text: 'Dadra es característico de Thumri y música semi-clásica. Su estructura de 6 tiempos crea un balanceo natural perfecto para acompañar melodías expresivas y ornamentadas. Configura el metrónomo en 3/4 o en un ciclo de 6 pulsos, donde cada "clic" representa 1 Matra. Velocidad sugerida: Empieza a 60 BPM (un golpe por segundo) para asegurar la limpieza de los bols.',
-        color: 'purple'
+        color: 'purple',
+        title_en: 'Musical Context',
+        text_en: 'Dadra is characteristic of Thumri and semi-classical music. Its 6-beat structure creates a natural swaying motion perfect for accompanying expressive, ornamental melodies. Set the metronome to 3/4 or a 6-pulse cycle, where each click represents 1 Matra. Suggested tempo: Start at 60 BPM (one beat per second) to ensure clean bols.',
     }
 };
 

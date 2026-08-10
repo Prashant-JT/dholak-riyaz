@@ -6,6 +6,7 @@
 import { createElement, createSectionHeader } from '../core/utils.js';
 import { CONFIG } from '../core/config.js';
 import { LEHRAS } from '../data/lehras.js';
+import { t } from '../i18n/index.js';
 import type { View } from '../types.js';
 
 export class DashboardView implements View {
@@ -15,7 +16,7 @@ export class DashboardView implements View {
             className: 'view-section active' 
         });
         
-        section.appendChild(createSectionHeader('Riyaz', 'Metrónomo y Herramientas de Práctica'));
+        section.appendChild(createSectionHeader(t('metronome.pageTitle'), t('metronome.pageSubtitle')));
 
         section.appendChild(this.createMetronomeCard());
         section.appendChild(this.createLehrasCard());
@@ -28,7 +29,7 @@ export class DashboardView implements View {
         
         card.appendChild(createElement('h3', {
             className: 'text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4'
-        }, 'Metrónomo'));
+        }, t('metronome.cardTitle')));
         
         const displayContainer = createElement('div', {
             className: 'flex flex-col items-center mb-6'
@@ -73,7 +74,7 @@ export class DashboardView implements View {
 
         displayContainer.appendChild(createElement('p', {
             className: 'text-slate-500 dark:text-slate-400 text-sm mb-4'
-        }, 'BPM'));
+        }, t('metronome.bpmLabel')));
         
         // Cycle counter
         const cycleContainer = createElement('div', {
@@ -82,7 +83,7 @@ export class DashboardView implements View {
         
         cycleContainer.appendChild(createElement('span', {
             className: 'text-slate-600 dark:text-slate-300 font-medium'
-        }, 'Ciclos:'));
+        }, t('metronome.cyclesLabel')));
         
         cycleContainer.appendChild(createElement('div', {
             id: 'cycleDisplay',
@@ -91,7 +92,7 @@ export class DashboardView implements View {
         
         displayContainer.appendChild(cycleContainer);
 
-        // Play/Stop and Reset buttons (placed early so they are visible without scrolling on mobile)
+        // Play/Stop and Reset buttons
         const buttonContainer = createElement('div', {
             className: 'flex gap-4 items-center justify-center mb-6'
         });
@@ -99,13 +100,13 @@ export class DashboardView implements View {
         const playButton = createElement('button', {
             id: 'playStopBtn',
             className: 'btn-primary text-white font-semibold py-4 px-12 rounded-full text-lg min-w-[140px]'
-        }, 'Iniciar');
+        }, t('metronome.start'));
         buttonContainer.appendChild(playButton);
 
         const resetButton = createElement('button', {
             id: 'resetCyclesBtn',
             className: 'btn-secondary py-4 px-8 text-lg'
-        }, 'Reset');
+        }, t('metronome.reset'));
         buttonContainer.appendChild(resetButton);
 
         displayContainer.appendChild(buttonContainer);
@@ -116,7 +117,7 @@ export class DashboardView implements View {
         });
         bpmSliderContainer.appendChild(createElement('label', {
             className: 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'
-        }, 'Tempo (BPM)'));
+        }, t('metronome.tempoLabel')));
         
         const sliderWrapper = createElement('div', { className: 'relative' });
         
@@ -155,7 +156,7 @@ export class DashboardView implements View {
         beatsSelectContainer.appendChild(createElement('label', {
             for: 'beatsSelect',
             className: 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'
-        }, 'Beats por Compás'));
+        }, t('metronome.beatsLabel')));
         
         const beatsSelect = createElement('select', {
             id: 'beatsSelect',
@@ -163,23 +164,19 @@ export class DashboardView implements View {
         });
         
         const beatsOptions = [
-            { value: '4',  label: '4 Beats - Bhajan' },
-            { value: '6',  label: '6 Beats - Dadra' },
-            { value: '7',  label: '7 Beats - Rupak' },
-            { value: '8',  label: '8 Beats - Keherwa' },
-            { value: '10', label: '10 Beats - Jhaptal' },
-            { value: '12', label: '12 Beats - Ektal' },
-            { value: '14', label: '14 Beats - Deepchandi' },
-            { value: '16', label: '16 Beats - Teental' }
+            { value: '4',  label: t('metronome.beatsOptions.b4') },
+            { value: '6',  label: t('metronome.beatsOptions.b6') },
+            { value: '7',  label: t('metronome.beatsOptions.b7') },
+            { value: '8',  label: t('metronome.beatsOptions.b8') },
+            { value: '10', label: t('metronome.beatsOptions.b10') },
+            { value: '12', label: t('metronome.beatsOptions.b12') },
+            { value: '14', label: t('metronome.beatsOptions.b14') },
+            { value: '16', label: t('metronome.beatsOptions.b16') },
         ];
         
         beatsOptions.forEach(opt => {
-            const option = createElement('option', {
-                value: opt.value
-            }, opt.label);
-            if (opt.value === '6') {
-                option.setAttribute('selected', 'true');
-            }
+            const option = createElement('option', { value: opt.value }, opt.label);
+            if (opt.value === '6') option.setAttribute('selected', 'true');
             beatsSelect.appendChild(option);
         });
         
@@ -196,10 +193,10 @@ export class DashboardView implements View {
         });
 
         const presets = [
-            { label: 'Lento', bpm: 60 },
-            { label: 'Medio', bpm: 120 },
-            { label: 'Rápido', bpm: 180 },
-            { label: 'Drut', bpm: 240 }
+            { label: t('metronome.presets.slow'),   bpm: 60 },
+            { label: t('metronome.presets.medium'),  bpm: 120 },
+            { label: t('metronome.presets.fast'),    bpm: 180 },
+            { label: t('metronome.presets.drut'),    bpm: 240 },
         ];
 
         presets.forEach(preset => {
@@ -224,13 +221,13 @@ export class DashboardView implements View {
         
         card.appendChild(createElement('h3', {
             className: 'text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4'
-        }, 'Lehras'));
+        }, t('metronome.lehrasTitle')));
         
         const selectContainer = createElement('div', { className: 'mb-4' });
         selectContainer.appendChild(createElement('label', {
             for: 'lehraSelect',
             className: 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'
-        }, 'Selecciona un Loop:'));
+        }, t('metronome.lehrasSelect')));
         
         const select = createElement('select', {
             id: 'lehraSelect',

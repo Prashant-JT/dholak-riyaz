@@ -12,7 +12,9 @@ export const ektal: Taal = {
     name: 'Ektal',
     beats: 12,
     description: 'Seis vibhags iguales de 2 beats',
+    description_en: 'Six equal vibhags of 2 beats',
     subtitle: 'Estructura 2+2+2+2+2+2 beats',
+    subtitle_en: '2+2+2+2+2+2 beat structure',
     rows: [
         [
             { matra: 1,  bol: 'Dhin',     technique: 'Taali' },
@@ -36,7 +38,9 @@ export const ektal: Taal = {
     ],
     tip: {
         title: 'Seis Grupos de Dos',
+        title_en: 'Six Groups of Two',
         text: 'Ektal tiene 6 vibhags de 2 tiempos cada uno, lo que crea una sensación de flujo continuo muy diferente a Teental. En Vilambit (tempo lento) cada Matra se estira enormemente, dando espacio para ornamentación. Comienza a 40-50 BPM para sentir la amplitud de cada ciclo antes de añadir melodía.',
+        text_en: 'Ektal has 6 vibhags of 2 beats each, creating a feeling of continuous flow very different from Teental. In Vilambit (slow tempo) each Matra stretches enormously, giving space for ornamentation. Start at 40-50 BPM to feel the breadth of each cycle before adding melody.',
         color: 'indigo'
     }
 };

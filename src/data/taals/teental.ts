@@ -12,7 +12,9 @@ export const teental: Taal = {
     name: 'Teental',
     beats: 16,
     description: 'El taal más popular del Hindustani clásico',
+    description_en: 'The most popular taal of classical Hindustani music',
     subtitle: 'Estructura 4+4+4+4 beats',
+    subtitle_en: '4+4+4+4 beat structure',
     rows: [
         [
             { matra: 1,  bol: 'Dha',  technique: 'Taali' },
@@ -40,7 +42,9 @@ export const teental: Taal = {
     ],
     tip: {
         title: 'El Taal Rey',
+        title_en: 'The King Taal',
         text: 'Teental (también llamado Trital) es el ciclo de 16 tiempos más usado en la música clásica Hindustani. Su estructura simétrica 4+4+4+4 lo hace accesible como punto de entrada al aprendizaje clásico. El Sam (M1) y el Khali (M9) son los dos puntos de referencia fundamentales. Las kaydas del proyecto están en Teental.',
+        text_en: 'Teental (also called Trital) is the most widely used 16-beat cycle in Hindustani classical music. Its symmetric 4+4+4+4 structure makes it accessible as an entry point to classical learning. The Sam (M1) and Khali (M9) are the two fundamental reference points. The kaydas in this project are in Teental.',
         color: 'blue'
     }
 };

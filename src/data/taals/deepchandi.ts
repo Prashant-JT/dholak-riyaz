@@ -10,7 +10,9 @@ export const deepchandi: Taal = {
     name: 'Deepchandi Taal',
     beats: 14,
     description: 'Métrica compleja',
+    description_en: 'Complex metre',
     subtitle: 'Estructura 3+4+3+4 beats',
+    subtitle_en: '3+4+3+4 beat structure',
     rows: [
         [
             { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -40,14 +42,23 @@ export const deepchandi: Taal = {
         'Concepto: En la notación musical de los Taals, el guion bajo representa una Matra vacía, un silencio.',
         '¿Qué significa al tocar?: Significa que durante ese tiempo exacto del metrónomo no se ejecuta ningún golpe físico nuevo en el dholak.'
     ],
+    notes_en: [
+        'The meaning of —',
+        '',
+        'Concept: In the musical notation of Taals, the dash represents an empty Matra — a silence.',
+        'What does it mean when playing?: It means that during that exact metronome beat, no new physical stroke is executed on the dholak.'
+    ],
     tip: {
         title: 'Estructura Compleja',
+        title_en: 'Complex Structure',
         text: 'Deepchandi es un taal de 14 beats con estructura asimétrica 3+4+3+4. Los silencios (—) son parte integral del ritmo y deben sentirse internamente. Practica primero cada sección por separado antes de unirlas.',
+        text_en: 'Deepchandi is a 14-beat taal with an asymmetric 3+4+3+4 structure. The rests (—) are an integral part of the rhythm and must be felt internally. Practise each section separately before joining them together.',
         color: 'indigo'
     },
     variations: [
         {
             name: 'Deepchandi variación 1 (Ta Tin Ta Tin)',
+            name_en: 'Deepchandi variation 1 (Ta Tin Ta Tin)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -69,12 +80,14 @@ export const deepchandi: Taal = {
                 ]
             ],
             description: '3+4+3+4 — variación con Ta Tin Ta Tin al cierre',
+            description_en: '3+4+3+4 — variation with Ta Tin Ta Tin at the close',
             songs: [
                 { title: 'Tera Chehra Jab Nazar Aaye', url: 'https://youtu.be/zNUs54J3mKo?si=gJeNGyxSXGYt_ymX' }
             ]
         },
         {
             name: 'Deepchandi variación 2 (NaNa TeTe)',
+            name_en: 'Deepchandi variation 2 (NaNa TeTe)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -96,12 +109,14 @@ export const deepchandi: Taal = {
                 ]
             ],
             description: '3+4+3+4 — variación con Na Na Te Te al cierre',
+            description_en: '3+4+3+4 — variation with Na Na Te Te at the close',
             songs: [
                 {title: 'Pakhiyun Akhero Chadiyo', url: 'https://www.youtube.com/watch?v=UoWMQimowm8' }
             ]
         },
         {
             name: 'Deepchandi variación 3 (simple)',
+            name_en: 'Deepchandi variation 3 (simple)',
             rows: [
                 [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },
@@ -130,6 +145,7 @@ export const deepchandi: Taal = {
         },
         {
             name: 'Deepchandi variación 4 (Thapki pattern)',
+            name_en: 'Deepchandi variation 4 (Thapki pattern)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi (thapki)(ghuisa)', technique: 'Taali' },
@@ -151,10 +167,12 @@ export const deepchandi: Taal = {
                 ]
             ],
             description: '3+4+3+4 — variación con tutorial en video',
+            description_en: '3+4+3+4 — variation with video tutorial',
             tutorials: ['https://www.youtube.com/watch?v=HOZXYb-RjS0']
         },
         {
             name: 'Deepchandi variación 5 (Dha Te Te)',
+            name_en: 'Deepchandi variation 5 (Dha Te Te)',
             rows: [
                 [
                     { matra: 1,  bol: 'Dha',  technique: 'Taali' },

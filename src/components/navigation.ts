@@ -5,6 +5,7 @@
 
 import { CONFIG } from '../core/config.js';
 import { createElement } from '../core/utils.js';
+import { t, getLang, setLang } from '../i18n/index.js';
 import type { NavigateEventDetail } from '../types.js';
 
 export class NavigationController {
@@ -28,13 +29,14 @@ export class NavigationController {
      */
     public render(): void {
         CONFIG.NAVIGATION.forEach(item => {
+            const label = t(`nav.${item.id}`) || item.label;
             if (item.disabled) {
                 // Disabled item — visible with badge, not navigable
                 const wrapper = createElement('div', {
                     className: 'nav-item-disabled w-full px-4 py-3 rounded-lg mb-2 flex items-center justify-between'
                 });
-                wrapper.appendChild(createElement('span', {}, item.label));
-                wrapper.appendChild(createElement('span', { className: 'nav-badge-soon' }, 'Pronto'));
+                wrapper.appendChild(createElement('span', {}, label));
+                wrapper.appendChild(createElement('span', { className: 'nav-badge-soon' }, t('nav.soon')));
                 this.menuElement.appendChild(wrapper);
             } else {
                 const button = createElement('button', {
@@ -44,7 +46,7 @@ export class NavigationController {
                             : 'text-slate-300 hover:text-white hover:bg-slate-700'
                     }`,
                     dataset: { view: item.id }
-                }, item.label);
+                }, label);
 
                 button.addEventListener('click', () => this.navigateTo(item.id));
                 this.menuElement.appendChild(button);
@@ -56,6 +58,23 @@ export class NavigationController {
                 this.menuElement.appendChild(divider);
             }
         });
+
+        // Language selector at the bottom of the menu
+        const divider = createElement('div', { className: 'nav-divider' });
+        this.menuElement.appendChild(divider);
+
+        const langRow = createElement('div', { className: 'lang-selector' });
+        const currentLang = getLang();
+
+        (['es', 'en'] as const).forEach(l => {
+            const btn = createElement('button', {
+                className: `lang-btn${currentLang === l ? ' lang-btn--active' : ''}`,
+            }, l.toUpperCase());
+            btn.addEventListener('click', () => setLang(l));
+            langRow.appendChild(btn);
+        });
+
+        this.menuElement.appendChild(langRow);
     }
     
     /**

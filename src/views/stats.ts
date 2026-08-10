@@ -8,6 +8,7 @@ import { db } from '../core/supabase.js';
 import { createElement } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
 import { CONFIG } from '../core/config.js';
+import { t } from '../i18n/index.js';
 import type { View } from '../types.js';
 
 // IDs de taals activos (misma fuente de verdad que el Riyaz)
@@ -133,8 +134,8 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         weekStarts.push(d);
     }
 
-    const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const weekLabels = weekStarts.map(d => `${d.getDate()} ${MONTH_ES[d.getMonth()]}`);
+    const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
+    const weekLabels = weekStarts.map(d => `${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
 
     // ── Session → week index ──────────────────────────────────────────────────
     const getWeekIdx = (isoDate: string): number => {
@@ -194,7 +195,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
                 ? 'Warm Up'
                 : b.type === 'pickup'
                     ? 'Pickups'
-                    : (b.taal_name ?? 'Otro');
+                    : (b.taal_name ?? t('stats.chartOther'));
             donutSecs[key] = (donutSecs[key] ?? 0) + (b.duration_secs ?? 0);
         });
     });
@@ -220,14 +221,14 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     const history = recentSessions.map(s => {
         const gcStr = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' in Canary time
         const d = new Date(gcStr + 'T12:00:00Z');
-        const date = `${d.getUTCDate()} ${MONTH_ES[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+        const date = `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
         const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
         const blocks = s.blocks.map(b =>
             b.type === 'warmup'
-                ? 'Warm Up'
+                ? t('stats.historyWarmUp')
                 : b.type === 'pickup'
-                    ? `Pickup`
-                    : (b.taal_name ?? 'Práctica')
+                    ? t('stats.historyPickup')
+                    : (b.taal_name ?? t('stats.historyPractice'))
         );
         const maxBpm = s.blocks
             .filter(b => b.bpm_end)
@@ -246,7 +247,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     for (let m = 3; m >= 0; m--) {
         const gcNow = gcTodayStr();
         const refYear  = parseInt(gcNow.slice(0, 4));
-        const refMonth = parseInt(gcNow.slice(5, 7)) - 1 - m;   // puede ser negativo, Date lo normaliza
+        const refMonth = parseInt(gcNow.slice(5, 7)) - 1 - m;
         const ref = new Date(Date.UTC(refYear, refMonth, 1));
         const daysInMonth = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 0)).getUTCDate();
         const days = new Array(daysInMonth).fill(0);
@@ -256,7 +257,6 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             if (sd.getUTCFullYear() === ref.getUTCFullYear() && sd.getUTCMonth() === ref.getUTCMonth()) {
                 const dayIdx = sd.getUTCDate() - 1;
                 const mins = Math.round(effectiveSecs(s) / 60);
-                // Minimum level 1 for any recorded session (even short or test sessions)
                 const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : effectiveSecs(s) > 0 ? 1 : 0;
                 days[dayIdx] = Math.min(4, days[dayIdx] + level);
             }
@@ -321,15 +321,14 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
     }
 
     // ── Automatic insight ─────────────────────────────────────────────────────
-    // Exclude Warm Up and Pickups from the taal insight
     const taalOnlyEntries = Object.entries(donutSecs).filter(([k]) => !k.startsWith('Warm Up') && !k.startsWith('Pickup'));
     const topTaal   = taalOnlyEntries.reduce((best, cur) => cur[1] > best[1] ? cur : best, taalOnlyEntries[0] ?? ['—', 0])[0];
     const leastTaal = taalOnlyEntries.reduce((worst, cur) => cur[1] < worst[1] ? cur : worst, taalOnlyEntries[0] ?? ['—', 0])[0];
     const insight = sessions.length === 0
-        ? 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!'
+        ? t('stats.insightNoSessions')
         : taalOnlyEntries.length <= 1
-            ? `<strong>Taal más practicado:</strong> ${topTaal}. Prueba a añadir otros taals en tus sesiones para equilibrar tu práctica.`
-            : `<strong>Taal más practicado:</strong> ${topTaal}. <strong>A equilibrar:</strong> ${leastTaal} tiene el menor tiempo registrado — prueba a incluirlo más en tus sesiones.`;
+            ? t('stats.insightOneTaal', topTaal)
+            : t('stats.insightMultiTaal', topTaal, leastTaal);
 
     return {
         kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak, maxStreak },
@@ -351,15 +350,15 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
 function emptyStats(): UserStats {
     const now = new Date();
     const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
-    const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
     const weekLabels: string[] = [];
     for (let i = 15; i >= 0; i--) {
         const d = new Date(now.getTime() - i * MS_WEEK);
-        weekLabels.push(`${d.getDate()} ${MONTH_ES[d.getMonth()]}`);
+        weekLabels.push(`${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
     }
     return {
         kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0, weekStreak: 0, maxStreak: 0 },
-        insight: 'Aún no hay sesiones guardadas. ¡Completa tu primera práctica y guárdala!',
+        insight: t('stats.insightNoSessions'),
         weekLabels,
         weekly:      new Array(16).fill(0),
         weekDays:    Array.from({ length: 16 }, () => new Array(7).fill(0)),
@@ -406,22 +405,20 @@ interface Medal {
     name: string;
     desc: string;
     earned: boolean;
-    earnedAt?: string;   // human-readable date if earned
-    progress?: string;   // progress text for locked cells
-    progressPct?: number; // 0-100 for progress bar
+    earnedAt?: string;
+    progress?: string;
+    progressPct?: number;
 }
 
 function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
-    const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getDate()} ${MONTH_ES[d.getMonth()]} ${d.getFullYear()}`; };
+    const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
+    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getDate()} ${MONTH_SHORT[d.getMonth()]} ${d.getFullYear()}`; };
 
-    // Sessions sorted chronologically
     const sorted = [...sessions].sort((a, b) => a.saved_at.localeCompare(b.saved_at));
 
     const totalMins = Math.round(sorted.reduce((s, x) => s + effectiveSecs(x), 0) / 60);
     const totalSessions = sorted.length;
 
-    // Maximum daily streak — dates in Canary time
     const allDayStrs = Array.from(new Set(sorted.map(s => gcDateStr(s.saved_at)))).sort();
     const allDays = allDayStrs.map(d => new Date(d + 'T00:00:00Z'));
     let maxStreak = 0; let curStreak = 0;
@@ -434,7 +431,6 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         if (curStreak > maxStreak) maxStreak = curStreak;
     }
 
-    // Maximum weekly streak — weeks in Canary time
     const sessionWeeks = Array.from(new Set(sorted.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
     let maxWeekStreak = 0; let curWStreak = 0;
     for (let i = 0; i < sessionWeeks.length; i++) {
@@ -446,12 +442,9 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         if (curWStreak > maxWeekStreak) maxWeekStreak = curWStreak;
     }
 
-    // Taals distintos practicados
     const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
-    // Full names of active taals (e.g. 'Keherwa Taal') to compare with taal_name stored in DB
     const ALL_ACTIVE_TAAL_NAMES = ACTIVE_TAAL_IDS.map(id => TAALS[id].name);
-    const hasAllActive = ALL_ACTIVE_TAAL_NAMES.every(t => taalsSet.has(t));
-    // First session in which each active taal was practised
+    const hasAllActive = ALL_ACTIVE_TAAL_NAMES.every(tn => taalsSet.has(tn));
     const firstSessionByTaal: Record<string, string | undefined> = {};
     ACTIVE_TAAL_IDS.forEach(id => {
         const taalName = TAALS[id].name;
@@ -460,17 +453,11 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         )?.saved_at;
     });
 
-    // Sessions with a song
     const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
-
-    // Global maximum BPM
     const maxBpm = sorted.reduce((mx, s) => Math.max(mx, ...s.blocks.map(b => b.bpm_end ?? 0)), 0);
-
-    // Longest session
     const maxSessionMins = sorted.reduce((mx, s) => Math.max(mx, Math.round(effectiveSecs(s) / 60)), 0);
 
-    // Fechas para when-earned
-    const firstSession = sorted[0]?.saved_at;
+    const firstSession    = sorted[0]?.saved_at;
     const firstHourSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 60)?.saved_at;
     const first10hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 600)?.saved_at;
     const first50hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 3000)?.saved_at;
@@ -482,12 +469,12 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
     const streak60Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=60)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
     const streak100Session = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=100) return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
     const streak365Session = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=365) return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const week4Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=4) return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
+    const week4Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=4)  return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
     const bpm120Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 120))?.saved_at;
     const bpm180Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 180))?.saved_at;
     const bpm60Session     = sorted.find(s => s.blocks.some(b => b.support_type === 'metronome' && (b.bpm_start ?? 0) <= 60))?.saved_at;
     const explorer3Session = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (seen.size >= 3) return s.saved_at; } return undefined; })();
-    const allActiveSession = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (ALL_ACTIVE_TAAL_NAMES.every(t => seen.has(t))) return s.saved_at; } return undefined; })();
+    const allActiveSession = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (ALL_ACTIVE_TAAL_NAMES.every(tn => seen.has(tn))) return s.saved_at; } return undefined; })();
     const song5Session     = (() => { let c=0; for (const s of sorted) { if (s.blocks.some(b=>b.support_type==='song')) { c++; if (c>=5) return s.saved_at; } } return undefined; })();
     const session5At       = sorted[4]?.saved_at;
     const session10At      = sorted[9]?.saved_at;
@@ -510,7 +497,6 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         progressPct: cond ? undefined : progressPct,
     });
 
-    // Racha actual (para celdas de logros no ganadas) — hora canaria
     const currentStreak = allDays.length > 0 ? (() => {
         let s = 1;
         for (let i = allDays.length - 1; i > 0; i--) {
@@ -523,7 +509,6 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
         return diffToToday <= 1 ? s : 0;
     })() : 0;
 
-    // Racha semanal actual — hora canaria
     const currentWeekStreak = sessionWeeks.length > 0 ? (() => {
         let s = 1;
         for (let i = sessionWeeks.length - 1; i > 0; i--) {
@@ -539,82 +524,79 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
     })() : 0;
 
     return [
-        // Constancia
-        mk('first',     '🌱', 'Primera sesión',    'Guardaste tu primera sesión',                    totalSessions >= 1,   firstSession),
-        mk('s5',        '⭐', '5 sesiones',         '5 sesiones guardadas',                            totalSessions >= 5,   session5At,
-            `${totalSessions} de 5 sesiones`, Math.min(100, Math.round((totalSessions / 5) * 100))),
-        mk('s10',       '🎯', '10 sesiones',        '10 sesiones guardadas',                           totalSessions >= 10,  session10At,
-            `${totalSessions} de 10 sesiones`, Math.min(100, Math.round((totalSessions / 10) * 100))),
-        mk('s15',       '🥉', '15 sesiones',        '15 sesiones guardadas',                           totalSessions >= 15,  session15At,
-            `${totalSessions} de 15 sesiones`, Math.min(100, Math.round((totalSessions / 15) * 100))),
-        mk('s25',       '🥈', '25 sesiones',        '25 sesiones guardadas',                           totalSessions >= 25,  session25At,
-            `${totalSessions} de 25 sesiones`, Math.min(100, Math.round((totalSessions / 25) * 100))),
-        mk('s50',       '🏅', '50 sesiones',        '50 sesiones guardadas',                           totalSessions >= 50,  session50At,
-            `${totalSessions} de 50 sesiones`, Math.min(100, Math.round((totalSessions / 50) * 100))),
-        mk('s100',      '🎗️', '100 sesiones',       '100 sesiones guardadas',                          totalSessions >= 100, session100At,
-            `${totalSessions} de 100 sesiones`, Math.min(100, Math.round((totalSessions / 100) * 100))),
-        mk('streak7',   '🔥', 'Racha de 7 días',    '7 días consecutivos practicando',                maxStreak >= 7,   streak7Session,
-            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 7) * 100))),
-        mk('streak14',  '🌙', 'Racha de 14 días',   '14 días consecutivos sin parar',                 maxStreak >= 14,  streak14Session,
-            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 14) * 100))),
-        mk('streak30',  '💎', 'Racha de 30 días',   '30 días consecutivos sin parar',                 maxStreak >= 30,  streak30Session,
-            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 30) * 100))),
-        mk('streak60',  '🌟', 'Racha de 60 días',   '60 días consecutivos practicando',               maxStreak >= 60,  streak60Session,
-            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 60) * 100))),
-        mk('streak100', '👑', 'Racha de 100 días',  '100 días consecutivos sin fallar',               maxStreak >= 100, streak100Session,
-            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 100) * 100))),
-        mk('streak365', '🎖️', 'Un año entero',      '365 días consecutivos — leyenda absoluta',       maxStreak >= 365, streak365Session,
-            `racha actual: ${currentStreak} día${currentStreak !== 1 ? 's' : ''}`, Math.min(100, Math.round((currentStreak / 365) * 100))),
-        mk('week4',     '🗓️', '4 semanas seguidas',  'Practicado al menos una vez en 4 semanas seguidas',  maxWeekStreak >= 4,  week4Session,
-            `${currentWeekStreak} de 4 semanas`, Math.min(100, Math.round((currentWeekStreak / 4) * 100))),
-        mk('week8',     '📆', '8 semanas seguidas',  'Practicado al menos una vez en 8 semanas seguidas',  maxWeekStreak >= 8,  week8Session,
-            `${currentWeekStreak} de 8 semanas`, Math.min(100, Math.round((currentWeekStreak / 8) * 100))),
-        mk('week12',    '📅', '12 semanas seguidas', 'Practicado al menos una vez en 12 semanas seguidas', maxWeekStreak >= 12, week12Session,
-            `${currentWeekStreak} de 12 semanas`, Math.min(100, Math.round((currentWeekStreak / 12) * 100))),
-        // Volumen
-        mk('h1',        '⏱️', 'Primera hora',       'Acumulado total ≥ 1 hora',                        totalMins >= 60,   firstHourSession,
-            `${totalMins} de 60 min`, Math.min(100, Math.round((totalMins / 60) * 100))),
-        mk('h3',        '🕑', '3 horas',            'Acumulado total ≥ 3 horas',                       totalMins >= 180,  first3hSession,
-            `${Math.round(totalMins / 60 * 10) / 10} de 3 h`, Math.min(100, Math.round((totalMins / 180) * 100))),
-        mk('h5',        '🕔', '5 horas',            'Acumulado total ≥ 5 horas',                       totalMins >= 300,  first5hSession,
-            `${Math.round(totalMins / 60 * 10) / 10} de 5 h`, Math.min(100, Math.round((totalMins / 300) * 100))),
-        mk('h10',       '🕐', '10 horas',           'Acumulado total ≥ 10 horas',                      totalMins >= 600,  first10hSession,
-            `${Math.round(totalMins / 60 * 10) / 10} de 10 h`, Math.min(100, Math.round((totalMins / 600) * 100))),
-        mk('h25',       '🕰️', '25 horas',           'Acumulado total ≥ 25 horas',                      totalMins >= 1500, first25hSession,
-            `${Math.round(totalMins / 60 * 10) / 10} de 25 h`, Math.min(100, Math.round((totalMins / 1500) * 100))),
-        mk('h50',       '🏆', '50 horas',           'Acumulado total ≥ 50 horas',                      totalMins >= 3000, first50hSession,
-            `${Math.round(totalMins / 60 * 10) / 10} de 50 h`, Math.min(100, Math.round((totalMins / 3000) * 100))),
-        mk('h100',      '🥇', '100 horas',          'Acumulado total ≥ 100 horas',                     totalMins >= 6000, first100hSession,
-            `${Math.round(totalMins / 60 * 10) / 10} de 100 h`, Math.min(100, Math.round((totalMins / 6000) * 100))),
-        mk('long',      '💪', 'Sesión larga',       'Una sesión de al menos 60 minutos',               maxSessionMins >= 60, longSession,
-            `máx. sesión: ${maxSessionMins} min`, Math.min(100, Math.round((maxSessionMins / 60) * 100))),
-        mk('marathon',  '🦾', 'Maratoniano',        'Una sesión de al menos 90 minutos',               maxSessionMins >= 90, marathonSession,
-            `máx. sesión: ${maxSessionMins} min`, Math.min(100, Math.round((maxSessionMins / 90) * 100))),
-        // Variety
-        mk('explorer',   '🥁', 'Explorador',         'Practicado 3 taals distintos',                     taalsSet.size >= 3,             explorer3Session,
-            `${taalsSet.size} de 3 taals`, Math.min(100, Math.round((taalsSet.size / 3) * 100))),
-        // "First <Taal>" badges — generated dynamically from ACTIVE_TAAL_IDS
+        mk('first',     '🌱', t('stats.medalFirst.name'),    t('stats.medalFirst.desc'),    totalSessions >= 1,   firstSession),
+        mk('s5',        '⭐', t('stats.medalS5.name'),        t('stats.medalS5.desc'),        totalSessions >= 5,   session5At,
+            t('stats.medalProgSessions', totalSessions, 5), Math.min(100, Math.round((totalSessions / 5) * 100))),
+        mk('s10',       '🎯', t('stats.medalS10.name'),       t('stats.medalS10.desc'),       totalSessions >= 10,  session10At,
+            t('stats.medalProgSessions', totalSessions, 10), Math.min(100, Math.round((totalSessions / 10) * 100))),
+        mk('s15',       '🥉', t('stats.medalS15.name'),       t('stats.medalS15.desc'),       totalSessions >= 15,  session15At,
+            t('stats.medalProgSessions', totalSessions, 15), Math.min(100, Math.round((totalSessions / 15) * 100))),
+        mk('s25',       '🥈', t('stats.medalS25.name'),       t('stats.medalS25.desc'),       totalSessions >= 25,  session25At,
+            t('stats.medalProgSessions', totalSessions, 25), Math.min(100, Math.round((totalSessions / 25) * 100))),
+        mk('s50',       '🏅', t('stats.medalS50.name'),       t('stats.medalS50.desc'),       totalSessions >= 50,  session50At,
+            t('stats.medalProgSessions', totalSessions, 50), Math.min(100, Math.round((totalSessions / 50) * 100))),
+        mk('s100',      '🎗️', t('stats.medalS100.name'),      t('stats.medalS100.desc'),      totalSessions >= 100, session100At,
+            t('stats.medalProgSessions', totalSessions, 100), Math.min(100, Math.round((totalSessions / 100) * 100))),
+        mk('streak7',   '🔥', t('stats.medalStreak7.name'),   t('stats.medalStreak7.desc'),   maxStreak >= 7,   streak7Session,
+            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 7) * 100))),
+        mk('streak14',  '🌙', t('stats.medalStreak14.name'),  t('stats.medalStreak14.desc'),  maxStreak >= 14,  streak14Session,
+            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 14) * 100))),
+        mk('streak30',  '💎', t('stats.medalStreak30.name'),  t('stats.medalStreak30.desc'),  maxStreak >= 30,  streak30Session,
+            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 30) * 100))),
+        mk('streak60',  '🌟', t('stats.medalStreak60.name'),  t('stats.medalStreak60.desc'),  maxStreak >= 60,  streak60Session,
+            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 60) * 100))),
+        mk('streak100', '👑', t('stats.medalStreak100.name'), t('stats.medalStreak100.desc'), maxStreak >= 100, streak100Session,
+            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 100) * 100))),
+        mk('streak365', '🎖️', t('stats.medalStreak365.name'), t('stats.medalStreak365.desc'), maxStreak >= 365, streak365Session,
+            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 365) * 100))),
+        mk('week4',     '🗓️', t('stats.medalWeek4.name'),     t('stats.medalWeek4.desc'),     maxWeekStreak >= 4,  week4Session,
+            t('stats.medalProgWeeks', currentWeekStreak, 4), Math.min(100, Math.round((currentWeekStreak / 4) * 100))),
+        mk('week8',     '📆', t('stats.medalWeek8.name'),     t('stats.medalWeek8.desc'),     maxWeekStreak >= 8,  week8Session,
+            t('stats.medalProgWeeks', currentWeekStreak, 8), Math.min(100, Math.round((currentWeekStreak / 8) * 100))),
+        mk('week12',    '📅', t('stats.medalWeek12.name'),    t('stats.medalWeek12.desc'),    maxWeekStreak >= 12, week12Session,
+            t('stats.medalProgWeeks', currentWeekStreak, 12), Math.min(100, Math.round((currentWeekStreak / 12) * 100))),
+        mk('h1',        '⏱️', t('stats.medalH1.name'),        t('stats.medalH1.desc'),        totalMins >= 60,   firstHourSession,
+            t('stats.medalProgMins', totalMins, 60), Math.min(100, Math.round((totalMins / 60) * 100))),
+        mk('h3',        '🕑', t('stats.medalH3.name'),        t('stats.medalH3.desc'),        totalMins >= 180,  first3hSession,
+            t('stats.medalProgHours', totalMins, 3), Math.min(100, Math.round((totalMins / 180) * 100))),
+        mk('h5',        '🕔', t('stats.medalH5.name'),        t('stats.medalH5.desc'),        totalMins >= 300,  first5hSession,
+            t('stats.medalProgHours', totalMins, 5), Math.min(100, Math.round((totalMins / 300) * 100))),
+        mk('h10',       '🕐', t('stats.medalH10.name'),       t('stats.medalH10.desc'),       totalMins >= 600,  first10hSession,
+            t('stats.medalProgHours', totalMins, 10), Math.min(100, Math.round((totalMins / 600) * 100))),
+        mk('h25',       '🕰️', t('stats.medalH25.name'),       t('stats.medalH25.desc'),       totalMins >= 1500, first25hSession,
+            t('stats.medalProgHours', totalMins, 25), Math.min(100, Math.round((totalMins / 1500) * 100))),
+        mk('h50',       '🏆', t('stats.medalH50.name'),       t('stats.medalH50.desc'),       totalMins >= 3000, first50hSession,
+            t('stats.medalProgHours', totalMins, 50), Math.min(100, Math.round((totalMins / 3000) * 100))),
+        mk('h100',      '🥇', t('stats.medalH100.name'),      t('stats.medalH100.desc'),      totalMins >= 6000, first100hSession,
+            t('stats.medalProgHours', totalMins, 100), Math.min(100, Math.round((totalMins / 6000) * 100))),
+        mk('long',      '💪', t('stats.medalLong.name'),      t('stats.medalLong.desc'),      maxSessionMins >= 60, longSession,
+            t('stats.medalProgSession', maxSessionMins, 60), Math.min(100, Math.round((maxSessionMins / 60) * 100))),
+        mk('marathon',  '🦾', t('stats.medalMarathon.name'),  t('stats.medalMarathon.desc'),  maxSessionMins >= 90, marathonSession,
+            t('stats.medalProgSession', maxSessionMins, 90), Math.min(100, Math.round((maxSessionMins / 90) * 100))),
+        mk('explorer',  '🥁', t('stats.medalExplorer.name'),  t('stats.medalExplorer.desc'),  taalsSet.size >= 3, explorer3Session,
+            t('stats.medalProgTaals', taalsSet.size, 3), Math.min(100, Math.round((taalsSet.size / 3) * 100))),
         ...ACTIVE_TAAL_IDS.map(id => {
-            const taal    = TAALS[id];
-            const meta    = TAAL_META[id] ?? DEFAULT_TAAL_META;
-            const firstWord = taal.name.split(' ')[0];   // ej. 'Keherwa', 'Addha'
-            const when    = firstSessionByTaal[id];
-            return mk(id, meta.emoji, `Primer ${firstWord}`, `Primera sesión practicando ${taal.name}`, when !== undefined, when);
+            const taal  = TAALS[id];
+            const meta  = TAAL_META[id] ?? DEFAULT_TAAL_META;
+            const firstWord = taal.name.split(' ')[0];
+            const when  = firstSessionByTaal[id];
+            return mk(id, meta.emoji,
+                t('stats.medalFirstTaal', firstWord),
+                t('stats.medalFirstTaalDesc', taal.name),
+                when !== undefined, when);
         }),
-        mk('allActive',  '🌐', 'Polirítmico',
-            `Todos los taals activos: ${ACTIVE_TAAL_IDS.map(id => TAALS[id].name.split(' ')[0]).join(', ')}`,
+        mk('allActive', '🌐', t('stats.medalAllActive.name'),
+            `${t('stats.medalAllActive.desc')}: ${ACTIVE_TAAL_IDS.map(id => TAALS[id].name.split(' ')[0]).join(', ')}`,
             hasAllActive, allActiveSession,
-            `${ALL_ACTIVE_TAAL_NAMES.filter(t => taalsSet.has(t)).length} de ${ALL_ACTIVE_TAAL_NAMES.length} taals`,
-            Math.min(100, Math.round((ALL_ACTIVE_TAAL_NAMES.filter(t => taalsSet.has(t)).length / ALL_ACTIVE_TAAL_NAMES.length) * 100))),
-        mk('songs5',     '🎵', 'Melómano',           'Practicado con canción en 5 sesiones',             songSessions.length >= 5,       song5Session,
-            `${songSessions.length} de 5 sesiones`, Math.min(100, Math.round((songSessions.length / 5) * 100))),
-        // BPM badges
-        mk('slow',      '🐢', 'Base sólida',        'Practicado con metrónomo a ≤ 60 BPM',             maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
-        mk('bpm120',    '⚡', 'Velocista',          'Alcanzado ≥ 120 BPM en metrónomo',                maxBpm >= 120, bpm120Session,
-            `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),
-        mk('bpm180',    '🚀', 'Fuego',              'Alcanzado ≥ 180 BPM en metrónomo',                maxBpm >= 180, bpm180Session,
-            `máx. actual: ${maxBpm > 0 ? maxBpm : 0} BPM`, Math.min(100, Math.round((Math.min(maxBpm, 180) / 180) * 100))),
-        // Joint session badges
+            t('stats.medalProgTaals', ALL_ACTIVE_TAAL_NAMES.filter(tn => taalsSet.has(tn)).length, ALL_ACTIVE_TAAL_NAMES.length),
+            Math.min(100, Math.round((ALL_ACTIVE_TAAL_NAMES.filter(tn => taalsSet.has(tn)).length / ALL_ACTIVE_TAAL_NAMES.length) * 100))),
+        mk('songs5',    '🎵', t('stats.medalSongs5.name'),    t('stats.medalSongs5.desc'),    songSessions.length >= 5, song5Session,
+            t('stats.medalProgSessions', songSessions.length, 5), Math.min(100, Math.round((songSessions.length / 5) * 100))),
+        mk('slow',      '🐢', t('stats.medalSlow.name'),      t('stats.medalSlow.desc'),      maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
+        mk('bpm120',    '⚡', t('stats.medalBpm120.name'),    t('stats.medalBpm120.desc'),    maxBpm >= 120, bpm120Session,
+            t('stats.medalProgBpm', maxBpm > 0 ? maxBpm : 0), Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),
+        mk('bpm180',    '🚀', t('stats.medalBpm180.name'),    t('stats.medalBpm180.desc'),    maxBpm >= 180, bpm180Session,
+            t('stats.medalProgBpm', maxBpm > 0 ? maxBpm : 0), Math.min(100, Math.round((Math.min(maxBpm, 180) / 180) * 100))),
         ...(() => {
             if (otherSessions.length === 0) return [];
             const otherTimes    = new Set(otherSessions.map(s => s.saved_at));
@@ -622,11 +604,12 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
             const jointCount    = jointSessions.length;
             const jointMins     = Math.round(jointSessions.reduce((sum, s) => sum + effectiveSecs(s), 0) / 60);
             return [
-                mk('jugalbandi', '🤝', 'Jugalbandi',       'Primera sesión conjunta con tu compañero',    jointCount >= 1,  jointSessions[0]?.saved_at),
-                mk('duo5',       '🎶', 'Dúo en armonía',   '5 sesiones conjuntas con tu compañero',       jointCount >= 5,  jointSessions[4]?.saved_at,
-                    `${jointCount} de 5 sesiones conjuntas`, Math.min(100, Math.round((jointCount / 5) * 100))),
-                mk('superjugal', '⚡', 'Super Jugalbandi', '60 min acumulados en sesiones conjuntas',     jointMins  >= 60, jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 60)?.saved_at,
-                    `${jointMins} de 60 min`, Math.min(100, Math.round((jointMins / 60) * 100))),
+                mk('jugalbandi', '🤝', t('stats.medalJugalbandi.name'),  t('stats.medalJugalbandi.desc'),  jointCount >= 1, jointSessions[0]?.saved_at),
+                mk('duo5',       '🎶', t('stats.medalDuo5.name'),        t('stats.medalDuo5.desc'),        jointCount >= 5, jointSessions[4]?.saved_at,
+                    t('stats.medalProgJoint', jointCount, 5), Math.min(100, Math.round((jointCount / 5) * 100))),
+                mk('superjugal', '⚡', t('stats.medalSuperJugal.name'),  t('stats.medalSuperJugal.desc'),  jointMins >= 60,
+                    jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 60)?.saved_at,
+                    t('stats.medalProgJointMins', jointMins, 60), Math.min(100, Math.round((jointMins / 60) * 100))),
             ];
         })(),
     ];
@@ -635,38 +618,35 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
 // ── View ──────────────────────────────────────────────────────────────────────
 
 export class StatsView implements View {
-    private activeUser: string = 'prashant';   // 'prashant' | 'meera' | 'compare'
+    private activeUser: string = 'prashant';
     private charts: any[] = [];
     private userData: Record<string, UserStats> = {};
     private dataLoaded: boolean = false;
     private section!: HTMLElement;
     private weeklyMode: 'weeks' | 'days' = 'weeks';
-    private weeklySelectedIdx: number = 15;   // active week index in days mode
+    private weeklySelectedIdx: number = 15;
     private weeklyChart: any = null;
 
     public render(): HTMLElement {
         this.section = createElement('section', { id: 'stats', className: 'view-section' });
 
-        // Header
         const header = createElement('div', { className: 'mb-6' });
-        header.appendChild(createElement('h2', { className: 'section-title' }, 'Estadísticas'));
-        header.appendChild(createElement('p', { className: 'section-subtitle' },
-            'Progresión y análisis de práctica · datos reales'));
+        header.appendChild(createElement('h2', { className: 'section-title' }, t('stats.pageTitle')));
+        header.appendChild(createElement('p', { className: 'section-subtitle' }, t('stats.pageSubtitle')));
         this.section.appendChild(header);
 
-        // Selector de usuario + comparar
         const tabsWrap = createElement('div', { className: 'stats-user-tabs' });
         [
-            { id: 'prashant', label: 'Prashant' },
-            { id: 'meera',    label: 'Meera'    },
-            { id: 'compare',  label: 'Comparar' },
+            { id: 'prashant', label: t('stats.tabPrashant') },
+            { id: 'meera',    label: t('stats.tabMeera')    },
+            { id: 'compare',  label: t('stats.tabCompare')  },
         ].forEach(({ id, label }, idx) => {
             const btn = createElement('button', {
                 className: `stats-user-tab${idx === 0 ? ' active' : ''}${id === 'compare' ? ' stats-user-tab--compare' : ''}`,
                 dataset: { user: id },
             }, label);
             btn.addEventListener('click', () => {
-                if (!this.dataLoaded) return;  // Ignore tab clicks while data is loading
+                if (!this.dataLoaded) return;
                 tabsWrap.querySelectorAll('.stats-user-tab').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.activeUser = id;
@@ -676,12 +656,9 @@ export class StatsView implements View {
         });
         this.section.appendChild(tabsWrap);
 
-        // Dynamic container
         const content = createElement('div', { id: 'stats-content' });
         this.section.appendChild(content);
 
-        // Show loading and load data — pass direct reference
-        // to avoid depending on document.getElementById (which fails before mount)
         this.showLoading(content);
         this.loadAndRender(content);
 
@@ -694,18 +671,17 @@ export class StatsView implements View {
         container.innerHTML = '';
         const wrap = createElement('div', { className: 'stats-loading' });
 
-        const msg = createElement('p', { className: 'stats-loading__msg' }, 'Conectando con Supabase…');
+        const msg = createElement('p', { className: 'stats-loading__msg' }, t('stats.loading'));
         const barOuter = createElement('div', { className: 'stats-loading__bar-outer' });
         const barInner = createElement('div', { className: 'stats-loading__bar-inner', id: 'stats-progress-bar' });
         barOuter.appendChild(barInner);
-        const hint = createElement('p', { className: 'stats-loading__hint' }, 'Esto puede tardar unos segundos la primera vez.');
+        const hint = createElement('p', { className: 'stats-loading__hint' }, t('stats.loadingHint'));
 
         wrap.appendChild(msg);
         wrap.appendChild(barOuter);
         wrap.appendChild(hint);
         container.appendChild(wrap);
 
-        // Indeterminate progress animation: advances to ~90% while loading
         let pct = 0;
         const tick = setInterval(() => {
             pct = pct < 70 ? pct + 8 : pct < 88 ? pct + 1 : pct;
@@ -720,17 +696,14 @@ export class StatsView implements View {
 
     private async loadAndRender(content: HTMLElement): Promise<void> {
         try {
-            // Cargar ambos usuarios en paralelo
             const [p, m] = await Promise.all([
                 fetchUserStats('prashant').catch((err: unknown) => { console.warn('Stats prashant:', err); return emptyStats(); }),
                 fetchUserStats('meera').catch((err: unknown)    => { console.warn('Stats meera:',    err); return emptyStats(); }),
             ]);
 
-            // Completar barra antes de renderizar
             const loadingWrap = content.querySelector('.stats-loading') as any;
             if (loadingWrap?._stopProgress) loadingWrap._stopProgress();
 
-            // Pausa breve para que el usuario vea el 100%
             await new Promise(r => setTimeout(r, 250));
 
             this.userData = { prashant: p, meera: m };
@@ -740,9 +713,9 @@ export class StatsView implements View {
             console.error('Error cargando estadísticas:', err);
             content.innerHTML = '';
             const errWrap = createElement('div', { className: 'stats-loading' });
-            errWrap.innerHTML = `<p class="stats-loading__msg">Sin conexión — no se pueden cargar las estadísticas.</p>
-                <p class="stats-loading__hint">Conéctate a internet y recarga la página.</p>`;
-            const backBtn = createElement('button', { className: 'btn btn-primary' }, '← Ir a Riyaz');
+            errWrap.innerHTML = `<p class="stats-loading__msg">${t('stats.errorMsg')}</p>
+                <p class="stats-loading__hint">${t('stats.errorHint')}</p>`;
+            const backBtn = createElement('button', { className: 'btn btn-primary' }, t('stats.backBtn'));
             backBtn.style.marginTop = '16px';
             backBtn.addEventListener('click', () => {
                 window.dispatchEvent(new CustomEvent('navigate', { detail: { viewId: 'riyaz' } }));
@@ -771,8 +744,8 @@ export class StatsView implements View {
         content.appendChild(this.buildWeeklyCard(d));
 
         const heatCard = this.card();
-        heatCard.appendChild(this.cardTitle('Mapa de actividad'));
-        heatCard.appendChild(this.cardSub('Intensidad de práctica por día (minutos)'));
+        heatCard.appendChild(this.cardTitle(t('stats.heatmapTitle')));
+        heatCard.appendChild(this.cardSub(t('stats.heatmapSub')));
         heatCard.appendChild(createElement('div', { id: 'stats-heatmap' }));
         heatCard.appendChild(this.buildHeatmapLegend());
         content.appendChild(heatCard);
@@ -780,12 +753,12 @@ export class StatsView implements View {
         content.appendChild(this.buildHistoryCard(d));
 
         const row2 = createElement('div', { className: 'stats-chart-row' });
-        row2.appendChild(this.buildChartCard('Evolución de BPM por taal', 'Progresión técnica real', 'stats-chart-bpm', 260, 'stats-canvas-medium'));
-        row2.appendChild(this.buildChartCard('Distribución de práctica', 'Tiempo por taal / tipo', 'stats-chart-donut', 260, 'stats-canvas-medium'));
+        row2.appendChild(this.buildChartCard(t('stats.chartBpmTitle'), t('stats.chartBpmSub'), 'stats-chart-bpm', 260, 'stats-canvas-medium'));
+        row2.appendChild(this.buildChartCard(t('stats.chartDonutTitle'), t('stats.chartDonutSub'), 'stats-chart-donut', 260, 'stats-canvas-medium'));
         content.appendChild(row2);
 
         if (d.cycles.length > 0) {
-            content.appendChild(this.buildChartCard('Ciclos completados por sesión', 'Resistencia — últimas sesiones con metrónomo', 'stats-chart-cycles', 190, 'stats-canvas-short'));
+            content.appendChild(this.buildChartCard(t('stats.chartCyclesTitle'), t('stats.chartCyclesSub'), 'stats-chart-cycles', 190, 'stats-canvas-short'));
         }
 
         content.appendChild(this.buildNextMedalCard(d));
@@ -826,32 +799,29 @@ export class StatsView implements View {
     private buildWeeklyCard(d: UserStats): HTMLElement {
         const card = this.card();
 
-        // Header: title + toggle
         const headerRow = createElement('div', { className: 'stats-weekly-header' });
         const titleWrap = createElement('div');
-        titleWrap.appendChild(this.cardTitle('Minutos practicados'));
+        titleWrap.appendChild(this.cardTitle(t('stats.weeklyTitle')));
         const subEl = createElement('p', { className: 'text-muted', id: 'stats-weekly-sub' });
         subEl.style.fontSize     = '0.8rem';
         subEl.style.marginBottom = '0';
-        subEl.textContent = 'Últimas 16 semanas';
+        subEl.textContent = t('stats.weeklySub16');
         titleWrap.appendChild(subEl);
         headerRow.appendChild(titleWrap);
 
-        // Weeks / Days toggle
         const toggle = createElement('div', { className: 'stats-weekly-toggle' });
-        const btnWeeks = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks' }, 'Semanas');
-        const btnDays  = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'  }, 'Días');
+        const btnWeeks = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks' }, t('stats.weeklyBtnWeeks'));
+        const btnDays  = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'  }, t('stats.weeklyBtnDays'));
         toggle.appendChild(btnWeeks);
         toggle.appendChild(btnDays);
         headerRow.appendChild(toggle);
         card.appendChild(headerRow);
 
-        // Selector de semana (oculto en modo "Semanas")
         const weekSel = createElement('div', { className: 'stats-week-selector', id: 'stats-week-selector' });
         weekSel.style.display = 'none';
         const selLabel = createElement('span', { className: 'text-muted' });
         selLabel.style.fontSize = '0.82rem';
-        selLabel.textContent = 'Semana:';
+        selLabel.textContent = t('stats.weeklySelLabel');
         const selPrev = createElement('button', { className: 'stats-week-nav', id: 'stats-week-prev' }, '‹');
         const selNext = createElement('button', { className: 'stats-week-nav', id: 'stats-week-next' }, '›');
         const selCurrent = createElement('span', { className: 'stats-week-label', id: 'stats-week-label' });
@@ -861,24 +831,20 @@ export class StatsView implements View {
         weekSel.appendChild(selNext);
         card.appendChild(weekSel);
 
-        // Canvas
         const wrap = createElement('div', { className: 'stats-canvas-tall' });
         wrap.style.position = 'relative';
         wrap.style.height   = '230px';
         wrap.appendChild(createElement('canvas', { id: 'stats-chart-weekly' }));
         card.appendChild(wrap);
 
-        // Toggle logic
-        const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        const DAY_LABELS = t('stats.dayLabels') as unknown as string[];
 
         const updateSub = () => {
             const subNode = document.getElementById('stats-weekly-sub');
             if (!subNode) return;
-            if (this.weeklyMode === 'weeks') {
-                subNode.textContent = 'Últimas 16 semanas';
-            } else {
-                subNode.textContent = `Semana del ${d.weekLabels[this.weeklySelectedIdx]}`;
-            }
+            subNode.textContent = this.weeklyMode === 'weeks'
+                ? t('stats.weeklySub16')
+                : t('stats.weeklySubDay', d.weekLabels[this.weeklySelectedIdx]);
         };
 
         const updateWeekLabel = () => {
@@ -965,13 +931,13 @@ export class StatsView implements View {
                 labels: d.weekLabels,
                 datasets: [
                     {
-                        label: 'Minutos',
+                        label: t('stats.weeklyDataLabel'),
                         data: d.weekly,
                         backgroundColor: d.weekly.map((_, i) => i >= 12 ? C.orange : C.orangeA),
                         borderColor: C.orange, borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
                     },
                     {
-                        label: 'Tendencia',
+                        label: t('stats.weeklyTrend'),
                         data: trend,
                         type: 'line',
                         borderColor: C.blue, backgroundColor: 'transparent',
@@ -990,7 +956,6 @@ export class StatsView implements View {
         });
         this.charts.push(this.weeklyChart);
 
-        // Restore toggle state if previously in days mode
         if (this.weeklyMode === 'days') {
             const btnDays  = document.getElementById('stats-toggle-days');
             const btnWeeks = document.getElementById('stats-toggle-weeks');
@@ -999,7 +964,8 @@ export class StatsView implements View {
             btnWeeks?.classList.remove('active');
             if (weekSel) weekSel.style.display = 'flex';
             const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
-            this.weeklyChart.data.labels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+            const DAY_LABELS = t('stats.dayLabels') as unknown as string[];
+            this.weeklyChart.data.labels = DAY_LABELS;
             this.weeklyChart.data.datasets[0].data = days;
             this.weeklyChart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
             this.weeklyChart.data.datasets[1].hidden = true;
@@ -1019,30 +985,26 @@ export class StatsView implements View {
         return card;
     }
 
-    // ── KPIs ──────────────────────────────────────────────────────────────────
-
     // ── Vista comparativa ─────────────────────────────────────────────────────
 
     private buildCompareView(content: HTMLElement): void {
         const p = this.userData['prashant'] ?? emptyStats();
         const m = this.userData['meera']    ?? emptyStats();
 
-        // ── KPIs lado a lado ──────────────────────────────────────────────────
         const kpiSection = this.card();
-        kpiSection.appendChild(this.cardTitle('Estadísticas comparadas'));
-        kpiSection.appendChild(this.cardSub('Prashant vs Meera · datos históricos'));
+        kpiSection.appendChild(this.cardTitle(t('stats.compareTitleKpi')));
+        kpiSection.appendChild(this.cardSub(t('stats.compareSubKpi')));
 
         const kpiDefs = [
-            { label: 'Sesiones',     p: String(p.kpi.sessions), m: String(m.kpi.sessions) },
-            { label: 'Tiempo total', p: p.kpi.time,             m: m.kpi.time             },
-            { label: 'BPM máx.',     p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—', m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—' },
-            { label: 'Racha días',     p: `${p.kpi.streak}d`,           m: `${m.kpi.streak}d`           },
-            { label: 'Racha semanas',  p: `${p.kpi.weekStreak}sem`,      m: `${m.kpi.weekStreak}sem`      },
+            { label: t('stats.compareKpiSessions'),    p: String(p.kpi.sessions), m: String(m.kpi.sessions) },
+            { label: t('stats.compareKpiTime'),        p: p.kpi.time,             m: m.kpi.time             },
+            { label: t('stats.compareKpiBpm'),         p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—', m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—' },
+            { label: t('stats.compareKpiStreak'),      p: `${p.kpi.streak}d`,        m: `${m.kpi.streak}d`        },
+            { label: t('stats.compareKpiWeekStreak'),  p: `${p.kpi.weekStreak}sem`,  m: `${m.kpi.weekStreak}sem`  },
         ];
 
         const kpiGrid = createElement('div', { className: 'stats-compare-grid' });
 
-        // Cabecera con nombres
         kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-header' }));
         ['Prashant', 'Meera'].forEach((name, i) => {
             kpiGrid.appendChild(createElement('div', {
@@ -1059,10 +1021,9 @@ export class StatsView implements View {
         kpiSection.appendChild(kpiGrid);
         content.appendChild(kpiSection);
 
-        // ── Dual weekly chart ──────────────────────────────────────────────────
         const chartCard = this.card();
-        chartCard.appendChild(this.cardTitle('Minutos por semana'));
-        chartCard.appendChild(this.cardSub('Prashant (naranja) · Meera (azul) · últimas 16 semanas'));
+        chartCard.appendChild(this.cardTitle(t('stats.compareWeeklyTitle')));
+        chartCard.appendChild(this.cardSub(t('stats.compareWeeklySub')));
         const wrap = createElement('div', { className: 'stats-canvas-tall' });
         wrap.style.position = 'relative';
         wrap.style.height   = '250px';
@@ -1070,11 +1031,10 @@ export class StatsView implements View {
         chartCard.appendChild(wrap);
         content.appendChild(chartCard);
 
-        // ── Side-by-side distribution ─────────────────────────────────────────
         const distRow = createElement('div', { className: 'stats-chart-row' });
         [
-            { title: 'Distribución · Prashant', id: 'stats-chart-compare-donut-p' },
-            { title: 'Distribución · Meera',    id: 'stats-chart-compare-donut-m' },
+            { title: t('stats.compareDonutP'), id: 'stats-chart-compare-donut-p' },
+            { title: t('stats.compareDonutM'), id: 'stats-chart-compare-donut-m' },
         ].forEach(({ title, id }) => {
             const c = this.card();
             c.appendChild(this.cardTitle(title));
@@ -1087,29 +1047,27 @@ export class StatsView implements View {
         });
         content.appendChild(distRow);
 
-        // ── Medallas lado a lado (3 cards en grid) ────────────────────────────
         const pm = computeMedals(p.rawSessions, m.rawSessions);
         const mm = computeMedals(m.rawSessions, p.rawSessions);
         const pmById = Object.fromEntries(pm.map(x => [x.id, x]));
         const mmById = Object.fromEntries(mm.map(x => [x.id, x]));
 
         const COMPARE_GROUPS = [
-            { label: 'Constancia',           ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
-            { label: 'Volumen',              ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: 'Variedad + Velocidad', ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5','slow','bpm120','bpm180'] },
-            { label: 'Conjunto',             ids: ['jugalbandi','duo5','superjugal'] },
+            { label: t('stats.compareGroupConsistency'), ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
+            { label: t('stats.compareGroupVolume'),      ids: ['h1','h10','h50','h100','long','marathon'] },
+            { label: t('stats.compareGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5','slow','bpm120','bpm180'] },
+            { label: t('stats.compareGroupJoint'),       ids: ['jugalbandi','duo5','superjugal'] },
         ];
 
-        // Leyenda una sola vez
-        const pEarned = pm.filter(m => m.earned).length;
-        const mEarned = mm.filter(m => m.earned).length;
+        const pEarned = pm.filter(medal => medal.earned).length;
+        const mEarned = mm.filter(medal => medal.earned).length;
         const total   = pm.length;
 
         const legendCard = this.card();
         legendCard.style.paddingBottom = '12px';
         legendCard.style.marginBottom  = '8px';
         const legendTitle = createElement('div', { className: 'medals-compare-legend' });
-        legendTitle.appendChild(this.cardTitle('Medallas'));
+        legendTitle.appendChild(this.cardTitle(t('stats.compareMedalsTitle')));
         const dots = createElement('div', { className: 'medals-compare-legend-dots' });
         ([['p', 'Prashant', pEarned], ['m', 'Meera', mEarned]] as [string, string, number][]).forEach(([k, name, earned]) => {
             const item = createElement('span', { className: 'medals-compare-legend-item' });
@@ -1122,7 +1080,6 @@ export class StatsView implements View {
         legendCard.appendChild(legendTitle);
         content.appendChild(legendCard);
 
-        // Grid de 3 cards
         const medalGrid = createElement('div', { className: 'medals-compare-grid' });
 
         COMPARE_GROUPS.forEach(group => {
@@ -1140,15 +1097,12 @@ export class StatsView implements View {
                 const cell = createElement('div', { className: 'medals-cmp-cell' });
                 cell.title = pm_.desc;
 
-                // Emoji — do not apply grayscale here, only opacity
                 const emojiEl = createElement('span', {
                     className: `medals-cmp-emoji${(!pm_.earned && !mm_.earned) ? ' medals-cmp-emoji--locked' : ''}`,
                 }, pm_.emoji);
                 cell.appendChild(emojiEl);
-
                 cell.appendChild(createElement('span', { className: 'medals-cmp-name' }, pm_.name));
 
-                // Dos dots de color
                 const dotsEl = createElement('div', { className: 'medals-cmp-dots' });
                 [pm_, mm_].forEach((medal, ui) => {
                     const dot = createElement('span', {
@@ -1158,7 +1112,6 @@ export class StatsView implements View {
                     dotsEl.appendChild(dot);
                 });
                 cell.appendChild(dotsEl);
-
                 cellGrid.appendChild(cell);
             });
 
@@ -1180,7 +1133,6 @@ export class StatsView implements View {
         Chart.defaults.font.size   = 12;
         Chart.defaults.color       = textCol;
 
-        // Dual weekly chart
         const compareCanvas = document.getElementById('stats-chart-compare') as HTMLCanvasElement | null;
         if (compareCanvas) {
             const trendP = p.weekly.map((_, i, arr) => {
@@ -1197,10 +1149,10 @@ export class StatsView implements View {
                 data: {
                     labels: p.weekLabels,
                     datasets: [
-                        { label: 'Prashant',          data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
-                        { label: 'Meera',             data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
-                        { label: 'Tendencia Prashant', data: trendP,  type: 'line' as const, borderColor: C.orange, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
-                        { label: 'Tendencia Meera',    data: trendM,  type: 'line' as const, borderColor: C.blue,   backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+                        { label: 'Prashant',                   data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                        { label: 'Meera',                      data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
+                        { label: t('stats.chartTrendP'), data: trendP,  type: 'line' as const, borderColor: C.orange, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+                        { label: t('stats.chartTrendM'), data: trendM,  type: 'line' as const, borderColor: C.blue,   backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
                     ],
                 },
                 options: {
@@ -1214,7 +1166,6 @@ export class StatsView implements View {
             }));
         }
 
-        // Distribution donuts
         const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
         [
             { canvasId: 'stats-chart-compare-donut-p', donut: p.donut },
@@ -1226,7 +1177,7 @@ export class StatsView implements View {
             this.charts.push(new Chart(canvas, {
                 type: 'doughnut',
                 data: {
-                    labels: entries.length > 0 ? entries.map(([k]) => k) : ['Sin datos'],
+                    labels: entries.length > 0 ? entries.map(([k]) => k) : [t('stats.donutNoData')],
                     datasets: [{ data: entries.length > 0 ? entries.map(([, v]) => v) : [100], backgroundColor: entries.length > 0 ? donutColors : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
                 },
                 options: {
@@ -1250,16 +1201,16 @@ export class StatsView implements View {
             ? `${Math.floor(avgMins / 60)}h ${avgMins % 60 > 0 ? (avgMins % 60) + 'm' : ''}`.trim()
             : `${avgMins}m`;
 
-        const DAY_NAMES_FULL = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const DAY_NAMES_FULL = t('stats.dayNames') as unknown as string[];
         const sessionsByDay = new Array(7).fill(0);
         d.rawSessions.forEach(s => {
-            const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay(); // 0=Sun
-            const idx = dow === 0 ? 6 : dow - 1; // Mon=0 … Sun=6
+            const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay();
+            const idx = dow === 0 ? 6 : dow - 1;
             sessionsByDay[idx]++;
         });
-        const bestDayIdx = sessionsByDay.indexOf(Math.max(...sessionsByDay));
+        const bestDayIdx   = sessionsByDay.indexOf(Math.max(...sessionsByDay));
         const bestDayValue = d.kpi.sessions > 0 ? DAY_NAMES_FULL[bestDayIdx] : '—';
-        const bestDaySub   = d.kpi.sessions > 0 ? `${sessionsByDay[bestDayIdx]} sesiones` : 'sin datos';
+        const bestDaySub   = d.kpi.sessions > 0 ? t('stats.kpiBestDaySub', sessionsByDay[bestDayIdx]) : t('stats.kpiNoData');
 
         const maxSessionMins = d.kpi.sessions > 0
             ? Math.max(...d.rawSessions.map(s => Math.round(effectiveSecs(s) / 60)))
@@ -1282,13 +1233,13 @@ export class StatsView implements View {
         ).size;
 
         const kpis = [
-            { label: 'Sesiones totales',       value: String(d.kpi.sessions),                        sub: 'registradas',     badge: '📊 histórico',  badgeCls: 'stats-badge--up' },
-            { label: 'Tiempo total',           value: d.kpi.time,                                    sub: 'acumulado',       badge: '⏱ en práctica', badgeCls: 'stats-badge--up' },
-            { label: 'Media por sesión',       value: d.kpi.sessions > 0 ? avgStr : '—',             sub: 'promedio',        badge: '📈 media',       badgeCls: 'stats-badge--up' },
-            { label: 'Sesión más larga',       value: d.kpi.sessions > 0 ? maxSessionStr : '—',      sub: 'récord personal', badge: '💪 máximo',      badgeCls: 'stats-badge--up' },
-            { label: 'BPM máx. alcanzado',     value: d.kpi.bpm > 0 ? String(d.kpi.bpm) : '—',      sub: 'mejor marca',     badge: '🎯 récord',      badgeCls: 'stats-badge--up' },
-            { label: 'Día con más sesiones',   value: bestDayValue,                                  sub: bestDaySub,        badge: '📅 favorito',    badgeCls: 'stats-badge--up' },
-            { label: 'Días practicados',       value: d.kpi.sessions > 0 ? String(daysThisMonth) : '—', sub: `de ${daysInMonth} este mes`, badge: '📆 este mes', badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiSessions'),       value: String(d.kpi.sessions),                       sub: t('stats.kpiSessionsSub'),   badge: t('stats.kpiSessionsBadge'),   badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiTime'),            value: d.kpi.time,                                   sub: t('stats.kpiTimeSub'),        badge: t('stats.kpiTimeBadge'),        badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiAvg'),             value: d.kpi.sessions > 0 ? avgStr : '—',            sub: t('stats.kpiAvgSub'),         badge: t('stats.kpiAvgBadge'),         badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiLongest'),         value: d.kpi.sessions > 0 ? maxSessionStr : '—',     sub: t('stats.kpiLongestSub'),     badge: t('stats.kpiLongestBadge'),     badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiBpm'),             value: d.kpi.bpm > 0 ? String(d.kpi.bpm) : '—',     sub: t('stats.kpiBpmSub'),         badge: t('stats.kpiBpmBadge'),         badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiBestDay'),         value: bestDayValue,                                  sub: bestDaySub,                   badge: t('stats.kpiBestDayBadge'),     badgeCls: 'stats-badge--up' },
+            { label: t('stats.kpiDaysPracticed'),   value: d.kpi.sessions > 0 ? String(daysThisMonth) : '—', sub: t('stats.kpiDaysPracticedSub', daysInMonth), badge: t('stats.kpiDaysPracticedBadge'), badgeCls: 'stats-badge--up' },
         ];
 
         kpis.forEach(k => {
@@ -1300,39 +1251,34 @@ export class StatsView implements View {
             grid.appendChild(card);
         });
 
-        // Streak — special card with three values: active days, active weeks, max historical streak
         const streakCard = createElement('div', { className: 'card stats-kpi-card stats-streak-card' });
-        streakCard.appendChild(createElement('div', { className: 'stats-kpi-label' }, 'Racha activa'));
+        streakCard.appendChild(createElement('div', { className: 'stats-kpi-label' }, t('stats.streakLabel')));
 
         const streakRow = createElement('div', { className: 'stats-streak-row' });
 
         const dayBlock = createElement('div', { className: 'stats-streak-block' });
         dayBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.streak)));
-        dayBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, 'días'));
+        dayBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, t('stats.streakDays')));
         streakRow.appendChild(dayBlock);
 
-        const divider = createElement('div', { className: 'stats-streak-divider' });
-        streakRow.appendChild(divider);
+        streakRow.appendChild(createElement('div', { className: 'stats-streak-divider' }));
 
         const weekBlock = createElement('div', { className: 'stats-streak-block' });
         weekBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.weekStreak)));
-        weekBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, 'semanas'));
+        weekBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, t('stats.streakWeeks')));
         streakRow.appendChild(weekBlock);
 
-        const divider2 = createElement('div', { className: 'stats-streak-divider' });
-        streakRow.appendChild(divider2);
+        streakRow.appendChild(createElement('div', { className: 'stats-streak-divider' }));
 
         const maxStreakBlock = createElement('div', { className: 'stats-streak-block stats-streak-block--record' });
-        const maxStreakValue = createElement('div', { className: 'stats-kpi-value stats-streak-record-value' }, String(d.kpi.maxStreak));
-        const maxStreakSub   = createElement('div', { className: 'stats-kpi-sub' }, '🏆 récord personal');
-        maxStreakBlock.appendChild(maxStreakValue);
-        maxStreakBlock.appendChild(maxStreakSub);
+        maxStreakBlock.appendChild(createElement('div', { className: 'stats-kpi-value stats-streak-record-value' }, String(d.kpi.maxStreak)));
+        maxStreakBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, t('stats.streakRecord')));
         streakRow.appendChild(maxStreakBlock);
 
         streakCard.appendChild(streakRow);
         const streakBadge = d.kpi.weekStreak > 0
-            ? `🔥 ${d.kpi.weekStreak} sem. consecutiva${d.kpi.weekStreak !== 1 ? 's' : ''}`
-            : '— sin racha semanal';
+            ? t('stats.streakBadge', d.kpi.weekStreak)
+            : t('stats.streakNone');
         streakCard.appendChild(createElement('span', { className: 'stats-badge stats-badge--streak' }, streakBadge));
         grid.appendChild(streakCard);
 
@@ -1350,11 +1296,9 @@ export class StatsView implements View {
     // ── Esta semana vs semana pasada ──────────────────────────────────────────
 
     private buildWeekCompare(d: UserStats): HTMLElement {
-        // weekly[15] = esta semana, weekly[14] = semana pasada
         const minsThis = d.weekly[15] ?? 0;
         const minsPrev = d.weekly[14] ?? 0;
 
-        // Sesiones esta semana / semana pasada
         const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
         const now = new Date();
         const getMonday = (ref: Date): Date => {
@@ -1368,74 +1312,70 @@ export class StatsView implements View {
         const prevMonday = new Date(thisMonday.getTime() - MS_WEEK);
 
         const sessionsThis = d.rawSessions.filter(s => {
-            const t = new Date(s.saved_at).getTime();
-            return t >= thisMonday.getTime() && t < thisMonday.getTime() + MS_WEEK;
+            const tv = new Date(s.saved_at).getTime();
+            return tv >= thisMonday.getTime() && tv < thisMonday.getTime() + MS_WEEK;
         });
         const sessionsPrev = d.rawSessions.filter(s => {
-            const t = new Date(s.saved_at).getTime();
-            return t >= prevMonday.getTime() && t < thisMonday.getTime();
+            const tv = new Date(s.saved_at).getTime();
+            return tv >= prevMonday.getTime() && tv < thisMonday.getTime();
         });
 
-        // Max BPM this week / last week
         const maxBpmOf = (ss: SupabaseSession[]) =>
-            ss.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0)).reduce((m, v) => Math.max(m, v), 0);
+            ss.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0)).reduce((mv, v) => Math.max(mv, v), 0);
         const bpmThis = maxBpmOf(sessionsThis);
         const bpmPrev = maxBpmOf(sessionsPrev);
 
-        // Helper: delta with arrow and colour
         const delta = (curr: number, prev: number, unit: string): { text: string; cls: string } => {
             if (prev === 0 && curr === 0) return { text: '—', cls: 'week-cmp-delta--neutral' };
             if (prev === 0) return { text: `+${curr} ${unit}`, cls: 'week-cmp-delta--up' };
             const diff = curr - prev;
             if (diff > 0) return { text: `+${diff} ${unit}`, cls: 'week-cmp-delta--up' };
             if (diff < 0) return { text: `${diff} ${unit}`, cls: 'week-cmp-delta--down' };
-            return { text: `= igual`, cls: 'week-cmp-delta--neutral' };
+            return { text: t('stats.weekCmpEqual'), cls: 'week-cmp-delta--neutral' };
         };
 
-        const minsDelta   = delta(minsThis,              minsPrev,              'min');
-        const sessDelta   = delta(sessionsThis.length,   sessionsPrev.length,   'ses.');
-        const bpmDelta    = delta(bpmThis,               bpmPrev,               'BPM');
+        const minsDelta  = delta(minsThis,            minsPrev,            'min');
+        const sessDelta  = delta(sessionsThis.length, sessionsPrev.length, 'ses.');
+        const bpmDelta   = delta(bpmThis,             bpmPrev,             'BPM');
 
-        const fmtMins = (m: number) => m >= 60 ? `${Math.floor(m/60)}h ${m%60 > 0 ? m%60+'m' : ''}`.trim() : `${m}m`;
+        const fmtMins = (mn: number) => mn >= 60 ? `${Math.floor(mn/60)}h ${mn%60 > 0 ? mn%60+'m' : ''}`.trim() : `${mn}m`;
 
         const metrics: { label: string; thisVal: string; prevVal: string; delta: { text: string; cls: string } }[] = [
-            { label: 'Minutos',  thisVal: fmtMins(minsThis),          prevVal: fmtMins(minsPrev),          delta: minsDelta  },
-            { label: 'Sesiones', thisVal: String(sessionsThis.length), prevVal: String(sessionsPrev.length), delta: sessDelta  },
-            { label: 'BPM máx', thisVal: bpmThis > 0 ? String(bpmThis) : '—', prevVal: bpmPrev > 0 ? String(bpmPrev) : '—', delta: bpmDelta },
+            { label: t('stats.weekCmpMinutes'),  thisVal: fmtMins(minsThis),          prevVal: fmtMins(minsPrev),          delta: minsDelta },
+            { label: t('stats.weekCmpSessions'), thisVal: String(sessionsThis.length), prevVal: String(sessionsPrev.length), delta: sessDelta },
+            { label: t('stats.weekCmpBpm'),      thisVal: bpmThis > 0 ? String(bpmThis) : '—', prevVal: bpmPrev > 0 ? String(bpmPrev) : '—', delta: bpmDelta },
         ];
 
         const card = this.card();
         const headerRow = createElement('div', { className: 'week-cmp-header' });
         const titleWrap = createElement('div');
-        titleWrap.appendChild(this.cardTitle('Esta semana vs semana pasada'));
-        titleWrap.appendChild(this.cardSub('Progreso semanal en tiempo real'));
+        titleWrap.appendChild(this.cardTitle(t('stats.weekCmpTitle')));
+        titleWrap.appendChild(this.cardSub(t('stats.weekCmpSub')));
         headerRow.appendChild(titleWrap);
 
-        // Etiquetas de columna
         const colLabels = createElement('div', { className: 'week-cmp-col-labels' });
-        colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--this' }, 'Esta semana'));
-        colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--prev' }, 'Semana pasada'));
+        colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--this' }, t('stats.weekCmpThis')));
+        colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--prev' }, t('stats.weekCmpPrev')));
         headerRow.appendChild(colLabels);
         card.appendChild(headerRow);
 
-        const grid = createElement('div', { className: 'week-cmp-grid' });
-        metrics.forEach(m => {
+        const gridEl = createElement('div', { className: 'week-cmp-grid' });
+        metrics.forEach(metric => {
             const row = createElement('div', { className: 'week-cmp-row' });
-
-            row.appendChild(createElement('span', { className: 'week-cmp-metric-label' }, m.label));
+            row.appendChild(createElement('span', { className: 'week-cmp-metric-label' }, metric.label));
 
             const thisCell = createElement('div', { className: 'week-cmp-cell week-cmp-cell--this' });
-            thisCell.appendChild(createElement('span', { className: 'week-cmp-value' }, m.thisVal));
-            thisCell.appendChild(createElement('span', { className: `week-cmp-delta ${m.delta.cls}` }, m.delta.text));
+            thisCell.appendChild(createElement('span', { className: 'week-cmp-value' }, metric.thisVal));
+            thisCell.appendChild(createElement('span', { className: `week-cmp-delta ${metric.delta.cls}` }, metric.delta.text));
             row.appendChild(thisCell);
 
-            row.appendChild(createElement('div', { className: 'week-cmp-cell week-cmp-cell--prev' },));
+            row.appendChild(createElement('div', { className: 'week-cmp-cell week-cmp-cell--prev' }));
             const prevCell = row.lastElementChild as HTMLElement;
-            prevCell.appendChild(createElement('span', { className: 'week-cmp-value week-cmp-value--muted' }, m.prevVal));
+            prevCell.appendChild(createElement('span', { className: 'week-cmp-value week-cmp-value--muted' }, metric.prevVal));
 
-            grid.appendChild(row);
+            gridEl.appendChild(row);
         });
-        card.appendChild(grid);
+        card.appendChild(gridEl);
 
         return card;
     }
@@ -1444,11 +1384,11 @@ export class StatsView implements View {
 
     private buildHeatmapLegend(): HTMLElement {
         const leg = createElement('div', { className: 'stats-hm-legend' });
-        leg.appendChild(createElement('span', {}, 'Menos'));
+        leg.appendChild(createElement('span', {}, t('stats.heatmapLess')));
         const cells = createElement('div', { className: 'stats-hm-legend-cells' });
         [0,1,2,3,4].forEach(i => cells.appendChild(createElement('div', { className: `stats-hm-cell stats-hm-${i}` })));
         leg.appendChild(cells);
-        leg.appendChild(createElement('span', {}, 'Más'));
+        leg.appendChild(createElement('span', {}, t('stats.heatmapMore')));
         return leg;
     }
 
@@ -1458,9 +1398,11 @@ export class StatsView implements View {
         container.innerHTML = '';
 
         if (d.heatmap.length === 0) {
-            container.textContent = 'Sin datos aún.';
+            container.textContent = t('stats.heatmapNoData');
             return;
         }
+
+        const tooltips = t('stats.heatmapTooltips') as unknown as string[];
 
         d.heatmap.forEach(({ label, days }) => {
             const wrap = createElement('div', { style: { marginBottom: '14px' } });
@@ -1470,7 +1412,6 @@ export class StatsView implements View {
             wrap.appendChild(lbl);
 
             const row = createElement('div', { style: { display: 'flex', gap: '4px', flexWrap: 'wrap' } });
-            const tooltips = ['Sin práctica', '~15 min', '~30 min', '~45 min', '~60+ min'];
             days.forEach(val => {
                 const cell = createElement('div', { className: `stats-hm-cell stats-hm-${val}` });
                 cell.title = tooltips[val] ?? '';
@@ -1481,21 +1422,17 @@ export class StatsView implements View {
         });
     }
 
-    // ── Historial ─────────────────────────────────────────────────────────────
-
     // ── Historial con filtros ─────────────────────────────────────────────────
 
     private buildHistoryCard(d: UserStats): HTMLElement {
         const PAGE_SIZE = 5;
         const card = this.card();
-        card.appendChild(this.cardTitle('Historial de sesiones'));
+        card.appendChild(this.cardTitle(t('stats.historyTitle')));
 
-        // ── Filtros ───────────────────────────────────────────────────────────
         const filterRow = createElement('div', { className: 'stats-hist-filters' });
 
-        // Selector de taal
         const taalSel = createElement('select', { className: 'stats-hist-filter-sel' }) as HTMLSelectElement;
-        const taalNames = ['Todos los taals', ...Array.from(
+        const taalNames = [t('stats.historyTaalAll'), ...Array.from(
             new Set(d.rawSessions.flatMap(s => s.blocks.map(b => b.taal_name).filter(Boolean)))
         ).sort()];
         taalNames.forEach((name, i) => {
@@ -1503,10 +1440,9 @@ export class StatsView implements View {
         });
         filterRow.appendChild(taalSel);
 
-        // Selector de mes
-        const MONTH_ES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const MONTH_FULL = t('stats.monthsFull') as unknown as string[];
         const monthSel = createElement('select', { className: 'stats-hist-filter-sel' }) as HTMLSelectElement;
-        monthSel.appendChild(createElement('option', { value: '' }, 'Todos los meses') as HTMLOptionElement);
+        monthSel.appendChild(createElement('option', { value: '' }, t('stats.historyMonthAll')) as HTMLOptionElement);
         const monthsSeen = new Set<string>();
         d.rawSessions.forEach(s => {
             const gc = gcDateStr(s.saved_at);
@@ -1515,25 +1451,21 @@ export class StatsView implements View {
         [...monthsSeen].sort().reverse().forEach(key => {
             const [yr, mo] = key.split('-');
             monthSel.appendChild(createElement('option', { value: key },
-                `${MONTH_ES_FULL[parseInt(mo)]} ${yr}`) as HTMLOptionElement);
+                `${MONTH_FULL[parseInt(mo)]} ${yr}`) as HTMLOptionElement);
         });
         filterRow.appendChild(monthSel);
 
-        // Contador de resultados
         const resultCount = createElement('span', { className: 'stats-hist-count text-muted' });
         filterRow.appendChild(resultCount);
-
         card.appendChild(filterRow);
 
-        // ── Tabla ─────────────────────────────────────────────────────────────
         const tableWrap = createElement('div', { style: { overflowX: 'auto' } });
         card.appendChild(tableWrap);
 
-        // ── Paginación ────────────────────────────────────────────────────────
         const pagination = createElement('div', { className: 'stats-hist-pagination' });
         card.appendChild(pagination);
 
-        const MONTH_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
 
         let currentPage = 0;
 
@@ -1543,18 +1475,15 @@ export class StatsView implements View {
 
             const shown = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
-            // Update count label
             const start = filtered.length === 0 ? 0 : currentPage * PAGE_SIZE + 1;
             const end   = Math.min((currentPage + 1) * PAGE_SIZE, filtered.length);
             resultCount.textContent = filtered.length === 0
-                ? '0 sesiones'
-                : `${start}–${end} de ${filtered.length} sesión${filtered.length !== 1 ? 'es' : ''}`;
+                ? t('stats.historyCountZero')
+                : t('stats.historyCount', start, end, filtered.length);
 
-            // Render table
-            tableWrap.innerHTML = this.buildHistoryHTML(shown, MONTH_ES);
+            tableWrap.innerHTML = this.buildHistoryHTML(shown, MONTH_SHORT);
             this.bindHistoryNotes(tableWrap);
 
-            // Render pagination controls
             pagination.innerHTML = '';
             if (totalPages <= 1) return;
 
@@ -1564,25 +1493,22 @@ export class StatsView implements View {
             }
             pagination.appendChild(prevBtn);
 
-            // Page number buttons (show max 5 around current page)
             const range = 2;
             const from  = Math.max(0, currentPage - range);
             const to    = Math.min(totalPages - 1, currentPage + range);
             if (from > 0) {
-                const dots = createElement('span', { className: 'stats-page-ellipsis' }, '…');
-                pagination.appendChild(dots);
+                pagination.appendChild(createElement('span', { className: 'stats-page-ellipsis' }, '…'));
             }
-            for (let p = from; p <= to; p++) {
+            for (let pg = from; pg <= to; pg++) {
                 const btn = createElement('button', {
-                    className: `stats-page-btn${p === currentPage ? ' stats-page-btn--active' : ''}`
-                }, String(p + 1));
-                const page = p;
+                    className: `stats-page-btn${pg === currentPage ? ' stats-page-btn--active' : ''}`
+                }, String(pg + 1));
+                const page = pg;
                 btn.addEventListener('click', () => { currentPage = page; render(filtered); });
                 pagination.appendChild(btn);
             }
             if (to < totalPages - 1) {
-                const dots = createElement('span', { className: 'stats-page-ellipsis' }, '…');
-                pagination.appendChild(dots);
+                pagination.appendChild(createElement('span', { className: 'stats-page-ellipsis' }, '…'));
             }
 
             const nextBtn = createElement('button', { className: `stats-page-btn${currentPage === totalPages - 1 ? ' stats-page-btn--disabled' : ''}` }, '›');
@@ -1611,7 +1537,7 @@ export class StatsView implements View {
                 });
             }
 
-            currentPage = 0;   // Reset to first page on filter change
+            currentPage = 0;
             render(filtered);
         };
 
@@ -1624,22 +1550,20 @@ export class StatsView implements View {
 
     private buildHistoryHTML(sessions: SupabaseSession[], monthNames: string[]): string {
         if (sessions.length === 0) {
-            return '<p class="text-muted text-sm" style="padding:12px 0">Sin sesiones registradas todavía.</p>';
+            return `<p class="text-muted text-sm" style="padding:12px 0">${t('stats.historyNoData')}</p>`;
         }
 
-        // Tag colour derived from TAAL_META
         const tagCls = (name: string) => {
             if (name === 'Warm Up' || name === 'Pickup') return 'stats-tag--slate';
             const match = ACTIVE_TAAL_IDS.find(id => TAALS[id].name.startsWith(name));
             return (match ? TAAL_META[match] : undefined)?.tagCls ?? DEFAULT_TAAL_META.tagCls;
         };
 
-        // Support type label
         const supportLabel = (b: SupabaseBlock): string => {
             if (!b.support_type) return '';
-            if (b.support_type === 'metronome') return '🎛 Metrónomo';
-            if (b.support_type === 'song')  return `🎵 ${b.support_ref ?? 'Canción'}`;
-            if (b.support_type === 'lehra') return `🎶 ${b.support_ref ?? 'Lehra'}`;
+            if (b.support_type === 'metronome') return t('stats.historySupMetronome');
+            if (b.support_type === 'song')      return t('stats.historySupSong',  b.support_ref ?? t('stats.historyPractice'));
+            if (b.support_type === 'lehra')     return t('stats.historySupLehra', b.support_ref ?? 'Lehra');
             return b.support_type;
         };
 
@@ -1649,9 +1573,9 @@ export class StatsView implements View {
             const date  = `${date2.getUTCDate()} ${monthNames[date2.getUTCMonth()]} ${date2.getUTCFullYear()}`;
             const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
             const blockNames = s.blocks.map(b =>
-                b.type === 'warmup' ? 'Warm Up'
-                : b.type === 'pickup' ? 'Pickup'
-                : (b.taal_name ?? 'Práctica')
+                b.type === 'warmup' ? t('stats.historyWarmUp')
+                : b.type === 'pickup' ? t('stats.historyPickup')
+                : (b.taal_name ?? t('stats.historyPractice'))
             );
             const tags = blockNames.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
 
@@ -1662,19 +1586,18 @@ export class StatsView implements View {
                 ? `<div class="stats-block-note">💬 ${noteText}</div>`
                 : '';
 
-            // ── Block detail rows ─────────────────────────────────────
             const detailId = `stats-detail-row-${i}`;
             const blockDetailRows = s.blocks.map((b, bi) => {
-                const blockLabel = b.type === 'warmup' ? 'Warm Up'
-                    : b.type === 'pickup' ? `Pickup: ${b.pickup_name ?? ''}`
-                    : `${b.taal_name ?? 'Práctica'}${b.variation_name ? ` · ${b.variation_name}` : ''}`;
-                const kayda  = b.kayda_name  ? `<span class="stats-block-meta-item">📋 ${b.kayda_name}</span>` : '';
+                const blockLabel = b.type === 'warmup' ? t('stats.historyWarmUp')
+                    : b.type === 'pickup' ? `${t('stats.historyPickup')}: ${b.pickup_name ?? ''}`
+                    : `${b.taal_name ?? t('stats.historyPractice')}${b.variation_name ? ` · ${b.variation_name}` : ''}`;
+                const kayda   = b.kayda_name ? `<span class="stats-block-meta-item">📋 ${b.kayda_name}</span>` : '';
                 const bpmStr2 = (b.bpm_start || b.bpm_end)
                     ? `<span class="stats-block-meta-item">🎯 ${b.bpm_start ?? '?'} → ${b.bpm_end ?? '?'} BPM</span>` : '';
                 const durStr  = b.duration_secs
                     ? `<span class="stats-block-meta-item">⏱ ${Math.round(b.duration_secs / 60)} min</span>` : '';
                 const cycStr  = b.cycles_completed
-                    ? `<span class="stats-block-meta-item">🔁 ${b.cycles_completed} ciclos</span>` : '';
+                    ? `<span class="stats-block-meta-item">${t('stats.historyCycles', b.cycles_completed)}</span>` : '';
                 const supStr  = b.support_type
                     ? `<span class="stats-block-meta-item">${supportLabel(b)}</span>` : '';
                 return `<div class="stats-block-detail-row">
@@ -1699,13 +1622,13 @@ export class StatsView implements View {
                 <td style="white-space:nowrap;font-weight:600">${date}</td>
                 <td style="white-space:nowrap;color:var(--text-muted)">${dur}</td>
                 <td>${tags}</td>
-                <td><span class="stats-expand-btn" title="Ver detalle de bloques">▶</span></td>
+                <td><span class="stats-expand-btn" title="${t('stats.expandBlocks')}">▶</span></td>
             </tr>${detailRow}`;
         }).join('');
 
         return `<table class="stats-history-table">
             <thead><tr>
-                <th>Fecha</th><th>Duración</th><th>Bloques</th><th></th>
+                <th>${t('stats.historyColDate')}</th><th>${t('stats.historyColDur')}</th><th>${t('stats.historyColBlocks')}</th><th></th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
@@ -1732,9 +1655,8 @@ export class StatsView implements View {
         const otherSessions = this.userData[otherUser]?.rawSessions ?? [];
         const medals = computeMedals(d.rawSessions, otherSessions);
 
-        // Pick the unearned medal closest to 100% (highest progressPct, with defined progress)
         const candidates = medals.filter(m => !m.earned && m.progressPct !== undefined && m.progressPct > 0);
-        if (candidates.length === 0) return createElement('div');   // all earned or no data
+        if (candidates.length === 0) return createElement('div');
 
         const next = candidates.reduce((best, m) => (m.progressPct! > best.progressPct! ? m : best), candidates[0]);
 
@@ -1744,8 +1666,8 @@ export class StatsView implements View {
 
         const headerRow = createElement('div', { className: 'medals-header' });
         const titleWrap = createElement('div');
-        titleWrap.appendChild(this.cardTitle('🎯 Próxima medalla'));
-        titleWrap.appendChild(this.cardSub('La que tienes más cerca de conseguir'));
+        titleWrap.appendChild(this.cardTitle(t('stats.nextMedalTitle')));
+        titleWrap.appendChild(this.cardSub(t('stats.nextMedalSub')));
         headerRow.appendChild(titleWrap);
         card.appendChild(headerRow);
 
@@ -1787,11 +1709,10 @@ export class StatsView implements View {
         const card = this.card();
         const headerRow = createElement('div', { className: 'medals-header' });
         const titleWrap = createElement('div');
-        titleWrap.appendChild(this.cardTitle('Medallas'));
-        titleWrap.appendChild(this.cardSub(`${earned} de ${medals.length} conseguidas`));
+        titleWrap.appendChild(this.cardTitle(t('stats.medalsTitle')));
+        titleWrap.appendChild(this.cardSub(t('stats.medalsSub', earned, medals.length)));
         headerRow.appendChild(titleWrap);
 
-        // Progreso visual
         const progressWrap = createElement('div', { className: 'medals-progress-wrap' });
         const progressBar = createElement('div', { className: 'medals-progress-bar' });
         const pct = medals.length > 0 ? Math.round((earned / medals.length) * 100) : 0;
@@ -1800,13 +1721,12 @@ export class StatsView implements View {
         headerRow.appendChild(progressWrap);
         card.appendChild(headerRow);
 
-        // Grid de medallas
         const GROUPS = [
-            { label: 'Constancia', ids: ['first','s5','s10','s15','s25','s50','s100','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
-            { label: 'Volumen',    ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
-            { label: 'Variedad',   ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
-            { label: 'Velocidad',  ids: ['slow','bpm120','bpm180'] },
-            { label: 'Conjunto',   ids: ['jugalbandi','duo5','superjugal'] },
+            { label: t('stats.medalsGroupConsistency'), ids: ['first','s5','s10','s15','s25','s50','s100','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
+            { label: t('stats.medalsGroupVolume'),      ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
+            { label: t('stats.medalsGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
+            { label: t('stats.medalsGroupSpeed'),       ids: ['slow','bpm120','bpm180'] },
+            { label: t('stats.medalsGroupJoint'),       ids: ['jugalbandi','duo5','superjugal'] },
         ];
         const byId = Object.fromEntries(medals.map(m => [m.id, m]));
 
@@ -1828,24 +1748,21 @@ export class StatsView implements View {
                 cell.appendChild(nameEl);
                 cell.appendChild(descEl);
 
-                // Progreso visual para celdas bloqueadas
                 if (!m.earned && m.progress !== undefined) {
-                    const progressWrap = createElement('div', { className: 'medals-cell-progress' });
-                    const progressText = createElement('span', { className: 'medals-cell-progress__text' }, m.progress);
-                    progressWrap.appendChild(progressText);
+                    const pWrap = createElement('div', { className: 'medals-cell-progress' });
+                    const pText = createElement('span', { className: 'medals-cell-progress__text' }, m.progress);
+                    pWrap.appendChild(pText);
                     if (m.progressPct !== undefined && m.progressPct > 0) {
-                        const bar = createElement('div', { className: 'medals-cell-progress__bar' });
+                        const bar  = createElement('div', { className: 'medals-cell-progress__bar' });
                         const fill = createElement('div', { className: 'medals-cell-progress__fill' });
                         fill.style.width = `${m.progressPct}%`;
                         bar.appendChild(fill);
-                        progressWrap.appendChild(bar);
+                        pWrap.appendChild(bar);
                     }
-                    cell.appendChild(progressWrap);
+                    cell.appendChild(pWrap);
                 }
 
-                // Tooltip with full description on hover (native title attribute)
                 cell.title = m.earned ? `${m.name} · ${m.earnedAt ?? ''}` : (m.progress ? `${m.desc} · ${m.progress}` : m.desc);
-
                 grid.appendChild(cell);
             });
             groupEl.appendChild(grid);
@@ -1872,10 +1789,8 @@ export class StatsView implements View {
         Chart.defaults.font.size   = 12;
         Chart.defaults.color       = textCol;
 
-        // 1. Minutos por semana — delegado a mountWeeklyChart
         this.mountWeeklyChart(d);
 
-        // 2. BPM por taal
         const bpmCanvas = document.getElementById('stats-chart-bpm') as HTMLCanvasElement | null;
         if (bpmCanvas) {
             const bpmEntries = Object.entries(d.bpm);
@@ -1890,7 +1805,7 @@ export class StatsView implements View {
                             backgroundColor: BPM_PALETTE[i % BPM_PALETTE.length].bg,
                             borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 7, tension: 0.4, fill: false,
                         }))
-                        : [{ label: 'Sin datos', data: new Array(16).fill(null), borderColor: C.orange, borderWidth: 1.5 }],
+                        : [{ label: t('stats.chartNoData'), data: new Array(16).fill(null), borderColor: C.orange, borderWidth: 1.5 }],
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
@@ -1903,7 +1818,6 @@ export class StatsView implements View {
             }));
         }
 
-        // 3. Donut
         const donutCanvas = document.getElementById('stats-chart-donut') as HTMLCanvasElement | null;
         if (donutCanvas) {
             const entries = Object.entries(d.donut);
@@ -1911,7 +1825,7 @@ export class StatsView implements View {
             this.charts.push(new Chart(donutCanvas, {
                 type: 'doughnut',
                 data: {
-                    labels: entries.length > 0 ? entries.map(([k]) => k) : ['Sin datos'],
+                    labels: entries.length > 0 ? entries.map(([k]) => k) : [t('stats.donutNoData')],
                     datasets: [{ data: entries.length > 0 ? entries.map(([,v]) => v) : [100], backgroundColor: entries.length > 0 ? donutColors : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
                 },
                 options: {
@@ -1924,7 +1838,6 @@ export class StatsView implements View {
             }));
         }
 
-        // 4. Ciclos
         const cyclesCanvas = document.getElementById('stats-chart-cycles') as HTMLCanvasElement | null;
         if (cyclesCanvas && d.cycles.length > 0) {
             const maxCycles = Math.max(...d.cycles);
@@ -1932,12 +1845,20 @@ export class StatsView implements View {
                 type: 'bar',
                 data: {
                     labels: d.cycles.map((_, i) => `S${i + 1}`),
-                    datasets: [{ label: 'Ciclos', data: d.cycles, backgroundColor: d.cycles.map((v, i) => i === d.cycles.length - 1 ? C.orange : v >= maxCycles * 0.85 ? 'rgba(249,115,22,0.55)' : C.orangeA), borderColor: C.orange, borderWidth: 1.5, borderRadius: 5, borderSkipped: false }],
+                    datasets: [{
+                        label: t('stats.chartCyclesTitle'),
+                        data: d.cycles,
+                        backgroundColor: d.cycles.map(v => v >= maxCycles * 0.8 ? C.orange : C.orangeA),
+                        borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false,
+                    }],
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'ciclos', color: textCol } } },
+                    scales: {
+                        x: { grid: { color: gridCol } },
+                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'ciclos', color: textCol } },
+                    },
                 },
             }));
         }

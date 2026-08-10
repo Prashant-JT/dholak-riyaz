@@ -11,6 +11,7 @@ import { LEHRAS } from '../../data/lehras.js';
 import { SONGS } from '../../data/songs.js';
 import { FILLERS } from '../../data/fillers.js';
 import { CONFIG } from '../../core/config.js';
+import { t } from '../../i18n/index.js';
 import type { SessionBlock } from '../../types.js';
 import {
     loadSavedTemplates,
@@ -47,9 +48,8 @@ export function renderStep1(
     container.innerHTML = '';
 
     const header = createElement('div', { className: 'mb-6' });
-    header.appendChild(createElement('h2', { className: 'section-title' }, 'Nueva Sesión de Riyaz'));
-    header.appendChild(createElement('p', { className: 'section-subtitle' },
-        'Configura tu sesión añadiendo bloques de práctica'));
+    header.appendChild(createElement('h2', { className: 'section-title' }, t('step1.pageTitle')));
+    header.appendChild(createElement('p', { className: 'section-subtitle' }, t('step1.pageSubtitle')));
     container.appendChild(header);
 
     if (incomingShare) {
@@ -79,9 +79,7 @@ export function renderStep1(
     const startBtn = createElement('button', {
         className: canStart ? 'btn-primary session-start-btn' : 'btn-secondary session-start-btn',
         style: { opacity: canStart ? '1' : '0.45', cursor: canStart ? 'pointer' : 'not-allowed' }
-    }, canStart
-        ? `▶ Comenzar sesión · ${existingBlocks.length} bloque${existingBlocks.length !== 1 ? 's' : ''}`
-        : 'Añade al menos un bloque para empezar');
+    }, canStart ? t('step1.startBtn', existingBlocks.length) : t('step1.startBtnEmpty'));
 
     if (canStart) startBtn.addEventListener('click', () => cb.onStart(existingBlocks));
     container.appendChild(startBtn);
@@ -123,7 +121,7 @@ function renderPlanBar(blocks: SessionBlock[], _cb: Step1Callbacks): HTMLElement
     });
     bar.appendChild(chips);
 
-    const shareBtn = createElement('button', { className: 'session-share-btn', title: 'Generar link para compartir' }, '📤');
+    const shareBtn = createElement('button', { className: 'session-share-btn', title: t('step1.shareTitle') }, '📤');
     shareBtn.addEventListener('click', () => showSharePopup(blocks, shareBtn));
     bar.appendChild(shareBtn);
     return bar;
@@ -133,20 +131,20 @@ function showSharePopup(blocks: SessionBlock[], anchor: HTMLElement): void {
     document.querySelector('.session-share-popup')?.remove();
 
     const popup = createElement('div', { className: 'session-share-popup' });
-    popup.appendChild(createElement('p', { className: 'session-share-popup__label' }, 'Nombre de la sesión:'));
+    popup.appendChild(createElement('p', { className: 'session-share-popup__label' }, t('step1.shareNameLabel')));
     const nameInput = createElement('input', {
-        type: 'text', placeholder: 'Ej: Foco Keherwa', className: 'session-share-popup__input',
+        type: 'text', placeholder: t('step1.shareNamePlaceholder'), className: 'session-share-popup__input',
     }) as HTMLInputElement;
     popup.appendChild(nameInput);
 
-    const genBtn = createElement('button', { className: 'btn-primary session-share-popup__gen' }, '📤 Generar y copiar link') as HTMLButtonElement;
+    const genBtn = createElement('button', { className: 'btn-primary session-share-popup__gen' }, t('step1.shareGenBtn')) as HTMLButtonElement;
     genBtn.addEventListener('click', () => {
-        const name = nameInput.value.trim() || 'Sesión compartida';
+        const name = nameInput.value.trim() || t('step1.shareNameDefault');
         const hash = blocksToHash(name, blocks);
         const url = `${window.location.origin}${window.location.pathname}#share=${hash}`;
         navigator.clipboard.writeText(url).then(() => {
-            genBtn.textContent = '✓ Link copiado';
-            setTimeout(() => { genBtn.textContent = '📤 Generar y copiar link'; }, 2500);
+            genBtn.textContent = t('step1.shareCopied');
+            setTimeout(() => { genBtn.textContent = t('step1.shareGenBtn'); }, 2500);
         });
     });
     popup.appendChild(genBtn);
@@ -166,7 +164,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
     const modal = createElement('div', { className: 'session-share-modal' });
 
     modal.appendChild(createElement('div', { className: 'session-share-modal__icon' }, '📋'));
-    modal.appendChild(createElement('h3', { className: 'session-share-modal__title' }, 'Sesión recibida'));
+    modal.appendChild(createElement('h3', { className: 'session-share-modal__title' }, t('step1.shareReceived')));
     modal.appendChild(createElement('p', { className: 'session-share-modal__name' }, share.name));
     modal.appendChild(createElement('p', { className: 'session-share-modal__meta' },
         `${share.blocks.length} bloque${share.blocks.length !== 1 ? 's' : ''}`));
@@ -182,7 +180,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
 
     const actions = createElement('div', { className: 'session-share-modal__actions' });
 
-    const loadBtn = createElement('button', { className: 'btn-primary' }, '▶ Cargar y practicar');
+    const loadBtn = createElement('button', { className: 'btn-primary' }, t('step1.shareLoadBtn'));
     loadBtn.addEventListener('click', () => {
         cb.onStep1(share.blocks.map(b => ({ ...b, id: crypto.randomUUID() })));
     });
@@ -190,9 +188,9 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
 
     const saveInput = createElement('input', {
         type: 'text', className: 'session-share-modal__save-input',
-        placeholder: 'Nombre para guardar como plantilla…', value: share.name,
+        placeholder: t('step1.shareSavePlaceholder'), value: share.name,
     }) as HTMLInputElement;
-    const saveBtn = createElement('button', { className: 'btn-secondary' }, '💾 Guardar plantilla');
+    const saveBtn = createElement('button', { className: 'btn-secondary' }, t('step1.shareSaveBtn'));
     saveBtn.addEventListener('click', () => {
         const name = saveInput.value.trim() || share.name;
         const existing = loadSavedTemplates();
@@ -200,7 +198,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
             id: crypto.randomUUID(), name,
             blocks: share.blocks.map(b => ({ ...b, id: crypto.randomUUID() })),
         }]);
-        saveBtn.textContent = '✓ Guardada';
+        saveBtn.textContent = t('step1.shareSaved');
         (saveBtn as HTMLButtonElement).disabled = true;
     });
 
@@ -209,7 +207,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
     saveRow.appendChild(saveBtn);
     actions.appendChild(saveRow);
 
-    const discardBtn = createElement('button', { className: 'session-share-modal__discard' }, 'Descartar');
+    const discardBtn = createElement('button', { className: 'session-share-modal__discard' }, t('step1.shareDiscard'));
     discardBtn.addEventListener('click', () => cb.onStep1());
     actions.appendChild(discardBtn);
 
@@ -227,7 +225,7 @@ function renderTemplatesPanel(currentBlocks: SessionBlock[], cb: Step1Callbacks)
     const toggle = createElement('button', { className: 'session-templates-toggle' }) as HTMLButtonElement;
     const rebuildToggleLabel = () => {
         const count = loadSavedTemplates().length;
-        toggle.innerHTML = `<span>📋 Plantillas</span>${count > 0 ? `<span class="session-templates-badge">${count}</span>` : ''}<span class="session-templates-arrow">›</span>`;
+        toggle.innerHTML = `<span>📋 ${t('step1.templates')}</span>${count > 0 ? `<span class="session-templates-badge">${count}</span>` : ''}<span class="session-templates-arrow">›</span>`;
     };
     rebuildToggleLabel();
     wrap.appendChild(toggle);
@@ -240,34 +238,33 @@ function renderTemplatesPanel(currentBlocks: SessionBlock[], cb: Step1Callbacks)
         const list = loadSavedTemplates();
 
         if (list.length === 0) {
-            body.appendChild(createElement('p', { className: 'text-muted text-sm' },
-                'Sin plantillas. Configura bloques, genera un link y guárdalo aquí.'));
+            body.appendChild(createElement('p', { className: 'text-muted text-sm' }, t('step1.templatesEmpty')));
         } else {
-            list.forEach((t: SavedTemplate) => {
+            list.forEach((tmpl: SavedTemplate) => {
                 const row = createElement('div', { className: 'session-template-row' });
 
                 const info = createElement('div', { className: 'session-template-row__info' });
-                info.appendChild(createElement('span', { className: 'session-template-row__name' }, t.name));
+                info.appendChild(createElement('span', { className: 'session-template-row__name' }, tmpl.name));
                 info.appendChild(createElement('span', { className: 'session-template-row__meta' },
-                    `${t.blocks.length} bloque${t.blocks.length !== 1 ? 's' : ''}`));
+                    `${tmpl.blocks.length} bloque${tmpl.blocks.length !== 1 ? 's' : ''}`));
                 row.appendChild(info);
 
                 const acts = createElement('div', { className: 'session-template-row__actions' });
 
-                const loadBtn = createElement('button', { className: 'btn-secondary session-template-btn' }, 'Cargar');
+                const loadBtn = createElement('button', { className: 'btn-secondary session-template-btn' }, t('step1.templateLoad'));
                 loadBtn.addEventListener('click', () => {
-                    cb.onStep1(t.blocks.map(b => ({ ...b, id: crypto.randomUUID() })));
+                    cb.onStep1(tmpl.blocks.map(b => ({ ...b, id: crypto.randomUUID() })));
                 });
                 acts.appendChild(loadBtn);
 
-                const shareBtn = createElement('button', { className: 'session-template-share-btn', title: 'Compartir como link' }, '📤');
-                shareBtn.addEventListener('click', () => showSharePopup(t.blocks, shareBtn));
+                const shareBtn = createElement('button', { className: 'session-template-share-btn', title: t('step1.shareTitle') }, '📤');
+                shareBtn.addEventListener('click', () => showSharePopup(tmpl.blocks, shareBtn));
                 acts.appendChild(shareBtn);
 
                 const delBtn = createElement('button', { className: 'session-template-delete' }, '✕') as HTMLButtonElement;
-                delBtn.title = 'Eliminar plantilla';
+                delBtn.title = t('step1.templateDelete');
                 delBtn.addEventListener('click', () => {
-                    saveSavedTemplates(loadSavedTemplates().filter((x: SavedTemplate) => x.id !== t.id));
+                    saveSavedTemplates(loadSavedTemplates().filter((x: SavedTemplate) => x.id !== tmpl.id));
                     rebuildBody();
                     rebuildToggleLabel();
                 });
@@ -282,12 +279,12 @@ function renderTemplatesPanel(currentBlocks: SessionBlock[], cb: Step1Callbacks)
             const saveRow = createElement('div', { className: 'session-template-save-row' });
             const nameInput = createElement('input', {
                 type: 'text',
-                placeholder: 'Nombre para guardar sesión actual…',
+                placeholder: t('step1.templateNamePlaceholder'),
                 className: 'session-template-save-input',
             }) as HTMLInputElement;
-            const saveBtn = createElement('button', { className: 'btn-primary session-template-btn' }, '💾 Guardar') as HTMLButtonElement;
+            const saveBtn = createElement('button', { className: 'btn-primary session-template-btn' }, t('step1.templateSave')) as HTMLButtonElement;
             saveBtn.addEventListener('click', () => {
-                const name = nameInput.value.trim() || `Sesión ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
+                const name = nameInput.value.trim() || t('step1.templateDefaultName');
                 saveSavedTemplates([...loadSavedTemplates(), {
                     id: crypto.randomUUID(), name, blocks: currentBlocks.map(b => ({ ...b })),
                 }]);
@@ -326,9 +323,9 @@ function createBlockSummaryCard(
     const card = createElement('div', { className: 'session-block-card' });
 
     if (block.type === 'warmup') {
-        card.appendChild(createElement('div', { className: 'session-block-card__warmup-badge' }, 'Warm Up'));
+        card.appendChild(createElement('div', { className: 'session-block-card__warmup-badge' }, t('step1.blockBadgeWarmUp')));
     } else if (block.type === 'pickup') {
-        card.appendChild(createElement('div', { className: 'session-block-card__pickup-badge' }, 'Pickup'));
+        card.appendChild(createElement('div', { className: 'session-block-card__pickup-badge' }, t('step1.blockBadgePickup')));
     } else {
         const practiceIdx = allBlocks.slice(0, index).filter(b => b.type === 'practice').length + 1;
         card.appendChild(createElement('div', { className: 'session-block-card__index' }, String(practiceIdx)));
@@ -339,7 +336,7 @@ function createBlockSummaryCard(
         ? `${block.kaydaName ?? ''}`
         : block.type === 'pickup'
             ? `${block.pickupName ?? ''}`
-            : `${block.taalName ?? ''} · ${block.variationName ?? 'Patrón Principal'}`;
+            : `${block.taalName ?? ''} · ${block.variationName ?? t('step1.blockPatternMain')}`;
     body.appendChild(createElement('div', { className: 'session-block-card__title' }, title));
 
     const meta = createElement('div', { className: 'session-block-card__meta' });
@@ -349,23 +346,23 @@ function createBlockSummaryCard(
         if (block.pickupTaalCategory) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.pickupTaalCategory));
         if (block.pickupVideoUrl) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, '▶ Tutorial'));
     } else if (block.supportType === 'metronome') {
-        meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, `Metrónomo · ${block.bpmStart ?? 120} BPM`));
+        meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('step1.blockMetronome', block.bpmStart ?? 120)));
     } else if (block.supportRef) {
         meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.supportRef));
     }
-    meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, 'Tiempo libre'));
+    meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('step1.blockFreeTimer')));
     body.appendChild(meta);
     card.appendChild(body);
 
     const reorder = createElement('div', { className: 'session-block-card__reorder' });
-    const upBtn = createElement('button', { className: 'session-block-card__reorder-btn', title: 'Mover arriba' }, '↑') as HTMLButtonElement;
+    const upBtn = createElement('button', { className: 'session-block-card__reorder-btn', title: t('step1.blockMoveUp') }, '↑') as HTMLButtonElement;
     upBtn.disabled = index === 0;
     upBtn.addEventListener('click', () => {
         const updated = [...allBlocks];
         [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
         cb.onStep1(updated);
     });
-    const downBtn = createElement('button', { className: 'session-block-card__reorder-btn', title: 'Mover abajo' }, '↓') as HTMLButtonElement;
+    const downBtn = createElement('button', { className: 'session-block-card__reorder-btn', title: t('step1.blockMoveDown') }, '↓') as HTMLButtonElement;
     downBtn.disabled = index === allBlocks.length - 1;
     downBtn.addEventListener('click', () => {
         const updated = [...allBlocks];
@@ -376,7 +373,7 @@ function createBlockSummaryCard(
     reorder.appendChild(downBtn);
     card.appendChild(reorder);
 
-    const removeBtn = createElement('button', { className: 'session-block-card__remove' }, 'Quitar');
+    const removeBtn = createElement('button', { className: 'session-block-card__remove' }, t('step1.blockRemove'));
     removeBtn.addEventListener('click', () => cb.onStep1(allBlocks.filter((_, i) => i !== index)));
     card.appendChild(removeBtn);
     return card;
@@ -389,15 +386,15 @@ function createBlockSummaryCard(
 function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): HTMLElement {
     const section = createElement('div', {});
     const sectionHeader = createElement('div', { className: 'session-section-header' });
-    sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, 'Warm Up'));
+    sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, t('step1.warmUpLabel')));
     sectionHeader.appendChild(createElement('div', { className: 'session-section-divider' }));
     section.appendChild(sectionHeader);
 
     const wrapper = createElement('div', { className: 'session-form-card' });
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, 'Warm Up'));
+    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.warmUpLabel')));
 
     const lehraField = createElement('div', { className: 'session-form-field' });
-    lehraField.appendChild(createElement('label', {}, 'Lehra'));
+    lehraField.appendChild(createElement('label', {}, t('step1.warmUpLehra')));
     const lehraSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     LEHRAS.filter(l => l.url).forEach(l => {
         lehraSelect.appendChild(createElement('option', { value: l.url }, l.label) as HTMLOptionElement);
@@ -406,7 +403,7 @@ function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): H
     wrapper.appendChild(lehraField);
 
     const kaydaField = createElement('div', { className: 'session-form-field' });
-    kaydaField.appendChild(createElement('label', {}, 'Kayda'));
+    kaydaField.appendChild(createElement('label', {}, t('step1.warmUpKayda')));
     const kaydaSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     Object.entries(KAYDAS).forEach(([id, k]) => {
         kaydaSelect.appendChild(createElement('option', { value: id }, k.name) as HTMLOptionElement);
@@ -414,7 +411,7 @@ function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): H
     kaydaField.appendChild(kaydaSelect);
     wrapper.appendChild(kaydaField);
 
-    const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, '+ Añadir Warm Up');
+    const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, t('step1.warmUpAddBtn'));
     addBtn.addEventListener('click', () => {
         const lehraIdx = LEHRAS.findIndex(l => l.url === lehraSelect.value);
         const block: SessionBlock = {
@@ -435,15 +432,15 @@ function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): H
 function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): HTMLElement {
     const section = createElement('div', {});
     const sectionHeader = createElement('div', { className: 'session-section-header' });
-    sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, 'Pickup / Filler'));
+    sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, t('step1.pickupLabel')));
     sectionHeader.appendChild(createElement('div', { className: 'session-section-divider' }));
     section.appendChild(sectionHeader);
 
     const wrapper = createElement('div', { className: 'session-form-card' });
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, 'Pickup / Filler'));
+    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.pickupLabel')));
 
     const catField = createElement('div', { className: 'session-form-field' });
-    catField.appendChild(createElement('label', {}, 'Taal / Categoría'));
+    catField.appendChild(createElement('label', {}, t('step1.pickupCat')));
     const catSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     const categories = [...new Set(FILLERS.map(f => f.category))];
     categories.forEach(cat => catSelect.appendChild(createElement('option', { value: cat }, cat) as HTMLOptionElement));
@@ -451,7 +448,7 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
     wrapper.appendChild(catField);
 
     const patField = createElement('div', { className: 'session-form-field' });
-    patField.appendChild(createElement('label', {}, 'Patrón'));
+    patField.appendChild(createElement('label', {}, t('step1.pickupPattern')));
     const patSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     wrapper.appendChild(patField);
 
@@ -463,7 +460,7 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
         patPreview.textContent = '';
         const patterns = FILLERS.find(f => f.category === category)?.patterns ?? [];
         if (patterns.length === 0) {
-            patSelect.appendChild(createElement('option', { value: '' }, 'Sin pickups para esta categoría') as HTMLOptionElement);
+            patSelect.appendChild(createElement('option', { value: '' }, t('step1.pickupEmpty')) as HTMLOptionElement);
         } else {
             patterns.forEach(p => {
                 patSelect.appendChild(createElement('option', {
@@ -487,7 +484,7 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
         } catch { patPreview.textContent = ''; }
     });
 
-    const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, '+ Añadir Pickup');
+    const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, t('step1.pickupAddBtn'));
     addBtn.addEventListener('click', () => {
         let pickupName = '';
         let pickupVideoUrl = '';
@@ -514,15 +511,15 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
 function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): HTMLElement {
     const section = createElement('div', {});
     const sectionHeader = createElement('div', { className: 'session-section-header' });
-    sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, 'Bloque de práctica'));
+    sectionHeader.appendChild(createElement('span', { className: 'session-section-label' }, t('step1.practiceLabel')));
     sectionHeader.appendChild(createElement('div', { className: 'session-section-divider' }));
     section.appendChild(sectionHeader);
 
     const wrapper = createElement('div', { className: 'session-form-card' });
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, 'Bloque de práctica'));
+    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.practiceLabel')));
 
     const taalField = createElement('div', { className: 'session-form-field' });
-    taalField.appendChild(createElement('label', {}, 'Taal'));
+    taalField.appendChild(createElement('label', {}, t('step2.taalLabel')));
     const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     activeTaals.forEach(id => {
         taalSelect.appendChild(createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement);
@@ -531,7 +528,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     wrapper.appendChild(taalField);
 
     const varField = createElement('div', { className: 'session-form-field' });
-    varField.appendChild(createElement('label', {}, 'Variación'));
+    varField.appendChild(createElement('label', {}, t('step1.variationLabel')));
     const varSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     varField.appendChild(varSelect);
     wrapper.appendChild(varField);
@@ -550,7 +547,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
 
     const refreshVariations = (taalId: string) => {
         varSelect.innerHTML = '';
-        varSelect.appendChild(createElement('option', { value: '__main__' }, 'Patrón Principal') as HTMLOptionElement);
+        varSelect.appendChild(createElement('option', { value: '__main__' }, t('step1.blockPatternMain')) as HTMLOptionElement);
         (TAALS[taalId]?.variations ?? []).forEach(v => {
             if (!v.special) varSelect.appendChild(createElement('option', { value: v.name }, v.name) as HTMLOptionElement);
         });
@@ -564,10 +561,10 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     });
 
     const supportField = createElement('div', { className: 'session-form-field' });
-    supportField.appendChild(createElement('label', {}, 'Soporte rítmico'));
+    supportField.appendChild(createElement('label', {}, t('step1.supportLabel')));
     const supportSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     ['song', 'lehra', 'metronome'].forEach(s => {
-        const labels: Record<string, string> = { metronome: 'Metrónomo', song: 'Canción', lehra: 'Lehra' };
+        const labels: Record<string, string> = { metronome: t('step1.supportMetronome'), song: t('step1.supportSong'), lehra: t('step1.supportLehra') };
         supportSelect.appendChild(createElement('option', { value: s }, labels[s]) as HTMLOptionElement);
     });
     supportField.appendChild(supportSelect);
@@ -577,7 +574,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     wrapper.appendChild(subSelectorContainer);
 
     const bpmRow = createElement('div', { className: 'session-form-field' });
-    bpmRow.appendChild(createElement('label', {}, 'BPM inicial'));
+    bpmRow.appendChild(createElement('label', {}, t('step1.bpmLabel')));
     const bpmInput = createElement('input', {
         type: 'number', min: '40', max: '400', value: '120', className: 'w-full'
     }) as HTMLInputElement;
@@ -589,11 +586,11 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
         bpmRow.style.display = supportType === 'metronome' ? '' : 'none';
 
         if (supportType === 'song') {
-            subSelectorContainer.appendChild(createElement('label', {}, 'Canción'));
+            subSelectorContainer.appendChild(createElement('label', {}, t('step1.supportSong')));
 
             // Song search
             const searchInput = createElement('input', {
-                type: 'text', placeholder: '🔍 Buscar canción…',
+                type: 'text', placeholder: t('step1.songSearchPlaceholder'),
                 className: 'w-full session-song-search',
             }) as HTMLInputElement;
             subSelectorContainer.appendChild(searchInput);
@@ -610,20 +607,20 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
                     s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
                 ) : allSongs;
                 if (visible.length === 0) {
-                    sel.appendChild(createElement('option', { value: '' }, 'Sin resultados') as HTMLOptionElement);
+                    sel.appendChild(createElement('option', { value: '' }, t('step1.songNoResults')) as HTMLOptionElement);
                 } else {
                     visible.forEach(s => {
                         sel.appendChild(createElement('option', { value: s.youtubeUrl }, `${s.title} — ${s.artist}`) as HTMLOptionElement);
                     });
                 }
-                sel.appendChild(createElement('option', { value: '__custom__' }, '＋ Otra canción (pegar URL)…') as HTMLOptionElement);
+                sel.appendChild(createElement('option', { value: '__custom__' }, t('step1.songCustomOption')) as HTMLOptionElement);
                 customWrap.style.display = 'none';
             };
 
             const customWrap = createElement('div', { className: 'session-custom-song' });
             customWrap.style.display = 'none';
             const customTitle = createElement('input', {
-                type: 'text', placeholder: 'Título de la canción', className: 'w-full session-custom-input', 'data-custom-title': 'true',
+                type: 'text', placeholder: t('step1.songCustomTitle'), className: 'w-full session-custom-input', 'data-custom-title': 'true',
             }) as HTMLInputElement;
             const customUrl = createElement('input', {
                 type: 'url', placeholder: 'URL de YouTube (https://…)', className: 'w-full session-custom-input', 'data-custom-url': 'true',
@@ -640,7 +637,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
                 customWrap.style.display = sel.value === '__custom__' ? '' : 'none';
             });
         } else if (supportType === 'lehra') {
-            subSelectorContainer.appendChild(createElement('label', {}, 'Lehra'));
+            subSelectorContainer.appendChild(createElement('label', {}, t('step1.supportLehra')));
             const sel = createElement('select', { className: 'w-full', 'data-sub-select': 'lehra' }) as HTMLSelectElement;
             LEHRAS.filter(l => l.url).forEach(l => {
                 sel.appendChild(createElement('option', { value: l.url }, l.label) as HTMLOptionElement);
@@ -654,10 +651,10 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
         if (supportSelect.value === 'song') refreshSubSelector('song');
     });
 
-    const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, '+ Añadir bloque');
+    const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, t('step1.practiceAddBtn'));
     addBtn.addEventListener('click', () => {
         const taalId = taalSelect.value;
-        const varName = varSelect.value === '__main__' ? 'Patrón Principal' : varSelect.value;
+        const varName = varSelect.value === '__main__' ? 'Patrón Principal' : varSelect.value;  // always Spanish for DB storage
         const supportType = supportSelect.value as 'metronome' | 'song' | 'lehra';
         const subSel = subSelectorContainer.querySelector('[data-sub-select]') as HTMLSelectElement | null;
 
@@ -668,7 +665,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
         } else if (supportType === 'song' && subSel?.value === '__custom__') {
             const ct = subSelectorContainer.querySelector('[data-custom-title]') as HTMLInputElement | null;
             const cu = subSelectorContainer.querySelector('[data-custom-url]') as HTMLInputElement | null;
-            supportRef = ct?.value.trim() || 'Canción personalizada';
+            supportRef = ct?.value.trim() || t('step1.songCustomFallback');
             supportUrl = cu?.value.trim() ?? '';
         } else if (subSel) {
             supportUrl = subSel.value;

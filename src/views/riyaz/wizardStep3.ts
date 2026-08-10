@@ -6,6 +6,7 @@
 
 import { createElement } from '../../core/utils.js';
 import { db } from '../../core/supabase.js';
+import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState } from '../../types.js';
 import { clearSessionDraft } from './wizardDraft.js';
 import { formatTime } from './wizardStep2.js';
@@ -35,9 +36,8 @@ export function renderStep3(
 
     // Header
     const header = createElement('div', { className: 'mb-8' });
-    header.appendChild(createElement('h2', { className: 'section-title' }, 'Sesión completada'));
-    header.appendChild(createElement('p', { className: 'section-subtitle' },
-        `Tiempo total: ${formatTime(totalSecs)}`));
+    header.appendChild(createElement('h2', { className: 'section-title' }, t('step3.pageTitle')));
+    header.appendChild(createElement('p', { className: 'section-subtitle' }, t('step3.totalTime', formatTime(totalSecs))));
     container.appendChild(header);
 
     // Lista de bloques
@@ -57,11 +57,10 @@ export function renderStep3(
 
     // Notas libres
     const notesCard = createElement('div', { className: 'card p-6 mb-4' });
-    notesCard.appendChild(createElement('h3', { className: 'font-bold text-lg mb-3' }, 'Notas de la sesión'));
-    notesCard.appendChild(createElement('p', { className: 'text-muted text-sm mb-3' }, '¿Qué ha ido bien? ¿Qué mejorar?'));
+    notesCard.appendChild(createElement('h3', { className: 'font-bold text-lg mb-3' }, t('step3.notesTitle')));
     const textarea = createElement('textarea', {
         className: 'w-full', rows: '5',
-        placeholder: 'Escribe aquí tus observaciones...',
+        placeholder: t('step3.notesPlaceholder'),
         style: {
             width: '100%', padding: '0.75rem', borderRadius: '8px',
             border: '1.5px solid var(--border-primary)', background: 'var(--card-bg)',
@@ -85,7 +84,7 @@ export function renderStep3(
     jointCheckbox.style.cssText = 'width:18px;height:18px;cursor:pointer;accent-color:var(--orange-500)';
     const jointLabel = createElement('label', { htmlFor: 'joint-session-toggle' });
     jointLabel.style.cssText = 'cursor:pointer;font-size:0.95rem;user-select:none';
-    jointLabel.textContent = 'Sesión conjunta';
+    jointLabel.textContent = t('step3.jointSession');
     jointRow.appendChild(jointCheckbox);
     jointRow.appendChild(jointLabel);
     notesCard.appendChild(jointRow);
@@ -94,13 +93,13 @@ export function renderStep3(
 
     // Action buttons
     const actionArea = createElement('div', {});
-    const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, '💾 Guardar sesión');
+    const saveBtn = createElement('button', { className: 'btn-primary session-start-btn' }, t('step3.saveBtn'));
     saveBtn.addEventListener('click', () => {
         showSaveModal(sessionState.notes, totalSecs, sessionState.blocks, jointCheckbox.checked, sessionState.startedAt, () => {
             clearSessionDraft();
             actionArea.innerHTML = '';
             const successMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--success' });
-            successMsg.innerHTML = '✓ <strong>Sesión guardada.</strong> Redirigiendo...';
+            successMsg.innerHTML = t('step3.savedMsg');
             actionArea.appendChild(successMsg);
             setTimeout(() => cb.onNewSession(), 2000);
         });
@@ -109,24 +108,23 @@ export function renderStep3(
 
     // Discard with inline confirmation
     const discardWrapper = createElement('div', { style: { marginTop: '0.75rem' } });
-    const discardBtn = createElement('button', { className: 'btn-secondary session-start-btn session-discard-btn' }, 'Descartar sesión');
+    const discardBtn = createElement('button', { className: 'btn-secondary session-start-btn session-discard-btn' }, t('step3.discardBtn'));
     const confirmRow = createElement('div', { className: 'session-discard-confirm', style: { display: 'none' } });
-    confirmRow.appendChild(createElement('span', { className: 'text-muted text-sm' },
-        '¿Seguro que quieres descartar esta sesión? No se guardará nada.'));
+    confirmRow.appendChild(createElement('span', { className: 'text-muted text-sm' }, t('step3.discardConfirm')));
     const confirmBtns = createElement('div', { className: 'flex gap-3 mt-3' });
 
-    const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, 'Sí, descartar');
+    const yesBtn = createElement('button', { className: 'btn-danger flex-1' }, t('step3.discardYes'));
     yesBtn.addEventListener('click', () => {
         clearSessionDraft();
         actionArea.innerHTML = '';
         discardWrapper.innerHTML = '';
         const discardMsg = createElement('div', { className: 'session-action-feedback session-action-feedback--discard' });
-        discardMsg.innerHTML = '✕ <strong>Sesión descartada.</strong> Redirigiendo...';
+        discardMsg.innerHTML = t('step3.discardedMsg');
         actionArea.appendChild(discardMsg);
         setTimeout(() => cb.onNewSession(), 2000);
     });
 
-    const noBtn = createElement('button', { className: 'btn-secondary flex-1' }, 'Cancelar');
+    const noBtn = createElement('button', { className: 'btn-secondary flex-1' }, t('step3.discardNo'));
     noBtn.addEventListener('click', () => {
         confirmRow.style.display = 'none';
         discardBtn.style.display = '';
@@ -149,7 +147,7 @@ export function renderStep3(
 
 function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
     const card = createElement('div', { className: 'card p-6 mb-4' });
-    card.appendChild(createElement('h3', { className: 'font-bold text-lg mb-4' }, 'Bloques practicados'));
+    card.appendChild(createElement('h3', { className: 'font-bold text-lg mb-4' }, t('step3.blocksTitle')));
 
     blocks.forEach((block, i) => {
         const row = createElement('div', {
@@ -157,9 +155,9 @@ function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
             style: { borderBottom: '1px solid var(--border-primary)' }
         });
         const name = block.type === 'warmup'
-            ? `Warm Up — ${block.kaydaName}`
+            ? `${t('step3.warmUp')} — ${block.kaydaName}`
             : block.type === 'pickup'
-                ? `Pickup — ${block.pickupName ?? ''}`
+                ? `${t('step3.pickup')} — ${block.pickupName ?? ''}`
                 : `${i}. ${block.taalName} · ${block.variationName}`;
         row.appendChild(createElement('span', { className: 'font-medium' }, name));
 
@@ -178,7 +176,7 @@ function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
 
 function buildTaalBreakdown(taalTimes: Record<string, number>, totalSecs: number): HTMLElement {
     const card = createElement('div', { className: 'card p-6 mb-4' });
-    card.appendChild(createElement('h3', { className: 'font-bold text-lg mb-4' }, 'Tiempo por taal'));
+    card.appendChild(createElement('h3', { className: 'font-bold text-lg mb-4' }, t('step3.taalBreakdown')));
 
     Object.entries(taalTimes).forEach(([name, secs]) => {
         const pct = totalSecs > 0 ? Math.round((secs / totalSecs) * 100) : 0;
@@ -218,22 +216,19 @@ function showSaveModal(
     const overlay = createElement('div', { className: 'save-modal-overlay' });
     const modal   = createElement('div', { className: 'save-modal' });
 
-    modal.appendChild(createElement('h3', { className: 'save-modal__title' }, '💾 Guardar sesión'));
+    modal.appendChild(createElement('h3', { className: 'save-modal__title' }, t('step3.saveModalTitle')));
 
     if (jointSession) {
-        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
-            'Sesión conjunta — se guardará para Prashant y Meera'));
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' }, t('step3.saveModalJoint')));
         // In a joint session only Prashant's password is required for auth
-        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
-            'Introduce la contraseña de Prashant para confirmar'));
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' }, t('step3.saveModalJointAuth')));
     } else {
-        modal.appendChild(createElement('p', { className: 'save-modal__sub' },
-            'Introduce tus credenciales para guardar en la base de datos'));
+        modal.appendChild(createElement('p', { className: 'save-modal__sub' }, t('step3.saveModalSub')));
     }
 
     // User selector (hidden for joint sessions, always prashant)
     const userField = createElement('div', { className: 'save-modal__field' });
-    userField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Usuario'));
+    userField.appendChild(createElement('label', { className: 'save-modal__label' }, t('step3.saveModalUser')));
     const userSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     ['prashant', 'meera'].forEach(u => {
         userSelect.appendChild(createElement('option', { value: u },
@@ -247,7 +242,7 @@ function showSaveModal(
     modal.appendChild(userField);
 
     const passField = createElement('div', { className: 'save-modal__field' });
-    passField.appendChild(createElement('label', { className: 'save-modal__label' }, 'Contraseña'));
+    passField.appendChild(createElement('label', { className: 'save-modal__label' }, t('step3.saveModalPass')));
     const passInput = createElement('input', {
         type: 'password', className: 'save-modal__pass-input', placeholder: '••••••••',
     }) as HTMLInputElement;
@@ -259,23 +254,23 @@ function showSaveModal(
     modal.appendChild(errorEl);
 
     const btnRow = createElement('div', { className: 'save-modal__btns' });
-    const cancelBtn = createElement('button', { className: 'btn-secondary flex-1' }, 'Cancelar');
+    const cancelBtn = createElement('button', { className: 'btn-secondary flex-1' }, t('step3.saveModalCancel'));
     cancelBtn.addEventListener('click', () => overlay.remove());
 
-    const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, 'Guardar');
+    const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, t('step3.saveModalBtn'));
     confirmBtn.addEventListener('click', async () => {
         const userId       = jointSession ? 'prashant' : userSelect.value;
         const passwordHash = await hashPassword(passInput.value.trim());
 
         if (passwordHash !== USERS[userId]) {
-            errorEl.textContent = 'Contraseña incorrecta';
+            errorEl.textContent = t('step3.saveModalWrongPass');
             errorEl.style.display = 'block';
             passInput.value = '';
             passInput.focus();
             return;
         }
 
-        confirmBtn.textContent = 'Guardando...';
+        confirmBtn.textContent = t('step3.saveModalSaving');
         confirmBtn.setAttribute('disabled', 'true');
         errorEl.style.display = 'none';
 
@@ -311,10 +306,10 @@ function showSaveModal(
             overlay.remove();
             onSuccess();
         } catch (err) {
-            console.error('Error guardando sesión:', err);
-            errorEl.textContent = 'Error al guardar. Revisa tu conexión e inténtalo de nuevo.';
+            console.error('Error saving session:', err);
+            errorEl.textContent = t('step3.saveModalError');
             errorEl.style.display = 'block';
-            confirmBtn.textContent = 'Guardar';
+            confirmBtn.textContent = t('step3.saveModalBtn');
             confirmBtn.removeAttribute('disabled');
         }
     });

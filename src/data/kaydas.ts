@@ -11,9 +11,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Base Teental - 16 Tiempos',
+        description_en: 'Base Teental - 16 Beats',
         rows: [
             {
                 label: 'Bhari (Matras 1-8)',
+                label_en: 'Bhari (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Dha', technique: 'Taali' },
                     { matra: 2, bol: 'Dha', technique: '' },
@@ -27,6 +29,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Khali (Matras 9-16)',
+                label_en: 'Khali (Beats 9-16)',
                 matras: [
                     { matra: 9, bol: 'Ta', technique: 'Khali' },
                     { matra: 10, bol: 'Ta', technique: '' },
@@ -46,9 +49,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental - 16 Tiempos',
+        description_en: 'Teental - 16 Beats',
         rows: [
             {
                 label: 'Parte 1 (Matras 1-8)',
+                label_en: 'Part 1 (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Dha', technique: '' },
                     { matra: 2, bol: 'Dha', technique: '' },
@@ -62,6 +67,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Parte 2 (Matras 9-16)',
+                label_en: 'Part 2 (Beats 9-16)',
                 matras: [
                     { matra: 9, bol: 'Ta', technique: '' },
                     { matra: 10, bol: 'Ta', technique: '' },
@@ -81,9 +87,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental con Tirekite - 16 Tiempos',
+        description_en: 'Teental with Tirekite - 16 Beats',
         rows: [
             {
                 label: 'Parte 1 (Matras 1-8)',
+                label_en: 'Part 1 (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Dha', technique: '' },
                     { matra: 2, bol: 'Tirekite', technique: '' },
@@ -97,6 +105,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Parte 2 (Matras 9-16)',
+                label_en: 'Part 2 (Beats 9-16)',
                 matras: [
                     { matra: 9, bol: 'Ta', technique: '' },
                     { matra: 10, bol: 'Tirekite', technique: '' },
@@ -116,10 +125,12 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental con Tire Kite - 16 Tiempos',
+        description_en: 'Teental with Tire Kite - 16 Beats',
         tutorial: 'https://www.youtube.com/watch?v=6KQpma0Fiw8',
         rows: [
             {
                 label: 'Parte 1 (Matras 1-8)',
+                label_en: 'Part 1 (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Dha', technique: '' },
                     { matra: 2, bol: 'Dha', technique: '' },
@@ -133,6 +144,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Parte 2 (Matras 9-16)',
+                label_en: 'Part 2 (Beats 9-16)',
                 matras: [
                     { matra: 9, bol: 'Ta', technique: '' },
                     { matra: 10, bol: 'Ta', technique: '' },
@@ -152,9 +164,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Keherwa',
         beats: 8,
         description: 'Keherwa con Tirekite - 8 Tiempos',
+        description_en: 'Keherwa with Tirekite - 8 Beats',
         rows: [
             {
                 label: 'Bhari (Matras 1-8)',
+                label_en: 'Bhari (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Dha',  technique: '' },
                     { matra: 2, bol: 'Ti',   technique: '' },
@@ -168,6 +182,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Khali (Matras 1-8)',
+                label_en: 'Khali (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Ta',   technique: '' },
                     { matra: 2, bol: 'Ti',   technique: '' },
@@ -187,9 +202,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental con Tirekite avanzado - 16 Tiempos',
+        description_en: 'Teental with advanced Tirekite - 16 Beats',
         rows: [
             {
                 label: 'Bhari (Matras 1-8)',
+                label_en: 'Bhari (Beats 1-8)',
                 matras: [
                     { matra: 1, bol: 'Dha',         technique: '' },
                     { matra: 2, bol: 'TireKite',    technique: '' },
@@ -203,6 +220,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Khali (Matras 9-16)',
+                label_en: 'Khali (Beats 9-16)',
                 matras: [
                     { matra: 9,  bol: 'Ta',         technique: '' },
                     { matra: 10, bol: 'TireKite',   technique: '' },
@@ -222,9 +240,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental — ideal para construir paltas y tihai',
+        description_en: 'Teental — ideal for building paltas and tihai',
         rows: [
             {
                 label: 'Bhari (Matras 1-8)',
+                label_en: 'Bhari (Beats 1-8)',
                 matras: [
                     { matra: 1,  bol: 'Dha',   technique: '' },
                     { matra: 2,  bol: 'Ti',    technique: '' },
@@ -238,6 +258,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Khali (Matras 9-16)',
+                label_en: 'Khali (Beats 9-16)',
                 matras: [
                     { matra: 9,  bol: 'Ta',    technique: '' },
                     { matra: 10, bol: 'Ti',    technique: '' },
@@ -257,9 +278,11 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental — parejas de 2 notas por matra, ideal para pickups rápidos',
+        description_en: 'Teental — pairs of 2 notes per beat, ideal for fast pickups',
         rows: [
             {
                 label: 'Bhari (Matras 1-8)',
+                label_en: 'Bhari (Beats 1-8)',
                 matras: [
                     { matra: 1,  bol: 'GeNa',  technique: '' },
                     { matra: 2,  bol: 'DhaGe', technique: '' },
@@ -273,6 +296,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Khali (Matras 9-16)',
+                label_en: 'Khali (Beats 9-16)',
                 matras: [
                     { matra: 9,  bol: 'KeNa',  technique: '' },
                     { matra: 10, bol: 'TaKe',  technique: '' },
@@ -292,10 +316,12 @@ export const KAYDAS: KaydasData = {
         taal: 'Teental',
         beats: 16,
         description: 'Teental — patrón de 3 sílabas por matra para velocidad y fluidez',
+        description_en: 'Teental — 3-syllable pattern per beat for speed and fluency',
         tutorial: 'https://www.youtube.com/watch?v=hopp5I7Tjj0&t',
         rows: [
             {
                 label: 'Bhari (Matras 1-8)',
+                label_en: 'Bhari (Beats 1-8)',
                 matras: [
                     { matra: 1,  bol: 'DhaTira',  technique: '' },
                     { matra: 2,  bol: 'KitaTaka', technique: '' },
@@ -309,6 +335,7 @@ export const KAYDAS: KaydasData = {
             },
             {
                 label: 'Khali (Matras 9-16)',
+                label_en: 'Khali (Beats 9-16)',
                 matras: [
                     { matra: 9,  bol: 'TaaTira',  technique: '' },
                     { matra: 10, bol: 'KitaTaka', technique: '' },

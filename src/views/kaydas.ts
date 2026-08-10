@@ -5,6 +5,7 @@
 
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS, chunkArray, createSectionHeader, setupSearchFilter } from '../core/utils.js';
 import { KAYDAS } from '../data/kaydas.js';
+import { t, getLang } from '../i18n/index.js';
 import type { View, Kayda } from '../types.js';
 
 export class KaydasView implements View {
@@ -14,14 +15,14 @@ export class KaydasView implements View {
             className: 'view-section'
         });
         
-        section.appendChild(createSectionHeader('Kaydas', 'Composiciones avanzadas y variaciones temáticas'));
+        section.appendChild(createSectionHeader(t('kaydas.pageTitle'), t('kaydas.pageSubtitle')));
 
         // Search bar
         const searchWrapper = createElement('div', { className: 'songs-search-wrapper mb-6' });
         const searchInput = createElement('input', {
             type: 'text',
             className: 'songs-search-input',
-            placeholder: 'Buscar kayda, taal o bol...'
+            placeholder: t('kaydas.searchPlaceholder')
         }) as HTMLInputElement;
         searchWrapper.appendChild(searchInput);
         section.appendChild(searchWrapper);
@@ -29,14 +30,14 @@ export class KaydasView implements View {
         // Results counter
         const kaydaCounter = createElement('p', {
             className: 'text-muted text-sm mb-4'
-        }, `${Object.keys(KAYDAS).length} kaydas`);
+        }, t('kaydas.counter', Object.keys(KAYDAS).length));
         section.appendChild(kaydaCounter);
 
         // Empty state
         const emptyMsg = createElement('p', {
             className: 'text-muted text-center py-6',
             style: { display: 'none' }
-        }, 'No hay kaydas que coincidan con la búsqueda.');
+        }, t('kaydas.empty'));
         section.appendChild(emptyMsg);
 
         // Render kaydas and build search index
@@ -56,15 +57,15 @@ export class KaydasView implements View {
         const theory = createElement('div', { 
             className: 'info-box info-box--indigo mt-6'
         });
-        theory.appendChild(createElement('h4', { 
-            className: 'info-box__title text-xl font-bold mb-2' 
-        }, 'Teoría de Kaydas'));
-        theory.appendChild(createElement('p', { 
-            className: 'info-box__text mb-3' 
-        }, 'Las Kaydas son composiciones fijas que sirven como base para improvisación (Palta). Este patrón fundamental de Teental (16 tiempos) es la piedra angular del repertorio de tabla y dholak.'));
-        theory.appendChild(createElement('p', { 
-            className: 'info-box__text' 
-        }, 'Estructura: El ciclo se divide en dos mitades: Bhari (lleno, con bajo) y Khali (vacío, sin bajo). El Sam (M1) es el punto de resolución más importante del ciclo.'));
+        theory.appendChild(createElement('h4', {
+            className: 'info-box__title text-xl font-bold mb-2'
+        }, t('kaydas.theoryTitle')));
+        theory.appendChild(createElement('p', {
+            className: 'info-box__text mb-3'
+        }, t('kaydas.theoryBody')));
+        theory.appendChild(createElement('p', {
+            className: 'info-box__text'
+        }, t('kaydas.theoryStruct')));
         section.appendChild(theory);
 
         return section;
@@ -73,13 +74,14 @@ export class KaydasView implements View {
     private createKaydaCard(kayda: Kayda): HTMLElement {
         const card = createElement('div', { className: 'card p-8 mb-6' });
 
-        card.appendChild(createElement('h3', { 
-            className: 'text-2xl font-semibold mb-2' 
-        }, `${kayda.name} (${kayda.taal} - ${kayda.beats} Tiempos)`));
+        card.appendChild(createElement('h3', {
+            className: 'text-2xl font-semibold mb-2'
+        }, `${kayda.name} (${kayda.taal} - ${t('kaydas.beatsUnit', kayda.beats)})`));
 
-        card.appendChild(createElement('p', { 
+        const isEn = getLang() === 'en';
+        card.appendChild(createElement('p', {
             className: 'text-muted mb-4'
-        }, kayda.description));
+        }, isEn && kayda.description_en ? kayda.description_en : kayda.description));
 
         // Tutorial link (if present)
         if (kayda.tutorial) {
@@ -90,7 +92,7 @@ export class KaydasView implements View {
             headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '🎓'));
             headerDiv.appendChild(createElement('h5', {
                 className: 'font-bold resource-box__title'
-            }, 'Tutorial'));
+            }, t('kaydas.tutorialLabel')));
             tutorialDiv.appendChild(headerDiv);
 
             const tutorialCard = createElement('div', { className: 'tutorial-card' });
@@ -101,7 +103,7 @@ export class KaydasView implements View {
             });
             const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
             contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '📚'));
-            contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, 'Ver tutorial completo'));
+            contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, t('kaydas.tutorialLink')));
             contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
             link.appendChild(contentDiv);
             tutorialCard.appendChild(link);
@@ -124,9 +126,10 @@ export class KaydasView implements View {
 
                 // Label solo en el primer grupo de cada fila
                 if (groupIndex === 0) {
+                    const isEnRow = getLang() === 'en';
                     rowDiv.appendChild(createElement('h4', {
                         className: 'text-lg font-semibold text-muted mt-4 mb-3'
-                    }, row.label));
+                    }, isEnRow && row.label_en ? row.label_en : row.label));
                 }
 
                 const grid = createElement('div', {

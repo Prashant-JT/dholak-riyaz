@@ -12,7 +12,9 @@ export const jhaptal: Taal = {
     name: 'Jhaptal',
     beats: 10,
     description: 'Taal asimétrico clásico',
+    description_en: 'Classical asymmetric taal',
     subtitle: 'Estructura 2+3+2+3 beats',
+    subtitle_en: '2+3+2+3 beat structure',
     rows: [
         [
             { matra: 1,  bol: 'Dhi',  technique: 'Taali' },
@@ -29,7 +31,9 @@ export const jhaptal: Taal = {
     ],
     tip: {
         title: 'Grupos Asimétricos 2+3+2+3',
+        title_en: 'Asymmetric Groups 2+3+2+3',
         text: 'Jhaptal tiene 4 vibhags de tamaños desiguales: dos grupos de 2 y dos de 3. La clave está en marcar internamente cada inicio de grupo: Sam (M1), Taali (M3), Khali (M6) y Taali (M8). Practica contando en voz alta "1-2 | 1-2-3 | 1-2 | 1-2-3" antes de tocar los bols.',
+        text_en: 'Jhaptal has 4 vibhags of unequal sizes: two groups of 2 and two of 3. The key is to internally mark each group start: Sam (M1), Taali (M3), Khali (M6) and Taali (M8). Practise counting aloud "1-2 | 1-2-3 | 1-2 | 1-2-3" before playing the bols.',
         color: 'amber'
     }
 };

@@ -14,6 +14,9 @@ export interface Bol {
     badge: string;
     thapki?: boolean;   // The bol supports a thapki variation
     ghuisa?: boolean;   // The bol supports a ghuisa (slide) variation
+    technique_en?: string;
+    description_en?: string;
+    badge_en?: string;
 }
 
 // ============================================================================
@@ -30,6 +33,8 @@ export interface TaalTip {
     title: string;
     text: string;
     color: 'emerald' | 'purple' | 'amber' | 'blue' | 'indigo';
+    title_en?: string;
+    text_en?: string;
 }
 
 export interface Song {
@@ -45,6 +50,9 @@ export interface TaalVariation {
     tutorials?: string[];
     notes?: string[];
     special?: boolean;  // Pedagogical/special variation, shown at the end with a divider
+    name_en?: string;
+    description_en?: string;
+    notes_en?: string[];
 }
 
 export interface TaalTheory {
@@ -74,6 +82,9 @@ export interface Taal {
     tutorial?: string;
     songs?: Song[];
     notes?: string[];
+    description_en?: string;
+    subtitle_en?: string;
+    notes_en?: string[];
 }
 
 export interface TaalsData {
@@ -86,6 +97,7 @@ export interface TaalsData {
 
 export interface KaydaRow {
     label: string;
+    label_en?: string;
     matras: Matra[];
 }
 
@@ -94,6 +106,7 @@ export interface Kayda {
     taal: string;
     beats: number;
     description: string;
+    description_en?: string;
     rows: KaydaRow[];
     tutorial?: string;
 }
@@ -119,6 +132,7 @@ export interface FillerPattern {
     link?: string | null;
     hasAudio?: boolean;
     note?: string;
+    note_en?: string;
     special?: boolean;  // Featured pattern, shown at the end separated by a divider
 }
 

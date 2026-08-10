@@ -11,7 +11,9 @@ export const addha: Taal = {
     name: 'Addha Taal',
     beats: 16,
     description: 'Taal folk semiclásico de 16 beats',
+    description_en: 'Semi-classical folk taal of 16 beats',
     subtitle: 'Estructura 4+4+4+4 beats',
+    subtitle_en: '4+4+4+4 beat structure',
     rows: [
         [
             { matra: 1,  bol: 'Dha',  technique: 'Taali' },
@@ -36,7 +38,9 @@ export const addha: Taal = {
     ],
     tip: {
         title: 'Theka de Addha Taal',
+        title_en: 'Addha Taal Theka',
         text: 'Addha es un taal de 16 beats muy popular en música folk, bhajan y thumri. A diferencia de Teental, su theka tiene un sabor más enérgico y se toca en cancione Semi - Classical. El Sam cae en M1 (Dha) y el Khali en M9 (Dha→sin resonancia). Practica las dos filas por separado antes de encadenarlas.',
+        text_en: 'Addha is a 16-beat taal very popular in folk music, bhajan and thumri. Unlike Teental, its theka has a more energetic flavour and is played in semi-classical songs. The Sam falls on M1 (Dha) and the Khali on M9 (Dha→no resonance). Practise the two rows separately before chaining them together.',
         color: 'amber'
     }
 };

@@ -5,6 +5,7 @@
 
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
+import { t, getLang } from '../i18n/index.js';
 import type { View, Taal } from '../types.js';
 
 export class TaalView implements View {
@@ -27,12 +28,13 @@ export class TaalView implements View {
         });
         
         const header = createElement('div', { className: 'mb-8' });
+        const isEn = getLang() === 'en';
         header.appendChild(createElement('h2', {
             className: 'section-title'
-        }, `${this.taalData.name} (${this.taalData.beats} Tiempos)`));
+        }, `${this.taalData.name} (${t('taal.beatsUnit', this.taalData.beats)})`));
         header.appendChild(createElement('p', {
             className: 'section-subtitle'
-        }, `${this.taalData.description} - ${this.taalData.subtitle}`));
+        }, `${isEn ? (this.taalData.description_en ?? this.taalData.description) : this.taalData.description} - ${isEn ? (this.taalData.subtitle_en ?? this.taalData.subtitle) : this.taalData.subtitle}`));
         section.appendChild(header);
         
         // Tutorial link (if exists)
@@ -41,7 +43,7 @@ export class TaalView implements View {
         }
         
         // Main pattern
-        section.appendChild(this.createTaalCard('Patrón Principal', this.taalData.rows, undefined, undefined));
+        section.appendChild(this.createTaalCard(t('taal.mainPattern'), this.taalData.rows, undefined, undefined));
         
         // Variations (if exist)
         if (this.taalData.variations && this.taalData.variations.length > 0) {
@@ -53,7 +55,7 @@ export class TaalView implements View {
             const searchInput = createElement('input', {
                 type: 'text',
                 className: 'songs-search-input',
-                placeholder: 'Buscar variación, canción o bol...'
+                placeholder: t('taal.searchPlaceholder')
             }) as HTMLInputElement;
             searchWrapper.appendChild(searchInput);
             section.appendChild(searchWrapper);
@@ -62,14 +64,16 @@ export class TaalView implements View {
             const emptyMsg = createElement('p', {
                 className: 'text-muted text-center py-6',
                 style: { display: 'none' }
-            }, 'No hay variaciones que coincidan con la búsqueda.');
+            }, t('taal.searchEmpty'));
             section.appendChild(emptyMsg);
 
             // Render variation cards and tag them with searchable text
             const variationCards: HTMLElement[] = [];
 
             normal.forEach(variation => {
-                const card = this.createTaalCard(variation.name, variation.rows, variation.description, variation);
+                const vName = isEn ? (variation.name_en ?? variation.name) : variation.name;
+                const vDesc = isEn ? (variation.description_en ?? variation.description) : variation.description;
+                const card = this.createTaalCard(vName, variation.rows, vDesc, variation, isEn);
                 card.dataset['search'] = this.buildSearchIndex(variation);
                 section.appendChild(card);
                 variationCards.push(card);
@@ -78,11 +82,13 @@ export class TaalView implements View {
             let specialDivider: HTMLElement | null = null;
             if (special.length > 0) {
                 specialDivider = createElement('div', { className: 'filler-special-divider' });
-                specialDivider.appendChild(createElement('span', { className: 'filler-special-label' }, '✦ Tirekite'));
+                specialDivider.appendChild(createElement('span', { className: 'filler-special-label' }, t('taal.specialDivider')));
                 section.appendChild(specialDivider);
 
                 special.forEach(variation => {
-                    const card = this.createTaalCard(variation.name, variation.rows, variation.description, variation);
+                    const vName = isEn ? (variation.name_en ?? variation.name) : variation.name;
+                    const vDesc = isEn ? (variation.description_en ?? variation.description) : variation.description;
+                    const card = this.createTaalCard(vName, variation.rows, vDesc, variation, isEn);
                     card.dataset['search'] = this.buildSearchIndex(variation);
                     section.appendChild(card);
                     variationCards.push(card);
@@ -128,7 +134,7 @@ export class TaalView implements View {
         headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '🎓'));
         headerDiv.appendChild(createElement('h4', {
             className: 'font-bold resource-box__title'
-        }, 'Tutorial'));
+        }, t('taal.tutorialTitle')));
         linkDiv.appendChild(headerDiv);
         
         const tutorialCard = createElement('div', { className: 'tutorial-card' });
@@ -140,7 +146,7 @@ export class TaalView implements View {
         
         const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
         contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '📚'));
-        contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, 'Ver tutorial completo'));
+        contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, t('taal.tutorialLink')));
         contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
         
         link.appendChild(contentDiv);
@@ -222,7 +228,7 @@ export class TaalView implements View {
         }
     }
     
-    private createTaalCard(title: string, rows: any[][], description?: string, variation?: any): HTMLElement {
+    private createTaalCard(title: string, rows: any[][], description?: string, variation?: any, isEn = false): HTMLElement {
         const card = createElement('div', { className: 'card p-8 mb-6' });
         
         const titleEl = createElement('h3', {
@@ -305,7 +311,7 @@ export class TaalView implements View {
                 headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '🎵'));
                 headerDiv.appendChild(createElement('h5', {
                     className: 'font-bold resource-box__title'
-                }, 'Canciones'));
+                }, t('taal.songsTitle')));
                 songsDiv.appendChild(headerDiv);
                 
                 const songsGrid = createElement('div', { className: 'grid gap-2' });
@@ -340,7 +346,7 @@ export class TaalView implements View {
                 headerDiv.appendChild(createElement('span', { className: 'text-xl' }, '📚'));
                 headerDiv.appendChild(createElement('h5', {
                     className: 'font-bold resource-box__title'
-                }, 'Tutoriales'));
+                }, t('taal.tutorialsTitle')));
                 tutorialsDiv.appendChild(headerDiv);
                 
                 const tutorialsGrid = createElement('div', { className: 'grid gap-2' });
@@ -354,7 +360,7 @@ export class TaalView implements View {
                     });
                     const contentDiv = createElement('div', { className: 'flex items-center gap-3' });
                     contentDiv.appendChild(createElement('span', { className: 'text-lg flex-shrink-0' }, '🎓'));
-                    contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, `Tutorial ${idx + 1}`));
+                    contentDiv.appendChild(createElement('span', { className: 'font-medium flex-1' }, t('taal.tutorialN', idx + 1)));
                     contentDiv.appendChild(createElement('span', { className: 'resource-box__arrow flex-shrink-0' }, '↗'));
                     link.appendChild(contentDiv);
                     tutorialCard.appendChild(link);
@@ -368,10 +374,13 @@ export class TaalView implements View {
             card.appendChild(resourcesContainer);
         }
         
-        // Add notes if present
-        if (variation?.notes && variation.notes.length > 0) {
+        // Add notes if present (use _en if available and EN is active)
+        const notesToShow: string[] | undefined = variation
+            ? (isEn ? (variation.notes_en ?? variation.notes) : variation.notes)
+            : undefined;
+        if (notesToShow && notesToShow.length > 0) {
             const notesDiv = createElement('div', { className: 'notes-box mt-4' });
-            variation.notes.forEach((note: string) => {
+            notesToShow.forEach((note: string) => {
                 if (note.trim() === '') {
                     notesDiv.appendChild(createElement('br', {}));
                 } else if (note.startsWith('http')) {
@@ -419,15 +428,16 @@ export class TaalView implements View {
 
     private createTip(): HTMLElement {
         const tip = this.taalData.tip;
+        const isEn = getLang() === 'en';
         const tipDiv = createElement('div', {
             className: `info-box info-box--${tip.color} mt-6`
         });
         tipDiv.appendChild(createElement('h4', {
             className: 'info-box__title text-xl font-bold mb-2'
-        }, tip.title));
+        }, isEn ? (tip.title_en ?? tip.title) : tip.title));
         tipDiv.appendChild(createElement('p', {
             className: 'info-box__text'
-        }, tip.text));
+        }, isEn ? (tip.text_en ?? tip.text) : tip.text));
         
         return tipDiv;
     }
