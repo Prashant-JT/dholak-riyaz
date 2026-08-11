@@ -378,9 +378,9 @@ declare const Chart: any;
 // ── Colores ───────────────────────────────────────────────────────────────────
 const C = {
     orange:  '#f97316',
-    orangeA: 'rgba(249,115,22,0.7)',
+    orangeA: 'rgba(249,115,22,0.55)',
     blue:    '#3b82f6',
-    blueA:   'rgba(59,130,246,0.7)',
+    blueA:   'rgba(59,130,246,0.55)',
     purple:  '#8b5cf6',
     purpleA: 'rgba(139,92,246,0.7)',
     teal:    '#14b8a6',
@@ -838,7 +838,7 @@ export class StatsView implements View {
         wrap.appendChild(createElement('canvas', { id: 'stats-chart-weekly' }));
         card.appendChild(wrap);
 
-        const DAY_LABELS = t('stats.dayLabels') as unknown as string[];
+        const DAY_LABELS = tArray('stats.dayLabels');
 
         const updateSub = () => {
             const subNode = document.getElementById('stats-weekly-sub');
@@ -863,7 +863,7 @@ export class StatsView implements View {
                 });
                 chart.data.labels = d.weekLabels;
                 chart.data.datasets[0].data = d.weekly;
-                chart.data.datasets[0].backgroundColor = d.weekly.map((_: number, i: number) => i >= 12 ? C.orange : C.orangeA);
+                chart.data.datasets[0].backgroundColor = C.orangeA;
                 chart.data.datasets[1].data = trend;
                 chart.data.datasets[1].hidden = false;
             } else {
@@ -934,15 +934,15 @@ export class StatsView implements View {
                     {
                         label: t('stats.weeklyDataLabel'),
                         data: d.weekly,
-                        backgroundColor: d.weekly.map((_, i) => i >= 12 ? C.orange : C.orangeA),
-                        borderColor: C.orange, borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
+                        backgroundColor: C.orangeA,
+                        borderColor: C.orange, borderWidth: 2.5, borderRadius: 6, borderSkipped: false,
                     },
                     {
                         label: t('stats.weeklyTrend'),
                         data: trend,
                         type: 'line',
                         borderColor: C.blue, backgroundColor: 'transparent',
-                        borderWidth: 2, pointRadius: 0, tension: 0.4,
+                        borderWidth: 3, pointRadius: 0, tension: 0.4,
                     },
                 ],
             },
@@ -965,7 +965,7 @@ export class StatsView implements View {
             btnWeeks?.classList.remove('active');
             if (weekSel) weekSel.style.display = 'flex';
             const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
-            const DAY_LABELS = t('stats.dayLabels') as unknown as string[];
+            const DAY_LABELS = tArray('stats.dayLabels');
             this.weeklyChart.data.labels = DAY_LABELS;
             this.weeklyChart.data.datasets[0].data = days;
             this.weeklyChart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
@@ -1150,10 +1150,10 @@ export class StatsView implements View {
                 data: {
                     labels: p.weekLabels,
                     datasets: [
-                        { label: 'Prashant',                   data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
-                        { label: 'Meera',                      data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 1.5, borderRadius: 4, borderSkipped: false },
-                        { label: t('stats.chartTrendP'), data: trendP,  type: 'line' as const, borderColor: C.orange, backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
-                        { label: t('stats.chartTrendM'), data: trendM,  type: 'line' as const, borderColor: C.blue,   backgroundColor: 'transparent', borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+                        { label: 'Prashant',                   data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 2.5, borderRadius: 4, borderSkipped: false },
+                        { label: 'Meera',                      data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 2.5, borderRadius: 4, borderSkipped: false },
+                        { label: t('stats.chartTrendP'), data: trendP,  type: 'line' as const, borderColor: C.orange, backgroundColor: 'transparent', borderWidth: 3, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
+                        { label: t('stats.chartTrendM'), data: trendM,  type: 'line' as const, borderColor: C.blue,   backgroundColor: 'transparent', borderWidth: 3, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
                     ],
                 },
                 options: {
@@ -1441,7 +1441,7 @@ export class StatsView implements View {
         });
         filterRow.appendChild(taalSel);
 
-        const MONTH_FULL = t('stats.monthsFull') as unknown as string[];
+        const MONTH_FULL = tArray('stats.monthsFull');
         const monthSel = createElement('select', { className: 'stats-hist-filter-sel' }) as HTMLSelectElement;
         monthSel.appendChild(createElement('option', { value: '' }, t('stats.historyMonthAll')) as HTMLOptionElement);
         const monthsSeen = new Set<string>();
@@ -1572,6 +1572,9 @@ export class StatsView implements View {
             const gcStr = gcDateStr(s.saved_at);
             const date2 = new Date(gcStr + 'T12:00:00Z');
             const date  = `${date2.getUTCDate()} ${monthNames[date2.getUTCMonth()]} ${date2.getUTCFullYear()}`;
+            const timeStr = new Intl.DateTimeFormat('en-GB', {
+                timeZone: GC_TZ, hour: '2-digit', minute: '2-digit', hour12: false
+            }).format(new Date(s.saved_at));
             const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
             const blockNames = s.blocks.map(b =>
                 b.type === 'warmup' ? t('stats.historyWarmUp')
@@ -1620,7 +1623,7 @@ export class StatsView implements View {
             </tr>`;
 
             return `<tr class="stats-history-row stats-history-row--expandable" data-detail="${detailId}">
-                <td style="white-space:nowrap;font-weight:600">${date}</td>
+                <td style="white-space:nowrap;font-weight:600">${date}<br><span style="font-weight:400;font-size:0.75rem;color:var(--text-muted)">${t('stats.historyTimeAt')} ${timeStr}</span></td>
                 <td style="white-space:nowrap;color:var(--text-muted)">${dur}</td>
                 <td>${tags}</td>
                 <td><span class="stats-expand-btn" title="${t('stats.expandBlocks')}">▶</span></td>
@@ -1850,7 +1853,7 @@ export class StatsView implements View {
                         label: t('stats.chartCyclesTitle'),
                         data: d.cycles,
                         backgroundColor: d.cycles.map(v => v >= maxCycles * 0.8 ? C.orange : C.orangeA),
-                        borderColor: C.orange, borderWidth: 1.5, borderRadius: 4, borderSkipped: false,
+                        borderColor: C.orange, borderWidth: 2.5, borderRadius: 4, borderSkipped: false,
                     }],
                 },
                 options: {
@@ -1858,7 +1861,7 @@ export class StatsView implements View {
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { color: gridCol } },
-                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'ciclos', color: textCol } },
+                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: t('stats.chartCyclesYAxis'), color: textCol } },
                     },
                 },
             }));

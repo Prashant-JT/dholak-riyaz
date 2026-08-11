@@ -364,6 +364,7 @@ export const es = {
         historyColDate:   'Fecha',
         historyColDur:    'Duración',
         historyColBlocks: 'Bloques',
+        historyTimeAt:    'a las',
         historyNoData:    'Sin sesiones registradas todavía.',
         historyCount:     (start: number, end: number, total: number) =>
             `${start}–${end} de ${total} sesión${total !== 1 ? 'es' : ''}`,
@@ -380,8 +381,9 @@ export const es = {
         chartBpmSub:      'Progresión técnica real',
         chartDonutTitle:  'Distribución de práctica',
         chartDonutSub:    'Tiempo por taal / tipo',
-        chartCyclesTitle: 'Ciclos completados por sesión',
-        chartCyclesSub:   'Resistencia — últimas sesiones con metrónomo',
+        chartCyclesTitle:  'Ciclos completados por sesión',
+        chartCyclesSub:    'Resistencia — últimas sesiones con metrónomo',
+        chartCyclesYAxis:  'ciclos',
         chartNoData:      'Sin datos',
         // Compare view
         compareTitleKpi:  'Estadísticas comparadas',
