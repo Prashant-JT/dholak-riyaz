@@ -37,7 +37,7 @@ export const CONFIG: AppConfig = {
     SCROLL_TOP_THRESHOLD: 300,
     TIMEZONE: 'Atlantic/Canary',
     BPM_MARKS: [60, 80, 120, 180, 240, 300, 400],
-    BPM_PRESETS: [60, 120, 180, 240],
+    BPM_PRESETS: [60, 80, 120, 180, 240],
     LS_SEEDED_KEY: 'dholak_templates_seeded_v3',
 
     NAVIGATION: [

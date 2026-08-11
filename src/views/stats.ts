@@ -8,7 +8,7 @@ import { db } from '../core/supabase.js';
 import { createElement } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
 import { CONFIG } from '../core/config.js';
-import { t } from '../i18n/index.js';
+import { t, tArray, getLang } from '../i18n/index.js';
 import type { View } from '../types.js';
 
 // IDs de taals activos (misma fuente de verdad que el Riyaz)
@@ -134,7 +134,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
         weekStarts.push(d);
     }
 
-    const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
+    const MONTH_SHORT = tArray('stats.monthsShort');
     const weekLabels = weekStarts.map(d => `${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
 
     // ── Session → week index ──────────────────────────────────────────────────
@@ -244,6 +244,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
 
     // ── Heatmap: last 4 months ────────────────────────────────────────────────
     const heatmap: { label: string; days: number[] }[] = [];
+    const MONTH_FULL = tArray('stats.monthsFull');
     for (let m = 3; m >= 0; m--) {
         const gcNow = gcTodayStr();
         const refYear  = parseInt(gcNow.slice(0, 4));
@@ -262,7 +263,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
             }
         });
 
-        heatmap.push({ label: ref.toLocaleDateString('es-ES', { timeZone: 'UTC', month: 'long' }), days });
+        heatmap.push({ label: MONTH_FULL[ref.getUTCMonth()] ?? ref.toLocaleDateString(getLang() === 'en' ? 'en-GB' : 'es-ES', { timeZone: 'UTC', month: 'long' }), days });
     }
 
     // ── KPIs ──────────────────────────────────────────────────────────────────
@@ -350,7 +351,7 @@ function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
 function emptyStats(): UserStats {
     const now = new Date();
     const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
-    const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
+    const MONTH_SHORT = tArray('stats.monthsShort');
     const weekLabels: string[] = [];
     for (let i = 15; i >= 0; i--) {
         const d = new Date(now.getTime() - i * MS_WEEK);
@@ -411,8 +412,8 @@ interface Medal {
 }
 
 function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
-    const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
-    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getDate()} ${MONTH_SHORT[d.getMonth()]} ${d.getFullYear()}`; };
+    const MONTH_SHORT = tArray('stats.monthsShort');
+    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
 
     const sorted = [...sessions].sort((a, b) => a.saved_at.localeCompare(b.saved_at));
 
@@ -1201,7 +1202,7 @@ export class StatsView implements View {
             ? `${Math.floor(avgMins / 60)}h ${avgMins % 60 > 0 ? (avgMins % 60) + 'm' : ''}`.trim()
             : `${avgMins}m`;
 
-        const DAY_NAMES_FULL = t('stats.dayNames') as unknown as string[];
+        const DAY_NAMES_FULL = tArray('stats.dayNames');
         const sessionsByDay = new Array(7).fill(0);
         d.rawSessions.forEach(s => {
             const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay();
@@ -1402,7 +1403,7 @@ export class StatsView implements View {
             return;
         }
 
-        const tooltips = t('stats.heatmapTooltips') as unknown as string[];
+        const tooltips = tArray('stats.heatmapTooltips');
 
         d.heatmap.forEach(({ label, days }) => {
             const wrap = createElement('div', { style: { marginBottom: '14px' } });
@@ -1465,7 +1466,7 @@ export class StatsView implements View {
         const pagination = createElement('div', { className: 'stats-hist-pagination' });
         card.appendChild(pagination);
 
-        const MONTH_SHORT = t('stats.monthsShort') as unknown as string[];
+        const MONTH_SHORT = tArray('stats.monthsShort');
 
         let currentPage = 0;
 

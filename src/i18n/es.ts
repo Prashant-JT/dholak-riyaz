@@ -38,10 +38,11 @@ export const es = {
         tempoLabel:   'Tempo (BPM)',
         beatsLabel:   'Beats por Compás',
         presets: {
-            slow:   'Lento',
-            medium: 'Medio',
-            fast:   'Rápido',
-            drut:   'Drut',
+            slow:     'Lento',
+            moderate: 'Moderado',
+            medium:   'Medio',
+            fast:     'Rápido',
+            drut:     'Drut',
         },
         beatsOptions: {
             b4:  '4 Beats - Bhajan',
@@ -53,8 +54,9 @@ export const es = {
             b14: '14 Beats - Deepchandi',
             b16: '16 Beats - Teental',
         },
-        lehrasTitle:  'Lehras',
-        lehrasSelect: 'Selecciona un Loop:',
+        lehrasTitle:       'Lehras',
+        lehrasSelect:      'Selecciona un Loop:',
+        lehrasPlaceholder: '-- Selecciona una Lehra --',
     },
 
     // ── Teoría / Glosario ─────────────────────────────────────────────────────

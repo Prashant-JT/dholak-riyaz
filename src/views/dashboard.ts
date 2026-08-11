@@ -189,14 +189,15 @@ export class DashboardView implements View {
         });
 
         const presetBtns = createElement('div', {
-            className: 'grid grid-cols-4 gap-2'
+            className: 'grid grid-cols-5 gap-2'
         });
 
         const presets = [
-            { label: t('metronome.presets.slow'),   bpm: 60 },
-            { label: t('metronome.presets.medium'),  bpm: 120 },
-            { label: t('metronome.presets.fast'),    bpm: 180 },
-            { label: t('metronome.presets.drut'),    bpm: 240 },
+            { label: t('metronome.presets.slow'),     bpm: 60  },
+            { label: t('metronome.presets.moderate'), bpm: 80  },
+            { label: t('metronome.presets.medium'),   bpm: 120 },
+            { label: t('metronome.presets.fast'),     bpm: 180 },
+            { label: t('metronome.presets.drut'),     bpm: 240 },
         ];
 
         presets.forEach(preset => {
@@ -233,10 +234,11 @@ export class DashboardView implements View {
             id: 'lehraSelect',
             className: 'w-full max-w-2xl'
         });
-        
+
+        select.appendChild(createElement('option', { value: '' }, t('metronome.lehrasPlaceholder')));
         LEHRAS.forEach(lehra => {
-            const option = createElement('option', { 
-                value: lehra.url 
+            const option = createElement('option', {
+                value: lehra.url
             }, lehra.label);
             select.appendChild(option);
         });

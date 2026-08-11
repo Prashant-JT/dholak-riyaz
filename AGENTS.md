@@ -83,7 +83,11 @@ Dholak/
 ├── src/                    # TypeScript source code
 │   ├── types.ts           # ALL type definitions
 │   ├── app.ts             # Main entry point
-│   ├── data/              # 📝 DATA ONLY (editable weekly)
+│   ├── i18n/              # 🌐 Internationalisation
+│   │   ├── es.ts          # Spanish strings — SOURCE OF TRUTH
+│   │   ├── en.ts          # English strings — must mirror es.ts keys
+│   │   └── index.ts       # t() / tArray() / setLang() / getLang()
+│   ├── data/              # 📝 DATA ONLY (editable weekly) — no UI strings
 │   │   ├── bols.ts
 │   │   ├── kaydas.ts
 │   │   ├── fillers.ts
@@ -98,7 +102,8 @@ Dholak/
 │   │       ├── ektal.ts
 │   │       ├── deepchandi.ts
 │   │       ├── addha.ts
-│   │       └── teental.ts
+│   │       ├── teental.ts
+│   │       └── jhaptal.ts
 │   ├── core/              # Core (DO NOT TOUCH without reason)
 │   │   ├── config.ts
 │   │   ├── utils.ts
@@ -283,8 +288,9 @@ npm run build
 ### 2. When Adding New Features
 1. Define types in `src/types.ts`
 2. Create/modify files in `src/`
-3. Compile: `npm run build`
-4. Verify in browser
+3. **Add any new UI strings to `src/i18n/es.ts` first, then mirror in `src/i18n/en.ts`**
+4. Compile: `npm run build`
+5. Verify in browser
 
 ### 3. When Adding Weekly Data
 - **ONLY** edit files in `src/data/`
@@ -551,14 +557,15 @@ Before considering a task complete, verify:
 
 - [ ] ✅ All `.ts` files compile without errors
 - [ ] ✅ `npm run build` runs successfully
-- [ ] ✅ `npm test` passes — all 267+ tests green
+- [ ] ✅ `npm test` passes — all 337+ tests green
 - [ ] ✅ `dist/` folder exists with `.js` files
 - [ ] ✅ `index.html` loads `dist/app.js`
 - [ ] ✅ CSS has all required classes
-- [ ] ✅ App renders correctly in the browser
+- [ ] ✅ App renders correctly in the browser in **both ES and EN**
 - [ ] ✅ No errors in the browser console
 - [ ] ✅ Navigation works between views
 - [ ] ✅ Metronome plays sound
+- [ ] ✅ All new UI strings added to both `es.ts` and `en.ts`
 - [ ] ✅ README.md is up to date
 
 ---
@@ -631,6 +638,80 @@ Before considering a task complete, verify:
    Object.values(KAYDAS).forEach(kayda => renderKayda(kayda));
    ```
 10. **When adding a new Taal, update ALL 7 files in the checklist** — See the "✅ Checklist: Adding a New Taal" section. In particular, do not forget `viewManager.ts` (without this the view won't load) and both `wizardStep*.ts` files (without this the taal won't appear in Riyaz practice blocks).
+11. **NEVER hardcode UI strings** — Every user-visible string must go through `t()` or `tArray()`. No string literals in view files. See the i18n section below.
+
+---
+
+## 🌐 i18n — Internationalisation (MANDATORY)
+
+The app is fully bilingual (Spanish / English). Every new feature **must** follow these rules or strings will appear in Spanish even when the user has selected English.
+
+### Architecture
+
+| File | Role |
+|---|---|
+| `src/i18n/es.ts` | Source of truth — all strings in Spanish. `export const es = { ... }` |
+| `src/i18n/en.ts` | English translation. `export const en: Strings = { ... }` — **must mirror every key in `es.ts`** |
+| `src/i18n/index.ts` | Exports `t()`, `tArray()`, `setLang()`, `getLang()`, `lang` |
+
+### Using strings in views
+
+```typescript
+import { t, tArray } from '../i18n/index.js';
+
+// Plain string
+const label = t('metronome.start');           // 'Start' | 'Iniciar'
+
+// String with dynamic argument (function key)
+const counter = t('songs.counter', 42);       // '42 songs' | '42 canciones'
+
+// Array value (month names, day names, tooltip arrays)
+// ⚠️ NEVER use t() for arrays — it returns a comma-joined string
+const months = tArray('stats.monthsShort');   // ['Jan','Feb',...] | ['Ene','Feb',...]
+```
+
+### Adding a new string — step by step
+
+1. Add the key to `src/i18n/es.ts` first (Spanish value):
+   ```typescript
+   mySection: {
+       myLabel: 'Mi etiqueta',
+   }
+   ```
+2. Add the **same key** to `src/i18n/en.ts` (English value):
+   ```typescript
+   mySection: {
+       myLabel: 'My label',
+   }
+   ```
+3. Use `t('mySection.myLabel')` in the view — never the raw string.
+
+### Critical rules
+
+- **`t()` for strings, `tArray()` for arrays.** Using `t()` on an array key calls `String(array)` and returns `"Ene,Feb,..."` — individual characters when indexed. This is a silent bug.
+- **Data files (`src/data/`) must never contain UI strings.** If a data file needs a display label (e.g. a dropdown placeholder), it must come from the view via `t()`.
+- **Database values stay in Spanish** (canonical storage key). Translate them at render time:
+  ```typescript
+  // block.variationName is stored as 'Patrón Principal' in the DB — always Spanish
+  const display = block.variationName === 'Patrón Principal'
+      ? t('step1.blockPatternMain')   // 'Main Pattern' | 'Patrón Principal'
+      : block.variationName;
+  ```
+- **`toLocaleDateString()` must use the active language**, not a hardcoded locale like `'es-ES'`. Use `tArray('stats.monthsFull')` or `getLang()`:
+  ```typescript
+  // ❌ hardcoded locale
+  date.toLocaleDateString('es-ES', { month: 'long' })
+
+  // ✅ use the i18n array
+  const MONTH_FULL = tArray('stats.monthsFull');
+  label = MONTH_FULL[date.getUTCMonth()];
+  ```
+- **Function keys** (keys whose value is `(n: number) => string`) are called automatically by `t()`:
+  ```typescript
+  // es.ts:  counter: (n: number) => `${n} canciones`
+  // en.ts:  counter: (n: number) => `${n} songs`
+  t('songs.counter', 42)  // → '42 songs' in EN
+  ```
 
 ---
 
@@ -643,6 +724,7 @@ Bob (AI assistant) is responsible for tracking releases and deciding when to pro
 |---|---|---|
 | `v2.0.0` | 2026-07-05 | Full practice system — 7 taals, Riyaz planner, Stats, dark mode |
 | `v2.2.0` | 2026-07-27 | Tirekite section, tutorial video in practice blocks, cycle counter fix, new data |
+| `v2.3.0` | 2026-08-11 | Full ES/EN i18n — all views, stats, session wizard; 80 BPM preset; bug fixes |
 
 ### When to propose a new release
 Bob must propose a new GitHub release when **any of these thresholds are reached**:
@@ -671,6 +753,6 @@ If you find inconsistencies in this document or in the code, document them here 
 
 ---
 
-**Version**: 1.2.0
-**Last updated**: 2026-07-05
+**Version**: 1.3.0
+**Last updated**: 2026-08-11
 **Maintainer**: Bob (AI Assistant)

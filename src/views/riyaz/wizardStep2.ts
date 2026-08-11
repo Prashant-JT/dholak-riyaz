@@ -425,9 +425,12 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
 
     if (block.type === 'pickup') return createElement('div', {});
 
+    const displayVarName = block.variationName === 'Patrón Principal'
+        ? t('step1.blockPatternMain')
+        : (block.variationName ?? '');
     const title = block.type === 'warmup'
         ? (block.kaydaName ?? 'Kayda')
-        : `${block.taalName ?? ''} — ${block.variationName ?? ''}`;
+        : `${block.taalName ?? ''} — ${displayVarName}`;
     card.appendChild(createElement('h4', { className: 'font-bold mb-4' }, title));
 
     if (block.type === 'warmup' && block.kaydaId) {
@@ -476,7 +479,7 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
     if (block.taalId) {
         const taal = TAALS[block.taalId];
         if (taal) {
-            rows = block.variationName === 'Patrón Principal'
+            rows = (block.variationName === 'Patrón Principal' || block.variationName === t('step1.blockPatternMain'))
                 ? taal.rows
                 : (taal.variations?.find(v => v.name === block.variationName)?.rows ?? taal.rows);
         }

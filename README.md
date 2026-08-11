@@ -12,15 +12,16 @@ Interactive practice system for Dholak with a high-precision metronome, session 
 
 ### 🥁 Metronome
 - High-precision metronome using the **Web Audio API**
-- Range 60–400 BPM with +/− buttons, slider and quick presets (Lento/Medio/Rápido/Drut)
-- Iniciar/Reset buttons visible without scrolling on mobile
+- Range 60–400 BPM with +/− buttons, slider and 5 quick presets: **Slow (60) / Moderate (80) / Medium (120) / Fast (180) / Drut (240)**
+- Start/Reset buttons visible without scrolling on mobile
 - Integration with **Lehras** (YouTube practice loops at different tempos)
+- Beats-per-bar selector (4, 6, 7, 8, 10, 12, 14, 16)
 
 ### 📚 Theory & Bols
 - Complete Bol glossary organised by category
 - Technique description, strike zone and sound for each bol
 
-### 🎵 Taals (7 active)
+### 🎵 Taals (8 active)
 | Taal | Beats | Vibhags | Variations |
 |---|---|---|---|
 | Dadra | 6 | 3+3 | 4 |
@@ -30,8 +31,9 @@ Interactive practice system for Dholak with a high-precision metronome, session 
 | Deepchandi | 14 | 3+4+3+4 | 5 |
 | Addha | 16 | 4+4+4+4 | 3 |
 | Teental | 16 | 4+4+4+4 | 4 |
+| Jhaptal | 10 | 2+3+2+3 | 2 |
 
-Each taal includes: matra table with Taali/Khali markers, variations with tutorials/songs, and visual vibhag dividers.
+Each taal includes: matra table with Taali/Khali markers, variations with tutorials/songs, visual vibhag dividers, and 🟡/🔵 Thapki/Ghisa visual indicators.
 
 ### 🎼 Kaydas & Fillers
 - **8 Kaydas** with variations (Teental, Keherwa, Dadra)
@@ -55,8 +57,14 @@ Each taal includes: matra table with Taali/Khali markers, variations with tutori
 - Weekly practice bar chart with trend line
 - **Compare view**: Prashant vs Meera side-by-side with dual trend lines, distribution donuts and medals
 - Consecutive-day streak, weekly streak, total minutes, taals practised
-- Heatmap of practice days (16 weeks)
+- Heatmap of practice days (last 4 months)
 - Achievement badges for milestones (first session per taal, polyrhythm, joint sessions, etc.)
+
+### 🌐 English / Spanish (i18n)
+- Full UI available in **English and Spanish** — switchable from any view
+- Preference persisted in `localStorage`
+- All labels, tooltips, chart titles, achievement dates and session content adapt to the active language
+- Data stored in the database always uses Spanish as the canonical key (language-independent)
 
 ### 🌙 Dark / Light Mode
 - Persistent theme toggle (localStorage)
@@ -79,6 +87,7 @@ Each taal includes: matra table with Taali/Khali markers, variations with tutori
 | **Chart.js** (CDN) | Statistics charts |
 | **Tailwind CSS** (CDN) | Layout utilities |
 | **CSS Variables** | Light/dark theme system |
+| **i18n (es/en)** | Full bilingual UI (ES/EN) |
 | **Vitest** | Unit & data integrity tests |
 | **GitHub Actions** | Automated CI/CD (build + test) |
 | **GitHub Pages** | Hosting |
@@ -92,11 +101,15 @@ Dholak/
 ├── src/
 │   ├── types.ts                # All type definitions
 │   ├── app.ts                  # Entry point
+│   ├── i18n/
+│   │   ├── es.ts               # Spanish strings (source of truth)
+│   │   ├── en.ts               # English strings (must mirror es.ts keys)
+│   │   └── index.ts            # t() / tArray() / setLang() / getLang()
 │   ├── data/
 │   │   ├── bols.ts             # Bol glossary
 │   │   ├── kaydas.ts           # Kaydas and variations
 │   │   ├── fillers.ts          # Pickups, fillers and cuts
-│   │   ├── lehras.ts           # Practice loops (YouTube)
+│   │   ├── lehras.ts           # Practice loops (YouTube) — no UI strings
 │   │   ├── songs.ts            # Songs with identified taal
 │   │   ├── defaultTemplates.ts # Predefined session templates
 │   │   └── taals/
@@ -107,7 +120,8 @@ Dholak/
 │   │       ├── ektal.ts
 │   │       ├── deepchandi.ts
 │   │       ├── addha.ts
-│   │       └── teental.ts
+│   │       ├── teental.ts
+│   │       └── jhaptal.ts
 │   ├── core/
 │   │   ├── config.ts           # Global config and navigation
 │   │   ├── utils.ts            # Reusable helpers
@@ -198,6 +212,24 @@ To add a **brand-new Taal**, follow the 7-step checklist in `AGENTS.md`.
 
 ---
 
+## 🌐 Adding / Editing Translations
+
+All UI strings live in `src/i18n/`:
+
+| File | Role |
+|---|---|
+| `src/i18n/es.ts` | **Source of truth** — Spanish strings. Add new keys here first. |
+| `src/i18n/en.ts` | English translation — must always mirror the keys in `es.ts`. |
+| `src/i18n/index.ts` | `t(key)` for plain strings, `tArray(key)` for string arrays. |
+
+Rules:
+- **Never** put UI strings directly in view files — always go through `t()`.
+- **Never** put UI strings in `src/data/` files — data files must contain data only.
+- Keys that store arrays (month names, day names, tooltips) must be retrieved with `tArray()`, not `t()`.
+- Strings saved to the database (e.g. variation names) stay in Spanish regardless of the active language — translate them at render time with `t()`.
+
+---
+
 ## 🚀 Deployment
 
 The project uses GitHub Actions for automated build and deployment:
@@ -211,7 +243,7 @@ The project uses GitHub Actions for automated build and deployment:
 
 ## 📖 Developer Documentation
 
-See [`AGENTS.md`](AGENTS.md) for development guides, code conventions, new-taal checklist and project rules.
+See [`AGENTS.md`](AGENTS.md) for development guides, code conventions, new-taal checklist, i18n rules and project rules.
 
 ---
 
@@ -221,4 +253,4 @@ Personal music practice project — MIT.
 
 ---
 
-**Version:** 2.2.0 · **Last updated:** 2026-08-09
+**Version:** 2.3.0 · **Last updated:** 2026-08-11

@@ -75,4 +75,30 @@ export function t(key: string, ...args: any[]): string {
     return String(node);
 }
 
+/**
+ * Like t(), but returns the raw value as a string array.
+ * Use for keys whose value is an array (e.g. monthsShort, dayNames).
+ * Falls back to the Spanish strings if the key is missing.
+ */
+export function tArray(key: string): string[] {
+    const keys = key.split('.');
+    let node: any = STRINGS[lang];
+
+    for (const k of keys) {
+        if (node == null) break;
+        node = node[k];
+    }
+
+    if (!Array.isArray(node)) {
+        // Fallback to Spanish
+        node = STRINGS['es'];
+        for (const k of keys) {
+            if (node == null) break;
+            node = node[k];
+        }
+    }
+
+    return Array.isArray(node) ? node as string[] : [];
+}
+
 // Made with Bob

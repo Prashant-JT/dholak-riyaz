@@ -37,10 +37,11 @@ export const en: Strings = {
         tempoLabel:   'Tempo (BPM)',
         beatsLabel:   'Beats per Bar',
         presets: {
-            slow:   'Slow',
-            medium: 'Medium',
-            fast:   'Fast',
-            drut:   'Drut',
+            slow:     'Slow',
+            moderate: 'Moderate',
+            medium:   'Medium',
+            fast:     'Fast',
+            drut:     'Drut',
         },
         beatsOptions: {
             b4:  '4 Beats - Bhajan',
@@ -52,8 +53,9 @@ export const en: Strings = {
             b14: '14 Beats - Deepchandi',
             b16: '16 Beats - Teental',
         },
-        lehrasTitle:  'Lehras',
-        lehrasSelect: 'Select a Loop:',
+        lehrasTitle:       'Lehras',
+        lehrasSelect:      'Select a Loop:',
+        lehrasPlaceholder: '-- Select a Lehra --',
     },
 
     glosario: {
