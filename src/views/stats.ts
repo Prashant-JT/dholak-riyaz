@@ -1754,11 +1754,18 @@ export class StatsView implements View {
 
                 const emojiEl = createElement('span', { className: 'medals-emoji' }, m.emoji);
                 const nameEl  = createElement('span', { className: 'medals-name' }, m.name);
-                const descEl  = createElement('span', { className: 'medals-desc' }, m.earned && m.earnedAt ? m.earnedAt : m.desc);
-
-                cell.appendChild(emojiEl);
-                cell.appendChild(nameEl);
-                cell.appendChild(descEl);
+                const descEl  = createElement('span', { className: 'medals-desc' }, m.desc);
+                if (m.earned && m.earnedAt) {
+                    const dateEl = createElement('span', { className: 'medals-date' }, m.earnedAt);
+                    cell.appendChild(emojiEl);
+                    cell.appendChild(nameEl);
+                    cell.appendChild(descEl);
+                    cell.appendChild(dateEl);
+                } else {
+                    cell.appendChild(emojiEl);
+                    cell.appendChild(nameEl);
+                    cell.appendChild(descEl);
+                }
 
                 if (!m.earned && m.progress !== undefined) {
                     const pWrap = createElement('div', { className: 'medals-cell-progress' });
