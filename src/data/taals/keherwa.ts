@@ -379,24 +379,41 @@ export const keherwa: Taal = {
             description_en: '4 beats + 4 beats — thapki variation with Dhit and Dhige'
         },
         {
-            name: 'Keherwa variación 14 (Dhi Ge Dhit Ta)',
-            name_en: 'Keherwa variation 14 (Dhi Ge Dhit Ta)',
+            name: 'Keherwa variación 14 (L P Theka)',
+            name_en: 'Keherwa variación 14 (L P Theka)',
             rows: [
                 [
                     { matra: 1, bol: 'Dhi', technique: '' },
                     { matra: 2, bol: 'Ge',  technique: '' },
-                    { matra: 3, bol: 'Dhit (thapki)', technique: '' },
+                    { matra: 3, bol: 'Dhit', technique: '' },
                     { matra: 4, bol: 'Ta',  technique: '' },
                     { matra: 5, bol: 'Ti',  technique: '' },
                     { matra: 6, bol: 'Ge',  technique: '' },
-                    { matra: 7, bol: 'Dhit (thapki)', technique: '' },
+                    { matra: 7, bol: 'Dhit', technique: '' },
                     { matra: 8, bol: 'Ta',  technique: '' }
                 ]
             ],
-            tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs'],
+            tutorials: ['https://www.youtube.com/watch?v=9NEvR1j-eBs', 'https://www.youtube.com/watch?v=Kg7lSj8xiNk&t=293s'],
             songs: [
                 { title: 'Billo Rani', url: 'https://www.youtube.com/watch?v=T15qhmhqraE' }
             ]
+        },
+        {
+            name: 'Keherwa variación 15 (D C Theka)',
+            name_en: 'Keherwa variation 15 (D C Theka)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhi', technique: '' },
+                    { matra: 2, bol: 'Ga',  technique: '' },
+                    { matra: 3, bol: 'Dha', technique: '' },
+                    { matra: 4, bol: 'Na',  technique: '' },
+                    { matra: 5, bol: 'Ti',  technique: '' },
+                    { matra: 6, bol: 'Ga',  technique: '' },
+                    { matra: 7, bol: 'Dha', technique: '' },
+                    { matra: 8, bol: 'Na',  technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=Kg7lSj8xiNk&t=293s'],
         },
         {
             name: 'Keherwa variación Thapki (Qawwali style)',
