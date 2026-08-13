@@ -611,6 +611,14 @@ function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSessi
                 mk('superjugal', '⚡', t('stats.medalSuperJugal.name'),  t('stats.medalSuperJugal.desc'),  jointMins >= 60,
                     jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 60)?.saved_at,
                     t('stats.medalProgJointMins', jointMins, 60), Math.min(100, Math.round((jointMins / 60) * 100))),
+                mk('maestro',    '🎓', t('stats.medalMaestro.name'),     t('stats.medalMaestro.desc'),     jointCount >= 10, jointSessions[9]?.saved_at,
+                    t('stats.medalProgJoint', jointCount, 10), Math.min(100, Math.round((jointCount / 10) * 100))),
+                mk('duolegend',  '🌟', t('stats.medalDuoLegend.name'),   t('stats.medalDuoLegend.desc'),   jointMins >= 120,
+                    jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 120)?.saved_at,
+                    t('stats.medalProgJointMins', jointMins, 120), Math.min(100, Math.round((jointMins / 120) * 100))),
+                mk('duo10h',     '🕰️', t('stats.medalDuo10h.name'),      t('stats.medalDuo10h.desc'),      jointMins >= 600,
+                    jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 600)?.saved_at,
+                    t('stats.medalProgJointMins', jointMins, 600), Math.min(100, Math.round((jointMins / 600) * 100))),
             ];
         })(),
     ];
@@ -1730,7 +1738,7 @@ export class StatsView implements View {
             { label: t('stats.medalsGroupVolume'),      ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
             { label: t('stats.medalsGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
             { label: t('stats.medalsGroupSpeed'),       ids: ['slow','bpm120','bpm180'] },
-            { label: t('stats.medalsGroupJoint'),       ids: ['jugalbandi','duo5','superjugal'] },
+            { label: t('stats.medalsGroupJoint'),       ids: ['jugalbandi','duo5','superjugal','maestro','duolegend','duo10h'] },
         ];
         const byId = Object.fromEntries(medals.map(m => [m.id, m]));
 

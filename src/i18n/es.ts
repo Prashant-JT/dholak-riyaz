@@ -454,6 +454,9 @@ export const es = {
         medalJugalbandi:  { name: 'Jugalbandi',         desc: 'Primera sesión conjunta con tu compañero' },
         medalDuo5:        { name: 'Dúo en armonía',     desc: '5 sesiones conjuntas con tu compañero' },
         medalSuperJugal:  { name: 'Super Jugalbandi',   desc: '60 min acumulados en sesiones conjuntas' },
+        medalMaestro:     { name: 'Maestro y alumno',   desc: '10 sesiones conjuntas con tu compañero' },
+        medalDuoLegend:   { name: 'Dúo legendario',     desc: '120 min acumulados en sesiones conjuntas' },
+        medalDuo10h:      { name: '10 horas conjuntas', desc: '600 min acumulados en sesiones conjuntas' },
         // Medal progress strings
         medalProgSessions: (cur: number, max: number) => `${cur} de ${max} sesiones`,
         medalProgStreak:   (cur: number) => `racha actual: ${cur} día${cur !== 1 ? 's' : ''}`,
