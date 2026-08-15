@@ -52,6 +52,26 @@ export const rupak: Taal = {
                 { title: 'Sharanagatam / Kisi rah par kisi mor par', url: 'https://youtu.be/i88txA3Qpc8?si=kTHNn1ErPuyIHeEs' }
 
             ]
+        }, 
+        {
+            name: 'Rupak variación 2 (famous with Deepchandi)',
+            name_en: 'Rupak variation 2 (famous with Deepchandi)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha', technique: 'Khali' },
+                    { matra: 2, bol: 'Dhin', technique: '' },
+                    { matra: 3, bol: 'N', technique: '' },
+                    { matra: 4, bol: 'Na', technique: 'Taali' },
+                    { matra: 5, bol: 'Ti', technique: '' },
+                    { matra: 6, bol: 'Dhin', technique: 'Taali' },
+                    { matra: 7, bol: 'N', technique: '' }
+                ]
+            ],
+            description: '3 beats + 2 beats + 2 beats',
+            songs: [
+                { title: 'Tu Hai Toh', url: 'https://www.youtube.com/watch?v=TVbI55pDdaI' }
+
+            ]
         }
     ]
 };

@@ -450,6 +450,12 @@ export const SONGS: Song[] = [
         artist: "Devocional",
         taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=eYSaHXXFIBU"
+    },
+    {
+        title: "O Re Piya",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=iv7lcUkFVSc"
     }
 ];
 
