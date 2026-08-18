@@ -30,15 +30,10 @@ class Application {
         this.navigationController = new NavigationController('navigationMenu', 'mainContent');
         this.navigationController.render();
         
-        // Initialise view manager
-        // If there is a shared link (#share=...) always redirect to Riyaz
+        // Initialise view manager — always start on Riyaz (shared links are handled inside SessionWizardView)
         this.viewManager = new ViewManager('mainContent');
-        const hasShareHash = window.location.hash.startsWith('#share=');
-        const lastView = hasShareHash
-            ? CONFIG.VIEWS.RIYAZ
-            : CONFIG.VIEWS.RIYAZ;
-        this.viewManager.showView(lastView);
-        this.navigationController.navigateTo(lastView);
+        this.viewManager.showView(CONFIG.VIEWS.RIYAZ);
+        this.navigationController.navigateTo(CONFIG.VIEWS.RIYAZ);
         
         // Add dark mode toggle to body
         document.body.appendChild(this.darkModeToggle.render());
@@ -55,7 +50,6 @@ class Application {
 
             if (this.viewManager) {
                 this.viewManager.showView(viewId);
-                localStorage.setItem('lastView', viewId);
             }
             // Re-initialise controls after switching view
             setTimeout(() => this.initializeControls(), 100);
@@ -121,7 +115,7 @@ class Application {
     }
 
     /**
-     * Botón de scroll to top
+     * Scroll-to-top button
      */
     private initScrollToTop(): void {
         const btn = document.getElementById('scrollTopBtn');
@@ -283,7 +277,7 @@ class Application {
         // Reset Cycles Button
         const resetButton = document.getElementById('resetCyclesBtn') as HTMLButtonElement | null;
         if (resetButton) {
-            // Remover listeners anteriores
+            // Remove previous listeners
             const newResetButton = resetButton.cloneNode(true) as HTMLButtonElement;
             resetButton.parentNode?.replaceChild(newResetButton, resetButton);
             

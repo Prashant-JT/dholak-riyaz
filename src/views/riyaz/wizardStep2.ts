@@ -16,12 +16,12 @@ import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState, Matra } from '../../types.js';
 import { saveSessionDraft } from './wizardDraft.js';
 
-// IDs de taals activos: los que aparecen en NAVIGATION y existen en TAALS
+// Active taal IDs: those listed in NAVIGATION that also exist in TAALS
 const activeTaals: string[] = CONFIG.NAVIGATION
     .map(item => item.id)
     .filter(id => id in TAALS);
 
-// Mapeo taalId → primera palabra del nombre (para filtrar canciones por taal)
+// Map taalId → first word of name (used to filter songs by taal)
 const TAAL_SONG_PREFIXES: Record<string, string> = Object.fromEntries(
     activeTaals.map(id => [id, TAALS[id].name.split(' ')[0]])
 );
@@ -65,10 +65,10 @@ export function renderStep2(
     const isLast = sessionState.currentBlockIndex === sessionState.blocks.length - 1;
     const blockNum = sessionState.currentBlockIndex + 1;
 
-    // Header con progress bar
+    // Header with progress dots
     const header = createElement('div', { className: 'mb-4' });
 
-    // Dots de progreso — un punto por bloque
+    // Progress dots — one dot per block
     const dotsRow = createElement('div', { className: 'session-progress-dots' });
     sessionState.blocks.forEach((_b, i) => {
         const dot = createElement('div', {

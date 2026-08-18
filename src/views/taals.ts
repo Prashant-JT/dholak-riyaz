@@ -157,8 +157,8 @@ export class TaalView implements View {
     }
     
     /**
-     * Divide los matras en vibhags según la estructura del taal
-     * Mobile only (< 768px)
+     * Splits matras into vibhags according to the taal structure.
+     * Mobile only (< 768px).
      */
     private getVibhagStructure(row: any[]): any[][] {
         const isMobile = window.innerWidth < 768;

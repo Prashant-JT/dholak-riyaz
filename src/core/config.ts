@@ -1,6 +1,6 @@
 /**
  * APPLICATION CONFIGURATION
- * Configuración global de la aplicación
+ * Global application configuration
  */
 
 import type { AppConfig } from '../types';

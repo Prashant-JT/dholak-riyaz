@@ -43,7 +43,7 @@ export function renderStep3(
     // Lista de bloques
     container.appendChild(buildBlocksList(sessionState.blocks));
 
-    // Breakdown por taal
+    // Time breakdown by taal
     const taalTimes: Record<string, number> = {};
     sessionState.blocks.forEach(b => {
         const key = b.type === 'warmup' ? t('step3.warmUp')

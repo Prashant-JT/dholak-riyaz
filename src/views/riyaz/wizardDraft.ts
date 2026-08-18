@@ -1,9 +1,10 @@
 /**
  * WIZARD DRAFT & TEMPLATES
- * Persistencia en localStorage: borrador de sesión, plantillas guardadas,
- * serialización de bloques para compartir por URL y badge del sidebar.
+ * localStorage persistence: session draft, saved templates,
+ * block serialisation for URL sharing, and sidebar badge.
  */
 
+import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState } from '../../types.js';
 import { DEFAULT_TEMPLATES } from '../../data/defaultTemplates.js';
 import { CONFIG } from '../../core/config.js';
@@ -39,13 +40,13 @@ export function clearSessionDraft(): void {
     updateSessionBadge();
 }
 
-/** Actualiza el badge de "sesión en curso" en el sidebar */
+/** Updates the "session in progress" badge in the sidebar */
 export function updateSessionBadge(): void {
     const badge = document.getElementById('session-active-badge');
     if (!badge) return;
     const draft = loadSessionDraft();
     if (draft) {
-        badge.textContent = draft.completed ? '🥁 Sesión pendiente de guardar' : '🥁 Sesión en curso';
+        badge.textContent = draft.completed ? t('recovery.badgePending') : t('recovery.badgeInProgress');
         badge.style.display = '';
     } else {
         badge.style.display = 'none';

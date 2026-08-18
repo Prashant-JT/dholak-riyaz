@@ -1,14 +1,14 @@
 /**
  * I18N — función t() y gestión de idioma
  *
- * Uso básico:
+ * Basic usage:
  *   import { t } from '../i18n/index.js';
  *   t('metronome.start')          → 'Iniciar' | 'Start'
  *   t('songs.counter', 42)        → '42 canciones' | '42 songs'
  *
- * Cambiar idioma:
+ * Change language:
  *   import { setLang } from '../i18n/index.js';
- *   setLang('en');   // guarda en localStorage y recarga la app
+ *   setLang('en');   // saves to localStorage and reloads the app
  */
 
 import { es } from './es.js';
@@ -42,14 +42,14 @@ export function getLang(): Lang {
     return lang;
 }
 
-// ── Función t() ───────────────────────────────────────────────────────────────
+// ── t() function ──────────────────────────────────────────────────────────────
 //
-// Acepta una dot-path key y args opcionales para strings con función.
+// Accepts a dot-path key and optional args for function-valued strings.
 //
-// Ejemplos:
+// Examples:
 //   t('metronome.start')             → 'Iniciar'
 //   t('songs.counter', 42)           → '42 canciones'
-//   t('step1.startBtn', 3)           → '▶ Comenzar sesión · 3 bloques'
+//   t('step1.startBtn', 3)           → '▶ Start session · 3 blocks'
 //   t('recovery.timeAgoN', 5)        → 'hace 5 min'
 
 export function t(key: string, ...args: any[]): string {

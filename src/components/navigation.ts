@@ -85,7 +85,7 @@ export class NavigationController {
         this.currentView = viewId;
         this.updateActiveState();
         
-        // Disparar evento personalizado para que ViewManager lo maneje
+        // Dispatch a custom event for ViewManager to handle
         const event = new CustomEvent<NavigateEventDetail>('navigate', { 
             detail: { viewId } 
         });

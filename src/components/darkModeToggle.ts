@@ -20,7 +20,7 @@ export class DarkModeToggle {
      */
     private loadThemePreference(): boolean {
         const saved = localStorage.getItem('darkMode');
-        // Default: dark mode si no hay preferencia guardada
+        // Default: dark mode when no preference is saved
         if (saved === null) return true;
         return saved === 'true';
     }

@@ -309,7 +309,7 @@ Every time a new taal is added or activated, these **7 files/locations must be t
 | 2 | `src/data/taals/index.ts` | Import + entry in the `TAALS` object |
 | 3 | `src/core/config.ts` | Field in `VIEWS` + item in `NAVIGATION` array (**ordered by beats ascending**) |
 | 4 | `src/types.ts` | Field in `ViewsConfig` interface |
-| 5 | `src/views/taals.ts` → `VIBHAG_DIVIDERS` | Entry `beats: [matraAfterWhichDividerAppears]` for orange vertical lines on desktop |
+| 5 | `src/core/utils.ts` → `VIBHAG_DIVIDERS` | Entry `beats: [matraAfterWhichDividerAppears]` for orange vertical lines on desktop |
 | 6 | `src/views/taals.ts` → `getVibhagStructure()` | `case beats:` with the correct slices for mobile grouping |
 | 7 | `src/views/stats.ts` → `TAAL_META` | Entry with emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
 
@@ -372,15 +372,15 @@ rows: [
 
 The same applies to `variations[].rows` — each variation must also respect the vibhag split.
 
-### ⚠️ MANDATORY — Register the taal in both divider mechanisms in `src/views/taals.ts`
+### ⚠️ MANDATORY — Register the taal in both divider mechanisms
 
-When adding a new taal, **two locations** inside [`src/views/taals.ts`](src/views/taals.ts) must be updated:
+When adding a new taal, **two locations** must be updated:
 
-#### 1. `VIBHAG_DIVIDERS` (orange vertical divider on desktop)
-`Record<number, number[]>` object indexed by beat count. The array contains the matra numbers **after which** the orange right border appears:
+#### 1. `VIBHAG_DIVIDERS` in `src/core/utils.ts` (orange vertical divider on desktop)
+`Record<number, number[]>` exported from **`src/core/utils.ts`**, indexed by beat count. The array contains the matra numbers **after which** the orange right border appears:
 
 ```typescript
-const VIBHAG_DIVIDERS: Record<number, number[]> = {
+export const VIBHAG_DIVIDERS: Record<number, number[]> = {
     6:  [3],              // Dadra:          3+3
     7:  [3, 5],           // Rupak:          3+2+2
     8:  [4],              // Keherwa:        4+4

@@ -20,12 +20,12 @@ import {
     type SavedTemplate,
 } from './wizardDraft.js';
 
-// IDs de taals activos: los que aparecen en NAVIGATION y existen en TAALS
+// Active taal IDs: those listed in NAVIGATION that also exist in TAALS
 const activeTaals: string[] = CONFIG.NAVIGATION
     .map(item => item.id)
     .filter(id => id in TAALS);
 
-// Mapeo taalId → primera palabra del nombre (para filtrar canciones por taal)
+// Map taalId → first word of name (used to filter songs by taal)
 const TAAL_SONG_PREFIXES: Record<string, string> = Object.fromEntries(
     activeTaals.map(id => [id, TAALS[id].name.split(' ')[0]])
 );

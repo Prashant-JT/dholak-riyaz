@@ -97,7 +97,7 @@ export class FillersView implements View {
     }
 
     private createPatternCard(pattern: any): HTMLElement {
-        // Card container — usa clase 'card' para respetar variables CSS de tema
+        // Card container — uses the 'card' class to respect CSS theme variables
         const card = createElement('div', {
             className: 'card p-6 mb-4'
         });

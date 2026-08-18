@@ -124,7 +124,7 @@ export class KaydasView implements View {
                     className: `taal-row-separator ${!isFirst ? 'mt-6' : ''}`
                 });
 
-                // Label solo en el primer grupo de cada fila
+                // Label only on the first group of each row
                 if (groupIndex === 0) {
                     const isEnRow = getLang() === 'en';
                     rowDiv.appendChild(createElement('h4', {

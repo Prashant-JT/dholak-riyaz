@@ -131,7 +131,7 @@ export class DashboardView implements View {
         });
         sliderWrapper.appendChild(bpmSlider);
         
-        // Marcas para BPMs comunes de riyaz
+        // Tick marks for common riyaz BPMs
         const marks = createElement('div', { className: 'bpm-marks' });
         const commonBPMs = CONFIG.BPM_MARKS;
         commonBPMs.forEach(bpm => {

@@ -1,6 +1,6 @@
 /**
  * METRONOME ENGINE
- * Motor de metrónomo de alta precisión usando Web Audio API
+ * High-precision metronome engine using the Web Audio API
  */
 
 import { CONFIG } from '../core/config.js';
@@ -18,7 +18,7 @@ export class MetronomeEngine {
     private onCycleCallback: ((cycle: number) => void) | null = null;
     
     /**
-     * Inicializa el contexto de audio
+     * Initialises the audio context
      */
     private initAudioContext(): void {
         if (!this.audioContext) {
@@ -33,9 +33,9 @@ export class MetronomeEngine {
     }
     
     /**
-     * Genera un click de metrónomo usando oscilador
-     * @param time - Tiempo exacto de reproducción
-     * @param isSam - Si es el primer beat (Sam)
+     * Generates a metronome click using an oscillator
+     * @param time - Exact playback time
+     * @param isSam - Whether this is the first beat (Sam)
      */
     private playClick(time: number, isSam: boolean = false): void {
         if (!this.audioContext) return;
@@ -60,7 +60,7 @@ export class MetronomeEngine {
     }
     
     /**
-     * Calcula el tiempo del siguiente beat
+     * Calculates the time of the next beat
      */
     private nextNote(): void {
         const secondsPerBeat = 60.0 / this.currentBPM;
@@ -79,7 +79,7 @@ export class MetronomeEngine {
     }
     
     /**
-     * Scheduler de alta precisión
+     * High-precision scheduler
      */
     private scheduler(): void {
         if (!this.audioContext) return;
@@ -146,7 +146,7 @@ export class MetronomeEngine {
     }
     
     /**
-     * Inicia el metrónomo
+     * Starts the metronome
      */
     public start(): void {
         this.initAudioContext();
@@ -156,11 +156,11 @@ export class MetronomeEngine {
         if (this.audioContext) {
             this.nextNoteTime = this.audioContext.currentTime;
             
-            // Reproducir el primer click inmediatamente
+            // Play the first click immediately
             if (this.onBeatCallback) {
                 this.onBeatCallback(this.currentBeat);
             }
-            this.playClick(this.nextNoteTime, true); // Primer beat es siempre Sam
+            this.playClick(this.nextNoteTime, true); // First beat is always Sam
             this.nextNote();
         }
         
@@ -168,7 +168,7 @@ export class MetronomeEngine {
     }
     
     /**
-     * Detiene el metrónomo
+     * Stops the metronome
      */
     public stop(): void {
         this.isPlaying = false;
@@ -180,16 +180,16 @@ export class MetronomeEngine {
     }
     
     /**
-     * Actualiza el BPM
-     * @param bpm - Nuevo valor de BPM
+     * Updates the BPM
+     * @param bpm - New BPM value
      */
     public setBPM(bpm: number): void {
         this.currentBPM = bpm;
     }
     
     /**
-     * Obtiene el estado actual
-     * @returns Estado de reproducción
+     * Returns the current playing state
+     * @returns Whether the metronome is playing
      */
     public getPlayingState(): boolean {
         return this.isPlaying;
