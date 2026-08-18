@@ -120,7 +120,12 @@ Dholak/
 │       ├── kaydas.ts
 │       ├── fillers.ts
 │       ├── songs.ts
-│       ├── stats.ts
+│       ├── stats.ts               # Thin orchestrator — imports from stats/
+│       ├── stats/
+│       │   ├── statsTypes.ts      # SupabaseSession, SupabaseBlock, UserStats, Medal
+│       │   ├── statsData.ts       # fetch, transform, timezone helpers
+│       │   ├── medals.ts          # computeMedals(), TAAL_META
+│       │   └── statsCharts.ts     # Chart.js colour palette + mount functions
 │       └── riyaz/
 │           ├── sessionWizard.ts
 │           ├── wizardDraft.ts
@@ -311,12 +316,12 @@ Every time a new taal is added or activated, these **7 files/locations must be t
 | 4 | `src/types.ts` | Field in `ViewsConfig` interface |
 | 5 | `src/core/utils.ts` → `VIBHAG_DIVIDERS` | Entry `beats: [matraAfterWhichDividerAppears]` for orange vertical lines on desktop |
 | 6 | `src/views/taals.ts` → `getVibhagStructure()` | `case beats:` with the correct slices for mobile grouping |
-| 7 | `src/views/stats.ts` → `TAAL_META` | Entry with emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
+| 7 | `src/views/stats/medals.ts` → `TAAL_META` | Entry with emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
 
 > ✅ **Automatic** — nothing else needs to be touched:
 > - `src/components/viewManager.ts`: registers TaalViews dynamically from `CONFIG.NAVIGATION`
 > - Riyaz practice blocks (`wizardStep1.ts`, `wizardStep2.ts`): derive active taals from `CONFIG.NAVIGATION`
-> - Statistics (`stats.ts`): "First X" badges and "Polyrhythmic" badge are generated dynamically from `ACTIVE_TAAL_IDS`
+> - Statistics (`stats/medals.ts`): "First X" badges and "Polyrhythmic" badge are generated dynamically from `ACTIVE_TAAL_IDS`
 
 ---
 
@@ -458,6 +463,55 @@ The taal view automatically renders a **coloured dot** inside a bol cell when th
 // ❌ Wrong spelling
 { matra: 1, bol: 'Dhit (tapki)', technique: '' }
 ```
+
+---
+
+## 🧩 Modularisation Guidelines (MANDATORY)
+
+### When to split a file
+A source file **must be split** when it meets both of these criteria:
+- **> ~400–500 lines of code**, AND
+- **> 2 distinct responsibilities** (e.g. types + data + business logic + UI all in one file)
+
+If a file is large but cohesive (only one responsibility), splitting is optional.
+
+### Module boundary rules
+| Responsibility | Where it lives |
+|---|---|
+| Type / interface definitions | Separate `*Types.ts` module |
+| Database / API fetch + data transformation | Separate `*Data.ts` module |
+| Business logic / computation (medals, scores) | Separate named module |
+| Chart / visualisation logic | Separate `*Charts.ts` module |
+| UI rendering (view class) | The view file itself — thin orchestrator |
+
+### Canonical example — `src/views/stats/`
+The `StatsView` (originally 1 887 lines) was split into:
+```
+src/views/stats/
+├── statsTypes.ts    ← SupabaseSession, SupabaseBlock, UserStats, Medal
+├── statsData.ts     ← fetch, transform, timezone helpers, emptyStats()
+├── medals.ts        ← computeMedals(), TAAL_META, DEFAULT_TAAL_META
+└── statsCharts.ts   ← C palette, mountWeeklyChart(), mountCharts(), mountCompareCharts()
+```
+`src/views/stats.ts` remains as the **thin orchestrator**: imports from all 4 sub-modules,
+holds only UI state and DOM building methods (~550 lines).
+
+### Re-exporting public types from the entry point
+When a sub-module is introduced and other files already import types from the original file,
+**re-export** those types from the original so existing import paths keep working:
+```typescript
+// stats.ts — keep backward compatibility for consumers of SupabaseSession / SupabaseBlock
+export type { SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
+```
+
+### File size budget
+| File type | Soft limit | Hard limit |
+|---|---|---|
+| View orchestrator | 600 lines | 800 lines |
+| Data / logic module | 300 lines | 500 lines |
+| Type definition module | 80 lines | 150 lines |
+
+If a file exceeds its hard limit, open a refactoring task immediately.
 
 ---
 

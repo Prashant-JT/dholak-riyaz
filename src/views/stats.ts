@@ -1,628 +1,26 @@
 /**
- * STATS VIEW
- * Vista de estadísticas de práctica con gráficas Chart.js.
- * Conectado a Supabase — datos reales de sesiones guardadas.
+ * STATS VIEW — Orchestrator
+ * Thin shell: imports all logic from sub-modules, handles UI state and rendering.
+ * Data → stats/statsData.ts | Charts → stats/statsCharts.ts
+ * Medals → stats/medals.ts  | Types  → stats/statsTypes.ts
  */
 
-import { db } from '../core/supabase.js';
 import { createElement } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
-import { CONFIG } from '../core/config.js';
-import { t, tArray, getLang } from '../i18n/index.js';
+import { t, tArray } from '../i18n/index.js';
 import type { View } from '../types.js';
 
-// IDs de taals activos (misma fuente de verdad que el Riyaz)
-const ACTIVE_TAAL_IDS: string[] = CONFIG.NAVIGATION
-    .map(item => item.id)
-    .filter(id => id in TAALS);
+// Re-export types consumed by other modules (wizardStep3, etc.)
+export type { SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
 
-// Metadatos visuales por taal: emoji y clase CSS de color para tags/medallas
-const TAAL_META: Record<string, { emoji: string; tagCls: string }> = {
-    keherwa:    { emoji: '🔔', tagCls: 'stats-tag--orange'  },
-    dadra:      { emoji: '🌀', tagCls: 'stats-tag--blue'    },
-    rupak:      { emoji: '🎭', tagCls: 'stats-tag--purple'  },
-    deepchandi: { emoji: '🌊', tagCls: 'stats-tag--teal'    },
-    addha:      { emoji: '🥁', tagCls: 'stats-tag--amber'   },
-    teental:    { emoji: '👑', tagCls: 'stats-tag--blue'    },
-    ektal:      { emoji: '🔁', tagCls: 'stats-tag--purple'  },
-    jhaptal:    { emoji: '⚡', tagCls: 'stats-tag--teal'    },
-};
-// Fallback para taals futuros sin metadatos definidos
-const DEFAULT_TAAL_META = { emoji: '🎵', tagCls: 'stats-tag--orange' };
+import type { UserStats, SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
+import { fetchUserStats, emptyStats, gcDateStr, gcTodayStr, ACTIVE_TAAL_IDS } from './stats/statsData.js';
+import { computeMedals, TAAL_META, DEFAULT_TAAL_META } from './stats/medals.js';
+import { C, mountCharts, mountCompareCharts } from './stats/statsCharts.js';
 
-// ── Timezone Gran Canaria ──────────────────────────────────────────────────────
+// ── Timezone constant (needed for local date formatting in the view) ───────────
+import { CONFIG } from '../core/config.js';
 const GC_TZ = CONFIG.TIMEZONE;
-
-/** Devuelve 'YYYY-MM-DD' en hora canaria a partir de un ISO string UTC */
-function gcDateStr(iso: string): string {
-    return new Intl.DateTimeFormat('sv-SE', { timeZone: GC_TZ }).format(new Date(iso));
-}
-
-/** Devuelve 'YYYY-MM-DD' de hoy en hora canaria */
-function gcTodayStr(): string {
-    return new Intl.DateTimeFormat('sv-SE', { timeZone: GC_TZ }).format(new Date());
-}
-
-/** Devuelve el lunes de la semana ISO (YYYY-MM-DD) en hora canaria */
-function gcMondayStr(isoDate: string): string {
-    const d = new Date(isoDate + 'T00:00:00Z');
-    const dow = d.getUTCDay();
-    d.setUTCDate(d.getUTCDate() - (dow === 0 ? 6 : dow - 1));
-    return d.toISOString().slice(0, 10);
-}
-
-// ── Tipos ─────────────────────────────────────────────────────────────────────
-
-export interface SupabaseSession {
-    id: string;
-    user_id: string;
-    saved_at: string;       // ISO 8601
-    total_secs: number;
-    notes: string | null;
-    blocks: SupabaseBlock[];
-}
-
-export interface SupabaseBlock {
-    type: 'warmup' | 'practice' | 'pickup';
-    taal_name?: string;
-    variation_name?: string;
-    kayda_name?: string;
-    support_type?: string;
-    support_ref?: string;
-    bpm_start?: number;
-    bpm_end?: number;
-    duration_secs?: number;
-    cycles_completed?: number;
-    pickup_name?: string;
-    pickup_taal?: string;
-}
-
-interface UserStats {
-    kpi: { sessions: number; time: string; bpm: number; streak: number; weekStreak: number; maxStreak: number };
-    insight: string;
-    weekLabels: string[];
-    weekly: number[];
-    weekDays: number[][];   // 16 weeks × 7 days (Mon-Sun), minutes per day
-    bpm: Record<string, number[]>;
-    donut: Record<string, number>;
-    cycles: number[];
-    history: { date: string; dur: string; blocks: string[]; bpm: string; notes: string | null }[];
-    heatmap: { label: string; days: number[] }[];
-    rawSessions: SupabaseSession[];   // todas las sesiones, para filtrado client-side
-}
-
-// ── Fetch from Supabase ──────────────────────────────────────────────────────
-
-async function fetchUserStats(userId: string): Promise<UserStats> {
-    // Supabase v2: QueryBuilder is a PromiseLike — direct await is correct
-    const { data, error } = await db
-        .from('sessions')
-        .select('*')
-        .eq('user_id', userId)
-        .order('saved_at', { ascending: true });
-
-    if (error) throw error;
-    return transformSessionsToStats((data as SupabaseSession[]) ?? []);
-}
-
-// ── Data transformation ───────────────────────────────────────────────────────
-
-/**
- * Computes the real seconds for a session.
- * Uses the sum of blocks[].duration_secs as the source of truth
- * (so manual edits to the Supabase JSON are reflected),
- * and falls back to total_secs only if blocks have no recorded duration.
- */
-function effectiveSecs(s: SupabaseSession): number {
-    const fromBlocks = s.blocks.reduce((sum, b) => sum + (b.duration_secs ?? 0), 0);
-    return fromBlocks > 0 ? fromBlocks : s.total_secs;
-}
-
-function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
-    const now   = new Date();
-    const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
-
-    // ── Last 16 weeks from today ──────────────────────────────────────────────
-    const weekStarts: Date[] = [];
-    for (let i = 15; i >= 0; i--) {
-        const d = new Date(now.getTime() - i * MS_WEEK);
-        // Monday of that week
-        const day = d.getDay();
-        const diff = (day === 0 ? -6 : 1 - day);
-        d.setDate(d.getDate() + diff);
-        d.setHours(0, 0, 0, 0);
-        weekStarts.push(d);
-    }
-
-    const MONTH_SHORT = tArray('stats.monthsShort');
-    const weekLabels = weekStarts.map(d => `${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
-
-    // ── Session → week index ──────────────────────────────────────────────────
-    const getWeekIdx = (isoDate: string): number => {
-        const d = new Date(isoDate);
-        for (let i = weekStarts.length - 1; i >= 0; i--) {
-            const end = new Date(weekStarts[i].getTime() + MS_WEEK);
-            if (d >= weekStarts[i] && d < end) return i;
-        }
-        return -1;
-    };
-
-    // ── Weekly minutes + daily breakdown (Mon=0 … Sun=6) ─────────────────────
-    const weekly  = new Array(16).fill(0);
-    const weekDays: number[][] = Array.from({ length: 16 }, () => new Array(7).fill(0));
-    sessions.forEach(s => {
-        const idx = getWeekIdx(s.saved_at);
-        if (idx < 0) return;
-        const mins = Math.round(effectiveSecs(s) / 60);
-        weekly[idx] += mins;
-        // Day of week normalised to Mon=0 … Sun=6
-        const dow = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z').getUTCDay();
-        const dayIdx = dow === 0 ? 6 : dow - 1;
-        weekDays[idx][dayIdx] += mins;
-    });
-
-    // ── Max BPM per taal per week ─────────────────────────────────────────────
-    const bpmMap: Record<string, number[]> = {};
-    sessions.forEach(s => {
-        const idx = getWeekIdx(s.saved_at);
-        if (idx < 0) return;
-        s.blocks.forEach(b => {
-            if (b.type === 'practice' && b.taal_name && b.bpm_end) {
-                if (!bpmMap[b.taal_name]) bpmMap[b.taal_name] = new Array(16).fill(null);
-                const cur = bpmMap[b.taal_name][idx];
-                if (cur === null || b.bpm_end > cur) bpmMap[b.taal_name][idx] = b.bpm_end;
-            }
-        });
-    });
-    // Fill nulls with the last known value (carry-forward)
-    Object.values(bpmMap).forEach(arr => {
-        let last: number | null = null;
-        for (let i = 0; i < arr.length; i++) {
-            if (arr[i] !== null) { last = arr[i]; }
-            else if (last !== null) { arr[i] = last; }
-        }
-        // Remove leading nulls using the first found value (carry-back)
-        let first: number | null = null;
-        for (let i = 0; i < arr.length; i++) { if (arr[i] !== null) { first = arr[i]; break; } }
-        for (let i = 0; i < arr.length; i++) { if (arr[i] === null) arr[i] = first ?? 0; }
-    });
-
-    // ── Donut: segundos por taal ──────────────────────────────────────────────
-    const donutSecs: Record<string, number> = {};
-    sessions.forEach(s => {
-        s.blocks.forEach(b => {
-            const key = b.type === 'warmup'
-                ? 'Warm Up'
-                : b.type === 'pickup'
-                    ? 'Pickups'
-                    : (b.taal_name ?? t('stats.chartOther'));
-            donutSecs[key] = (donutSecs[key] ?? 0) + (b.duration_secs ?? 0);
-        });
-    });
-    const totalDonutSecs = Object.values(donutSecs).reduce((a, b) => a + b, 0);
-    const donut: Record<string, number> = {};
-    Object.entries(donutSecs).forEach(([k, v]) => {
-        donut[k] = totalDonutSecs > 0 ? Math.round((v / totalDonutSecs) * 100) : 0;
-    });
-
-    // ── Cycles: last 20 sessions with metronome ───────────────────────────────
-    const metroSessions = [...sessions]
-        .reverse()
-        .filter(s => s.blocks.some(b => b.support_type === 'metronome' && b.cycles_completed))
-        .slice(0, 20)
-        .reverse();
-    const cycles = metroSessions.map(s =>
-        s.blocks.filter(b => b.support_type === 'metronome')
-                .reduce((sum, b) => sum + (b.cycles_completed ?? 0), 0)
-    );
-
-    // ── History: last 10 sessions ─────────────────────────────────────────────
-    const recentSessions = [...sessions].reverse().slice(0, 10);
-    const history = recentSessions.map(s => {
-        const gcStr = gcDateStr(s.saved_at);   // 'YYYY-MM-DD' in Canary time
-        const d = new Date(gcStr + 'T12:00:00Z');
-        const date = `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-        const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
-        const blocks = s.blocks.map(b =>
-            b.type === 'warmup'
-                ? t('stats.historyWarmUp')
-                : b.type === 'pickup'
-                    ? t('stats.historyPickup')
-                    : (b.taal_name ?? t('stats.historyPractice'))
-        );
-        const maxBpm = s.blocks
-            .filter(b => b.bpm_end)
-            .reduce((max, b) => Math.max(max, b.bpm_end ?? 0), 0);
-        return {
-            date,
-            dur,
-            blocks,
-            bpm: maxBpm > 0 ? String(maxBpm) : '—',
-            notes: s.notes ?? null,
-        };
-    });
-
-    // ── Heatmap: last 4 months ────────────────────────────────────────────────
-    const heatmap: { label: string; days: number[] }[] = [];
-    const MONTH_FULL = tArray('stats.monthsFull');
-    for (let m = 3; m >= 0; m--) {
-        const gcNow = gcTodayStr();
-        const refYear  = parseInt(gcNow.slice(0, 4));
-        const refMonth = parseInt(gcNow.slice(5, 7)) - 1 - m;
-        const ref = new Date(Date.UTC(refYear, refMonth, 1));
-        const daysInMonth = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 0)).getUTCDate();
-        const days = new Array(daysInMonth).fill(0);
-
-        sessions.forEach(s => {
-            const sd = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z');
-            if (sd.getUTCFullYear() === ref.getUTCFullYear() && sd.getUTCMonth() === ref.getUTCMonth()) {
-                const dayIdx = sd.getUTCDate() - 1;
-                const mins = Math.round(effectiveSecs(s) / 60);
-                const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : effectiveSecs(s) > 0 ? 1 : 0;
-                days[dayIdx] = Math.min(4, days[dayIdx] + level);
-            }
-        });
-
-        heatmap.push({ label: MONTH_FULL[ref.getUTCMonth()] ?? ref.toLocaleDateString(getLang() === 'en' ? 'en-GB' : 'es-ES', { timeZone: 'UTC', month: 'long' }), days });
-    }
-
-    // ── KPIs ──────────────────────────────────────────────────────────────────
-    const totalSecs = sessions.reduce((sum, s) => sum + effectiveSecs(s), 0);
-    const totalMins = Math.round(totalSecs / 60);
-    const timeStr = totalMins >= 60
-        ? `${Math.floor(totalMins / 60)}h ${totalMins % 60 > 0 ? (totalMins % 60) + 'm' : ''}`.trim()
-        : `${totalMins}m`;
-
-    const allBpms = sessions.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0));
-    const maxBpm = allBpms.length > 0 ? Math.max(...allBpms) : 0;
-
-    // Racha diaria — todas las fechas en hora canaria
-    const todayGC = gcTodayStr();
-    const sessionDaysSet = new Set(sessions.map(s => gcDateStr(s.saved_at)));
-    const allDaysKpi = Array.from(sessionDaysSet).sort();
-    let streak = 0; let maxStreak = 0;
-    if (allDaysKpi.length > 0) {
-        let s = 1;
-        for (let i = allDaysKpi.length - 1; i > 0; i--) {
-            const curr = new Date(allDaysKpi[i] + 'T00:00:00Z');
-            const prev = new Date(allDaysKpi[i - 1] + 'T00:00:00Z');
-            const diff = (curr.getTime() - prev.getTime()) / 86400000;
-            if (diff === 1) s++; else break;
-        }
-        const lastDay  = new Date(allDaysKpi[allDaysKpi.length - 1] + 'T00:00:00Z');
-        const todayDay = new Date(todayGC + 'T00:00:00Z');
-        const diffToToday = Math.round((todayDay.getTime() - lastDay.getTime()) / 86400000);
-        streak = diffToToday <= 1 ? s : 0;
-        // Max historical streak
-        let cur = 1;
-        for (let i = 1; i < allDaysKpi.length; i++) {
-            const diff = (new Date(allDaysKpi[i] + 'T00:00:00Z').getTime() - new Date(allDaysKpi[i-1] + 'T00:00:00Z').getTime()) / 86400000;
-            cur = diff === 1 ? cur + 1 : 1;
-            if (cur > maxStreak) maxStreak = cur;
-        }
-        if (allDaysKpi.length === 1) maxStreak = 1;
-    }
-
-    // Racha semanal — semanas ISO en hora canaria
-    const sessionWeeksArr = Array.from(new Set(sessions.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
-    let weekStreak = 0;
-    if (sessionWeeksArr.length > 0) {
-        let ws = 1;
-        for (let i = sessionWeeksArr.length - 1; i > 0; i--) {
-            const prev = new Date(sessionWeeksArr[i - 1] + 'T00:00:00Z');
-            prev.setUTCDate(prev.getUTCDate() + 7);
-            if (prev.toISOString().slice(0, 10) === sessionWeeksArr[i]) ws++; else break;
-        }
-        const lastWeek   = new Date(sessionWeeksArr[sessionWeeksArr.length - 1] + 'T00:00:00Z');
-        const todayDay2  = new Date(todayGC + 'T00:00:00Z');
-        const todayDow   = todayDay2.getUTCDay();
-        const thisMonday = new Date(todayDay2);
-        thisMonday.setUTCDate(todayDay2.getUTCDate() - (todayDow === 0 ? 6 : todayDow - 1));
-        weekStreak = lastWeek.toISOString().slice(0, 10) === thisMonday.toISOString().slice(0, 10) ? ws : 0;
-    }
-
-    // ── Automatic insight ─────────────────────────────────────────────────────
-    const taalOnlyEntries = Object.entries(donutSecs).filter(([k]) => !k.startsWith('Warm Up') && !k.startsWith('Pickup'));
-    const topTaal   = taalOnlyEntries.reduce((best, cur) => cur[1] > best[1] ? cur : best, taalOnlyEntries[0] ?? ['—', 0])[0];
-    const leastTaal = taalOnlyEntries.reduce((worst, cur) => cur[1] < worst[1] ? cur : worst, taalOnlyEntries[0] ?? ['—', 0])[0];
-    const insight = sessions.length === 0
-        ? t('stats.insightNoSessions')
-        : taalOnlyEntries.length <= 1
-            ? t('stats.insightOneTaal', topTaal)
-            : t('stats.insightMultiTaal', topTaal, leastTaal);
-
-    return {
-        kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak, maxStreak },
-        insight,
-        weekLabels,
-        weekly,
-        weekDays,
-        bpm: bpmMap,
-        donut,
-        cycles,
-        history,
-        heatmap,
-        rawSessions: sessions,
-    };
-}
-
-// ── Empty state for when there is no data ────────────────────────────────────
-
-function emptyStats(): UserStats {
-    const now = new Date();
-    const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
-    const MONTH_SHORT = tArray('stats.monthsShort');
-    const weekLabels: string[] = [];
-    for (let i = 15; i >= 0; i--) {
-        const d = new Date(now.getTime() - i * MS_WEEK);
-        weekLabels.push(`${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
-    }
-    return {
-        kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0, weekStreak: 0, maxStreak: 0 },
-        insight: t('stats.insightNoSessions'),
-        weekLabels,
-        weekly:      new Array(16).fill(0),
-        weekDays:    Array.from({ length: 16 }, () => new Array(7).fill(0)),
-        bpm:         {},
-        donut:       {},
-        cycles:      [],
-        history:     [],
-        heatmap:     [],
-        rawSessions: [],
-    };
-}
-
-// ── Chart.js ──────────────────────────────────────────────────────────────────
-declare const Chart: any;
-
-// ── Colores ───────────────────────────────────────────────────────────────────
-const C = {
-    orange:  '#f97316',
-    orangeA: 'rgba(249,115,22,0.55)',
-    blue:    '#3b82f6',
-    blueA:   'rgba(59,130,246,0.55)',
-    purple:  '#8b5cf6',
-    purpleA: 'rgba(139,92,246,0.7)',
-    teal:    '#14b8a6',
-    tealA:   'rgba(20,184,166,0.7)',
-    amber:   '#f59e0b',
-    grid:    () => getComputedStyle(document.documentElement).getPropertyValue('--border-primary').trim() || '#e2e8f0',
-    text:    () => getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim()    || '#64748b',
-    card:    () => getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim()       || '#ffffff',
-};
-
-const BPM_PALETTE = [
-    { line: C.orange, bg: C.orangeA },
-    { line: C.blue,   bg: C.blueA   },
-    { line: C.purple, bg: C.purpleA },
-    { line: C.teal,   bg: C.tealA   },
-];
-
-// ── Medallas ──────────────────────────────────────────────────────────────────
-
-interface Medal {
-    id: string;
-    emoji: string;
-    name: string;
-    desc: string;
-    earned: boolean;
-    earnedAt?: string;
-    progress?: string;
-    progressPct?: number;
-}
-
-function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
-    const MONTH_SHORT = tArray('stats.monthsShort');
-    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
-
-    const sorted = [...sessions].sort((a, b) => a.saved_at.localeCompare(b.saved_at));
-
-    const totalMins = Math.round(sorted.reduce((s, x) => s + effectiveSecs(x), 0) / 60);
-    const totalSessions = sorted.length;
-
-    const allDayStrs = Array.from(new Set(sorted.map(s => gcDateStr(s.saved_at)))).sort();
-    const allDays = allDayStrs.map(d => new Date(d + 'T00:00:00Z'));
-    let maxStreak = 0; let curStreak = 0;
-    for (let i = 0; i < allDays.length; i++) {
-        if (i === 0) { curStreak = 1; }
-        else {
-            const diff = (allDays[i].getTime() - allDays[i-1].getTime()) / 86400000;
-            curStreak = diff === 1 ? curStreak + 1 : 1;
-        }
-        if (curStreak > maxStreak) maxStreak = curStreak;
-    }
-
-    const sessionWeeks = Array.from(new Set(sorted.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
-    let maxWeekStreak = 0; let curWStreak = 0;
-    for (let i = 0; i < sessionWeeks.length; i++) {
-        if (i === 0) { curWStreak = 1; }
-        else {
-            const prev = new Date(sessionWeeks[i-1] + 'T00:00:00Z'); prev.setUTCDate(prev.getUTCDate() + 7);
-            curWStreak = prev.toISOString().slice(0,10) === sessionWeeks[i] ? curWStreak + 1 : 1;
-        }
-        if (curWStreak > maxWeekStreak) maxWeekStreak = curWStreak;
-    }
-
-    const taalsSet = new Set(sorted.flatMap(s => s.blocks.filter(b => b.type === 'practice' && b.taal_name).map(b => b.taal_name!)));
-    const ALL_ACTIVE_TAAL_NAMES = ACTIVE_TAAL_IDS.map(id => TAALS[id].name);
-    const hasAllActive = ALL_ACTIVE_TAAL_NAMES.every(tn => taalsSet.has(tn));
-    const firstSessionByTaal: Record<string, string | undefined> = {};
-    ACTIVE_TAAL_IDS.forEach(id => {
-        const taalName = TAALS[id].name;
-        firstSessionByTaal[id] = sorted.find(s =>
-            s.blocks.some(b => b.type === 'practice' && b.taal_name === taalName)
-        )?.saved_at;
-    });
-
-    const songSessions = sorted.filter(s => s.blocks.some(b => b.support_type === 'song'));
-    const maxBpm = sorted.reduce((mx, s) => Math.max(mx, ...s.blocks.map(b => b.bpm_end ?? 0)), 0);
-    const maxSessionMins = sorted.reduce((mx, s) => Math.max(mx, Math.round(effectiveSecs(s) / 60)), 0);
-
-    const firstSession    = sorted[0]?.saved_at;
-    const firstHourSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 60)?.saved_at;
-    const first10hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 600)?.saved_at;
-    const first50hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 3000)?.saved_at;
-    const first100hSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 6000)?.saved_at;
-    const longSession      = sorted.find(s => Math.round(effectiveSecs(s)/60) >= 60)?.saved_at;
-    const marathonSession  = sorted.find(s => Math.round(effectiveSecs(s)/60) >= 90)?.saved_at;
-    const streak7Session   = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=7)   return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const streak30Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=30)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const streak60Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=60)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const streak100Session = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=100) return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const streak365Session = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=365) return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const week4Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=4)  return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
-    const bpm120Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 120))?.saved_at;
-    const bpm180Session    = sorted.find(s => s.blocks.some(b => (b.bpm_end ?? 0) >= 180))?.saved_at;
-    const bpm60Session     = sorted.find(s => s.blocks.some(b => b.support_type === 'metronome' && (b.bpm_start ?? 0) <= 60))?.saved_at;
-    const explorer3Session = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (seen.size >= 3) return s.saved_at; } return undefined; })();
-    const allActiveSession = (() => { const seen = new Set<string>(); for (const s of sorted) { s.blocks.forEach(b => { if (b.type==='practice'&&b.taal_name) seen.add(b.taal_name); }); if (ALL_ACTIVE_TAAL_NAMES.every(tn => seen.has(tn))) return s.saved_at; } return undefined; })();
-    const song5Session     = (() => { let c=0; for (const s of sorted) { if (s.blocks.some(b=>b.support_type==='song')) { c++; if (c>=5) return s.saved_at; } } return undefined; })();
-    const session5At       = sorted[4]?.saved_at;
-    const session10At      = sorted[9]?.saved_at;
-    const session15At      = sorted[14]?.saved_at;
-    const session25At      = sorted[24]?.saved_at;
-    const session50At      = sorted[49]?.saved_at;
-    const session100At     = sorted[99]?.saved_at;
-    const first3hSession   = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 180)?.saved_at;
-    const first5hSession   = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 300)?.saved_at;
-    const first25hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 1500)?.saved_at;
-    const streak14Session  = (() => { let c = 0; for (let i=0;i<allDays.length;i++) { c = i===0?1:(allDays[i].getTime()-allDays[i-1].getTime())/86400000===1?c+1:1; if (c>=14)  return sorted.find(s => gcDateStr(s.saved_at)===allDayStrs[i])?.saved_at; } return undefined; })();
-    const week8Session     = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=8)  return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
-    const week12Session    = (() => { let c = 0; for (let i=0;i<sessionWeeks.length;i++) { c = i===0?1:(()=>{const p=new Date(sessionWeeks[i-1]+'T00:00:00Z'); p.setUTCDate(p.getUTCDate()+7); return p.toISOString().slice(0,10)===sessionWeeks[i]?c+1:1;})(); if (c>=12) return sorted.find(s => gcMondayStr(gcDateStr(s.saved_at))===sessionWeeks[i])?.saved_at; } return undefined; })();
-
-    const mk = (id: string, emoji: string, name: string, desc: string, cond: boolean, when?: string, progress?: string, progressPct?: number): Medal => ({
-        id, emoji, name, desc,
-        earned: cond,
-        earnedAt: cond && when ? fmt(when) : undefined,
-        progress: cond ? undefined : progress,
-        progressPct: cond ? undefined : progressPct,
-    });
-
-    const currentStreak = allDays.length > 0 ? (() => {
-        let s = 1;
-        for (let i = allDays.length - 1; i > 0; i--) {
-            const diff = (allDays[i].getTime() - allDays[i-1].getTime()) / 86400000;
-            if (diff === 1) s++; else break;
-        }
-        const last     = allDays[allDays.length - 1];
-        const todayDay = new Date(gcTodayStr() + 'T00:00:00Z');
-        const diffToToday = Math.round((todayDay.getTime() - last.getTime()) / 86400000);
-        return diffToToday <= 1 ? s : 0;
-    })() : 0;
-
-    const currentWeekStreak = sessionWeeks.length > 0 ? (() => {
-        let s = 1;
-        for (let i = sessionWeeks.length - 1; i > 0; i--) {
-            const prev = new Date(sessionWeeks[i-1] + 'T00:00:00Z'); prev.setUTCDate(prev.getUTCDate() + 7);
-            if (prev.toISOString().slice(0,10) === sessionWeeks[i]) s++; else break;
-        }
-        const lastWeek   = new Date(sessionWeeks[sessionWeeks.length - 1] + 'T00:00:00Z');
-        const todayGC2   = gcTodayStr();
-        const todayD     = new Date(todayGC2 + 'T00:00:00Z');
-        const dow2       = todayD.getUTCDay();
-        const thisMonday = new Date(todayD); thisMonday.setUTCDate(todayD.getUTCDate() - (dow2 === 0 ? 6 : dow2 - 1));
-        return lastWeek.toISOString().slice(0,10) === thisMonday.toISOString().slice(0,10) ? s : 0;
-    })() : 0;
-
-    return [
-        mk('first',     '🌱', t('stats.medalFirst.name'),    t('stats.medalFirst.desc'),    totalSessions >= 1,   firstSession),
-        mk('s5',        '⭐', t('stats.medalS5.name'),        t('stats.medalS5.desc'),        totalSessions >= 5,   session5At,
-            t('stats.medalProgSessions', totalSessions, 5), Math.min(100, Math.round((totalSessions / 5) * 100))),
-        mk('s10',       '🎯', t('stats.medalS10.name'),       t('stats.medalS10.desc'),       totalSessions >= 10,  session10At,
-            t('stats.medalProgSessions', totalSessions, 10), Math.min(100, Math.round((totalSessions / 10) * 100))),
-        mk('s15',       '🥉', t('stats.medalS15.name'),       t('stats.medalS15.desc'),       totalSessions >= 15,  session15At,
-            t('stats.medalProgSessions', totalSessions, 15), Math.min(100, Math.round((totalSessions / 15) * 100))),
-        mk('s25',       '🥈', t('stats.medalS25.name'),       t('stats.medalS25.desc'),       totalSessions >= 25,  session25At,
-            t('stats.medalProgSessions', totalSessions, 25), Math.min(100, Math.round((totalSessions / 25) * 100))),
-        mk('s50',       '🏅', t('stats.medalS50.name'),       t('stats.medalS50.desc'),       totalSessions >= 50,  session50At,
-            t('stats.medalProgSessions', totalSessions, 50), Math.min(100, Math.round((totalSessions / 50) * 100))),
-        mk('s100',      '🎗️', t('stats.medalS100.name'),      t('stats.medalS100.desc'),      totalSessions >= 100, session100At,
-            t('stats.medalProgSessions', totalSessions, 100), Math.min(100, Math.round((totalSessions / 100) * 100))),
-        mk('streak7',   '🔥', t('stats.medalStreak7.name'),   t('stats.medalStreak7.desc'),   maxStreak >= 7,   streak7Session,
-            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 7) * 100))),
-        mk('streak14',  '🌙', t('stats.medalStreak14.name'),  t('stats.medalStreak14.desc'),  maxStreak >= 14,  streak14Session,
-            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 14) * 100))),
-        mk('streak30',  '💎', t('stats.medalStreak30.name'),  t('stats.medalStreak30.desc'),  maxStreak >= 30,  streak30Session,
-            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 30) * 100))),
-        mk('streak60',  '🌟', t('stats.medalStreak60.name'),  t('stats.medalStreak60.desc'),  maxStreak >= 60,  streak60Session,
-            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 60) * 100))),
-        mk('streak100', '👑', t('stats.medalStreak100.name'), t('stats.medalStreak100.desc'), maxStreak >= 100, streak100Session,
-            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 100) * 100))),
-        mk('streak365', '🎖️', t('stats.medalStreak365.name'), t('stats.medalStreak365.desc'), maxStreak >= 365, streak365Session,
-            t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 365) * 100))),
-        mk('week4',     '🗓️', t('stats.medalWeek4.name'),     t('stats.medalWeek4.desc'),     maxWeekStreak >= 4,  week4Session,
-            t('stats.medalProgWeeks', currentWeekStreak, 4), Math.min(100, Math.round((currentWeekStreak / 4) * 100))),
-        mk('week8',     '📆', t('stats.medalWeek8.name'),     t('stats.medalWeek8.desc'),     maxWeekStreak >= 8,  week8Session,
-            t('stats.medalProgWeeks', currentWeekStreak, 8), Math.min(100, Math.round((currentWeekStreak / 8) * 100))),
-        mk('week12',    '📅', t('stats.medalWeek12.name'),    t('stats.medalWeek12.desc'),    maxWeekStreak >= 12, week12Session,
-            t('stats.medalProgWeeks', currentWeekStreak, 12), Math.min(100, Math.round((currentWeekStreak / 12) * 100))),
-        mk('h1',        '⏱️', t('stats.medalH1.name'),        t('stats.medalH1.desc'),        totalMins >= 60,   firstHourSession,
-            t('stats.medalProgMins', totalMins, 60), Math.min(100, Math.round((totalMins / 60) * 100))),
-        mk('h3',        '🕑', t('stats.medalH3.name'),        t('stats.medalH3.desc'),        totalMins >= 180,  first3hSession,
-            t('stats.medalProgHours', totalMins, 3), Math.min(100, Math.round((totalMins / 180) * 100))),
-        mk('h5',        '🕔', t('stats.medalH5.name'),        t('stats.medalH5.desc'),        totalMins >= 300,  first5hSession,
-            t('stats.medalProgHours', totalMins, 5), Math.min(100, Math.round((totalMins / 300) * 100))),
-        mk('h10',       '🕐', t('stats.medalH10.name'),       t('stats.medalH10.desc'),       totalMins >= 600,  first10hSession,
-            t('stats.medalProgHours', totalMins, 10), Math.min(100, Math.round((totalMins / 600) * 100))),
-        mk('h25',       '🕰️', t('stats.medalH25.name'),       t('stats.medalH25.desc'),       totalMins >= 1500, first25hSession,
-            t('stats.medalProgHours', totalMins, 25), Math.min(100, Math.round((totalMins / 1500) * 100))),
-        mk('h50',       '🏆', t('stats.medalH50.name'),       t('stats.medalH50.desc'),       totalMins >= 3000, first50hSession,
-            t('stats.medalProgHours', totalMins, 50), Math.min(100, Math.round((totalMins / 3000) * 100))),
-        mk('h100',      '🥇', t('stats.medalH100.name'),      t('stats.medalH100.desc'),      totalMins >= 6000, first100hSession,
-            t('stats.medalProgHours', totalMins, 100), Math.min(100, Math.round((totalMins / 6000) * 100))),
-        mk('long',      '💪', t('stats.medalLong.name'),      t('stats.medalLong.desc'),      maxSessionMins >= 60, longSession,
-            t('stats.medalProgSession', maxSessionMins, 60), Math.min(100, Math.round((maxSessionMins / 60) * 100))),
-        mk('marathon',  '🦾', t('stats.medalMarathon.name'),  t('stats.medalMarathon.desc'),  maxSessionMins >= 90, marathonSession,
-            t('stats.medalProgSession', maxSessionMins, 90), Math.min(100, Math.round((maxSessionMins / 90) * 100))),
-        mk('explorer',  '🥁', t('stats.medalExplorer.name'),  t('stats.medalExplorer.desc'),  taalsSet.size >= 3, explorer3Session,
-            t('stats.medalProgTaals', taalsSet.size, 3), Math.min(100, Math.round((taalsSet.size / 3) * 100))),
-        ...ACTIVE_TAAL_IDS.map(id => {
-            const taal  = TAALS[id];
-            const meta  = TAAL_META[id] ?? DEFAULT_TAAL_META;
-            const firstWord = taal.name.split(' ')[0];
-            const when  = firstSessionByTaal[id];
-            return mk(id, meta.emoji,
-                t('stats.medalFirstTaal', firstWord),
-                t('stats.medalFirstTaalDesc', taal.name),
-                when !== undefined, when);
-        }),
-        mk('allActive', '🌐', t('stats.medalAllActive.name'),
-            `${t('stats.medalAllActive.desc')}: ${ACTIVE_TAAL_IDS.map(id => TAALS[id].name.split(' ')[0]).join(', ')}`,
-            hasAllActive, allActiveSession,
-            t('stats.medalProgTaals', ALL_ACTIVE_TAAL_NAMES.filter(tn => taalsSet.has(tn)).length, ALL_ACTIVE_TAAL_NAMES.length),
-            Math.min(100, Math.round((ALL_ACTIVE_TAAL_NAMES.filter(tn => taalsSet.has(tn)).length / ALL_ACTIVE_TAAL_NAMES.length) * 100))),
-        mk('songs5',    '🎵', t('stats.medalSongs5.name'),    t('stats.medalSongs5.desc'),    songSessions.length >= 5, song5Session,
-            t('stats.medalProgSessions', songSessions.length, 5), Math.min(100, Math.round((songSessions.length / 5) * 100))),
-        mk('slow',      '🐢', t('stats.medalSlow.name'),      t('stats.medalSlow.desc'),      maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
-        mk('bpm120',    '⚡', t('stats.medalBpm120.name'),    t('stats.medalBpm120.desc'),    maxBpm >= 120, bpm120Session,
-            t('stats.medalProgBpm', maxBpm > 0 ? maxBpm : 0), Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),
-        mk('bpm180',    '🚀', t('stats.medalBpm180.name'),    t('stats.medalBpm180.desc'),    maxBpm >= 180, bpm180Session,
-            t('stats.medalProgBpm', maxBpm > 0 ? maxBpm : 0), Math.min(100, Math.round((Math.min(maxBpm, 180) / 180) * 100))),
-        ...(() => {
-            if (otherSessions.length === 0) return [];
-            const otherTimes    = new Set(otherSessions.map(s => s.saved_at));
-            const jointSessions = sorted.filter(s => otherTimes.has(s.saved_at));
-            const jointCount    = jointSessions.length;
-            const jointMins     = Math.round(jointSessions.reduce((sum, s) => sum + effectiveSecs(s), 0) / 60);
-            return [
-                mk('jugalbandi', '🤝', t('stats.medalJugalbandi.name'),  t('stats.medalJugalbandi.desc'),  jointCount >= 1, jointSessions[0]?.saved_at),
-                mk('duo5',       '🎶', t('stats.medalDuo5.name'),        t('stats.medalDuo5.desc'),        jointCount >= 5, jointSessions[4]?.saved_at,
-                    t('stats.medalProgJoint', jointCount, 5), Math.min(100, Math.round((jointCount / 5) * 100))),
-                mk('superjugal', '⚡', t('stats.medalSuperJugal.name'),  t('stats.medalSuperJugal.desc'),  jointMins >= 60,
-                    jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 60)?.saved_at,
-                    t('stats.medalProgJointMins', jointMins, 60), Math.min(100, Math.round((jointMins / 60) * 100))),
-                mk('maestro',    '🎓', t('stats.medalMaestro.name'),     t('stats.medalMaestro.desc'),     jointCount >= 10, jointSessions[9]?.saved_at,
-                    t('stats.medalProgJoint', jointCount, 10), Math.min(100, Math.round((jointCount / 10) * 100))),
-                mk('duolegend',  '🌟', t('stats.medalDuoLegend.name'),   t('stats.medalDuoLegend.desc'),   jointMins >= 120,
-                    jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 120)?.saved_at,
-                    t('stats.medalProgJointMins', jointMins, 120), Math.min(100, Math.round((jointMins / 120) * 100))),
-                mk('duo10h',     '🕰️', t('stats.medalDuo10h.name'),      t('stats.medalDuo10h.desc'),      jointMins >= 600,
-                    jointSessions.find((_, i) => Math.round(jointSessions.slice(0, i + 1).reduce((s, x) => s + effectiveSecs(x), 0) / 60) >= 600)?.saved_at,
-                    t('stats.medalProgJointMins', jointMins, 600), Math.min(100, Math.round((jointMins / 600) * 100))),
-            ];
-        })(),
-    ];
-}
 
 // ── View ──────────────────────────────────────────────────────────────────────
 
@@ -674,7 +72,7 @@ export class StatsView implements View {
         return this.section;
     }
 
-    // ── Data loading ─────────────────────────────────────────────────────────
+    // ── Data loading ──────────────────────────────────────────────────────────
 
     private showLoading(container: HTMLElement): void {
         container.innerHTML = '';
@@ -719,7 +117,7 @@ export class StatsView implements View {
             this.dataLoaded = true;
             this.renderContent();
         } catch (err: unknown) {
-            console.error('Error cargando estadísticas:', err);
+            console.error('Error loading stats:', err);
             content.innerHTML = '';
             const errWrap = createElement('div', { className: 'stats-loading' });
             errWrap.innerHTML = `<p class="stats-loading__msg">${t('stats.errorMsg')}</p>
@@ -774,12 +172,12 @@ export class StatsView implements View {
         content.appendChild(this.buildMedalsCard(d));
 
         requestAnimationFrame(() => {
-            this.mountCharts(d);
+            this.mountAllCharts(d);
             this.buildHeatmap(d);
         });
     }
 
-    // ── Helpers de UI ─────────────────────────────────────────────────────────
+    // ── UI helpers ────────────────────────────────────────────────────────────
 
     private card(): HTMLElement {
         const c = createElement('div', { className: 'card' });
@@ -803,7 +201,7 @@ export class StatsView implements View {
         return p;
     }
 
-    // ── Weekly chart with Weeks / Days toggle ────────────────────────────────
+    // ── Weekly chart card with Weeks/Days toggle ──────────────────────────────
 
     private buildWeeklyCard(d: UserStats): HTMLElement {
         const card = this.card();
@@ -922,66 +320,6 @@ export class StatsView implements View {
         return card;
     }
 
-    private mountWeeklyChart(d: UserStats): void {
-        const canvas = document.getElementById('stats-chart-weekly') as HTMLCanvasElement | null;
-        if (!canvas) return;
-
-        const gridCol = C.grid();
-        const textCol = C.text();
-
-        const trend = d.weekly.map((_, i, arr) => {
-            const slice = arr.slice(Math.max(0, i - 2), i + 1);
-            return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
-        });
-
-        this.weeklyChart = new Chart(canvas, {
-            type: 'bar',
-            data: {
-                labels: d.weekLabels,
-                datasets: [
-                    {
-                        label: t('stats.weeklyDataLabel'),
-                        data: d.weekly,
-                        backgroundColor: C.orangeA,
-                        borderColor: C.orange, borderWidth: 2.5, borderRadius: 6, borderSkipped: false,
-                    },
-                    {
-                        label: t('stats.weeklyTrend'),
-                        data: trend,
-                        type: 'line',
-                        borderColor: C.blue, backgroundColor: 'transparent',
-                        borderWidth: 3, pointRadius: 0, tension: 0.4,
-                    },
-                ],
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: true, position: 'top' as const, align: 'end' as const, labels: { boxWidth: 12, padding: 16, usePointStyle: true } } },
-                scales: {
-                    x: { grid: { color: gridCol }, ticks: { maxRotation: 45 } },
-                    y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'min', color: textCol } },
-                },
-            },
-        });
-        this.charts.push(this.weeklyChart);
-
-        if (this.weeklyMode === 'days') {
-            const btnDays  = document.getElementById('stats-toggle-days');
-            const btnWeeks = document.getElementById('stats-toggle-weeks');
-            const weekSel  = document.getElementById('stats-week-selector');
-            btnDays?.classList.add('active');
-            btnWeeks?.classList.remove('active');
-            if (weekSel) weekSel.style.display = 'flex';
-            const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
-            const DAY_LABELS = tArray('stats.dayLabels');
-            this.weeklyChart.data.labels = DAY_LABELS;
-            this.weeklyChart.data.datasets[0].data = days;
-            this.weeklyChart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
-            this.weeklyChart.data.datasets[1].hidden = true;
-            this.weeklyChart.update();
-        }
-    }
-
     private buildChartCard(title: string, sub: string, canvasId: string, height: number, canvasCls = ''): HTMLElement {
         const card = this.card();
         card.appendChild(this.cardTitle(title));
@@ -994,7 +332,7 @@ export class StatsView implements View {
         return card;
     }
 
-    // ── Vista comparativa ─────────────────────────────────────────────────────
+    // ── Compare view ─────────────────────────────────────────────────────────
 
     private buildCompareView(content: HTMLElement): void {
         const p = this.userData['prashant'] ?? emptyStats();
@@ -1013,20 +351,17 @@ export class StatsView implements View {
         ];
 
         const kpiGrid = createElement('div', { className: 'stats-compare-grid' });
-
         kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-header' }));
         ['Prashant', 'Meera'].forEach((name, i) => {
             kpiGrid.appendChild(createElement('div', {
                 className: `stats-compare-cell stats-compare-name stats-compare-name--${i === 0 ? 'p' : 'm'}`,
             }, name));
         });
-
         kpiDefs.forEach(k => {
             kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-label' }, k.label));
             kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--p' }, k.p));
             kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--m' }, k.m));
         });
-
         kpiSection.appendChild(kpiGrid);
         content.appendChild(kpiSection);
 
@@ -1090,28 +425,22 @@ export class StatsView implements View {
         content.appendChild(legendCard);
 
         const medalGrid = createElement('div', { className: 'medals-compare-grid' });
-
         COMPARE_GROUPS.forEach(group => {
             const card = this.card();
             card.style.marginBottom = '0';
             card.appendChild(createElement('p', { className: 'medals-group-label' }, group.label));
-
             const cellGrid = createElement('div', { className: 'medals-cmp-cell-grid' });
-
             group.ids.forEach(id => {
                 const pm_ = pmById[id];
                 const mm_ = mmById[id];
                 if (!pm_ || !mm_) return;
-
                 const cell = createElement('div', { className: 'medals-cmp-cell' });
                 cell.title = pm_.desc;
-
                 const emojiEl = createElement('span', {
                     className: `medals-cmp-emoji${(!pm_.earned && !mm_.earned) ? ' medals-cmp-emoji--locked' : ''}`,
                 }, pm_.emoji);
                 cell.appendChild(emojiEl);
                 cell.appendChild(createElement('span', { className: 'medals-cmp-name' }, pm_.name));
-
                 const dotsEl = createElement('div', { className: 'medals-cmp-dots' });
                 [pm_, mm_].forEach((medal, ui) => {
                     const dot = createElement('span', {
@@ -1123,88 +452,21 @@ export class StatsView implements View {
                 cell.appendChild(dotsEl);
                 cellGrid.appendChild(cell);
             });
-
             card.appendChild(cellGrid);
             medalGrid.appendChild(card);
         });
-
         content.appendChild(medalGrid);
 
-        requestAnimationFrame(() => { this.mountCompareCharts(p, m); });
+        requestAnimationFrame(() => { mountCompareCharts(p, m, this.charts); });
     }
 
-    private mountCompareCharts(p: UserStats, m: UserStats): void {
-        const gridCol = C.grid();
-        const textCol = C.text();
-        const cardCol = C.card();
-
-        Chart.defaults.font.family = 'inherit';
-        Chart.defaults.font.size   = 12;
-        Chart.defaults.color       = textCol;
-
-        const compareCanvas = document.getElementById('stats-chart-compare') as HTMLCanvasElement | null;
-        if (compareCanvas) {
-            const trendP = p.weekly.map((_, i, arr) => {
-                const slice = arr.slice(Math.max(0, i - 2), i + 1);
-                return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
-            });
-            const trendM = m.weekly.map((_, i, arr) => {
-                const slice = arr.slice(Math.max(0, i - 2), i + 1);
-                return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
-            });
-
-            this.charts.push(new Chart(compareCanvas, {
-                type: 'bar',
-                data: {
-                    labels: p.weekLabels,
-                    datasets: [
-                        { label: 'Prashant',                   data: p.weekly, backgroundColor: C.orangeA, borderColor: C.orange, borderWidth: 2.5, borderRadius: 4, borderSkipped: false },
-                        { label: 'Meera',                      data: m.weekly, backgroundColor: C.blueA,   borderColor: C.blue,   borderWidth: 2.5, borderRadius: 4, borderSkipped: false },
-                        { label: t('stats.chartTrendP'), data: trendP,  type: 'line' as const, borderColor: C.orange, backgroundColor: 'transparent', borderWidth: 3, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
-                        { label: t('stats.chartTrendM'), data: trendM,  type: 'line' as const, borderColor: C.blue,   backgroundColor: 'transparent', borderWidth: 3, borderDash: [4, 3], pointRadius: 0, tension: 0.4 },
-                    ],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'top' as const, align: 'end' as const, labels: { boxWidth: 12, padding: 16, usePointStyle: true } } },
-                    scales: {
-                        x: { grid: { color: gridCol }, ticks: { maxRotation: 45 } },
-                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: 'min', color: textCol } },
-                    },
-                },
-            }));
-        }
-
-        const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
-        [
-            { canvasId: 'stats-chart-compare-donut-p', donut: p.donut },
-            { canvasId: 'stats-chart-compare-donut-m', donut: m.donut },
-        ].forEach(({ canvasId, donut }) => {
-            const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
-            if (!canvas) return;
-            const entries = Object.entries(donut);
-            this.charts.push(new Chart(canvas, {
-                type: 'doughnut',
-                data: {
-                    labels: entries.length > 0 ? entries.map(([k]) => k) : [t('stats.donutNoData')],
-                    datasets: [{ data: entries.length > 0 ? entries.map(([, v]) => v) : [100], backgroundColor: entries.length > 0 ? donutColors : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '60%',
-                    plugins: {
-                        legend: { position: 'bottom' as const, labels: { boxWidth: 10, padding: 10, usePointStyle: true, font: { size: 10 } } },
-                        tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.parsed}%` } },
-                    },
-                },
-            }));
-        });
-    }
+    // ── KPIs ──────────────────────────────────────────────────────────────────
 
     private buildKPIs(d: UserStats): HTMLElement {
         const grid = createElement('div', { className: 'stats-kpi-grid' });
 
         const avgMins = d.kpi.sessions > 0
-            ? Math.round(d.rawSessions.reduce((s, x) => s + effectiveSecs(x), 0) / 60 / d.kpi.sessions)
+            ? Math.round(d.rawSessions.reduce((s, x) => s + this.effectiveSecs(x), 0) / 60 / d.kpi.sessions)
             : 0;
         const avgStr = avgMins >= 60
             ? `${Math.floor(avgMins / 60)}h ${avgMins % 60 > 0 ? (avgMins % 60) + 'm' : ''}`.trim()
@@ -1222,7 +484,7 @@ export class StatsView implements View {
         const bestDaySub   = d.kpi.sessions > 0 ? t('stats.kpiBestDaySub', sessionsByDay[bestDayIdx]) : t('stats.kpiNoData');
 
         const maxSessionMins = d.kpi.sessions > 0
-            ? Math.max(...d.rawSessions.map(s => Math.round(effectiveSecs(s) / 60)))
+            ? Math.max(...d.rawSessions.map(s => Math.round(this.effectiveSecs(s) / 60)))
             : 0;
         const maxSessionStr = maxSessionMins >= 60
             ? `${Math.floor(maxSessionMins / 60)}h ${maxSessionMins % 60 > 0 ? (maxSessionMins % 60) + 'm' : ''}`.trim()
@@ -1262,21 +524,18 @@ export class StatsView implements View {
 
         const streakCard = createElement('div', { className: 'card stats-kpi-card stats-streak-card' });
         streakCard.appendChild(createElement('div', { className: 'stats-kpi-label' }, t('stats.streakLabel')));
-
         const streakRow = createElement('div', { className: 'stats-streak-row' });
 
         const dayBlock = createElement('div', { className: 'stats-streak-block' });
         dayBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.streak)));
         dayBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, t('stats.streakDays')));
         streakRow.appendChild(dayBlock);
-
         streakRow.appendChild(createElement('div', { className: 'stats-streak-divider' }));
 
         const weekBlock = createElement('div', { className: 'stats-streak-block' });
         weekBlock.appendChild(createElement('div', { className: 'stats-kpi-value' }, String(d.kpi.weekStreak)));
         weekBlock.appendChild(createElement('div', { className: 'stats-kpi-sub' }, t('stats.streakWeeks')));
         streakRow.appendChild(weekBlock);
-
         streakRow.appendChild(createElement('div', { className: 'stats-streak-divider' }));
 
         const maxStreakBlock = createElement('div', { className: 'stats-streak-block stats-streak-block--record' });
@@ -1302,7 +561,7 @@ export class StatsView implements View {
         return box;
     }
 
-    // ── Esta semana vs semana pasada ──────────────────────────────────────────
+    // ── This week vs last week ────────────────────────────────────────────────
 
     private buildWeekCompare(d: UserStats): HTMLElement {
         const minsThis = d.weekly[15] ?? 0;
@@ -1311,11 +570,11 @@ export class StatsView implements View {
         const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
         const now = new Date();
         const getMonday = (ref: Date): Date => {
-            const d = new Date(ref);
-            const day = d.getDay();
-            d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
-            d.setHours(0, 0, 0, 0);
-            return d;
+            const day = ref.getDay();
+            const result = new Date(ref);
+            result.setDate(ref.getDate() - (day === 0 ? 6 : day - 1));
+            result.setHours(0, 0, 0, 0);
+            return result;
         };
         const thisMonday = getMonday(now);
         const prevMonday = new Date(thisMonday.getTime() - MS_WEEK);
@@ -1343,13 +602,13 @@ export class StatsView implements View {
             return { text: t('stats.weekCmpEqual'), cls: 'week-cmp-delta--neutral' };
         };
 
-        const minsDelta  = delta(minsThis,            minsPrev,            'min');
-        const sessDelta  = delta(sessionsThis.length, sessionsPrev.length, 'ses.');
-        const bpmDelta   = delta(bpmThis,             bpmPrev,             'BPM');
+        const minsDelta = delta(minsThis,            minsPrev,            'min');
+        const sessDelta = delta(sessionsThis.length, sessionsPrev.length, 'ses.');
+        const bpmDelta  = delta(bpmThis,             bpmPrev,             'BPM');
 
         const fmtMins = (mn: number) => mn >= 60 ? `${Math.floor(mn/60)}h ${mn%60 > 0 ? mn%60+'m' : ''}`.trim() : `${mn}m`;
 
-        const metrics: { label: string; thisVal: string; prevVal: string; delta: { text: string; cls: string } }[] = [
+        const metrics = [
             { label: t('stats.weekCmpMinutes'),  thisVal: fmtMins(minsThis),          prevVal: fmtMins(minsPrev),          delta: minsDelta },
             { label: t('stats.weekCmpSessions'), thisVal: String(sessionsThis.length), prevVal: String(sessionsPrev.length), delta: sessDelta },
             { label: t('stats.weekCmpBpm'),      thisVal: bpmThis > 0 ? String(bpmThis) : '—', prevVal: bpmPrev > 0 ? String(bpmPrev) : '—', delta: bpmDelta },
@@ -1361,7 +620,6 @@ export class StatsView implements View {
         titleWrap.appendChild(this.cardTitle(t('stats.weekCmpTitle')));
         titleWrap.appendChild(this.cardSub(t('stats.weekCmpSub')));
         headerRow.appendChild(titleWrap);
-
         const colLabels = createElement('div', { className: 'week-cmp-col-labels' });
         colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--this' }, t('stats.weekCmpThis')));
         colLabels.appendChild(createElement('span', { className: 'week-cmp-col-label week-cmp-col-label--prev' }, t('stats.weekCmpPrev')));
@@ -1372,20 +630,16 @@ export class StatsView implements View {
         metrics.forEach(metric => {
             const row = createElement('div', { className: 'week-cmp-row' });
             row.appendChild(createElement('span', { className: 'week-cmp-metric-label' }, metric.label));
-
             const thisCell = createElement('div', { className: 'week-cmp-cell week-cmp-cell--this' });
             thisCell.appendChild(createElement('span', { className: 'week-cmp-value' }, metric.thisVal));
             thisCell.appendChild(createElement('span', { className: `week-cmp-delta ${metric.delta.cls}` }, metric.delta.text));
             row.appendChild(thisCell);
-
             row.appendChild(createElement('div', { className: 'week-cmp-cell week-cmp-cell--prev' }));
             const prevCell = row.lastElementChild as HTMLElement;
             prevCell.appendChild(createElement('span', { className: 'week-cmp-value week-cmp-value--muted' }, metric.prevVal));
-
             gridEl.appendChild(row);
         });
         card.appendChild(gridEl);
-
         return card;
     }
 
@@ -1412,14 +666,12 @@ export class StatsView implements View {
         }
 
         const tooltips = tArray('stats.heatmapTooltips');
-
         d.heatmap.forEach(({ label, days }) => {
             const wrap = createElement('div', { style: { marginBottom: '14px' } });
             const lbl = createElement('div', { className: 'text-muted' });
             Object.assign(lbl.style, { fontSize: '0.7rem', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' });
             lbl.textContent = label;
             wrap.appendChild(lbl);
-
             const row = createElement('div', { style: { display: 'flex', gap: '4px', flexWrap: 'wrap' } });
             days.forEach(val => {
                 const cell = createElement('div', { className: `stats-hm-cell stats-hm-${val}` });
@@ -1431,7 +683,7 @@ export class StatsView implements View {
         });
     }
 
-    // ── Historial con filtros ─────────────────────────────────────────────────
+    // ── History with filters ──────────────────────────────────────────────────
 
     private buildHistoryCard(d: UserStats): HTMLElement {
         const PAGE_SIZE = 5;
@@ -1475,13 +727,11 @@ export class StatsView implements View {
         card.appendChild(pagination);
 
         const MONTH_SHORT = tArray('stats.monthsShort');
-
         let currentPage = 0;
 
-        const render = (filtered: SupabaseSession[]) => {
+        const renderPage = (filtered: SupabaseSession[]) => {
             const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
             if (currentPage >= totalPages) currentPage = totalPages - 1;
-
             const shown = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
             const start = filtered.length === 0 ? 0 : currentPage * PAGE_SIZE + 1;
@@ -1498,31 +748,27 @@ export class StatsView implements View {
 
             const prevBtn = createElement('button', { className: `stats-page-btn${currentPage === 0 ? ' stats-page-btn--disabled' : ''}` }, '‹');
             if (currentPage > 0) {
-                prevBtn.addEventListener('click', () => { currentPage--; render(filtered); });
+                prevBtn.addEventListener('click', () => { currentPage--; renderPage(filtered); });
             }
             pagination.appendChild(prevBtn);
 
             const range = 2;
             const from  = Math.max(0, currentPage - range);
             const to    = Math.min(totalPages - 1, currentPage + range);
-            if (from > 0) {
-                pagination.appendChild(createElement('span', { className: 'stats-page-ellipsis' }, '…'));
-            }
+            if (from > 0) pagination.appendChild(createElement('span', { className: 'stats-page-ellipsis' }, '…'));
             for (let pg = from; pg <= to; pg++) {
                 const btn = createElement('button', {
                     className: `stats-page-btn${pg === currentPage ? ' stats-page-btn--active' : ''}`
                 }, String(pg + 1));
                 const page = pg;
-                btn.addEventListener('click', () => { currentPage = page; render(filtered); });
+                btn.addEventListener('click', () => { currentPage = page; renderPage(filtered); });
                 pagination.appendChild(btn);
             }
-            if (to < totalPages - 1) {
-                pagination.appendChild(createElement('span', { className: 'stats-page-ellipsis' }, '…'));
-            }
+            if (to < totalPages - 1) pagination.appendChild(createElement('span', { className: 'stats-page-ellipsis' }, '…'));
 
             const nextBtn = createElement('button', { className: `stats-page-btn${currentPage === totalPages - 1 ? ' stats-page-btn--disabled' : ''}` }, '›');
             if (currentPage < totalPages - 1) {
-                nextBtn.addEventListener('click', () => { currentPage++; render(filtered); });
+                nextBtn.addEventListener('click', () => { currentPage++; renderPage(filtered); });
             }
             pagination.appendChild(nextBtn);
         };
@@ -1530,13 +776,9 @@ export class StatsView implements View {
         const applyFilters = () => {
             const taalFilter  = taalSel.value;
             const monthFilter = monthSel.value;
-
             let filtered = [...d.rawSessions].reverse();
-
             if (taalFilter) {
-                filtered = filtered.filter(s =>
-                    s.blocks.some(b => b.taal_name === taalFilter)
-                );
+                filtered = filtered.filter(s => s.blocks.some(b => b.taal_name === taalFilter));
             }
             if (monthFilter) {
                 const [yr, mo] = monthFilter.split('-').map(Number);
@@ -1545,9 +787,8 @@ export class StatsView implements View {
                     return parseInt(gc.slice(0,4)) === yr && parseInt(gc.slice(5,7)) - 1 === mo;
                 });
             }
-
             currentPage = 0;
-            render(filtered);
+            renderPage(filtered);
         };
 
         taalSel.addEventListener('change', applyFilters);
@@ -1583,9 +824,9 @@ export class StatsView implements View {
             const timeStr = new Intl.DateTimeFormat('en-GB', {
                 timeZone: GC_TZ, hour: '2-digit', minute: '2-digit', hour12: false
             }).format(new Date(s.saved_at));
-            const dur   = `${Math.round(effectiveSecs(s) / 60)} min`;
+            const dur  = `${Math.round(this.effectiveSecs(s) / 60)} min`;
             const blockNames = s.blocks.map(b =>
-                b.type === 'warmup' ? t('stats.historyWarmUp')
+                b.type === 'warmup'  ? t('stats.historyWarmUp')
                 : b.type === 'pickup' ? t('stats.historyPickup')
                 : (b.taal_name ?? t('stats.historyPractice'))
             );
@@ -1594,9 +835,7 @@ export class StatsView implements View {
             const noteText = s.notes
                 ? s.notes.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 : '';
-            const noteHtml = s.notes
-                ? `<div class="stats-block-note">💬 ${noteText}</div>`
-                : '';
+            const noteHtml = s.notes ? `<div class="stats-block-note">💬 ${noteText}</div>` : '';
 
             const detailId = `stats-detail-row-${i}`;
             const blockDetailRows = s.blocks.map((b, bi) => {
@@ -1623,10 +862,7 @@ export class StatsView implements View {
 
             const detailRow = `<tr id="${detailId}" class="stats-detail-row" style="display:none">
                 <td colspan="5" class="stats-detail-cell">
-                    <div class="stats-detail-inner">
-                        ${blockDetailRows}
-                        ${noteHtml}
-                    </div>
+                    <div class="stats-detail-inner">${blockDetailRows}${noteHtml}</div>
                 </td>
             </tr>`;
 
@@ -1660,7 +896,7 @@ export class StatsView implements View {
         });
     }
 
-    // ── Próxima medalla ───────────────────────────────────────────────────────
+    // ── Next medal card ───────────────────────────────────────────────────────
 
     private buildNextMedalCard(d: UserStats): HTMLElement {
         const otherUser = this.activeUser === 'prashant' ? 'meera' : 'prashant';
@@ -1683,26 +919,22 @@ export class StatsView implements View {
         headerRow.appendChild(titleWrap);
         card.appendChild(headerRow);
 
-        const body = createElement('div', { className: 'stats-next-medal' });
-
-        const emojiEl = createElement('div', { className: 'stats-next-medal__emoji' }, next.emoji);
-        const info    = createElement('div', { className: 'stats-next-medal__info' });
-        const name    = createElement('div', { className: 'stats-next-medal__name' }, next.name);
-        const desc    = createElement('div', { className: 'stats-next-medal__desc' }, next.desc);
-
-        const progressWrap = createElement('div', { className: 'stats-next-medal__progress-wrap' });
-        const progressBar  = createElement('div', { className: 'stats-next-medal__progress-bar' });
-        const progressFill = createElement('div', { className: 'stats-next-medal__progress-fill' });
-        progressFill.style.width = `${next.progressPct}%`;
-        progressBar.appendChild(progressFill);
-
-        const progressText = createElement('span', { className: 'stats-next-medal__progress-text' }, `${next.progress} — ${next.progressPct}%`);
-        progressWrap.appendChild(progressBar);
-        progressWrap.appendChild(progressText);
-
-        info.appendChild(name);
-        info.appendChild(desc);
-        info.appendChild(progressWrap);
+        const body      = createElement('div', { className: 'stats-next-medal' });
+        const emojiEl   = createElement('div', { className: 'stats-next-medal__emoji' }, next.emoji);
+        const info      = createElement('div', { className: 'stats-next-medal__info' });
+        const nameEl    = createElement('div', { className: 'stats-next-medal__name' }, next.name);
+        const descEl    = createElement('div', { className: 'stats-next-medal__desc' }, next.desc);
+        const pWrap     = createElement('div', { className: 'stats-next-medal__progress-wrap' });
+        const pBar      = createElement('div', { className: 'stats-next-medal__progress-bar' });
+        const pFill     = createElement('div', { className: 'stats-next-medal__progress-fill' });
+        pFill.style.width = `${next.progressPct}%`;
+        pBar.appendChild(pFill);
+        const pText = createElement('span', { className: 'stats-next-medal__progress-text' }, `${next.progress} — ${next.progressPct}%`);
+        pWrap.appendChild(pBar);
+        pWrap.appendChild(pText);
+        info.appendChild(nameEl);
+        info.appendChild(descEl);
+        info.appendChild(pWrap);
         body.appendChild(emojiEl);
         body.appendChild(info);
         card.appendChild(body);
@@ -1710,7 +942,7 @@ export class StatsView implements View {
         return card;
     }
 
-    // ── Medallas ──────────────────────────────────────────────────────────────
+    // ── Medals grid ───────────────────────────────────────────────────────────
 
     private buildMedalsCard(d: UserStats): HTMLElement {
         const otherUser = this.activeUser === 'prashant' ? 'meera' : 'prashant';
@@ -1726,7 +958,7 @@ export class StatsView implements View {
         headerRow.appendChild(titleWrap);
 
         const progressWrap = createElement('div', { className: 'medals-progress-wrap' });
-        const progressBar = createElement('div', { className: 'medals-progress-bar' });
+        const progressBar  = createElement('div', { className: 'medals-progress-bar' });
         const pct = medals.length > 0 ? Math.round((earned / medals.length) * 100) : 0;
         progressBar.style.width = `${pct}%`;
         progressWrap.appendChild(progressBar);
@@ -1755,22 +987,16 @@ export class StatsView implements View {
                 const emojiEl = createElement('span', { className: 'medals-emoji' }, m.emoji);
                 const nameEl  = createElement('span', { className: 'medals-name' }, m.name);
                 const descEl  = createElement('span', { className: 'medals-desc' }, m.desc);
+                cell.appendChild(emojiEl);
+                cell.appendChild(nameEl);
+                cell.appendChild(descEl);
                 if (m.earned && m.earnedAt) {
-                    const dateEl = createElement('span', { className: 'medals-date' }, m.earnedAt);
-                    cell.appendChild(emojiEl);
-                    cell.appendChild(nameEl);
-                    cell.appendChild(descEl);
-                    cell.appendChild(dateEl);
-                } else {
-                    cell.appendChild(emojiEl);
-                    cell.appendChild(nameEl);
-                    cell.appendChild(descEl);
+                    cell.appendChild(createElement('span', { className: 'medals-date' }, m.earnedAt));
                 }
 
                 if (!m.earned && m.progress !== undefined) {
                     const pWrap = createElement('div', { className: 'medals-cell-progress' });
-                    const pText = createElement('span', { className: 'medals-cell-progress__text' }, m.progress);
-                    pWrap.appendChild(pText);
+                    pWrap.appendChild(createElement('span', { className: 'medals-cell-progress__text' }, m.progress));
                     if (m.progressPct !== undefined && m.progressPct > 0) {
                         const bar  = createElement('div', { className: 'medals-cell-progress__bar' });
                         const fill = createElement('div', { className: 'medals-cell-progress__fill' });
@@ -1791,7 +1017,7 @@ export class StatsView implements View {
         return card;
     }
 
-    // ── Chart.js ──────────────────────────────────────────────────────────────
+    // ── Chart lifecycle ───────────────────────────────────────────────────────
 
     private destroyCharts(): void {
         this.charts.forEach(c => { try { c.destroy(); } catch { /* noop */ } });
@@ -1799,88 +1025,15 @@ export class StatsView implements View {
         this.weeklyChart = null;
     }
 
-    private mountCharts(d: UserStats): void {
-        const gridCol = C.grid();
-        const textCol = C.text();
-        const cardCol = C.card();
+    private mountAllCharts(d: UserStats): void {
+        const { weeklyChart } = mountCharts(d, this.charts, this.weeklyMode, this.weeklySelectedIdx);
+        this.weeklyChart = weeklyChart;
+    }
 
-        Chart.defaults.font.family = 'inherit';
-        Chart.defaults.font.size   = 12;
-        Chart.defaults.color       = textCol;
-
-        this.mountWeeklyChart(d);
-
-        const bpmCanvas = document.getElementById('stats-chart-bpm') as HTMLCanvasElement | null;
-        if (bpmCanvas) {
-            const bpmEntries = Object.entries(d.bpm);
-            this.charts.push(new Chart(bpmCanvas, {
-                type: 'line',
-                data: {
-                    labels: d.weekLabels,
-                    datasets: bpmEntries.length > 0
-                        ? bpmEntries.map(([name, vals], i) => ({
-                            label: name, data: vals,
-                            borderColor: BPM_PALETTE[i % BPM_PALETTE.length].line,
-                            backgroundColor: BPM_PALETTE[i % BPM_PALETTE.length].bg,
-                            borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 7, tension: 0.4, fill: false,
-                        }))
-                        : [{ label: t('stats.chartNoData'), data: new Array(16).fill(null), borderColor: C.orange, borderWidth: 1.5 }],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' as const, labels: { boxWidth: 12, padding: 14, usePointStyle: true } } },
-                    scales: {
-                        x: { grid: { color: gridCol }, ticks: { maxRotation: 45, font: { size: 10 } } },
-                        y: { grid: { color: gridCol }, title: { display: true, text: 'BPM', color: textCol } },
-                    },
-                },
-            }));
-        }
-
-        const donutCanvas = document.getElementById('stats-chart-donut') as HTMLCanvasElement | null;
-        if (donutCanvas) {
-            const entries = Object.entries(d.donut);
-            const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
-            this.charts.push(new Chart(donutCanvas, {
-                type: 'doughnut',
-                data: {
-                    labels: entries.length > 0 ? entries.map(([k]) => k) : [t('stats.donutNoData')],
-                    datasets: [{ data: entries.length > 0 ? entries.map(([,v]) => v) : [100], backgroundColor: entries.length > 0 ? donutColors : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '65%',
-                    plugins: {
-                        legend: { position: 'bottom' as const, labels: { boxWidth: 12, padding: 12, usePointStyle: true, font: { size: 11 } } },
-                        tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.label}: ${ctx.parsed}%` } },
-                    },
-                },
-            }));
-        }
-
-        const cyclesCanvas = document.getElementById('stats-chart-cycles') as HTMLCanvasElement | null;
-        if (cyclesCanvas && d.cycles.length > 0) {
-            const maxCycles = Math.max(...d.cycles);
-            this.charts.push(new Chart(cyclesCanvas, {
-                type: 'bar',
-                data: {
-                    labels: d.cycles.map((_, i) => `S${i + 1}`),
-                    datasets: [{
-                        label: t('stats.chartCyclesTitle'),
-                        data: d.cycles,
-                        backgroundColor: d.cycles.map(v => v >= maxCycles * 0.8 ? C.orange : C.orangeA),
-                        borderColor: C.orange, borderWidth: 2.5, borderRadius: 4, borderSkipped: false,
-                    }],
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { color: gridCol } },
-                        y: { grid: { color: gridCol }, beginAtZero: true, title: { display: true, text: t('stats.chartCyclesYAxis'), color: textCol } },
-                    },
-                },
-            }));
-        }
+    /** Inline helper — mirrors effectiveSecs from statsData to avoid a cross-import just for the view. */
+    private effectiveSecs(s: SupabaseSession): number {
+        const fromBlocks = s.blocks.reduce((sum, b) => sum + (b.duration_secs ?? 0), 0);
+        return fromBlocks > 0 ? fromBlocks : s.total_secs;
     }
 }
 
