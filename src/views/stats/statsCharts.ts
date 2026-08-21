@@ -39,7 +39,7 @@ export const BPM_PALETTE = [
 
 export function mountWeeklyChart(
     d: UserStats,
-    weeklyMode: 'weeks' | 'days',
+    weeklyMode: 'weeks' | 'days' | 'months',
     weeklySelectedIdx: number,
     chartRegistry: any[]
 ): any {
@@ -95,9 +95,26 @@ export function mountWeeklyChart(
         const days = d.weekDays[weeklySelectedIdx] ?? new Array(7).fill(0);
         const DAY_LABELS = tArray('stats.dayLabels');
         chart.data.labels = DAY_LABELS;
+        chart.data.datasets[0].label = t('stats.weeklyDataLabel');
         chart.data.datasets[0].data = days;
         chart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
         chart.data.datasets[1].hidden = true;
+        chart.update();
+    } else if (weeklyMode === 'months') {
+        const btnMonths = document.getElementById('stats-toggle-months');
+        const btnWeeks  = document.getElementById('stats-toggle-weeks');
+        btnMonths?.classList.add('active');
+        btnWeeks?.classList.remove('active');
+        const trend = d.monthly.map((_, i, arr) => {
+            const slice = arr.slice(Math.max(0, i - 2), i + 1);
+            return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length);
+        });
+        chart.data.labels = d.monthLabels;
+        chart.data.datasets[0].label = t('stats.weeklyDataLabelMonths');
+        chart.data.datasets[0].data = d.monthly;
+        chart.data.datasets[0].backgroundColor = C.orangeA;
+        chart.data.datasets[1].data = trend;
+        chart.data.datasets[1].hidden = false;
         chart.update();
     }
 
@@ -106,7 +123,7 @@ export function mountWeeklyChart(
 
 // ── Individual user charts (BPM, donut, cycles) ───────────────────────────────
 
-export function mountCharts(d: UserStats, chartRegistry: any[], weeklyMode: 'weeks' | 'days', weeklySelectedIdx: number): { weeklyChart: any } {
+export function mountCharts(d: UserStats, chartRegistry: any[], weeklyMode: 'weeks' | 'days' | 'months', weeklySelectedIdx: number): { weeklyChart: any } {
     const gridCol = C.grid();
     const textCol = C.text();
     const cardCol = C.card();
@@ -194,7 +211,7 @@ export function mountCharts(d: UserStats, chartRegistry: any[], weeklyMode: 'wee
 
 // ── Compare view charts ───────────────────────────────────────────────────────
 
-export function mountCompareCharts(p: UserStats, m: UserStats, chartRegistry: any[]): void {
+export function mountCompareCharts(p: UserStats, m: UserStats, chartRegistry: any[]): any {
     const gridCol = C.grid();
     const textCol = C.text();
     const cardCol = C.card();
@@ -236,6 +253,8 @@ export function mountCompareCharts(p: UserStats, m: UserStats, chartRegistry: an
         }));
     }
 
+    const compareChart = chartRegistry[chartRegistry.length - 1] ?? null;
+
     const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
     [
         { canvasId: 'stats-chart-compare-donut-p', donut: p.donut },
@@ -259,6 +278,8 @@ export function mountCompareCharts(p: UserStats, m: UserStats, chartRegistry: an
             },
         }));
     });
+
+    return compareChart;
 }
 
 // Made with Bob

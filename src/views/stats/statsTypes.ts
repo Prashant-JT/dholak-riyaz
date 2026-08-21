@@ -33,6 +33,8 @@ export interface UserStats {
     weekLabels: string[];
     weekly: number[];
     weekDays: number[][];   // 16 weeks × 7 days (Mon-Sun), minutes per day
+    monthLabels: string[];  // 12 month labels
+    monthly: number[];      // 12 months × total minutes
     bpm: Record<string, number[]>;
     donut: Record<string, number>;
     cycles: number[];

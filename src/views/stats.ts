@@ -41,9 +41,11 @@ export class StatsView implements View {
     private userData: Record<string, UserStats> = {};
     private dataLoaded: boolean = false;
     private section!: HTMLElement;
-    private weeklyMode: 'weeks' | 'days' = 'weeks';
+    private weeklyMode: 'weeks' | 'days' | 'months' = 'weeks';
     private weeklySelectedIdx: number = 15;
     private weeklyChart: any = null;
+    private compareMode: 'weeks' | 'months' = 'weeks';
+    private compareChart: any = null;
 
     public render(): HTMLElement {
         this.section = createElement('section', { id: 'stats', className: 'view-section' });
@@ -228,10 +230,12 @@ export class StatsView implements View {
         headerRow.appendChild(titleWrap);
 
         const toggle = createElement('div', { className: 'stats-weekly-toggle' });
-        const btnWeeks = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks' }, t('stats.weeklyBtnWeeks'));
-        const btnDays  = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'  }, t('stats.weeklyBtnDays'));
+        const btnWeeks  = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks'  }, t('stats.weeklyBtnWeeks'));
+        const btnDays   = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'   }, t('stats.weeklyBtnDays'));
+        const btnMonths = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-months' }, t('stats.weeklyBtnMonths'));
         toggle.appendChild(btnWeeks);
         toggle.appendChild(btnDays);
+        toggle.appendChild(btnMonths);
         headerRow.appendChild(toggle);
         card.appendChild(headerRow);
 
@@ -260,9 +264,9 @@ export class StatsView implements View {
         const updateSub = () => {
             const subNode = document.getElementById('stats-weekly-sub');
             if (!subNode) return;
-            subNode.textContent = this.weeklyMode === 'weeks'
-                ? t('stats.weeklySub16')
-                : t('stats.weeklySubDay', d.weekLabels[this.weeklySelectedIdx]);
+            if (this.weeklyMode === 'weeks')       subNode.textContent = t('stats.weeklySub16');
+            else if (this.weeklyMode === 'months') subNode.textContent = t('stats.weeklySubMonths');
+            else                                   subNode.textContent = t('stats.weeklySubDay', d.weekLabels[this.weeklySelectedIdx]);
         };
 
         const updateWeekLabel = () => {
@@ -279,13 +283,26 @@ export class StatsView implements View {
                     return Math.round(slice.reduce((a: number, b: number) => a + b, 0) / slice.length);
                 });
                 chart.data.labels = d.weekLabels;
+                chart.data.datasets[0].label = t('stats.weeklyDataLabel');
                 chart.data.datasets[0].data = d.weekly;
+                chart.data.datasets[0].backgroundColor = C.orangeA;
+                chart.data.datasets[1].data = trend;
+                chart.data.datasets[1].hidden = false;
+            } else if (this.weeklyMode === 'months') {
+                const trend = d.monthly.map((_, i, arr) => {
+                    const slice = arr.slice(Math.max(0, i - 2), i + 1);
+                    return Math.round(slice.reduce((a: number, b: number) => a + b, 0) / slice.length);
+                });
+                chart.data.labels = d.monthLabels;
+                chart.data.datasets[0].label = t('stats.weeklyDataLabelMonths');
+                chart.data.datasets[0].data = d.monthly;
                 chart.data.datasets[0].backgroundColor = C.orangeA;
                 chart.data.datasets[1].data = trend;
                 chart.data.datasets[1].hidden = false;
             } else {
                 const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
                 chart.data.labels = DAY_LABELS;
+                chart.data.datasets[0].label = t('stats.weeklyDataLabel');
                 chart.data.datasets[0].data = days;
                 chart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
                 chart.data.datasets[1].data = new Array(7).fill(null);
@@ -295,20 +312,30 @@ export class StatsView implements View {
             updateSub();
         };
 
+        const setActiveBtn = (active: HTMLElement) => {
+            [btnWeeks, btnDays, btnMonths].forEach(b => b.classList.remove('active'));
+            active.classList.add('active');
+        };
+
         btnWeeks.addEventListener('click', () => {
             this.weeklyMode = 'weeks';
-            btnWeeks.classList.add('active');
-            btnDays.classList.remove('active');
+            setActiveBtn(btnWeeks);
             weekSel.style.display = 'none';
             switchChart();
         });
 
         btnDays.addEventListener('click', () => {
             this.weeklyMode = 'days';
-            btnDays.classList.add('active');
-            btnWeeks.classList.remove('active');
+            setActiveBtn(btnDays);
             weekSel.style.display = 'flex';
             updateWeekLabel();
+            switchChart();
+        });
+
+        btnMonths.addEventListener('click', () => {
+            this.weeklyMode = 'months';
+            setActiveBtn(btnMonths);
+            weekSel.style.display = 'none';
             switchChart();
         });
 
@@ -377,14 +404,77 @@ export class StatsView implements View {
         content.appendChild(kpiSection);
 
         const chartCard = this.card();
-        chartCard.appendChild(this.cardTitle(t('stats.compareWeeklyTitle')));
-        chartCard.appendChild(this.cardSub(t('stats.compareWeeklySub')));
+
+        // Header row: title + toggle
+        const cmpHeader = createElement('div', { className: 'stats-weekly-header' });
+        const cmpTitleWrap = createElement('div');
+        cmpTitleWrap.appendChild(this.cardTitle(t('stats.compareWeeklyTitle')));
+        const cmpSubEl = createElement('p', { className: 'text-muted', id: 'stats-compare-sub' });
+        cmpSubEl.style.fontSize     = '0.8rem';
+        cmpSubEl.style.marginBottom = '0';
+        cmpSubEl.textContent = t('stats.compareWeeklySub');
+        cmpTitleWrap.appendChild(cmpSubEl);
+        cmpHeader.appendChild(cmpTitleWrap);
+
+        const cmpToggle = createElement('div', { className: 'stats-weekly-toggle' });
+        const cmpBtnWeeks  = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-cmp-toggle-weeks'  }, t('stats.compareBtnWeeks'));
+        const cmpBtnMonths = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-cmp-toggle-months' }, t('stats.compareBtnMonths'));
+        cmpToggle.appendChild(cmpBtnWeeks);
+        cmpToggle.appendChild(cmpBtnMonths);
+        cmpHeader.appendChild(cmpToggle);
+        chartCard.appendChild(cmpHeader);
+
         const wrap = createElement('div', { className: 'stats-canvas-tall' });
         wrap.style.position = 'relative';
         wrap.style.height   = '250px';
         wrap.appendChild(createElement('canvas', { id: 'stats-chart-compare' }));
         chartCard.appendChild(wrap);
         content.appendChild(chartCard);
+
+        const updateCompareSub = () => {
+            const el = document.getElementById('stats-compare-sub');
+            if (el) el.textContent = this.compareMode === 'weeks'
+                ? t('stats.compareWeeklySub')
+                : t('stats.compareMonthlySub');
+        };
+
+        const switchCompareChart = () => {
+            if (!this.compareChart) return;
+            const chart = this.compareChart;
+            if (this.compareMode === 'weeks') {
+                const trendP = p.weekly.map((_, i, arr) => { const s = arr.slice(Math.max(0, i - 2), i + 1); return Math.round(s.reduce((a: number, b: number) => a + b, 0) / s.length); });
+                const trendM = m.weekly.map((_, i, arr) => { const s = arr.slice(Math.max(0, i - 2), i + 1); return Math.round(s.reduce((a: number, b: number) => a + b, 0) / s.length); });
+                chart.data.labels = p.weekLabels;
+                chart.data.datasets[0].data = p.weekly;
+                chart.data.datasets[1].data = m.weekly;
+                chart.data.datasets[2].data = trendP;
+                chart.data.datasets[3].data = trendM;
+            } else {
+                const trendP = p.monthly.map((_, i, arr) => { const s = arr.slice(Math.max(0, i - 2), i + 1); return Math.round(s.reduce((a: number, b: number) => a + b, 0) / s.length); });
+                const trendM = m.monthly.map((_, i, arr) => { const s = arr.slice(Math.max(0, i - 2), i + 1); return Math.round(s.reduce((a: number, b: number) => a + b, 0) / s.length); });
+                chart.data.labels = p.monthLabels;
+                chart.data.datasets[0].data = p.monthly;
+                chart.data.datasets[1].data = m.monthly;
+                chart.data.datasets[2].data = trendP;
+                chart.data.datasets[3].data = trendM;
+            }
+            chart.update();
+            updateCompareSub();
+        };
+
+        cmpBtnWeeks.addEventListener('click', () => {
+            this.compareMode = 'weeks';
+            cmpBtnWeeks.classList.add('active');
+            cmpBtnMonths.classList.remove('active');
+            switchCompareChart();
+        });
+
+        cmpBtnMonths.addEventListener('click', () => {
+            this.compareMode = 'months';
+            cmpBtnMonths.classList.add('active');
+            cmpBtnWeeks.classList.remove('active');
+            switchCompareChart();
+        });
 
         const distRow = createElement('div', { className: 'stats-chart-row' });
         [
@@ -463,7 +553,27 @@ export class StatsView implements View {
         });
         content.appendChild(medalGrid);
 
-        requestAnimationFrame(() => { mountCompareCharts(p, m, this.charts); });
+        requestAnimationFrame(() => {
+            this.compareChart = mountCompareCharts(p, m, this.charts);
+            // Restore the active mode if user had already switched
+            if (this.compareMode === 'months') {
+                const cmpBtnWeeks  = document.getElementById('stats-cmp-toggle-weeks');
+                const cmpBtnMonths = document.getElementById('stats-cmp-toggle-months');
+                cmpBtnWeeks?.classList.remove('active');
+                cmpBtnMonths?.classList.add('active');
+                const chart = this.compareChart;
+                if (chart) {
+                    const trendP = p.monthly.map((_, i, arr) => { const s = arr.slice(Math.max(0, i - 2), i + 1); return Math.round(s.reduce((a: number, b: number) => a + b, 0) / s.length); });
+                    const trendM = m.monthly.map((_, i, arr) => { const s = arr.slice(Math.max(0, i - 2), i + 1); return Math.round(s.reduce((a: number, b: number) => a + b, 0) / s.length); });
+                    chart.data.labels = p.monthLabels;
+                    chart.data.datasets[0].data = p.monthly;
+                    chart.data.datasets[1].data = m.monthly;
+                    chart.data.datasets[2].data = trendP;
+                    chart.data.datasets[3].data = trendM;
+                    chart.update();
+                }
+            }
+        });
     }
 
     // ── KPIs ──────────────────────────────────────────────────────────────────

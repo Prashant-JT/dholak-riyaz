@@ -190,6 +190,34 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
         };
     });
 
+    // ── Monthly minutes: last 12 months ──────────────────────────────────────
+    const MONTH_SHORT_M = tArray('stats.monthsShort');
+    const gcNowForMonths = gcTodayStr();
+    const refYearM  = parseInt(gcNowForMonths.slice(0, 4));
+    const refMonthM = parseInt(gcNowForMonths.slice(5, 7)) - 1; // 0-based
+    const monthly: number[] = new Array(12).fill(0);
+    const monthLabels: string[] = [];
+    for (let i = 11; i >= 0; i--) {
+        let m = refMonthM - i;
+        let y = refYearM;
+        if (m < 0) { m += 12; y -= 1; }
+        monthLabels.push(`${MONTH_SHORT_M[m]} ${y}`);
+    }
+    sessions.forEach(s => {
+        const sd = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z');
+        const sy = sd.getUTCFullYear();
+        const sm = sd.getUTCMonth(); // 0-based
+        for (let i = 11; i >= 0; i--) {
+            let tm = refMonthM - i;
+            let ty = refYearM;
+            if (tm < 0) { tm += 12; ty -= 1; }
+            if (sy === ty && sm === tm) {
+                monthly[11 - i] += Math.round(effectiveSecs(s) / 60);
+                break;
+            }
+        }
+    });
+
     // ── Heatmap: last 4 months ────────────────────────────────────────────────
     const heatmap: { label: string; days: number[] }[] = [];
     const MONTH_FULL = tArray('stats.monthsFull');
@@ -291,6 +319,8 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
         weekLabels,
         weekly,
         weekDays,
+        monthLabels,
+        monthly,
         bpm: bpmMap,
         donut,
         cycles,
@@ -311,12 +341,22 @@ export function emptyStats(): UserStats {
         const d = new Date(now.getTime() - i * MS_WEEK);
         weekLabels.push(`${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
     }
+    const refM = now.getMonth();
+    const refY = now.getFullYear();
+    const monthLabels: string[] = [];
+    for (let i = 11; i >= 0; i--) {
+        let m = refM - i; let y = refY;
+        if (m < 0) { m += 12; y -= 1; }
+        monthLabels.push(`${MONTH_SHORT[m]} ${y}`);
+    }
     return {
         kpi: { sessions: 0, time: '0m', bpm: 0, streak: 0, weekStreak: 0, maxStreak: 0 },
         insight: t('stats.insightNoSessions'),
         weekLabels,
         weekly:      new Array(16).fill(0),
         weekDays:    Array.from({ length: 16 }, () => new Array(7).fill(0)),
+        monthLabels,
+        monthly:     new Array(12).fill(0),
         bpm:         {},
         donut:       {},
         cycles:      [],

@@ -255,7 +255,7 @@ export const SONGS: Song[] = [
     {
         title: "Aaja Sanam Madhur Chandni Mein Hum",
         artist: "Bollywood",
-        taal: "Keherwa (8 beats)",
+        taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=msRBZuoerGo"
     },
     {
