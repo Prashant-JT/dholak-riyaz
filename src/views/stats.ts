@@ -22,6 +22,17 @@ import { C, mountCharts, mountCompareCharts } from './stats/statsCharts.js';
 import { CONFIG } from '../core/config.js';
 const GC_TZ = CONFIG.TIMEZONE;
 
+// ── Medal groups — single source of truth used by both individual and compare views ──
+function getMedalGroups(): { label: string; ids: string[] }[] {
+    return [
+        { label: t('stats.medalsGroupConsistency'), ids: ['first','s5','s10','s15','s25','s50','s100','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
+        { label: t('stats.medalsGroupVolume'),      ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
+        { label: t('stats.medalsGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
+        { label: t('stats.medalsGroupSpeed'),       ids: ['slow','bpm120','bpm180'] },
+        { label: t('stats.medalsGroupJoint'),       ids: ['jugalbandi','duo5','superjugal','maestro','duo20','duolegend','duo5h','duo50','duo10h','duo100','duo25h','duo50h'] },
+    ];
+}
+
 // ── View ──────────────────────────────────────────────────────────────────────
 
 export class StatsView implements View {
@@ -396,12 +407,7 @@ export class StatsView implements View {
         const pmById = Object.fromEntries(pm.map(x => [x.id, x]));
         const mmById = Object.fromEntries(mm.map(x => [x.id, x]));
 
-        const COMPARE_GROUPS = [
-            { label: t('stats.compareGroupConsistency'), ids: ['first','s10','s50','streak7','streak30','streak60','streak100','streak365','week4'] },
-            { label: t('stats.compareGroupVolume'),      ids: ['h1','h10','h50','h100','long','marathon'] },
-            { label: t('stats.compareGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5','slow','bpm120','bpm180'] },
-            { label: t('stats.compareGroupJoint'),       ids: ['jugalbandi','duo5','superjugal'] },
-        ];
+        const COMPARE_GROUPS = getMedalGroups();
 
         const pEarned = pm.filter(medal => medal.earned).length;
         const mEarned = mm.filter(medal => medal.earned).length;
@@ -965,13 +971,7 @@ export class StatsView implements View {
         headerRow.appendChild(progressWrap);
         card.appendChild(headerRow);
 
-        const GROUPS = [
-            { label: t('stats.medalsGroupConsistency'), ids: ['first','s5','s10','s15','s25','s50','s100','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
-            { label: t('stats.medalsGroupVolume'),      ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
-            { label: t('stats.medalsGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
-            { label: t('stats.medalsGroupSpeed'),       ids: ['slow','bpm120','bpm180'] },
-            { label: t('stats.medalsGroupJoint'),       ids: ['jugalbandi','duo5','superjugal','maestro','duolegend','duo10h'] },
-        ];
+        const GROUPS = getMedalGroups();
         const byId = Object.fromEntries(medals.map(m => [m.id, m]));
 
         GROUPS.forEach(group => {
