@@ -12,6 +12,12 @@ export interface Song {
 
 export const SONGS: Song[] = [
     {
+        title: "Kishori Kuch Aisa Intjam Ho Jaye",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=4Ymi2KEdvgw"
+    },
+    {
         title: "Itni Shakti Hai Dai / Aisi Kirpa Guru",
         artist: "Devocional",
         taal: "Keherwa (8 beats)",
