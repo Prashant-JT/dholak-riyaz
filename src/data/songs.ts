@@ -416,6 +416,18 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=MY1r1I6isMA"
     },
     {
+        title: "Shiv Kailash",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=Onb6_bRJ0Bw"
+    },
+    {
+        title: "Hamare Sath Shri Raghunath",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=0plOuj93NnU"
+    },
+    {
         title: "Piyu Bole",
         artist: "Bollywood",
         taal: "Dadra (6 beats)",
