@@ -12,6 +12,12 @@ export interface Song {
 
 export const SONGS: Song[] = [
     {
+        title: "Dhara Hogi",
+        artist: "Devocional",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=lSqLkBy2Tzo"
+    },
+    {
         title: "Ghar Kab Aaoge",
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
