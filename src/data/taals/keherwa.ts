@@ -145,6 +145,23 @@ export const keherwa: Taal = {
             ]
         },
         {
+            name: 'Keherwa variación (Ghoomar Style 2)',
+            name_en: 'Keherwa variation (Ghoomar Style 2)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha',  technique: '' },
+                    { matra: 2, bol: 'NaTi', technique: '' },
+                    { matra: 3, bol: 'Na',   technique: '' },
+                    { matra: 4, bol: 'NaTi', technique: '' },
+                    { matra: 5, bol: 'Na',   technique: '' },
+                    { matra: 6, bol: 'NaTi', technique: '' },
+                    { matra: 7, bol: 'Na',  technique: '' },
+                    { matra: 8, bol: 'DhaTi',   technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=1t-yeoM9p7A']
+        },
+        {
             name: 'Keherwa variación Thapki',
             name_en: 'Keherwa Thapki variation',
             rows: [
