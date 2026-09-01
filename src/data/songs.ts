@@ -265,6 +265,12 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=nHhRWgkkpMk"
     },
     {
+        title: "Ghoomar (Padmaavat)",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=CU1tFtk_NFY"
+    },
+    {
         title: "Kehna Hi Kya",
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
