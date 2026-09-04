@@ -12,10 +12,16 @@ export interface Song {
 
 export const SONGS: Song[] = [
     {
+        title: "Meethe Ras Se Bharyo Ri Radha Rani Lage",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=TswmXmgQV8Y"
+    },
+    {
         title: "Hasta Hua Noorani",
         artist: "Devocional",
         taal: "Dadra (6 beats)",
-        youtubeUrl: "https://www.youtube.com/watch?v=F8mGLRGuMXw"
+        youtubeUrl: "https://www.youtube.com/watch?v=HqmKfBNDr2g"
     },
     {
         title: "Dhara Hogi",
