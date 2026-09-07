@@ -16,7 +16,7 @@ export type { SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
 import type { UserStats, SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
 import { fetchUserStats, emptyStats, gcDateStr, gcTodayStr, ACTIVE_TAAL_IDS } from './stats/statsData.js';
 import { computeMedals, TAAL_META, DEFAULT_TAAL_META } from './stats/medals.js';
-import { C, mountCharts, mountCompareCharts } from './stats/statsCharts.js';
+import { C, mountCharts, mountCompareCharts, mountCumulativeChart } from './stats/statsCharts.js';
 
 // ── Timezone constant (needed for local date formatting in the view) ───────────
 import { CONFIG } from '../core/config.js';
@@ -376,29 +376,71 @@ export class StatsView implements View {
         const p = this.userData['prashant'] ?? emptyStats();
         const m = this.userData['meera']    ?? emptyStats();
 
+        // ── Helper: total minutes from raw sessions ──────────────────────────
+        const totalMins = (d: UserStats) =>
+            Math.round(d.rawSessions.reduce((s, x) => s + this.effectiveSecs(x), 0) / 60);
+
+        // ── Delta computation ─────────────────────────────────────────────────
+        // Returns { text, cls } where cls drives colour: 'p' (orange leads), 'm' (blue leads), '' (tied)
+        const delta = (pVal: number, mVal: number, unit = '', higherIsBetter = true): { text: string; cls: string } => {
+            const diff = pVal - mVal;
+            if (diff === 0 || (pVal === 0 && mVal === 0)) return { text: '=', cls: '' };
+            const absText = unit ? `${Math.abs(diff)}${unit}` : String(Math.abs(diff));
+            if (diff > 0) return { text: `+${absText}`, cls: higherIsBetter ? 'p' : 'm' };
+            return { text: `-${absText}`, cls: higherIsBetter ? 'm' : 'p' };
+        };
+
+        const pMins = totalMins(p);
+        const mMins = totalMins(m);
+        const timeDiff = pMins - mMins;
+        const timeDiffText = (() => {
+            if (timeDiff === 0) return '=';
+            const sign = timeDiff > 0 ? '+' : '-';
+            const abs = Math.abs(timeDiff);
+            return abs >= 60
+                ? `${sign}${Math.floor(abs / 60)}h${abs % 60 > 0 ? (abs % 60) + 'm' : ''}`
+                : `${sign}${abs}m`;
+        })();
+        const timeDiffCls = timeDiff === 0 ? '' : timeDiff > 0 ? 'p' : 'm';
+
+        const kpiDefs: { label: string; p: string; m: string; diff: { text: string; cls: string } }[] = [
+            { label: t('stats.compareKpiSessions'),
+              p: String(p.kpi.sessions), m: String(m.kpi.sessions),
+              diff: delta(p.kpi.sessions, m.kpi.sessions) },
+            { label: t('stats.compareKpiTime'),
+              p: p.kpi.time, m: m.kpi.time,
+              diff: { text: timeDiffText, cls: timeDiffCls } },
+            { label: t('stats.compareKpiBpm'),
+              p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—',
+              m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—',
+              diff: (p.kpi.bpm === 0 && m.kpi.bpm === 0) ? { text: '—', cls: '' } : delta(p.kpi.bpm, m.kpi.bpm) },
+            { label: t('stats.compareKpiStreak'),
+              p: `${p.kpi.streak}d`, m: `${m.kpi.streak}d`,
+              diff: delta(p.kpi.streak, m.kpi.streak, 'd') },
+            { label: t('stats.compareKpiWeekStreak'),
+              p: `${p.kpi.weekStreak}sem`, m: `${m.kpi.weekStreak}sem`,
+              diff: delta(p.kpi.weekStreak, m.kpi.weekStreak, 'sem') },
+        ];
+
         const kpiSection = this.card();
         kpiSection.appendChild(this.cardTitle(t('stats.compareTitleKpi')));
         kpiSection.appendChild(this.cardSub(t('stats.compareSubKpi')));
 
-        const kpiDefs = [
-            { label: t('stats.compareKpiSessions'),    p: String(p.kpi.sessions), m: String(m.kpi.sessions) },
-            { label: t('stats.compareKpiTime'),        p: p.kpi.time,             m: m.kpi.time             },
-            { label: t('stats.compareKpiBpm'),         p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—', m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—' },
-            { label: t('stats.compareKpiStreak'),      p: `${p.kpi.streak}d`,        m: `${m.kpi.streak}d`        },
-            { label: t('stats.compareKpiWeekStreak'),  p: `${p.kpi.weekStreak}sem`,  m: `${m.kpi.weekStreak}sem`  },
-        ];
-
-        const kpiGrid = createElement('div', { className: 'stats-compare-grid' });
+        const kpiGrid = createElement('div', { className: 'stats-compare-grid stats-compare-grid--4col' });
+        // Header row: empty | Prashant | Meera | Δ
         kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-header' }));
-        ['Prashant', 'Meera'].forEach((name, i) => {
-            kpiGrid.appendChild(createElement('div', {
-                className: `stats-compare-cell stats-compare-name stats-compare-name--${i === 0 ? 'p' : 'm'}`,
-            }, name));
-        });
+        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-name stats-compare-name--p' }, 'Prashant'));
+        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-name stats-compare-name--m' }, 'Meera'));
+        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-name stats-compare-header' }, t('stats.compareDeltaHeader')));
+
         kpiDefs.forEach(k => {
             kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-label' }, k.label));
             kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--p' }, k.p));
             kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--m' }, k.m));
+            const diffCell = createElement('div', {
+                className: `stats-compare-cell stats-compare-val stats-compare-diff${k.diff.cls ? ` stats-compare-diff--${k.diff.cls}` : ''}`,
+            }, k.diff.text);
+            kpiGrid.appendChild(diffCell);
         });
         kpiSection.appendChild(kpiGrid);
         content.appendChild(kpiSection);
@@ -475,6 +517,17 @@ export class StatsView implements View {
             cmpBtnWeeks.classList.remove('active');
             switchCompareChart();
         });
+
+        // ── Cumulative minutes card ────────────────────────────────────────────
+        const cumCard = this.card();
+        cumCard.appendChild(this.cardTitle(t('stats.cumulativeTitle')));
+        cumCard.appendChild(this.cardSub(t('stats.cumulativeSub')));
+        const cumWrap = createElement('div');
+        cumWrap.style.position = 'relative';
+        cumWrap.style.height   = '280px';
+        cumWrap.appendChild(createElement('canvas', { id: 'stats-chart-cumulative' }));
+        cumCard.appendChild(cumWrap);
+        content.appendChild(cumCard);
 
         const distRow = createElement('div', { className: 'stats-chart-row' });
         [
@@ -554,6 +607,7 @@ export class StatsView implements View {
         content.appendChild(medalGrid);
 
         requestAnimationFrame(() => {
+            mountCumulativeChart(p, m, this.charts);
             this.compareChart = mountCompareCharts(p, m, this.charts);
             // Restore the active mode if user had already switched
             if (this.compareMode === 'months') {
