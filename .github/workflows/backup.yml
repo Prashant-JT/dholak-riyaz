@@ -25,9 +25,6 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies
-        run: npm install
-
       - name: Run backup script
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
