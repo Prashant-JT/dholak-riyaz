@@ -12,6 +12,18 @@ export interface Song {
 
 export const SONGS: Song[] = [
     {
+        title: "Isharon Isharon Men Dil Lenewale",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=zNsNuCitZys"
+    },
+    {
+        title: "Saaiyaan",
+        artist: "Bollywood",
+        taal: "Deepchandi (14 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=6hjJZv_68vI"
+    },
+    {
         title: "Meethe Ras Se Bharyo Ri Radha Rani Lage",
         artist: "Devocional",
         taal: "Keherwa (8 beats)",
