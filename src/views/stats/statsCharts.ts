@@ -194,7 +194,7 @@ export function mountCharts(d: UserStats, chartRegistry: any[], weeklyMode: 'wee
             type: 'doughnut',
             data: {
                 labels: entries.length > 0 ? entries.map(([k]) => k) : [t('stats.donutNoData')],
-                datasets: [{ data: entries.length > 0 ? entries.map(([,v]) => v) : [100], backgroundColor: entries.length > 0 ? entries.map(([k]) => donutColor(k)) : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
+                datasets: [{ data: entries.length > 0 ? entries.map(([, v]) => v) : [100], backgroundColor: entries.length > 0 ? entries.map(([k]) => donutColor(k)) : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
             },
             options: {
                 responsive: true, maintainAspectRatio: false, cutout: '65%',

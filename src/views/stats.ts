@@ -358,6 +358,7 @@ export class StatsView implements View {
         return card;
     }
 
+
     private buildChartCard(title: string, sub: string, canvasId: string, height: number, canvasCls = ''): HTMLElement {
         const card = this.card();
         card.appendChild(this.cardTitle(title));

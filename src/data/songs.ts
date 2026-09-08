@@ -12,6 +12,24 @@ export interface Song {
 
 export const SONGS: Song[] = [
     {
+        title: "Mera Dil Bhi Kitna Pagal Hai",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=7ElCrwm5IME"
+    },
+    {
+        title: "Yeh Dil Ye Pagal Dil Mera",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=pZWqn3BC17Q"
+    },
+    {
+        title: "Kali Kali Zulfon Ke Phande Na",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=lsqsggtTZfs"
+    },
+    {
         title: "Isharon Isharon Men Dil Lenewale",
         artist: "Bollywood",
         taal: "Deepchandi (14 beats)",
