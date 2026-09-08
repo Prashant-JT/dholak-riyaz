@@ -29,6 +29,31 @@ export const C = {
     card:    () => getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim()       || '#ffffff',
 };
 
+// Fixed colour map per known category — guarantees maximum contrast between segments.
+const DONUT_COLOR_MAP: Record<string, string> = {
+    'Warm Up':         '#f97316', // orange
+    'Pickups':         '#ec4899', // pink
+    'Keherwa Taal':    '#14b8a6', // teal
+    'Dadra Taal':      '#3b82f6', // blue
+    'Deepchandi Taal': '#8b5cf6', // purple
+    'Rupak Taal':      '#f59e0b', // amber
+    'Teental Taal':    '#10b981', // emerald
+    'Ektal Taal':      '#ef4444', // red
+    'Jhaptal Taal':    '#6366f1', // indigo
+    'Addha Taal':      '#84cc16', // lime
+};
+
+// Fallback palette for any unknown category
+const DONUT_FALLBACK = ['#64748b','#a78bfa','#fb923c','#34d399','#f472b6','#60a5fa'];
+
+/** Returns a fixed colour for a donut segment key. Unknown keys get a fallback. */
+export function donutColor(key: string): string {
+    if (key in DONUT_COLOR_MAP) return DONUT_COLOR_MAP[key];
+    // stable fallback by simple char-sum (spread across fallback palette)
+    const idx = key.split('').reduce((s, c) => s + c.charCodeAt(0), 0) % DONUT_FALLBACK.length;
+    return DONUT_FALLBACK[idx];
+}
+
 export const BPM_PALETTE = [
     { line: C.orange, bg: C.orangeA },
     { line: C.blue,   bg: C.blueA   },
@@ -165,12 +190,11 @@ export function mountCharts(d: UserStats, chartRegistry: any[], weeklyMode: 'wee
     const donutCanvas = document.getElementById('stats-chart-donut') as HTMLCanvasElement | null;
     if (donutCanvas) {
         const entries = Object.entries(d.donut);
-        const donutColors = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899'];
         chartRegistry.push(new Chart(donutCanvas, {
             type: 'doughnut',
             data: {
                 labels: entries.length > 0 ? entries.map(([k]) => k) : [t('stats.donutNoData')],
-                datasets: [{ data: entries.length > 0 ? entries.map(([,v]) => v) : [100], backgroundColor: entries.length > 0 ? donutColors : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
+                datasets: [{ data: entries.length > 0 ? entries.map(([,v]) => v) : [100], backgroundColor: entries.length > 0 ? entries.map(([k]) => donutColor(k)) : ['#e2e8f0'], borderWidth: 3, borderColor: cardCol, hoverOffset: 8 }],
             },
             options: {
                 responsive: true, maintainAspectRatio: false, cutout: '65%',
@@ -258,13 +282,12 @@ export function mountCompareCharts(p: UserStats, m: UserStats, chartRegistry: an
 
     // Build a shared colour map so the same taal/category always gets the same
     // colour in both donuts, regardless of each user's ordering.
-    const DONUT_PALETTE = [C.orange, C.blue, C.purple, C.teal, C.amber, '#ec4899', '#10b981', '#f43f5e'];
     const allDonutKeys = Array.from(new Set([
         ...Object.keys(p.donut),
         ...Object.keys(m.donut),
     ])).sort();                               // deterministic alphabetical order
     const donutColorMap = new Map<string, string>();
-    allDonutKeys.forEach((key, i) => donutColorMap.set(key, DONUT_PALETTE[i % DONUT_PALETTE.length]));
+    allDonutKeys.forEach(key => donutColorMap.set(key, donutColor(key)));
 
     [
         { canvasId: 'stats-chart-compare-donut-p', donut: p.donut },
@@ -280,7 +303,7 @@ export function mountCompareCharts(p: UserStats, m: UserStats, chartRegistry: an
                 datasets: [{
                     data: entries.length > 0 ? entries.map(([, v]) => v) : [100],
                     backgroundColor: entries.length > 0
-                        ? entries.map(([k]) => donutColorMap.get(k) ?? DONUT_PALETTE[0])
+                        ? entries.map(([k]) => donutColorMap.get(k) ?? donutColor(k))
                         : ['#e2e8f0'],
                     borderWidth: 3, borderColor: cardCol, hoverOffset: 8,
                 }],
@@ -357,9 +380,8 @@ function buildCumulativeData(
         cumM += mMap.get(k) ?? 0;
         outP.push(cumP);
         outM.push(cumM);
-        const [, mo] = k.split('-').map(Number);
-        const yearSuffix = k.slice(2, 4); // e.g. '24'
-        labels.push(`${MONTH_SHORT[mo - 1]} '${yearSuffix}`);
+        const [yr, mo] = k.split('-').map(Number);
+        labels.push(`${MONTH_SHORT[mo - 1]} ${yr}`);
     });
 
     return { labels, cumP: outP, cumM: outM };
