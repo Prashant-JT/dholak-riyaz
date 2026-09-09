@@ -490,6 +490,25 @@ export const keherwa: Taal = {
             tutorials: ['https://www.youtube.com/watch?v=Km1LRzVN7FA'],
             description: '4 beats + 4 beats — Duff style',
             description_en: '4 beats + 4 beats — Duff style'
+        },
+        {
+            name: 'Keherwa variación lento (Dha Tit Ti Ta)',
+            name_en: 'Keherwa Slow variation (Dha Tit Ti Ta)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha',  technique: '' },
+                    { matra: 2, bol: 'Tit',  technique: '' },
+                    { matra: 3, bol: 'Ti',   technique: '' },
+                    { matra: 4, bol: 'Ta',   technique: '' },
+                    { matra: 5, bol: 'Ta',   technique: '' },
+                    { matra: 6, bol: 'Dha',  technique: '' },
+                    { matra: 7, bol: 'Dhit', technique: '' },
+                    { matra: 8, bol: 'Ta',   technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=Qp1MXnXS7l4&t'],
+            notes: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa  Kit  Ta  TaTa  Kit  Ta  TaTa  Kit  Dha'],
+            notes_en: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa Kit (x2) TaTa Kit Dha']
         }
     ]
 };
