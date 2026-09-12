@@ -534,6 +534,38 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=iv7lcUkFVSc"
+    },
+    {
+        title: "Bairan",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=dn8u2_K2cpE",
+        notes: "Bhajan Version"
+    },
+    {
+        title: "Aisi Lagi Lagan Meera Ho Gayi Magan",
+        artist: "Devocional",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=73Tan-AVzZM"
+    },
+    {
+        title: "Tere Dar Pe Aaya Hoon",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=aFVVvrrkH3Q",
+        notes: "Laila Majnu"
+    },
+    {
+        title: "Koi Sehari Babu",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=5kYeFWeB9I8"
+    },
+    {
+        title: "Ishq Hai",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=i48Vh2jgAFs"
     }
 ];
 
