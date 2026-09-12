@@ -509,6 +509,25 @@ export const keherwa: Taal = {
             tutorials: ['https://www.youtube.com/watch?v=Qp1MXnXS7l4&t'],
             notes: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa  Kit  Ta  TaTa  Kit  Ta  TaTa  Kit  Dha'],
             notes_en: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa Kit (x2) TaTa Kit Dha']
+        },
+        {
+            name: 'Keherwa variación 16 (DhaDhi NaDhi Ge)',
+            name_en: 'Keherwa variation 16 (DhaDhi NaDhi Ge)',
+            rows: [
+                [
+                    { matra: 1, bol: 'DhaDhi', technique: '' },
+                    { matra: 2, bol: 'Dhi',    technique: '' },
+                    { matra: 3, bol: 'NaDhi',  technique: '' },
+                    { matra: 4, bol: 'Ge',     technique: '' },
+                    { matra: 5, bol: 'TaTin',  technique: '' },
+                    { matra: 6, bol: 'Dhi',    technique: '' },
+                    { matra: 7, bol: 'NaDhi',  technique: '' },
+                    { matra: 8, bol: 'Ge',     technique: '' }
+                ]
+            ],
+            songs: [
+                { title: 'Laga Chunari Main Daag', url: 'https://www.youtube.com/watch?v=gMT5-nTq5Jo' }
+            ]
         }
     ]
 };
