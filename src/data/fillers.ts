@@ -57,6 +57,12 @@ export const FILLERS: Filler[] = [
             {
                 name: 'Ta Ki Te Ta  Ta Ki Te —  Ki Te(thapki) Dha Tin Te Ta Ki Te',
                 link: 'https://www.youtube.com/watch?v=E1ZcfP2BsMM&t'
+            },
+            {
+                name: 'TeTe NaNa (x2) TeTe Dha Dha Dha',
+                link: null,
+                note: 'Piya Re Piya Re - Nusrat Fateh Ali Khan',
+                note_en: 'Piya Re Piya Re - Nusrat Fateh Ali Khan'
             }
         ]
     },

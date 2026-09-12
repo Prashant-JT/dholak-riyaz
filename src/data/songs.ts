@@ -566,6 +566,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=i48Vh2jgAFs"
+    },
+    {
+        title: "Piya Re Piya Re",
+        artist: "Nusrat Fateh Ali Khan",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=6BmS-qphjko"
     }
 ];
 
