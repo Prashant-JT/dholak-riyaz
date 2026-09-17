@@ -572,6 +572,18 @@ export const SONGS: Song[] = [
         artist: "Nusrat Fateh Ali Khan",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=6BmS-qphjko"
+    },
+    {
+        title: "Yeh Galiyan Yeh Chaubara",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=nLjLXgMKgB8"
+    },
+    {
+        title: "Pardesi Pardesi",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=Swlik5Hfu-A"
     }
 ];
 
