@@ -70,7 +70,25 @@ export const rupak: Taal = {
             description: '3 beats + 2 beats + 2 beats',
             songs: [
                 { title: 'Tu Hai Toh', url: 'https://www.youtube.com/watch?v=TVbI55pDdaI' }
-
+            ]
+        },
+        {
+            name: 'Rupak variación 3 (Dhit Ta Ta)',
+            name_en: 'Rupak variation 3 (Dhit Ta Ta)',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhit', technique: 'Khali' },
+                    { matra: 2, bol: 'Ta',   technique: '' },
+                    { matra: 3, bol: 'Ta',   technique: '' },
+                    { matra: 4, bol: 'Tit',  technique: 'Taali' },
+                    { matra: 5, bol: 'Ta',   technique: '' },
+                    { matra: 6, bol: 'Dhit', technique: 'Taali' },
+                    { matra: 7, bol: 'Ta',   technique: '' }
+                ]
+            ],
+            description: '3 beats + 2 beats + 2 beats',
+            songs: [
+                { title: 'Phero Na Nazar Se Najariya', url: 'https://www.youtube.com/watch?v=1_WaSnOnu1Q' }
             ]
         }
     ]
