@@ -63,6 +63,12 @@ export const FILLERS: Filler[] = [
                 link: null,
                 note: 'Piya Re Piya Re - Nusrat Fateh Ali Khan',
                 note_en: 'Piya Re Piya Re - Nusrat Fateh Ali Khan'
+            },
+            {
+                name: 'Kit Tak TirKit Dha (x3)',
+                link: 'https://www.youtube.com/watch?v=sBxVczZNGPw',
+                note: 'Finish / cierre de canción o bhajan',
+                note_en: 'Finish / closing for a song or bhajan'
             }
         ]
     },
