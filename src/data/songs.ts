@@ -584,6 +584,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=Swlik5Hfu-A"
+    },
+    {
+        title: "Ghodey Pe Sawaar",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=OC9gl-UEYVo"
     }
 ];
 
