@@ -54,9 +54,10 @@ export class SessionWizardView implements View {
         // Clean up any leftover timer/metronome from a previous render
         // (e.g. user navigated away mid-session and came back)
         const cleanupCb = {
-            getState:  () => this.step2State,
-            setState:  (patch: Partial<Step2State>) => { Object.assign(this.step2State, patch); },
+            getState:   () => this.step2State,
+            setState:   (patch: Partial<Step2State>) => { Object.assign(this.step2State, patch); },
             onComplete: () => { /* no-op for cleanup */ },
+            onJump:     () => { /* no-op for cleanup */ },
         };
         stopTimer(cleanupCb);
         stopMetronome(cleanupCb);
@@ -128,6 +129,12 @@ export class SessionWizardView implements View {
                 } else {
                     this.doStep3();
                 }
+            },
+            onJump: (targetIndex, newBlockStartTime) => {
+                this.sessionState.currentBlockIndex = targetIndex;
+                this.blockStartTime = newBlockStartTime;
+                this.step2State.cycleCount = this.sessionState.blocks[targetIndex]?.cyclesCompleted ?? 0;
+                this.doStep2();
             },
             getState: () => this.step2State,
             setState: (patch) => { Object.assign(this.step2State, patch); },

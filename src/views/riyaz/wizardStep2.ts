@@ -33,9 +33,23 @@ export interface Step2State {
 }
 
 export interface Step2Callbacks {
-    onComplete: () => void;   // bloque completado → siguiente o step3
+    onComplete: () => void;              // block completed → next or step3
+    onJump:     (targetIndex: number, newBlockStartTime: number) => void; // jump to any block
     getState:   () => Step2State;
     setState:   (patch: Partial<Step2State>) => void;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers: block labels for nav pills
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Short pill label: index + type/taal name */
+function getBlockShortLabel(b: SessionBlock, index: number): string {
+    const num = index + 1;
+    if (b.type === 'warmup')  return `${num}. ${t('step3.warmUp')}`;
+    if (b.type === 'pickup')  return `${num}. ${t('step3.pickup')}`;
+    const taal = b.taalName?.split(' ')[0] ?? '';
+    return `${num}. ${taal}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -63,20 +77,49 @@ export function renderStep2(
         return;
     }
     const isLast = sessionState.currentBlockIndex === sessionState.blocks.length - 1;
-    const blockNum = sessionState.currentBlockIndex + 1;
 
-    // Header with progress dots
+    // Header with progress bar
     const header = createElement('div', { className: 'mb-4' });
 
-    // Progress dots — one dot per block
-    const dotsRow = createElement('div', { className: 'session-progress-dots' });
-    sessionState.blocks.forEach((_b, i) => {
-        const dot = createElement('div', {
-            className: `session-progress-dot${i < blockNum ? ' session-progress-dot--done' : ''}${i === sessionState.currentBlockIndex ? ' session-progress-dot--current' : ''}`
-        });
-        dotsRow.appendChild(dot);
+    // Block nav pills — one pill per block, clickable to jump between blocks
+    const pillsRow = createElement('div', { className: 'session-block-nav' });
+    sessionState.blocks.forEach((b, i) => {
+        const isCurrent = i === sessionState.currentBlockIndex;
+        const isDone    = i < sessionState.currentBlockIndex;
+        const pill = createElement('button', {
+            className: `session-block-nav__pill${isCurrent ? ' session-block-nav__pill--current' : ''}${isDone ? ' session-block-nav__pill--done' : ''}`,
+        }) as HTMLButtonElement;
+        pill.disabled = isCurrent;
+
+        // Short label: block number + taal/type abbreviation
+        const label = createElement('span', { className: 'session-block-nav__label' });
+        label.textContent = getBlockShortLabel(b, i);
+        pill.appendChild(label);
+
+        if (!isCurrent) {
+            pill.addEventListener('click', () => {
+                // Accumulate elapsed time on the current block before jumping
+                const currentBlock = sessionState.blocks[sessionState.currentBlockIndex];
+                if (currentBlock) {
+                    currentBlock.durationSecs = (currentBlock.durationSecs ?? 0) + Math.floor((Date.now() - blockStartTime) / 1000);
+                }
+                stopTimer(cb);
+                stopMetronome(cb);
+                // Compute a synthetic start time for the target block so the timer
+                // resumes from its previously accumulated duration (if any).
+                const targetBlock = sessionState.blocks[i];
+                const alreadyAccumulated = targetBlock?.durationSecs ?? 0;
+                // Clear durationSecs on the target so the tick-save loop doesn't
+                // double-count: the synthetic blockStartTime already encodes it.
+                if (targetBlock) targetBlock.durationSecs = undefined;
+                const newStart = Date.now() - alreadyAccumulated * 1000;
+                saveSessionDraft(sessionState, newStart);
+                cb.onJump(i, newStart);
+            });
+        }
+        pillsRow.appendChild(pill);
     });
-    header.appendChild(dotsRow);
+    header.appendChild(pillsRow);
 
     const subtitleEl = createElement('p', { className: 'section-subtitle' });
     const getSubtitleText = (b: SessionBlock): string =>

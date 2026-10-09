@@ -3773,31 +3773,62 @@ body.dark .session-action-feedback--success {
    ============================================ */
 
 /* ── Dots de progreso de bloques ─────────────────────────────────────────── */
-.session-progress-dots {
+/* ── Block navigation pills (replaces progress dots) ─────────────────────── */
+.session-block-nav {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-bottom: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;          /* Firefox */
+    padding-bottom: 2px;            /* leave room for focus ring */
 }
 
-.session-progress-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--border-primary);
-    transition: background 0.2s ease, transform 0.2s ease;
+.session-block-nav::-webkit-scrollbar {
+    display: none;                  /* Safari / Chrome */
+}
+
+.session-block-nav__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border-primary);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
     flex-shrink: 0;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    min-height: 36px;               /* comfortable touch target */
 }
 
-.session-progress-dot--done {
-    background: var(--orange-500);
-    opacity: 0.45;
+.session-block-nav__pill--done {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    opacity: 0.55;
 }
 
-.session-progress-dot--current {
+.session-block-nav__pill--current {
+    border-color: var(--orange-500);
     background: var(--orange-500);
+    color: #fff;
+    cursor: default;
     opacity: 1;
-    transform: scale(1.35);
+}
+
+.session-block-nav__pill:not(.session-block-nav__pill--current):hover {
+    border-color: var(--orange-500);
+    color: var(--orange-500);
+    opacity: 1;
+}
+
+.session-block-nav__label {
+    pointer-events: none;
 }
 
 /* ── Song search ──────────────────────────────────────────────────────────── */
