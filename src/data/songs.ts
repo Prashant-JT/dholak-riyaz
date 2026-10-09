@@ -596,6 +596,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Dadra (6 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=3uTzfhqdcn8"
+    },
+    {
+        title: "Dil Hai Ki Manta Nahin",
+        artist: "Bollywood",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=C9efe0rjDlE"
     }
 ];
 
