@@ -714,17 +714,40 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
             .find(m => MediaRecorder.isTypeSupported(m)) ?? '';
 
         // ── Acquire microphone stream ────────────────────────────────────────
+        // Disable echo cancellation and noise suppression so the lehra/song
+        // playing from the speaker is captured alongside the dholak.
         let micStream: MediaStream;
         try {
-            micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            micStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl:  false,
+                },
+                video: false,
+            });
         } catch {
             statusEl.textContent = t('step2.recNoMic');
             return;
         }
         micStream.getAudioTracks().forEach(tr => allTracks.push(tr));
 
-        // ── Start MediaRecorder directly on mic stream ───────────────────────
-        mediaRecorder = new MediaRecorder(micStream, mimeType ? { mimeType } : {});
+        // ── Mic gain via Web Audio API ───────────────────────────────────────
+        // Routes: micStream → AudioContext source → GainNode → MediaStreamDestination
+        // The destination stream is what MediaRecorder actually captures.
+        const audioCtx  = new AudioContext();
+        const source    = audioCtx.createMediaStreamSource(micStream);
+        const gainNode  = audioCtx.createGain();
+        gainNode.gain.value = 1.3;
+        const dest      = audioCtx.createMediaStreamDestination();
+        source.connect(gainNode);
+        gainNode.connect(dest);
+        const boostedStream = dest.stream;
+        // Stop AudioContext when tracks are released
+        micStream.getAudioTracks()[0]?.addEventListener('ended', () => void audioCtx.close());
+
+        // ── Start MediaRecorder on the boosted stream ────────────────────────
+        mediaRecorder = new MediaRecorder(boostedStream, mimeType ? { mimeType } : {});
 
         mediaRecorder.addEventListener('dataavailable', (e: BlobEvent) => {
             if (e.data.size > 0) chunks.push(e.data);
