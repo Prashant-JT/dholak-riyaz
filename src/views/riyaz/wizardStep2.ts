@@ -674,7 +674,11 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
 
     // ── Show preview + download button after recording ──────────────────────
     const showPreview = (blob: Blob, mimeType: string): void => {
-        const ext = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : 'webm';
+        // Force .ogg extension for opus audio (webm/opus and ogg/opus are both
+        // accepted by WhatsApp Web when the file extension is .ogg)
+        const ext = (mimeType.includes('opus') || mimeType.includes('ogg')) ? 'ogg'
+                  : mimeType.includes('mp4') ? 'm4a'
+                  : 'webm';
         const url = URL.createObjectURL(blob);
 
         previewArea.innerHTML = '';
@@ -710,7 +714,7 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
         chunks = [];
         allTracks = [];
 
-        const mimeType = ['audio/webm', 'audio/mp4', 'audio/ogg']
+        const mimeType = ['audio/webm; codecs=opus', 'audio/ogg; codecs=opus', 'audio/ogg', 'audio/mp4', 'audio/webm']
             .find(m => MediaRecorder.isTypeSupported(m)) ?? '';
 
         // ── Acquire microphone stream ────────────────────────────────────────
