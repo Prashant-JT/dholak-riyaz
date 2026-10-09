@@ -216,6 +216,11 @@ export const en: Strings = {
         supportHide:       'Hide metronome',
         confirmChanges:    '✓ Confirm changes',
         blockLoadError:    'Could not load block. Please reload the page.',
+        recStart:          '⏺ Record',
+        recStop:           '⏹ Stop',
+        recDownload:       '⬇ Download',
+        recNoMic:          'No microphone permission',
+        recUnsupported:    'Your browser does not support audio recording',
     },
 
     step3: {

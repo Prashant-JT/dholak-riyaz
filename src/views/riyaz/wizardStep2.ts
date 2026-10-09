@@ -130,7 +130,7 @@ export function renderStep2(
     header.appendChild(subtitleEl);
     container.appendChild(header);
 
-    // Timer display
+    // Timer display + recording — grouped in one card
     const timerCard = createElement('div', { className: 'card p-6 mb-4 text-center' });
     const timerDisplay = createElement('div', {
         className: 'mono-font text-center mb-1',
@@ -138,6 +138,7 @@ export function renderStep2(
     }, '00:00');
     timerCard.appendChild(timerDisplay);
     timerCard.appendChild(createElement('p', { className: 'text-muted text-sm' }, t('step2.freeTimer')));
+    timerCard.appendChild(renderRecordingZone(block));
     container.appendChild(timerCard);
 
     container.appendChild(renderSupportZone(block, cb));
@@ -618,6 +619,147 @@ function toEmbedUrl(url: string): string {
     const id = (watchMatch ?? shortMatch ?? embedMatch ?? shortsMatch)?.[1];
     return id ? `https://www.youtube.com/embed/${id}` : url;
 }
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Audio recording zone — microphone only, with preview before download
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderRecordingZone(block: SessionBlock): HTMLElement {
+    const wrapper = createElement('div', { className: 'session-rec-zone' });
+
+    // Check browser support
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+        wrapper.appendChild(createElement('p', { className: 'text-muted text-sm' }, t('step2.recUnsupported')));
+        return wrapper;
+    }
+
+    let mediaRecorder: MediaRecorder | null = null;
+    let chunks: BlobPart[] = [];
+    let allTracks: MediaStreamTrack[] = [];
+
+    const recBtn    = createElement('button', { className: 'session-rec-btn' }, t('step2.recStart')) as HTMLButtonElement;
+    const statusEl  = createElement('span',   { className: 'session-rec-status' });
+    // Preview area — shown after recording stops, hidden initially
+    const previewArea = createElement('div',  { className: 'session-rec-preview', style: { display: 'none' } });
+
+    wrapper.appendChild(recBtn);
+    wrapper.appendChild(statusEl);
+    wrapper.appendChild(previewArea);
+
+    // ── Build descriptive filename ──────────────────────────────────────────
+    const buildFilename = (ext: string): string => {
+        const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9À-ÿ]+/g, '_').replace(/^_|_$/g, '');
+        const date = new Date().toISOString().slice(0, 10);
+
+        if (block.type === 'warmup') {
+            const kayda = sanitize(block.kaydaName ?? 'WarmUp');
+            const lehra = block.lehraLabel ? `_${sanitize(block.lehraLabel)}` : '';
+            return `WarmUp_${kayda}${lehra}_${date}.${ext}`;
+        }
+        if (block.type === 'pickup') {
+            const pattern = sanitize(block.pickupName ?? 'Pickup');
+            return `Pickup_${pattern}_${date}.${ext}`;
+        }
+        // Practice block
+        const taal      = sanitize(block.taalName ?? '');
+        const variation = block.variationName && block.variationName !== 'Patrón Principal'
+            ? `_${sanitize(block.variationName)}`
+            : '';
+        const support   = block.supportRef ? `_${sanitize(block.supportRef)}` : '';
+        const bpm       = block.bpmEnd ?? block.bpmStart;
+        const bpmPart   = bpm ? `_${bpm}BPM` : '';
+        return `${taal}${variation}${support}${bpmPart}_${date}.${ext}`;
+    };
+
+    // ── Show preview + download button after recording ──────────────────────
+    const showPreview = (blob: Blob, mimeType: string): void => {
+        const ext = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : 'webm';
+        const url = URL.createObjectURL(blob);
+
+        previewArea.innerHTML = '';
+        previewArea.style.display = '';
+
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = url;
+        audio.className = 'session-rec-audio';
+        previewArea.appendChild(audio);
+
+        const dlBtn = createElement('button', { className: 'btn-secondary session-rec-dl-btn' }, t('step2.recDownload')) as HTMLButtonElement;
+        dlBtn.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href     = url;
+            a.download = buildFilename(ext);
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 15_000);
+        });
+        previewArea.appendChild(dlBtn);
+    };
+
+    // ── Start / stop handler ────────────────────────────────────────────────
+    recBtn.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            return;
+        }
+
+        // Hide any previous preview
+        previewArea.style.display = 'none';
+        previewArea.innerHTML = '';
+        chunks = [];
+        allTracks = [];
+
+        const mimeType = ['audio/webm', 'audio/mp4', 'audio/ogg']
+            .find(m => MediaRecorder.isTypeSupported(m)) ?? '';
+
+        // ── Acquire microphone stream ────────────────────────────────────────
+        let micStream: MediaStream;
+        try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        } catch {
+            statusEl.textContent = t('step2.recNoMic');
+            return;
+        }
+        micStream.getAudioTracks().forEach(tr => allTracks.push(tr));
+
+        // ── Start MediaRecorder directly on mic stream ───────────────────────
+        mediaRecorder = new MediaRecorder(micStream, mimeType ? { mimeType } : {});
+
+        mediaRecorder.addEventListener('dataavailable', (e: BlobEvent) => {
+            if (e.data.size > 0) chunks.push(e.data);
+        });
+
+        mediaRecorder.addEventListener('stop', () => {
+            allTracks.forEach(tr => tr.stop());
+
+            const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
+            showPreview(blob, mimeType || 'audio/webm');
+
+            recBtn.textContent = t('step2.recStart');
+            recBtn.classList.remove('session-rec-btn--recording');
+            statusEl.textContent = '';
+            mediaRecorder = null;
+        });
+
+        mediaRecorder.start();
+        recBtn.textContent   = t('step2.recStop');
+        recBtn.classList.add('session-rec-btn--recording');
+
+        // Live elapsed counter
+        const recStartTime = Date.now();
+        const recTick = window.setInterval(() => {
+            if (!mediaRecorder || mediaRecorder.state !== 'recording') {
+                clearInterval(recTick);
+                return;
+            }
+            statusEl.textContent = `⏺ ${formatTime(Math.floor((Date.now() - recStartTime) / 1000))}`;
+        }, 1000);
+    });
+
+    return wrapper;
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inline block edit panel during a session

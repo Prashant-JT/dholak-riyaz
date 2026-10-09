@@ -223,6 +223,11 @@ export const es = {
         supportHide:       'Ocultar metrónomo',
         confirmChanges:    '✓ Confirmar cambios',
         blockLoadError:    'No se pudo cargar el bloque. Por favor, recarga la página.',
+        recStart:          '⏺ Grabar',
+        recStop:           '⏹ Parar',
+        recDownload:       '⬇ Descargar',
+        recNoMic:          'Sin permiso de micrófono',
+        recUnsupported:    'Tu navegador no soporta grabación de audio',
     },
 
     // ── Sesión Riyaz — Step 3 ─────────────────────────────────────────────────
