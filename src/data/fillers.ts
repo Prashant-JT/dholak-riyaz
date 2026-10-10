@@ -69,6 +69,12 @@ export const FILLERS: Filler[] = [
                 link: 'https://www.youtube.com/watch?v=sBxVczZNGPw',
                 note: 'Finish / cierre de canción o bhajan',
                 note_en: 'Finish / closing for a song or bhajan'
+            },
+            {
+                name: 'Dha Dha TireKite Dha (x3) — Tihai',
+                link: null,
+                note: 'Tihai — se usa para cambiar de variación o para terminar la canción. Repetir 3 veces seguidas.',
+                note_en: 'Tihai — used to transition between variations or to end the song. Repeat 3 times in a row.'
             }
         ]
     },

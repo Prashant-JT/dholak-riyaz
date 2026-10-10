@@ -507,8 +507,8 @@ export const keherwa: Taal = {
                 ]
             ],
             tutorials: ['https://www.youtube.com/watch?v=Qp1MXnXS7l4&t'],
-            notes: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa  Kit  Ta  TaTa  Kit  Ta  TaTa  Kit  Dha'],
-            notes_en: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa Kit (x2) TaTa Kit Dha']
+            notes: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa  Kit  Ta  TaTa  Kit  Ta  TaTa  Kit  Dha', 'También se puede tocar como: Dha KiTe Te Ti Na Ke Dhi Na'],
+            notes_en: ['Pickup: Tak  TaTa  KaTa', 'Tihai: TaTa Kit (x2) TaTa Kit Dha', 'Can also be played as: Dha KiTe Te Ti Na Ke Dhi Na']
         },
         {
             name: 'Keherwa variación 16 (DhaDhi NaDhi Ge)',
@@ -527,6 +527,29 @@ export const keherwa: Taal = {
             ],
             songs: [
                 { title: 'Laga Chunari Main Daag', url: 'https://www.youtube.com/watch?v=gMT5-nTq5Jo' }
+            ]
+        },
+        {
+            name: 'Keherwa variación Ghazal',
+            name_en: 'Keherwa Ghazal variation',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dha',  technique: '' },
+                    { matra: 2, bol: 'Dhin', technique: '' },
+                    { matra: 3, bol: 'NaNa', technique: '' },
+                    { matra: 4, bol: 'TeTe', technique: '' },
+                    { matra: 5, bol: 'Ta',   technique: '' },
+                    { matra: 6, bol: 'Dhin', technique: '' },
+                    { matra: 7, bol: 'DhaDha', technique: '' },
+                    { matra: 8, bol: 'TeTe', technique: '' }
+                ]
+            ],
+            description: '4 beats + 4 beats — theka típico de Ghazal',
+            description_en: '4 beats + 4 beats — typical Ghazal theka',
+            notes: ['Intro típico: Dhin Na DhaDin Na  |  Na Na Na Na'],
+            notes_en: ['Typical intro: Dhin Na DhaDin Na  |  Na Na Na Na'],
+            songs: [
+                { title: 'Hungama Hai Kyon Barpa', url: 'https://www.youtube.com/results?search_query=hungama+hai+kyon+barpa' }
             ]
         }
     ]
