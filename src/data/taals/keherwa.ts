@@ -546,8 +546,8 @@ export const keherwa: Taal = {
             ],
             description: '4 beats + 4 beats — theka típico de Ghazal',
             description_en: '4 beats + 4 beats — typical Ghazal theka',
-            notes: ['Intro típico: Dhin Na DhaDin Na  |  Na Na Na Na'],
-            notes_en: ['Typical intro: Dhin Na DhaDin Na  |  Na Na Na Na'],
+            notes: ['Esta variación se usa en "Un Ka Andaz E Karam" (Nusrat Fateh Ali Khan) y en muchos ghazals', 'Intro típico: Dhin Na DhaDin Na  |  Na Na Na Na'],
+            notes_en: ['This variation is used in "Un Ka Andaz E Karam" (Nusrat Fateh Ali Khan) and many ghazals', 'Typical intro: Dhin Na DhaDin Na  |  Na Na Na Na'],
             songs: [
                 { title: 'Hungama Hai Kyon Barpa', url: 'https://www.youtube.com/results?search_query=hungama+hai+kyon+barpa' }
             ]

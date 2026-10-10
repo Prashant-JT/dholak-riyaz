@@ -301,7 +301,6 @@ npm run build
 - **ONLY** edit files in `src/data/`
 - Keep the existing type structure
 - Compile after editing
-
 ---
 
 ## ✅ Checklist: Adding a New Taal (MANDATORY)

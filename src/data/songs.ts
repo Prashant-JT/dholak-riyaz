@@ -602,6 +602,12 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=C9efe0rjDlE"
+    },
+    {
+        title: "Un Ka Andaz E Karam",
+        artist: "Nusrat Fateh Ali Khan",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=g4wk720e5YU"
     }
 ];
 
