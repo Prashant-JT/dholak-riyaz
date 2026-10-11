@@ -3944,6 +3944,26 @@ body.dark .session-action-feedback--success {
     accent-color: var(--orange-500);
 }
 
+.session-rec-dl-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.session-rec-ext-select {
+    flex-shrink: 0;
+    width: auto;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-primary);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
 .session-rec-dl-btn {
     white-space: nowrap;
     flex-shrink: 0;

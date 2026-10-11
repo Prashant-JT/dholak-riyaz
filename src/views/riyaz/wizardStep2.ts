@@ -674,11 +674,19 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
 
     // ── Show preview + download button after recording ──────────────────────
     const showPreview = (blob: Blob, mimeType: string): void => {
-        // Force .ogg extension for opus audio (webm/opus and ogg/opus are both
-        // accepted by WhatsApp Web when the file extension is .ogg)
-        const ext = (mimeType.includes('opus') || mimeType.includes('ogg')) ? 'ogg'
-                  : mimeType.includes('mp4') ? 'm4a'
-                  : 'webm';
+        // Build list of available extensions for the format dropdown.
+        // The blob content is always the recorded mimeType — only the file
+        // extension changes so the OS/app associates it correctly.
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const nativeExt = isIOS ? 'm4a'
+            : (mimeType.includes('ogg') || mimeType.includes('opus')) ? 'ogg'
+            : mimeType.includes('mp4') ? 'm4a'
+            : 'webm';
+        // Offer all common extensions — only the filename changes, not the content.
+        // m4a/mp4 = same AAC container, ogg = opus, webm = opus/vp8.
+        const allExts = ['m4a', 'mp4', 'ogg', 'webm'].filter(e => e !== nativeExt);
+        const exts = [nativeExt, ...allExts]; // native first (recommended)
+
         const url = URL.createObjectURL(blob);
 
         previewArea.innerHTML = '';
@@ -690,15 +698,25 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
         audio.className = 'session-rec-audio';
         previewArea.appendChild(audio);
 
+        const dlRow = createElement('div', { className: 'session-rec-dl-row' });
+
+        const extSelect = createElement('select', { className: 'session-rec-ext-select' }) as HTMLSelectElement;
+        exts.forEach(e => {
+            const opt = createElement('option', { value: e }, `.${e}`) as HTMLOptionElement;
+            dlRow.appendChild(extSelect);
+            extSelect.appendChild(opt);
+        });
+
         const dlBtn = createElement('button', { className: 'btn-secondary session-rec-dl-btn' }, t('step2.recDownload')) as HTMLButtonElement;
         dlBtn.addEventListener('click', () => {
             const a = document.createElement('a');
             a.href     = url;
-            a.download = buildFilename(ext);
+            a.download = buildFilename(extSelect.value);
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 15_000);
         });
-        previewArea.appendChild(dlBtn);
+        dlRow.appendChild(dlBtn);
+        previewArea.appendChild(dlRow);
     };
 
     // ── Start / stop handler ────────────────────────────────────────────────
