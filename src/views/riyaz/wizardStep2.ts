@@ -703,9 +703,9 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
         const extSelect = createElement('select', { className: 'session-rec-ext-select' }) as HTMLSelectElement;
         exts.forEach(e => {
             const opt = createElement('option', { value: e }, `.${e}`) as HTMLOptionElement;
-            dlRow.appendChild(extSelect);
             extSelect.appendChild(opt);
         });
+        dlRow.appendChild(extSelect);
 
         const dlBtn = createElement('button', { className: 'btn-secondary session-rec-dl-btn' }, t('step2.recDownload')) as HTMLButtonElement;
         dlBtn.addEventListener('click', () => {
