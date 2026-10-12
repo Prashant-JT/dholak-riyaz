@@ -12,7 +12,7 @@
  */
 
 import { createElement } from '../core/utils.js';
-import { t } from '../i18n/index.js';
+import { t, tArray } from '../i18n/index.js';
 import type { View } from '../types.js';
 
 // Re-export types consumed by other modules (wizardStep3, etc.)
@@ -21,7 +21,7 @@ export type { SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
 import type { UserStats } from './stats/statsTypes.js';
 import { fetchUserStats, emptyStats, ACTIVE_TAAL_IDS } from './stats/statsData.js';
 import { computeMedals } from './stats/medals.js';
-import { mountCharts, mountCompareCharts, mountCumulativeChart } from './stats/statsCharts.js';
+import { C, mountCharts, mountCompareCharts, mountCumulativeChart } from './stats/statsCharts.js';
 import { buildKPIs, buildInsight, buildWeekCompare, cardEl, cardTitle, cardSub, effectiveSecs } from './stats/statsKPIs.js';
 import { buildHeatmap, buildHeatmapLegend } from './stats/statsHeatmap.js';
 import { buildHistoryCard } from './stats/statsHistory.js';
@@ -202,62 +202,141 @@ export class StatsView implements View {
     private buildWeeklyCard(d: UserStats): HTMLElement {
         const card = cardEl();
 
-        const headerRow   = createElement('div', { className: 'stats-weekly-header' });
-        const titleWrap   = createElement('div');
-        titleWrap.appendChild(cardTitle(t('stats.chartWeeklyTitle')));
+        const headerRow = createElement('div', { className: 'stats-weekly-header' });
+        const titleWrap = createElement('div');
+        titleWrap.appendChild(cardTitle(t('stats.weeklyTitle')));
         const subEl = createElement('p', { className: 'text-muted', id: 'stats-weekly-sub' });
         subEl.style.fontSize     = '0.8rem';
         subEl.style.marginBottom = '0';
-        subEl.textContent = t('stats.chartWeeklySub');
+        subEl.textContent = t('stats.weeklySub16');
         titleWrap.appendChild(subEl);
         headerRow.appendChild(titleWrap);
 
-        const toggle    = createElement('div', { className: 'stats-weekly-toggle' });
-        const btnWeeks  = createElement('button', { className: `stats-weekly-btn${this.weeklyMode === 'weeks'  ? ' active' : ''}` }, t('stats.chartWeeklyBtnWeeks'));
-        const btnDays   = createElement('button', { className: `stats-weekly-btn${this.weeklyMode === 'days'   ? ' active' : ''}` }, t('stats.chartWeeklyBtnDays'));
-        const btnMonths = createElement('button', { className: `stats-weekly-btn${this.weeklyMode === 'months' ? ' active' : ''}` }, t('stats.chartWeeklyBtnMonths'));
+        const toggle = createElement('div', { className: 'stats-weekly-toggle' });
+        const btnWeeks  = createElement('button', { className: 'stats-weekly-btn active', id: 'stats-toggle-weeks'  }, t('stats.weeklyBtnWeeks'));
+        const btnDays   = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-days'   }, t('stats.weeklyBtnDays'));
+        const btnMonths = createElement('button', { className: 'stats-weekly-btn',        id: 'stats-toggle-months' }, t('stats.weeklyBtnMonths'));
         toggle.appendChild(btnWeeks);
         toggle.appendChild(btnDays);
         toggle.appendChild(btnMonths);
         headerRow.appendChild(toggle);
         card.appendChild(headerRow);
 
+        const weekSel = createElement('div', { className: 'stats-week-selector', id: 'stats-week-selector' });
+        weekSel.style.display = 'none';
+        const selLabel = createElement('span', { className: 'text-muted' });
+        selLabel.style.fontSize = '0.82rem';
+        selLabel.textContent = t('stats.weeklySelLabel');
+        const selPrev = createElement('button', { className: 'stats-week-nav', id: 'stats-week-prev' }, '‹');
+        const selNext = createElement('button', { className: 'stats-week-nav', id: 'stats-week-next' }, '›');
+        const selCurrent = createElement('span', { className: 'stats-week-label', id: 'stats-week-label' });
+        weekSel.appendChild(selLabel);
+        weekSel.appendChild(selPrev);
+        weekSel.appendChild(selCurrent);
+        weekSel.appendChild(selNext);
+        card.appendChild(weekSel);
+
         const wrap = createElement('div', { className: 'stats-canvas-tall' });
         wrap.style.position = 'relative';
-        wrap.style.height   = '250px';
+        wrap.style.height   = '230px';
         wrap.appendChild(createElement('canvas', { id: 'stats-chart-weekly' }));
         card.appendChild(wrap);
 
-        const switchMode = (mode: 'weeks' | 'days' | 'months') => {
-            this.weeklyMode = mode;
-            [btnWeeks, btnDays, btnMonths].forEach(b => b.classList.remove('active'));
-            (mode === 'weeks' ? btnWeeks : mode === 'days' ? btnDays : btnMonths).classList.add('active');
+        const DAY_LABELS = tArray('stats.dayLabels');
 
-            const sub = document.getElementById('stats-weekly-sub');
-            if (sub) sub.textContent = mode === 'weeks' ? t('stats.chartWeeklySub') : mode === 'days' ? t('stats.chartDailySub') : t('stats.chartMonthlySub');
-
-            if (!this.weeklyChart) return;
-            const chart = this.weeklyChart;
-            if (mode === 'weeks') {
-                chart.data.labels          = d.weekLabels;
-                chart.data.datasets[0].data = d.weekly;
-                this.weeklySelectedIdx = Math.min(this.weeklySelectedIdx, d.weekly.length - 1);
-            } else if (mode === 'days') {
-                const days = d.weekDays[this.weeklySelectedIdx] ?? [];
-                chart.data.labels          = d.weekLabels.slice(0, days.length);
-                chart.data.datasets[0].data = days;
-                this.weeklySelectedIdx = Math.min(this.weeklySelectedIdx, d.weekLabels.length - 1);
-            } else {
-                chart.data.labels          = d.monthLabels;
-                chart.data.datasets[0].data = d.monthly;
-                this.weeklySelectedIdx = Math.min(this.weeklySelectedIdx, d.monthly.length - 1);
-            }
-            chart.update();
+        const updateSub = () => {
+            const subNode = document.getElementById('stats-weekly-sub');
+            if (!subNode) return;
+            if (this.weeklyMode === 'weeks')       subNode.textContent = t('stats.weeklySub16');
+            else if (this.weeklyMode === 'months') subNode.textContent = t('stats.weeklySubMonths');
+            else                                   subNode.textContent = t('stats.weeklySubDay', d.weekLabels[this.weeklySelectedIdx]);
         };
 
-        btnWeeks.addEventListener('click',  () => switchMode('weeks'));
-        btnDays.addEventListener('click',   () => switchMode('days'));
-        btnMonths.addEventListener('click', () => switchMode('months'));
+        const updateWeekLabel = () => {
+            const lbl = document.getElementById('stats-week-label');
+            if (lbl) lbl.textContent = d.weekLabels[this.weeklySelectedIdx] ?? '';
+        };
+
+        const switchChart = () => {
+            if (!this.weeklyChart) return;
+            const chart = this.weeklyChart;
+            if (this.weeklyMode === 'weeks') {
+                const trend = d.weekly.map((_, i, arr) => {
+                    const slice = arr.slice(Math.max(0, i - 2), i + 1);
+                    return Math.round(slice.reduce((a: number, b: number) => a + b, 0) / slice.length);
+                });
+                chart.data.labels = d.weekLabels;
+                chart.data.datasets[0].label = t('stats.weeklyDataLabel');
+                chart.data.datasets[0].data = d.weekly;
+                chart.data.datasets[0].backgroundColor = C.orangeA;
+                chart.data.datasets[1].data = trend;
+                chart.data.datasets[1].hidden = false;
+            } else if (this.weeklyMode === 'months') {
+                const trend = d.monthly.map((_, i, arr) => {
+                    const slice = arr.slice(Math.max(0, i - 2), i + 1);
+                    return Math.round(slice.reduce((a: number, b: number) => a + b, 0) / slice.length);
+                });
+                chart.data.labels = d.monthLabels;
+                chart.data.datasets[0].label = t('stats.weeklyDataLabelMonths');
+                chart.data.datasets[0].data = d.monthly;
+                chart.data.datasets[0].backgroundColor = C.orangeA;
+                chart.data.datasets[1].data = trend;
+                chart.data.datasets[1].hidden = false;
+            } else {
+                const days = d.weekDays[this.weeklySelectedIdx] ?? new Array(7).fill(0);
+                chart.data.labels = DAY_LABELS;
+                chart.data.datasets[0].label = t('stats.weeklyDataLabel');
+                chart.data.datasets[0].data = days;
+                chart.data.datasets[0].backgroundColor = days.map((v: number) => v > 0 ? C.orange : C.orangeA);
+                chart.data.datasets[1].data = new Array(7).fill(null);
+                chart.data.datasets[1].hidden = true;
+            }
+            chart.update();
+            updateSub();
+        };
+
+        const setActiveBtn = (active: HTMLElement) => {
+            [btnWeeks, btnDays, btnMonths].forEach(b => b.classList.remove('active'));
+            active.classList.add('active');
+        };
+
+        btnWeeks.addEventListener('click', () => {
+            this.weeklyMode = 'weeks';
+            setActiveBtn(btnWeeks);
+            weekSel.style.display = 'none';
+            switchChart();
+        });
+
+        btnDays.addEventListener('click', () => {
+            this.weeklyMode = 'days';
+            setActiveBtn(btnDays);
+            weekSel.style.display = 'flex';
+            updateWeekLabel();
+            switchChart();
+        });
+
+        btnMonths.addEventListener('click', () => {
+            this.weeklyMode = 'months';
+            setActiveBtn(btnMonths);
+            weekSel.style.display = 'none';
+            switchChart();
+        });
+
+        selPrev.addEventListener('click', () => {
+            if (this.weeklySelectedIdx > 0) {
+                this.weeklySelectedIdx--;
+                updateWeekLabel();
+                switchChart();
+            }
+        });
+
+        selNext.addEventListener('click', () => {
+            if (this.weeklySelectedIdx < 15) {
+                this.weeklySelectedIdx++;
+                updateWeekLabel();
+                switchChart();
+            }
+        });
 
         return card;
     }
