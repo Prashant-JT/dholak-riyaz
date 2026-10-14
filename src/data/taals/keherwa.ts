@@ -552,6 +552,33 @@ export const keherwa: Taal = {
                 { title: 'Hungama Hai Kyon Barpa', url: 'https://www.youtube.com/results?search_query=hungama+hai+kyon+barpa' },
                 { title: 'Un Ke Andaz E Karam - Nusrat Fateh Ali Khan', url: 'https://www.youtube.com/watch?v=g4wk720e5YU' }
             ]
+        },
+        {
+            name: 'Keherwa Qawwali Theka',
+            name_en: 'Keherwa Qawwali Theka',
+            rows: [
+                [
+                    { matra: 1, bol: 'Dhi',            technique: '' },
+                    { matra: 2, bol: 'Ta',             technique: '' },
+                    { matra: 3, bol: 'Ti',             technique: '' },
+                    { matra: 4, bol: 'Dha',            technique: '' },
+                    { matra: 5, bol: 'Dhit (ghisa)',   technique: '' },
+                    { matra: 6, bol: 'Ta',             technique: '' },
+                    { matra: 7, bol: 'Ti',             technique: '' },
+                    { matra: 8, bol: 'Dha',            technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=YR-2BwLI75A'],
+            description: '4 beats + 4 beats — theka clásico de Qawwali',
+            description_en: '4 beats + 4 beats — classic Qawwali theka',
+            notes: [
+                'El primer Dhi (M1) y el último Dha (M8) son abiertos: mano abierta en el bayan.',
+                'El Dhit (M5) lleva ghisa.'
+            ],
+            notes_en: [
+                'The first Dhi (M1) and the last Dha (M8) are open strokes: open hand on the bayan.',
+                'Dhit (M5) uses ghisa.'
+            ]
         }
     ]
 };
