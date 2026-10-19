@@ -124,7 +124,9 @@ export class SessionWizardView implements View {
                 // If the index exceeds the last block, the session is done.
                 const done = this.sessionState.currentBlockIndex >= this.sessionState.blocks.length;
                 if (!done) {
-                    this.blockStartTime = Date.now();
+                    // Resume from any time already recorded on the next block (e.g. after a jump back)
+                    const next = this.sessionState.blocks[this.sessionState.currentBlockIndex];
+                    this.blockStartTime = Date.now() - (next?.durationSecs ?? 0) * 1000;
                     this.doStep2();
                 } else {
                     this.doStep3();

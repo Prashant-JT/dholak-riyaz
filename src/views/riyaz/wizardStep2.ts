@@ -98,21 +98,17 @@ export function renderStep2(
 
         if (!isCurrent) {
             pill.addEventListener('click', () => {
-                // Accumulate elapsed time on the current block before jumping
+                // blockStartTime already encodes any previously accumulated time
+                // (it is back-dated on entry), so elapsed IS the block total.
                 const currentBlock = sessionState.blocks[sessionState.currentBlockIndex];
                 if (currentBlock) {
-                    currentBlock.durationSecs = (currentBlock.durationSecs ?? 0) + Math.floor((Date.now() - blockStartTime) / 1000);
+                    currentBlock.durationSecs = Math.floor((Date.now() - blockStartTime) / 1000);
                 }
                 stopTimer(cb);
                 stopMetronome(cb);
-                // Compute a synthetic start time for the target block so the timer
-                // resumes from its previously accumulated duration (if any).
+                // Back-date the target's start so its timer resumes from the time already recorded
                 const targetBlock = sessionState.blocks[i];
-                const alreadyAccumulated = targetBlock?.durationSecs ?? 0;
-                // Clear durationSecs on the target so the tick-save loop doesn't
-                // double-count: the synthetic blockStartTime already encodes it.
-                if (targetBlock) targetBlock.durationSecs = undefined;
-                const newStart = Date.now() - alreadyAccumulated * 1000;
+                const newStart = Date.now() - (targetBlock?.durationSecs ?? 0) * 1000;
                 saveSessionDraft(sessionState, newStart);
                 cb.onJump(i, newStart);
             });
@@ -223,7 +219,9 @@ export function completeCurrentBlock(
         if (isLast) {
             saveSessionDraft(sessionState, blockStartTime, true);
         } else {
-            saveSessionDraft(sessionState, Date.now());
+            // The next block may already have recorded time (after a jump back): keep it
+            const nextBlock = sessionState.blocks[sessionState.currentBlockIndex];
+            saveSessionDraft(sessionState, Date.now() - (nextBlock?.durationSecs ?? 0) * 1000);
         }
         cb.onComplete();
     }, 900);
