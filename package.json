@@ -26,9 +26,9 @@
   "author": "Prashant",
   "license": "MIT",
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/coverage-v8": "4.1.9",
     "happy-dom": "^20.10.6",
     "typescript": "^5.3.3",
-    "vitest": "^4.1.9"
+    "vitest": "4.1.9"
   }
 }
