@@ -28,7 +28,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --prefer-offline || (rm -rf node_modules && npm install)
 
       - name: Generate supabase.ts stub for tests
         run: |

@@ -36,3 +36,4 @@ yarn-error.log*
 src/core/supabase.ts
 
 # Made with Bob
+package-lock.json
