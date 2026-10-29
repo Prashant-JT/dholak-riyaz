@@ -25,10 +25,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.18.1'
 
       - name: Install dependencies
-        run: npm cache clean --force && npm install
+        run: npm install
 
       - name: Generate supabase.ts stub for tests
         run: |
