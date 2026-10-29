@@ -28,7 +28,7 @@ jobs:
           node-version: '20.18.1'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --force
 
       - name: Generate supabase.ts stub for tests
         run: |
