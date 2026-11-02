@@ -1,7 +1,7 @@
 /**
  * RUPAK TAAL
  * 7 beats — estructura 3+2+2
- * Actualiza este archivo con nuevas variaciones de Rupak
+ * Add new Rupak variations here
  */
 
 import type { Taal } from '../../types';
@@ -93,5 +93,3 @@ export const rupak: Taal = {
         }
     ]
 };
-
-// Made with Bob

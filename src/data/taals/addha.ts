@@ -1,8 +1,8 @@
 /**
  * ADDHA TAAL
- * 16 beats — estructura 4+4+4+4
- * Taal popular en música folk, bhajan y semiclásica del norte de India.
- * Su theka es: Dha Dha Dhin Ta | Tet Dha Dhin Ta | Dha Tin Tin Ta | Tet Dha Dhin Ta
+ * 16 beats — 4+4+4+4
+ * Popular in North Indian folk, bhajan and semi-classical music.
+ * Theka: Dha Dha Dhin Ta | Tet Dha Dhin Ta | Dha Tin Tin Ta | Tet Dha Dhin Ta
  */
 
 import type { Taal } from '../../types';
@@ -44,5 +44,3 @@ export const addha: Taal = {
         color: 'amber'
     }
 };
-
-// Made with Bob

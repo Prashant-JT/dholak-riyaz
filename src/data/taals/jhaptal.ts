@@ -1,9 +1,9 @@
 /**
  * JHAPTAL TAAL
- * 10 beats — estructura 2+3+2+3
- * Taal asimétrico muy usado en composiciones clásicas lentas (Vilambit)
+ * 10 beats — 2+3+2+3
+ * Asymmetric taal common in slow (vilambit) classical compositions.
  *
- * ESTADO: preparado, pendiente de activar en src/core/config.ts > NAVIGATION
+ * Status: data ready, not yet enabled in src/core/config.ts > NAVIGATION
  */
 
 import type { Taal } from '../../types';
@@ -37,5 +37,3 @@ export const jhaptal: Taal = {
         color: 'amber'
     }
 };
-
-// Made with Bob

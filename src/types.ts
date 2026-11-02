@@ -3,9 +3,7 @@
  * Global type definitions for the application
  */
 
-// ============================================================================
-// BOLS TYPES
-// ============================================================================
+// ── BOLS TYPES ───────────────────────────────────────────────────────────────
 
 export interface Bol {
     name: string;
@@ -19,9 +17,7 @@ export interface Bol {
     badge_en?: string;
 }
 
-// ============================================================================
-// TAALS TYPES
-// ============================================================================
+// ── TAALS TYPES ──────────────────────────────────────────────────────────────
 
 export interface Matra {
     matra: number;
@@ -91,9 +87,7 @@ export interface TaalsData {
     [key: string]: Taal;
 }
 
-// ============================================================================
-// KAYDAS TYPES
-// ============================================================================
+// ── KAYDAS TYPES ─────────────────────────────────────────────────────────────
 
 export interface KaydaRow {
     label: string;
@@ -115,17 +109,13 @@ export interface KaydasData {
     [key: string]: Kayda;
 }
 
-// ============================================================================
-// LEHRAS TYPES
-// ============================================================================
+// ── LEHRAS TYPES ─────────────────────────────────────────────────────────────
 
 export interface Lehra {
     label: string;
     url: string;
 }
-// ============================================================================
-// FILLERS TYPES
-// ============================================================================
+// ── FILLERS TYPES ────────────────────────────────────────────────────────────
 
 export interface FillerPattern {
     name: string;
@@ -142,9 +132,7 @@ export interface Filler {
 }
 
 
-// ============================================================================
-// CONFIG TYPES
-// ============================================================================
+// ── CONFIG TYPES ─────────────────────────────────────────────────────────────
 
 export interface MetronomeConfig {
     MIN_BPM: number;
@@ -192,25 +180,21 @@ export interface AppConfig {
     LS_SEEDED_KEY: string;
 }
 
-// ============================================================================
-// VIEW TYPES
-// ============================================================================
+// ── VIEW TYPES ───────────────────────────────────────────────────────────────
 
 export interface View {
     render(): HTMLElement;
+    /** Called before the view is swapped out: stop timers, audio, charts. */
+    onLeave?(): void;
 }
 
-// ============================================================================
-// NAVIGATION EVENT TYPES
-// ============================================================================
+// ── NAVIGATION EVENT TYPES ───────────────────────────────────────────────────
 
 export interface NavigateEventDetail {
     viewId: string;
 }
 
-// ============================================================================
-// ELEMENT ATTRIBUTES TYPES
-// ============================================================================
+// ── ELEMENT ATTRIBUTES TYPES ─────────────────────────────────────────────────
 
 export interface ElementAttributes {
     className?: string;
@@ -220,9 +204,7 @@ export interface ElementAttributes {
     [key: string]: any;
 }
 
-// ============================================================================
-// RIYAZ SESSION TYPES
-// ============================================================================
+// ── RIYAZ SESSION TYPES ──────────────────────────────────────────────────────
 
 export interface SessionBlock {
     id: string;                     // unique local identifier (crypto.randomUUID)
@@ -248,7 +230,7 @@ export interface SessionBlock {
     // Pickup
     pickupName?: string;            // pattern name (e.g. 'Na Na Ti (x2) Na')
     pickupTaalCategory?: string;    // filler category (e.g. 'Keherwa')
-    pickupVideoUrl?: string;        // URL del tutorial YouTube (opcional)
+    pickupVideoUrl?: string;        // YouTube tutorial URL (optional)
 
     // Timer
     timerMode: 'free' | 'fixed';
@@ -266,5 +248,3 @@ export interface SessionState {
     currentBlockIndex: number;
     notes: string;
 }
-
-// Made with Bob

@@ -53,5 +53,3 @@ export interface Medal {
     progress?: string;
     progressPct?: number;
 }
-
-// Made with Bob

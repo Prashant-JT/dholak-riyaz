@@ -1,6 +1,6 @@
 /**
  * DASHBOARD VIEW
- * Vista principal con metrónomo y lehras
+ * Metronome and lehra player
  */
 
 import { createElement, createSectionHeader } from '../core/utils.js';
@@ -265,5 +265,3 @@ export class DashboardView implements View {
         return card;
     }
 }
-
-// Made with Bob

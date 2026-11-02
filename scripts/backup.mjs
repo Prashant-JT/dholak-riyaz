@@ -1,9 +1,9 @@
 /**
  * BACKUP SCRIPT
- * Descarga todas las sesiones de Supabase y las guarda en backups/YYYY-MM-DD.json
- * Usa fetch directo (REST API de Supabase) — sin dependencia de Realtime/WebSocket.
+ * Downloads every Supabase session into backups/YYYY-MM-DD.json.
+ * Uses the REST API directly — no Realtime/WebSocket dependency.
  *
- * Uso local:
+ * Local usage:
  *   SUPABASE_URL=https://... SUPABASE_ANON_KEY=eyJ... node scripts/backup.mjs
  */
 
@@ -41,7 +41,7 @@ if (!res.ok) {
 const sessions = await res.json();
 console.log(`✅  ${sessions.length} sesión(es) descargadas`);
 
-// Guardar en backups/YYYY-MM-DD.json
+// Write to backups/YYYY-MM-DD.json
 const today = new Date().toISOString().slice(0, 10);
 const backupsDir = join(__dirname, '..', 'backups');
 mkdirSync(backupsDir, { recursive: true });

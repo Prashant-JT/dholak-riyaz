@@ -15,13 +15,19 @@ This document establishes the standards and best practices that ALL AI agents mu
 - Horizontal scroll only when absolutely necessary
 - Layouts that adapt vertically on small screens
 
-### 2. **Absolute Visual Consistency**
+### 2. **Absolute Visual Consistency — minimalist style**
 - **ALL views must follow the same design pattern**
-- Use cards with: `bg-white rounded-xl p-6 shadow-sm border-2 border-slate-200`
-- Hover states: `hover:border-orange-300 hover:shadow-md transition-all duration-200`
-- Section titles: `text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-orange-500`
+- Cards: class `card` (1px border, `--radius-lg`, no shadow). Hover only changes the border colour — no lift, no shadow
+- Section titles: class `section-title`; subtitles: `section-subtitle`
 - Grid layouts: `grid grid-cols-1 gap-4` (mobile) → `md:grid-cols-2` or `md:grid-cols-3` (desktop)
 - Do NOT use HTML tables unless strictly necessary — prefer cards
+- **No emojis in the UI** (labels, buttons, i18n strings, CSS `content`). Exception: medal emojis in `stats/medals.ts`, which stay on purpose
+- Functional icons (close, share, theme…) come from `src/core/icons.ts` (`icon('close')`) — inline SVG, `currentColor`
+- No gradients, no coloured/decorative shadows. Orange (`--accent`) is reserved for the primary action and the active state
+- Use the design tokens in `:root`: `--accent`, `--accent-hover`, `--accent-soft`, `--danger`, `--focus-ring`, `--radius-sm/md/lg`, `--ease`
+- Layout: fixed top **app bar** (`#appBar` in `index.html`) holds the menu button, app name and theme toggle. The document scrolls (not `<main>`) — use `window.scrollTo`
+- Only one filled orange button per screen (the main action). Secondary actions use `.btn-secondary`; links to YouTube/tutorials use the outline pill `.songs-yt-btn`
+- **Tailwind is NOT loaded.** Utility classes only work if they exist in the "UTILITY CLASSES" block of `css/styles.css` — add the class there before using it
 
 ### 3. **Theme System: Light and Dark Mode (MANDATORY)**
 - **GOLDEN RULE**: The global CSS (`css/styles.css`) uses **CSS variables** (`var(--card-bg)`, `var(--text-primary)`, etc.) that adapt automatically to the active theme. Hardcoded Tailwind classes like `bg-white` or `text-slate-800` **break** dark mode.
@@ -62,7 +68,11 @@ This document establishes the standards and best practices that ALL AI agents mu
   | `.btn-primary` | Primary action button (orange) |
   | `.btn-secondary` | Secondary action button (outline) |
   | `.bol-cell` | Matra cell in Taal table |
-  | `.taal-row-separator` | Taal row separator |
+  | `.taal-row-separator` | Orange separator between vibhag rows — must stay clearly visible |
+  | `.card-title` | Title inside a card (taal variation, kayda, metronome…) |
+  | `.list-card` + `.list-card__title` | Compact row card (songs, fillers) |
+  | `.group-title` | Small uppercase label above a group of cards |
+  | `.bol-cell--vibhag-end` | Last matra of a vibhag (desktop divider) — never inline styles |
 
 ### 4. **Strict TypeScript**
 - All files must be `.ts`
@@ -106,7 +116,8 @@ Dholak/
 │   │       └── jhaptal.ts
 │   ├── core/              # Core (DO NOT TOUCH without reason)
 │   │   ├── config.ts
-│   │   ├── utils.ts
+│   │   ├── utils.ts       # createElement (text-safe), escapeHtml, createResourceBox…
+│   │   ├── icons.ts       # Inline SVG icons
 │   │   └── supabase.ts
 │   ├── components/        # Reusable components
 │   │   ├── metronome.ts
@@ -315,7 +326,7 @@ Every time a new taal is added or activated, these **7 files/locations must be t
 | 4 | `src/types.ts` | Field in `ViewsConfig` interface |
 | 5 | `src/core/utils.ts` → `VIBHAG_DIVIDERS` | Entry `beats: [matraAfterWhichDividerAppears]` for orange vertical lines on desktop |
 | 6 | `src/views/taals.ts` → `getVibhagStructure()` | `case beats:` with the correct slices for mobile grouping |
-| 7 | `src/views/stats/medals.ts` → `TAAL_META` | Entry with emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
+| 7 | `src/views/stats/medals.ts` → `TAAL_META` | Entry with medal emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
 
 > ✅ **Automatic** — nothing else needs to be touched:
 > - `src/components/viewManager.ts`: registers TaalViews dynamically from `CONFIG.NAVIGATION`
@@ -514,6 +525,15 @@ If a file exceeds its hard limit, open a refactoring task immediately.
 
 ---
 
+## 🔒 Rendering Safety & View Lifecycle
+
+- `createElement(tag, attrs, 'text')` sets **`textContent`**, never `innerHTML`. Values from shared links, localStorage or Supabase are untrusted.
+- When building an HTML string for `innerHTML`, wrap every dynamic value in `escapeHtml()` (`src/core/utils.ts`).
+- Embedded URLs (iframes) must be YouTube or `https://` — see `toEmbedUrl()` in `wizardStep2.ts`.
+- Views that start timers, audio, recorders or Chart.js instances must implement `onLeave()` (optional method on `View`). `ViewManager` calls it before switching views.
+
+---
+
 ## 🚫 Common Mistakes to AVOID
 
 ### 1. ❌ Mixing JavaScript and TypeScript
@@ -610,7 +630,7 @@ Before considering a task complete, verify:
 
 - [ ] ✅ All `.ts` files compile without errors
 - [ ] ✅ `npm run build` runs successfully
-- [ ] ✅ `npm test` passes — all 337+ tests green
+- [ ] ✅ `npm test` passes — all 416+ tests green
 - [ ] ✅ `dist/` folder exists with `.js` files
 - [ ] ✅ `index.html` loads `dist/app.js`
 - [ ] ✅ CSS has all required classes
@@ -806,6 +826,6 @@ If you find inconsistencies in this document or in the code, document them here 
 
 ---
 
-**Version**: 1.3.0
-**Last updated**: 2026-08-11
+**Version**: 1.4.0
+**Last updated**: 2026-11-02
 **Maintainer**: Bob (AI Assistant)

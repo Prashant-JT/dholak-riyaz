@@ -1,6 +1,6 @@
 import { createElement, createSectionHeader } from '../core/utils.js';
 import { t, getLang } from '../i18n/index.js';
-import type { View } from '../types.js';
+import type { View, Filler, FillerPattern } from '../types.js';
 import { FILLERS } from '../data/fillers.js';
 
 export class FillersView implements View {
@@ -72,7 +72,7 @@ export class FillersView implements View {
         return container;
     }
 
-    private createCategorySection(filler: { category: string; patterns: any[] }): { section: HTMLElement; cards: { el: HTMLElement; index: string }[] } {
+    private createCategorySection(filler: Filler): { section: HTMLElement; cards: { el: HTMLElement; index: string }[] } {
         const section = createElement('div', { className: 'mb-8' });
 
         // Category title with consistent styling
@@ -96,7 +96,7 @@ export class FillersView implements View {
         return { section, cards };
     }
 
-    private createPatternCard(pattern: any): HTMLElement {
+    private createPatternCard(pattern: FillerPattern): HTMLElement {
         // Card container — uses the 'card' class to respect CSS theme variables
         const card = createElement('div', {
             className: 'card p-6 mb-4'
@@ -120,7 +120,7 @@ export class FillersView implements View {
                 rel: 'noopener noreferrer',
                 className: 'songs-yt-btn'
             });
-            linkBtn.innerHTML = t('fillers.tutorialBtn');
+            linkBtn.textContent = t('fillers.tutorialBtn');
             nameDiv.appendChild(linkBtn);
         }
 
@@ -138,5 +138,3 @@ export class FillersView implements View {
         return card;
     }
 }
-
-// Made with Bob

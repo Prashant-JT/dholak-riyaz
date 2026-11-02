@@ -65,9 +65,9 @@ export class StatsView implements View {
             { id: 'prashant', label: t('stats.tabPrashant') },
             { id: 'meera',    label: t('stats.tabMeera')    },
             { id: 'compare',  label: t('stats.tabCompare')  },
-        ].forEach(({ id, label }, idx) => {
+        ].forEach(({ id, label }) => {
             const btn = createElement('button', {
-                className: `stats-user-tab${idx === 0 ? ' active' : ''}${id === 'compare' ? ' stats-user-tab--compare' : ''}`,
+                className: `stats-user-tab${id === this.activeUser ? ' active' : ''}`,
                 dataset: { user: id },
             }, label);
             btn.addEventListener('click', () => {
@@ -119,6 +119,12 @@ export class StatsView implements View {
         };
     }
 
+    public onLeave(): void {
+        this.destroyCharts();
+        const loadingWrap = this.section?.querySelector('.stats-loading') as any;
+        if (loadingWrap?._stopProgress) loadingWrap._stopProgress();
+    }
+
     private async loadAndRender(content: HTMLElement): Promise<void> {
         try {
             const [p, m] = await Promise.all([
@@ -133,6 +139,8 @@ export class StatsView implements View {
 
             this.userData   = { prashant: p, meera: m };
             this.dataLoaded = true;
+            // The user may have left Stats while the fetch was in flight
+            if (!content.isConnected) return;
             this.renderContent();
         } catch (err: unknown) {
             console.error('Error loading stats:', err);
@@ -603,4 +611,3 @@ export class StatsView implements View {
     }
 }
 
-// Made with Bob

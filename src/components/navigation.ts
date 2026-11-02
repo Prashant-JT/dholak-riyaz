@@ -1,6 +1,6 @@
 /**
  * NAVIGATION CONTROLLER
- * Gestiona la navegación entre vistas
+ * Handles navigation between views
  */
 
 import { CONFIG } from '../core/config.js';
@@ -25,7 +25,7 @@ export class NavigationController {
     }
     
     /**
-     * Renderiza el menú de navegación
+     * Render the navigation menu
      */
     public render(): void {
         CONFIG.NAVIGATION.forEach(item => {
@@ -78,8 +78,8 @@ export class NavigationController {
     }
     
     /**
-     * Navega a una vista específica
-     * @param viewId - ID de la vista
+     * Navigate to a view
+     * @param viewId - View ID
      */
     public navigateTo(viewId: string): void {
         this.currentView = viewId;
@@ -93,7 +93,7 @@ export class NavigationController {
     }
     
     /**
-     * Actualiza el estado activo de los botones de navegación
+     * Update the active state of the nav buttons
      */
     private updateActiveState(): void {
         const navItems = this.menuElement.querySelectorAll('.nav-item');
@@ -109,5 +109,3 @@ export class NavigationController {
         });
     }
 }
-
-// Made with Bob

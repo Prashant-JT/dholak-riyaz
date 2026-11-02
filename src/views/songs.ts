@@ -1,6 +1,4 @@
-// ============================================
-// VIEW: Songs with Taal identification
-// ============================================
+// ── VIEW: Songs with Taal identification ─────────────────────────────────────
 
 import { createElement } from '../core/utils.js';
 import { SONGS } from '../data/songs.js';
@@ -137,5 +135,3 @@ export class SongsView implements View {
         return card;
     }
 }
-
-// Made with Bob

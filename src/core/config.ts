@@ -57,5 +57,3 @@ export const CONFIG: AppConfig = {
         { id: 'songs', label: 'Canciones' }
     ]
 };
-
-// Made with Bob

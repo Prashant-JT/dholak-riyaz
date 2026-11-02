@@ -2,7 +2,7 @@
  * STATS — History card with filters, pagination, expandable block detail rows
  */
 
-import { createElement } from '../../core/utils.js';
+import { createElement, escapeHtml } from '../../core/utils.js';
 import { t, tArray } from '../../i18n/index.js';
 import { TAALS } from '../../data/taals/index.js';
 import type { UserStats, SupabaseSession, SupabaseBlock } from './statsTypes.js';
@@ -160,31 +160,28 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
             : b.type === 'pickup' ? t('stats.historyPickup')
             : (b.taal_name ?? t('stats.historyPractice'))
         );
-        const tags = blockNames.map(b => `<span class="stats-tag ${tagCls(b)}">${b}</span>`).join('');
+        const tags = blockNames.map(b => `<span class="stats-tag ${tagCls(b)}">${escapeHtml(b)}</span>`).join('');
 
-        const noteText = s.notes
-            ? s.notes.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            : '';
-        const noteHtml = s.notes ? `<div class="stats-block-note">💬 ${noteText}</div>` : '';
+        const noteHtml = s.notes ? `<div class="stats-block-note">${escapeHtml(s.notes)}</div>` : '';
 
         const detailId = `stats-detail-row-${i}`;
         const blockDetailRows = s.blocks.map((b, bi) => {
             const blockLabel = b.type === 'warmup' ? t('stats.historyWarmUp')
                 : b.type === 'pickup' ? `${t('stats.historyPickup')}: ${b.pickup_name ?? ''}`
                 : `${b.taal_name ?? t('stats.historyPractice')}${b.variation_name ? ` · ${b.variation_name}` : ''}`;
-            const kayda  = b.kayda_name ? `<span class="stats-block-meta-item">📋 ${b.kayda_name}</span>` : '';
+            const kayda  = b.kayda_name ? `<span class="stats-block-meta-item">${escapeHtml(b.kayda_name)}</span>` : '';
             const bpmStr = (b.bpm_start || b.bpm_end)
-                ? `<span class="stats-block-meta-item">🎯 ${b.bpm_start ?? '?'} → ${b.bpm_end ?? '?'} BPM</span>` : '';
+                ? `<span class="stats-block-meta-item">${b.bpm_start ?? '?'} → ${b.bpm_end ?? '?'} BPM</span>` : '';
             const durStr = b.duration_secs
-                ? `<span class="stats-block-meta-item">⏱ ${Math.round(b.duration_secs / 60)} min</span>` : '';
+                ? `<span class="stats-block-meta-item">${Math.round(b.duration_secs / 60)} min</span>` : '';
             const cycStr = b.cycles_completed
                 ? `<span class="stats-block-meta-item">${t('stats.historyCycles', b.cycles_completed)}</span>` : '';
             const supStr = b.support_type
-                ? `<span class="stats-block-meta-item">${supportLabel(b)}</span>` : '';
+                ? `<span class="stats-block-meta-item">${escapeHtml(supportLabel(b))}</span>` : '';
             return `<div class="stats-block-detail-row">
                     <span class="stats-block-detail-num">${bi + 1}</span>
                     <div class="stats-block-detail-body">
-                        <span class="stats-block-detail-label">${blockLabel}</span>
+                        <span class="stats-block-detail-label">${escapeHtml(blockLabel)}</span>
                         <div class="stats-block-meta">${bpmStr}${durStr}${cycStr}${kayda}${supStr}</div>
                     </div>
                 </div>`;
@@ -196,9 +193,9 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
                 </td>
             </tr>`;
 
-        return `<tr class="stats-history-row stats-history-row--expandable" data-detail="${detailId}">
-                <td style="white-space:nowrap;font-weight:600">${date}<br><span style="font-weight:400;font-size:0.75rem;color:var(--text-muted)">${t('stats.historyTimeAt')} ${timeStr}</span></td>
-                <td style="white-space:nowrap;color:var(--text-muted)">${dur}</td>
+        return `<tr class="stats-history-row--expandable" data-detail="${detailId}">
+                <td class="stats-hist-date">${date}<br><span class="stats-hist-time">${t('stats.historyTimeAt')} ${timeStr}</span></td>
+                <td class="stats-hist-dur">${dur}</td>
                 <td>${tags}</td>
                 <td><span class="stats-expand-btn" title="${t('stats.expandBlocks')}">▶</span></td>
             </tr>${detailRow}`;

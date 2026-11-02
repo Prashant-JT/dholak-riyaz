@@ -176,5 +176,3 @@ export class KaydasView implements View {
         return card;
     }
 }
-
-// Made with Bob

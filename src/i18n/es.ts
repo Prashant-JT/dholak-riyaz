@@ -1,10 +1,21 @@
 /**
  * SPANISH STRINGS
- * Fuente de verdad — todos los strings de UI en español.
- * Al añadir texto nuevo a la app, añadir aquí primero y luego en en.ts.
+ * Source of truth for every UI string.
+ * Add new keys here first, then mirror them in en.ts.
  */
 
 export const es = {
+
+    // App shell (document title, aria labels, fatal view error)
+    app: {
+        title:          'Satnam Sakhi - Sistema de Práctica',
+        openMenu:       'Abrir menú',
+        scrollTop:      'Volver arriba',
+        toggleTheme:    'Cambiar tema',
+        viewError:      'Algo ha fallado al cargar esta vista.',
+        viewErrorHint:  'Recarga la página para continuar. Tu sesión está guardada.',
+        viewNotFound:   (id: string) => `Vista "${id}" no encontrada.`,
+    },
 
     // ── Navegación / secciones generales ──────────────────────────────────────
     nav: {
@@ -125,6 +136,8 @@ export const es = {
 
     // ── Vistas de Taal ────────────────────────────────────────────────────────
     taal: {
+        legendThapkiDesc: 'golpe espejo en el Dayan (agudo)',
+        legendGhuisaDesc: 'deslizamiento en el Bayan (grave)',
         beatsUnit:          (n: number) => `${n} Tiempos`,
         mainPattern:        'Patrón Principal',
         searchPlaceholder:  'Buscar variación, canción o bol...',
@@ -148,7 +161,7 @@ export const es = {
         tutorialBtn:  '▶ Tutorial',
     },
 
-    // ── Sesión Riyaz — Step 1 ─────────────────────────────────────────────────
+    // ── Riyaz session — Step 1 ─────────────────────────────────────────────────
     step1: {
         pageTitle:      'Nueva Sesión de Riyaz',
         pageSubtitle:   'Configura tu sesión añadiendo bloques de práctica',
@@ -206,7 +219,7 @@ export const es = {
         shareBlockCount: (n: number) => `${n} bloque${n !== 1 ? 's' : ''}`,
     },
 
-    // ── Sesión Riyaz — Step 2 ─────────────────────────────────────────────────
+    // ── Riyaz session — Step 2 ─────────────────────────────────────────────────
     step2: {
         freeTimer:         'Cronómetro libre',
         taalLabel:         'Taal',
@@ -230,7 +243,7 @@ export const es = {
         recUnsupported:    'Tu navegador no soporta grabación de audio',
     },
 
-    // ── Sesión Riyaz — Step 3 ─────────────────────────────────────────────────
+    // ── Riyaz session — Step 3 ─────────────────────────────────────────────────
     step3: {
         pageTitle:      'Sesión completada',
         totalTime:      (t: string) => `Tiempo total: ${t}`,
@@ -263,7 +276,7 @@ export const es = {
         saveModalError: 'Error al guardar. Revisa tu conexión e inténtalo de nuevo.',
     },
 
-    // ── Sesión interrumpida / recovery ────────────────────────────────────────
+    // ── Interrupted session / recovery ────────────────────────────────────────
     recovery: {
         doneTitle:    'Sesión lista para guardar',
         doneBlocks:   (n: number, t: string) => `${n} bloque${n !== 1 ? 's' : ''} completados · ${t}`,
@@ -286,38 +299,38 @@ export const es = {
 
     // ── Estadísticas ──────────────────────────────────────────────────────────
     stats: {
+        kpiSessionsBadge: '📊 histórico',
         pageTitle:        'Estadísticas',
         pageSubtitle:     'Progresión y análisis de práctica · datos reales',
+        kpiTimeBadge:     '⏱ en práctica',
         tabPrashant:      'Prashant',
         tabMeera:         'Meera',
+        kpiAvgBadge:      '📈 media',
         tabCompare:       'Comparar',
         loading:          'Conectando con Supabase…',
+        kpiLongestBadge:  '💪 máximo',
         loadingHint:      'Esto puede tardar unos segundos la primera vez.',
         errorMsg:         'Sin conexión — no se pueden cargar las estadísticas.',
+        kpiBpmBadge:      '🎯 récord',
         errorHint:        'Conéctate a internet y recarga la página.',
         backBtn:          '← Ir a Riyaz',
+        kpiBestDayBadge:  '📅 favorito',
         // KPIs
         kpiSessions:      'Sesiones totales',
+        kpiDaysPracticedBadge: '📆 este mes',
         kpiSessionsSub:   'registradas',
-        kpiSessionsBadge: '📊 histórico',
         kpiTime:          'Tiempo total',
         kpiTimeSub:       'acumulado',
-        kpiTimeBadge:     '⏱ en práctica',
         kpiAvg:           'Media por sesión',
         kpiAvgSub:        'promedio',
-        kpiAvgBadge:      '📈 media',
         kpiLongest:       'Sesión más larga',
         kpiLongestSub:    'récord personal',
-        kpiLongestBadge:  '💪 máximo',
         kpiBpm:           'BPM máx. alcanzado',
         kpiBpmSub:        'mejor marca',
-        kpiBpmBadge:      '🎯 récord',
         kpiBestDay:       'Día con más sesiones',
         kpiBestDaySub:    (n: number) => `${n} sesiones`,
-        kpiBestDayBadge:  '📅 favorito',
         kpiDaysPracticed: 'Días practicados',
         kpiDaysPracticedSub: (d: number) => `de ${d} este mes`,
-        kpiDaysPracticedBadge: '📆 este mes',
         kpiNoData:        'sin datos',
         // Racha
         streakLabel:      'Racha activa',
@@ -326,7 +339,7 @@ export const es = {
         streakRecord:     '🏆 récord personal',
         streakBadge:      (n: number) => `🔥 ${n} sem. consecutiva${n !== 1 ? 's' : ''}`,
         streakNone:       '— sin racha semanal',
-        // Días de semana (KPI)
+        // Weekday names (KPI)
         dayNames:         ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
         // Meses abreviados
         monthsShort:      ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
@@ -500,5 +513,3 @@ export const es = {
 };
 
 export type Strings = typeof es;
-
-// Made with Bob

@@ -1,7 +1,7 @@
 /**
  * DEEPCHANDI TAAL
  * 14 beats — estructura 3+4+3+4
- * Actualiza este archivo con nuevas variaciones de Deepchandi
+ * Add new Deepchandi variations here
  */
 
 import type { Taal } from '../../types';
@@ -198,5 +198,3 @@ export const deepchandi: Taal = {
         },
     ]
 };
-
-// Made with Bob

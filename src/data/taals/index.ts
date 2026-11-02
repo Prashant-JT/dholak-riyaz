@@ -1,10 +1,8 @@
 /**
  * TAALS INDEX
- * Combina todos los taals en un único objeto TaalsData.
+ * Combines every taal into a single TaalsData object.
  *
- * Para añadir un nuevo taal al menú:
- *   1. Importarlo aquí y añadirlo al objeto TAALS
- *   2. Añadir { id: '<id>', label: '<Nombre> (XB)' } en src/core/config.ts > NAVIGATION
+ * To add a taal, follow the 7-step checklist in AGENTS.md.
  */
 
 import type { TaalsData } from '../../types';
@@ -22,7 +20,7 @@ import { ektal }      from './ektal.js';
 import { jhaptal }    from './jhaptal.js';
 
 export const TAALS: TaalsData = {
-    // Activos
+    // Active
     keherwa,
     dadra,
     rupak,
@@ -33,5 +31,3 @@ export const TAALS: TaalsData = {
     ektal,
     jhaptal,
 };
-
-// Made with Bob

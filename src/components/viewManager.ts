@@ -13,11 +13,14 @@ import { FillersView } from '../views/fillers.js';
 import { SessionWizardView } from '../views/riyaz/sessionWizard.js';
 import { StatsView } from '../views/stats.js';
 import { TAALS } from '../data/taals/index.js';
+import { createElement } from '../core/utils.js';
+import { t } from '../i18n/index.js';
 import type { View } from '../types.js';
 
 export class ViewManager {
     private contentElement: HTMLElement;
     private views: Map<string, View>;
+    private currentView: View | null = null;
     
     constructor(contentId: string) {
         const content = document.getElementById(contentId);
@@ -55,15 +58,14 @@ export class ViewManager {
      * @param viewId - View ID
      */
     public showView(viewId: string): void {
+        this.currentView?.onLeave?.();
         const view = this.views.get(viewId);
+        this.currentView = view ?? null;
         if (!view) {
             console.warn(`[ViewManager] View not found: "${viewId}"`);
             this.contentElement.innerHTML = '';
             this.contentElement.appendChild(
-                Object.assign(document.createElement('p'), {
-                    className: 'text-muted text-center py-12',
-                    textContent: `View "${viewId}" not found.`
-                })
+                createElement('p', { className: 'text-muted text-center py-12' }, t('app.viewNotFound', viewId))
             );
             return;
         }
@@ -73,12 +75,11 @@ export class ViewManager {
         } catch (error) {
             console.error(`[ViewManager] Error rendering "${viewId}":`, error);
             // Show a visible error instead of a blank screen so the user is not stuck
-            const msg = document.createElement('div');
-            msg.style.cssText = 'padding:2rem;text-align:center;color:var(--text-muted)';
-            msg.innerHTML = '<p style="font-size:1.1rem;margin-bottom:0.5rem">⚠️ Algo ha fallado al cargar esta vista.</p><p style="font-size:0.9rem">Recarga la página para continuar. Tu sesión está guardada.</p>';
+            const msg = createElement('div', { style: { padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' } });
+            msg.appendChild(createElement('p', { style: { fontSize: '1.1rem', marginBottom: '0.5rem' } }, t('app.viewError')));
+            msg.appendChild(createElement('p', { style: { fontSize: '0.9rem' } }, t('app.viewErrorHint')));
             this.contentElement.appendChild(msg);
         }
     }
 }
 
-// Made with Bob

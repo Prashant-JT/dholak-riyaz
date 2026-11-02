@@ -1,5 +1,5 @@
 /**
- * I18N — función t() y gestión de idioma
+ * I18N — t() lookup and language management
  *
  * Basic usage:
  *   import { t } from '../i18n/index.js';
@@ -19,7 +19,7 @@ export type Lang = 'es' | 'en';
 
 const LS_KEY = 'dholak_lang';
 
-// ── Detectar idioma ────────────────────────────────────────────────────────────
+// ── Detect language ────────────────────────────────────────────────────────────
 
 function detectLang(): Lang {
     const saved = localStorage.getItem(LS_KEY);
@@ -31,7 +31,7 @@ export let lang: Lang = detectLang();
 
 const STRINGS: Record<Lang, Strings> = { es, en };
 
-// ── Cambiar idioma ─────────────────────────────────────────────────────────────
+// ── Change language ─────────────────────────────────────────────────────────────
 
 export function setLang(l: Lang): void {
     localStorage.setItem(LS_KEY, l);
@@ -49,7 +49,7 @@ export function getLang(): Lang {
 // Examples:
 //   t('metronome.start')             → 'Iniciar'
 //   t('songs.counter', 42)           → '42 canciones'
-//   t('step1.startBtn', 3)           → '▶ Start session · 3 blocks'
+//   t('step1.startBtn', 3)           → 'Start session · 3 blocks'
 //   t('recovery.timeAgoN', 5)        → 'hace 5 min'
 
 export function t(key: string, ...args: any[]): string {
@@ -100,5 +100,3 @@ export function tArray(key: string): string[] {
 
     return Array.isArray(node) ? node as string[] : [];
 }
-
-// Made with Bob

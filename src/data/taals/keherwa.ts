@@ -1,7 +1,7 @@
 /**
  * KEHERWA TAAL
  * 8 beats — estructura 4+4
- * Actualiza este archivo con nuevas variaciones de Keherwa
+ * Add new Keherwa variations here
  */
 
 import type { Taal } from '../../types';
@@ -582,5 +582,3 @@ export const keherwa: Taal = {
         }
     ]
 };
-
-// Made with Bob

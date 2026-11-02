@@ -1,7 +1,7 @@
 /**
  * DEFAULT SESSION TEMPLATES
- * Plantillas predefinidas para cada taal principal.
- * Se inyectan en localStorage la primera vez que el usuario abre el Riyaz.
+ * Built-in templates for each main taal.
+ * Seeded into localStorage the first time the user opens Riyaz.
  */
 
 import type { SessionBlock } from '../types';
@@ -174,5 +174,3 @@ export const DEFAULT_TEMPLATES: SavedTemplate[] = [
         ],
     },
 ];
-
-// Made with Bob

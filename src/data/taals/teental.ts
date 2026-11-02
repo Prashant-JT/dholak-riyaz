@@ -1,9 +1,9 @@
 /**
  * TEENTAL TAAL
- * 16 beats — estructura 4+4+4+4
- * El taal más importante de la música clásica del norte de India (Hindustani)
+ * 16 beats — 4+4+4+4
+ * The central taal of Hindustani classical music.
  *
- * ESTADO: activo en navegación (src/core/config.ts > NAVIGATION)
+ * Status: active in navigation (src/core/config.ts > NAVIGATION)
  */
 
 import type { Taal } from '../../types';
@@ -48,5 +48,3 @@ export const teental: Taal = {
         color: 'blue'
     }
 };
-
-// Made with Bob

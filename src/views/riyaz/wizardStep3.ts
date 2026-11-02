@@ -1,7 +1,7 @@
 /**
- * WIZARD STEP 3 — Resumen y guardado de sesión
- * Renderiza el resumen post-sesión: bloques, breakdown por taal, notas
- * y botones de guardar / descartar con modal de autenticación.
+ * WIZARD STEP 3 — Session summary and save
+ * Post-session summary (blocks, per-taal breakdown, notes) and
+ * save / discard actions behind the password modal.
  */
 
 import { createElement } from '../../core/utils.js';
@@ -11,7 +11,7 @@ import type { SessionBlock, SessionState } from '../../types.js';
 import { clearSessionDraft } from './wizardDraft.js';
 import { formatTime } from './wizardStep2.js';
 
-/** SHA-256 usando la Web Crypto API nativa */
+/** SHA-256 via the native Web Crypto API */
 async function hashPassword(plain: string): Promise<string> {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(plain));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -21,9 +21,7 @@ export interface Step3Callbacks {
     onNewSession: () => void;   // redirige de vuelta al step 1
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Punto de entrada
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Punto de entrada ─────────────────────────────────────────────────────────
 
 export function renderStep3(
     container: HTMLElement,
@@ -141,9 +139,7 @@ export function renderStep3(
     container.appendChild(actionArea);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers de UI
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Helpers de UI ────────────────────────────────────────────────────────────
 
 function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
     const card = createElement('div', { className: 'card p-6 mb-4' });
@@ -196,9 +192,7 @@ function buildTaalBreakdown(taalTimes: Record<string, number>, totalSecs: number
     return card;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Save modal with authentication
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Save modal with authentication ───────────────────────────────────────────
 
 function showSaveModal(
     notes: string,
@@ -258,11 +252,16 @@ function showSaveModal(
     cancelBtn.addEventListener('click', () => overlay.remove());
 
     const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, t('step3.saveModalBtn'));
+    // Set synchronously so a double tap / Enter + click cannot insert the session twice
+    let inFlight = false;
     confirmBtn.addEventListener('click', async () => {
+        if (inFlight) return;
+        inFlight = true;
         const userId       = jointSession ? 'prashant' : userSelect.value;
         const passwordHash = await hashPassword(passInput.value.trim());
 
         if (passwordHash !== USERS[userId]) {
+            inFlight = false;
             errorEl.textContent = t('step3.saveModalWrongPass');
             errorEl.style.display = 'block';
             passInput.value = '';
@@ -311,6 +310,7 @@ function showSaveModal(
             errorEl.style.display = 'block';
             confirmBtn.textContent = t('step3.saveModalBtn');
             confirmBtn.removeAttribute('disabled');
+            inFlight = false;
         }
     });
 

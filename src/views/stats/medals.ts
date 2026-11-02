@@ -6,7 +6,7 @@
 
 import { TAALS } from '../../data/taals/index.js';
 import { t, tArray } from '../../i18n/index.js';
-import { gcDateStr, gcTodayStr, gcMondayStr, effectiveSecs, ACTIVE_TAAL_IDS } from './statsData.js';
+import { gcDateStr, gcTodayStr, gcMondayStr, currentWeekStreak, effectiveSecs, ACTIVE_TAAL_IDS } from './statsData.js';
 import type { SupabaseSession, Medal } from './statsTypes.js';
 
 // ── Visual metadata per taal ──────────────────────────────────────────────────
@@ -126,19 +126,7 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
         return diffToToday <= 1 ? s : 0;
     })() : 0;
 
-    const currentWeekStreak = sessionWeeks.length > 0 ? (() => {
-        let s = 1;
-        for (let i = sessionWeeks.length - 1; i > 0; i--) {
-            const prev = new Date(sessionWeeks[i-1] + 'T00:00:00Z'); prev.setUTCDate(prev.getUTCDate() + 7);
-            if (prev.toISOString().slice(0,10) === sessionWeeks[i]) s++; else break;
-        }
-        const lastWeek   = new Date(sessionWeeks[sessionWeeks.length - 1] + 'T00:00:00Z');
-        const todayGC2   = gcTodayStr();
-        const todayD     = new Date(todayGC2 + 'T00:00:00Z');
-        const dow2       = todayD.getUTCDay();
-        const thisMonday = new Date(todayD); thisMonday.setUTCDate(todayD.getUTCDate() - (dow2 === 0 ? 6 : dow2 - 1));
-        return lastWeek.toISOString().slice(0,10) === thisMonday.toISOString().slice(0,10) ? s : 0;
-    })() : 0;
+    const weekStreakNow = currentWeekStreak(sessionWeeks);
 
     return [
         mk('first',     '🌱', t('stats.medalFirst.name'),    t('stats.medalFirst.desc'),    totalSessions >= 1,   firstSession),
@@ -167,11 +155,11 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
         mk('streak365', '🎖️', t('stats.medalStreak365.name'), t('stats.medalStreak365.desc'), maxStreak >= 365, streak365Session,
             t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 365) * 100))),
         mk('week4',     '🗓️', t('stats.medalWeek4.name'),     t('stats.medalWeek4.desc'),     maxWeekStreak >= 4,  week4Session,
-            t('stats.medalProgWeeks', currentWeekStreak, 4), Math.min(100, Math.round((currentWeekStreak / 4) * 100))),
+            t('stats.medalProgWeeks', weekStreakNow, 4), Math.min(100, Math.round((weekStreakNow / 4) * 100))),
         mk('week8',     '📆', t('stats.medalWeek8.name'),     t('stats.medalWeek8.desc'),     maxWeekStreak >= 8,  week8Session,
-            t('stats.medalProgWeeks', currentWeekStreak, 8), Math.min(100, Math.round((currentWeekStreak / 8) * 100))),
+            t('stats.medalProgWeeks', weekStreakNow, 8), Math.min(100, Math.round((weekStreakNow / 8) * 100))),
         mk('week12',    '📅', t('stats.medalWeek12.name'),    t('stats.medalWeek12.desc'),    maxWeekStreak >= 12, week12Session,
-            t('stats.medalProgWeeks', currentWeekStreak, 12), Math.min(100, Math.round((currentWeekStreak / 12) * 100))),
+            t('stats.medalProgWeeks', weekStreakNow, 12), Math.min(100, Math.round((weekStreakNow / 12) * 100))),
         mk('h1',        '⏱️', t('stats.medalH1.name'),        t('stats.medalH1.desc'),        totalMins >= 60,   firstHourSession,
             t('stats.medalProgMins', totalMins, 60), Math.min(100, Math.round((totalMins / 60) * 100))),
         mk('h3',        '🕑', t('stats.medalH3.name'),        t('stats.medalH3.desc'),        totalMins >= 180,  first3hSession,
@@ -254,5 +242,3 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
         })(),
     ];
 }
-
-// Made with Bob

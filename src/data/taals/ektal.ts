@@ -1,9 +1,9 @@
 /**
  * EKTAL TAAL
- * 12 beats — estructura 2+2+2+2+2+2 (6 vibhags iguales)
- * Muy usado en Khyal clásico lento (Vilambit) y en bhajans
+ * 12 beats — 2+2+2+2+2+2 (six equal vibhags)
+ * Common in slow (vilambit) khyal and in bhajans.
  *
- * ESTADO: activo en navegación (src/core/config.ts > NAVIGATION)
+ * Status: active in navigation (src/core/config.ts > NAVIGATION)
  */
 
 import type { Taal } from '../../types';
@@ -44,5 +44,3 @@ export const ektal: Taal = {
         color: 'indigo'
     }
 };
-
-// Made with Bob

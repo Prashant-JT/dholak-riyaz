@@ -145,5 +145,3 @@ export const FILLERS: Filler[] = [
         ]
     }
 ];
-
-// Made with Bob

@@ -1,6 +1,4 @@
-// ============================================
-// DATA: Songs with Taal identification
-// ============================================
+// ── DATA: Songs with Taal identification ─────────────────────────────────────
 
 export interface Song {
     title: string;
@@ -622,7 +620,3 @@ export const SONGS: Song[] = [
         youtubeUrl: "https://www.youtube.com/watch?v=cQq6iLF66Gc"
     }
 ];
-
-// Made with ❤️ by Bob
-
-// Made with Bob

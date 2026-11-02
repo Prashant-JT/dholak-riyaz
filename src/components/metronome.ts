@@ -5,6 +5,24 @@
 
 import { CONFIG } from '../core/config.js';
 
+type AudioContextCtor = typeof AudioContext;
+
+let sharedAudioContext: AudioContext | null = null;
+
+function getSharedAudioContext(): AudioContext | null {
+    if (!sharedAudioContext) {
+        const Ctor: AudioContextCtor | undefined = window.AudioContext
+            ?? (window as unknown as { webkitAudioContext?: AudioContextCtor }).webkitAudioContext;
+        try {
+            sharedAudioContext = Ctor ? new Ctor() : null;
+        } catch {
+            // Can be blocked before a user gesture (Safari): the metronome stays silent
+            sharedAudioContext = null;
+        }
+    }
+    return sharedAudioContext;
+}
+
 export class MetronomeEngine {
     private audioContext: AudioContext | null = null;
     private isPlaying: boolean = false;
@@ -18,20 +36,15 @@ export class MetronomeEngine {
     private onCycleCallback: ((cycle: number) => void) | null = null;
     
     /**
-     * Initialises the audio context
+     * Initialises the audio context. All engines share one context: a new engine is
+     * created per session block, and iOS Safari caps the number of live AudioContexts.
      */
     private initAudioContext(): void {
         if (!this.audioContext) {
-            try {
-                this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-            } catch {
-                // AudioContext may be blocked by the browser (e.g. Safari before user gesture).
-                // The metronome simply won't play — the session continues normally.
-                this.audioContext = null;
-            }
+            this.audioContext = getSharedAudioContext();
         }
     }
-    
+
     /**
      * Generates a metronome click using an oscillator
      * @param time - Exact playback time
@@ -154,6 +167,8 @@ export class MetronomeEngine {
         this.currentBeat = 0;
         
         if (this.audioContext) {
+            // The shared context can be suspended (mobile background, autoplay policy)
+            if (this.audioContext.state !== 'running') void this.audioContext.resume();
             this.nextNoteTime = this.audioContext.currentTime;
             
             // Play the first click immediately
@@ -196,4 +211,3 @@ export class MetronomeEngine {
     }
 }
 
-// Made with Bob

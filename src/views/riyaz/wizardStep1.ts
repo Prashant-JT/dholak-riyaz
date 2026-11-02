@@ -1,7 +1,6 @@
 /**
- * WIZARD STEP 1 — Configuración de sesión
- * Renderiza el formulario de configuración: plantillas, lista de bloques,
- * formularios de Warm Up / Práctica / Pickup y botón de inicio.
+ * WIZARD STEP 1 — Session setup
+ * Templates, block list, Warm Up / Practice / Pickup forms and the start button.
  */
 
 import { createElement } from '../../core/utils.js';
@@ -35,9 +34,7 @@ export interface Step1Callbacks {
     onStep1:    (blocks?: SessionBlock[]) => void;  // re-render step1 (con bloques actualizados)
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Punto de entrada
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Punto de entrada ─────────────────────────────────────────────────────────
 
 export function renderStep1(
     container: HTMLElement,
@@ -85,7 +82,7 @@ export function renderStep1(
     container.appendChild(startBtn);
 }
 
-/** Extrae el valor de #share=... de la URL y limpia el hash */
+/** Read the #share=... value from the URL and clear the hash */
 export function extractShareHash(): string | null {
     const hash = window.location.hash;
     const prefix = '#share=';
@@ -95,9 +92,7 @@ export function extractShareHash(): string | null {
     return value || null;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Summary bar + share button
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Summary bar + share button ───────────────────────────────────────────────
 
 function renderPlanBar(blocks: SessionBlock[], _cb: Step1Callbacks): HTMLElement {
     const bar = createElement('div', { className: 'session-plan-bar mb-4' });
@@ -108,7 +103,7 @@ function renderPlanBar(blocks: SessionBlock[], _cb: Step1Callbacks): HTMLElement
             className: b.type === 'warmup' ? 'session-plan-chip session-plan-chip--warmup' : 'session-plan-chip'
         });
         if (b.type === 'warmup') {
-            chip.textContent = '🥁 Warm Up';
+            chip.textContent = t('step3.warmUp');
         } else {
             const ref = b.supportType === 'metronome'
                 ? `${b.bpmStart ?? 120} BPM`
@@ -163,7 +158,6 @@ function showSharePopup(blocks: SessionBlock[], anchor: HTMLElement): void {
 function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: Step1Callbacks): HTMLElement {
     const modal = createElement('div', { className: 'session-share-modal' });
 
-    modal.appendChild(createElement('div', { className: 'session-share-modal__icon' }, '📋'));
     modal.appendChild(createElement('h3', { className: 'session-share-modal__title' }, t('step1.shareReceived')));
     modal.appendChild(createElement('p', { className: 'session-share-modal__name' }, share.name));
     modal.appendChild(createElement('p', { className: 'session-share-modal__meta' },
@@ -171,6 +165,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
 
     const list = createElement('ul', { className: 'session-share-modal__list' });
     share.blocks.forEach(b => {
+    modal.appendChild(createElement('div', { className: 'session-share-modal__icon' }, '📋'));
         const text = b.type === 'warmup'
             ? `🥁 ${t('step3.warmUp')} — ${b.kaydaName ?? ''}`
             : `${b.taalName ?? b.taalId} · ${b.variationName ?? t('step1.blockPatternMain')}${b.supportRef ? ' · ' + b.supportRef : ''}`;
@@ -215,9 +210,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
     return modal;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Panel de plantillas
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Templates panel ──────────────────────────────────────────────────────────
 
 function renderTemplatesPanel(currentBlocks: SessionBlock[], cb: Step1Callbacks): HTMLElement {
     const wrap = createElement('div', { className: 'session-templates-panel mb-6' });
@@ -310,9 +303,7 @@ function renderTemplatesPanel(currentBlocks: SessionBlock[], cb: Step1Callbacks)
     return wrap;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Tarjeta de resumen de bloque (con botones ↑ ↓ y quitar)
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Block summary card (reorder and remove buttons) ──────────────────────────
 
 function createBlockSummaryCard(
     block: SessionBlock,
@@ -344,7 +335,7 @@ function createBlockSummaryCard(
         meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.lehraLabel));
     } else if (block.type === 'pickup') {
         if (block.pickupTaalCategory) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.pickupTaalCategory));
-        if (block.pickupVideoUrl) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, '▶ Tutorial'));
+        if (block.pickupVideoUrl) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('taal.tutorialBtn')));
     } else if (block.supportType === 'metronome') {
         meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('step1.blockMetronome', block.bpmStart ?? 120)));
     } else if (block.supportRef) {
@@ -379,9 +370,7 @@ function createBlockSummaryCard(
     return card;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Block addition forms
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Block addition forms ─────────────────────────────────────────────────────
 
 function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): HTMLElement {
     const section = createElement('div', {});
@@ -391,7 +380,6 @@ function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): H
     section.appendChild(sectionHeader);
 
     const wrapper = createElement('div', { className: 'session-form-card' });
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.warmUpLabel')));
 
     const lehraField = createElement('div', { className: 'session-form-field' });
     lehraField.appendChild(createElement('label', {}, t('step1.warmUpLehra')));
@@ -405,6 +393,7 @@ function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): H
     const kaydaField = createElement('div', { className: 'session-form-field' });
     kaydaField.appendChild(createElement('label', {}, t('step1.warmUpKayda')));
     const kaydaSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.warmUpLabel')));
     Object.entries(KAYDAS).forEach(([id, k]) => {
         kaydaSelect.appendChild(createElement('option', { value: id }, k.name) as HTMLOptionElement);
     });
@@ -437,7 +426,6 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
     section.appendChild(sectionHeader);
 
     const wrapper = createElement('div', { className: 'session-form-card' });
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.pickupLabel')));
 
     const catField = createElement('div', { className: 'session-form-field' });
     catField.appendChild(createElement('label', {}, t('step1.pickupCat')));
@@ -451,6 +439,7 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
     patField.appendChild(createElement('label', {}, t('step1.pickupPattern')));
     const patSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     wrapper.appendChild(patField);
+    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.pickupLabel')));
 
     const patPreview = createElement('div', { className: 'session-bol-preview' });
     wrapper.appendChild(patPreview);
@@ -516,7 +505,6 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     section.appendChild(sectionHeader);
 
     const wrapper = createElement('div', { className: 'session-form-card' });
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.practiceLabel')));
 
     const taalField = createElement('div', { className: 'session-form-field' });
     taalField.appendChild(createElement('label', {}, t('step2.taalLabel')));
@@ -530,6 +518,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     const varField = createElement('div', { className: 'session-form-field' });
     varField.appendChild(createElement('label', {}, t('step1.variationLabel')));
     const varSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
+    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.practiceLabel')));
     varField.appendChild(varSelect);
     wrapper.appendChild(varField);
 

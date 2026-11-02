@@ -1,6 +1,6 @@
 /**
  * LEHRAS DATA
- * Actualiza este archivo cuando encuentres nuevos loops de práctica
+ * Add new practice loops here
  */
 
 import type { Lehra } from '../types';
@@ -15,5 +15,3 @@ export const LEHRAS: Lehra[] = [
     { label: '260 BPM - 108 ciclos - 6 mins', url: 'https://www.youtube.com/embed/XZEsZMeCzno' },
     { label: '300 BPM - 108 ciclos - 6 mins', url: 'https://www.youtube.com/embed/TTRBT2roFvw' }
 ];
-
-// Made with Bob

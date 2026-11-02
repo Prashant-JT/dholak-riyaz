@@ -3,6 +3,7 @@
  * Reusable helper functions
  */
 
+import { t } from '../i18n/index.js';
 import type { ElementAttributes } from '../types';
 
 /**
@@ -12,6 +13,16 @@ import type { ElementAttributes } from '../types';
  * @param content - Element content
  * @returns Created HTML element
  */
+/** HTML-escape a string before interpolating it into an innerHTML template. */
+export function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 export function createElement(
     tag: string,
     attributes: ElementAttributes = {},
@@ -43,7 +54,8 @@ export function createElement(
         } else if (content instanceof HTMLElement) {
             element.appendChild(content);
         } else {
-            element.innerHTML = content;
+            // textContent, not innerHTML: content often comes from shared links or the DB
+            element.textContent = content;
         }
     }
     
@@ -62,12 +74,12 @@ export function createBolIndicatorsLegend(): HTMLElement {
         {
             cls: 'bol-indicator--thapki',
             label: 'Thapki',
-            desc: 'mirror stroke on the Dayan (treble)'
+            desc: t('taal.legendThapkiDesc')
         },
         {
             cls: 'bol-indicator--ghuisa',
             label: 'Ghuisa',
-            desc: 'slide on the Bayan (bass)'
+            desc: t('taal.legendGhuisaDesc')
         }
     ];
 
@@ -79,7 +91,6 @@ export function createBolIndicatorsLegend(): HTMLElement {
         dot.className = `bol-indicator ${cls}`;
 
         const text = document.createElement('span');
-        text.className = 'bol-indicators-legend__label';
         text.innerHTML = `<strong>${label}</strong><span class="text-muted"> — ${desc}</span>`;
 
         item.appendChild(dot);
@@ -208,5 +219,3 @@ export function setupSearchFilter(
         updateCounter(visibleCount, query);
     });
 }
-
-// Made with Bob

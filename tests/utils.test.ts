@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { chunkArray, bolsHaveIndicators, applyBolIndicators, VIBHAG_DIVIDERS } from '../src/core/utils';
+import { chunkArray, bolsHaveIndicators, applyBolIndicators, VIBHAG_DIVIDERS, escapeHtml, createElement } from '../src/core/utils';
 
 // ── chunkArray ────────────────────────────────────────────────────────────────
 
@@ -115,5 +115,26 @@ describe('VIBHAG_DIVIDERS', () => {
 
     it('Addha/Teental (16B) divides after 4, 8, 12', () => {
         expect(VIBHAG_DIVIDERS[16]).toEqual([4, 8, 12]);
+    });
+});
+
+// ── escapeHtml / createElement (XSS safety) ───────────────────────────────────
+
+describe('escapeHtml', () => {
+    it('escapes HTML-significant characters', () => {
+        expect(escapeHtml(`<img src=x onerror="a('b')">&`))
+            .toBe('&lt;img src=x onerror=&quot;a(&#39;b&#39;)&quot;&gt;&amp;');
+    });
+
+    it('leaves plain text untouched', () => {
+        expect(escapeHtml('Keherwa · Patrón Principal')).toBe('Keherwa · Patrón Principal');
+    });
+});
+
+describe('createElement', () => {
+    it('renders string content as text, not HTML', () => {
+        const el = createElement('p', {}, '<img src=x onerror=alert(1)>');
+        expect(el.children.length).toBe(0);
+        expect(el.textContent).toBe('<img src=x onerror=alert(1)>');
     });
 });

@@ -1,6 +1,6 @@
 /**
  * BOLS DATA
- * Actualiza este archivo cuando aprendas nuevos bols
+ * Add new bols here as they are learned
  */
 
 import type { Bol } from '../types';
@@ -89,5 +89,3 @@ export const BOLS: Bol[] = [
     ...BOLS_BY_CATEGORY.bayan,
     ...BOLS_BY_CATEGORY.compuestos
 ];
-
-// Made with Bob

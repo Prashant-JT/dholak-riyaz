@@ -1,7 +1,7 @@
 /**
  * DADRA TAAL
  * 6 beats — estructura 3+3
- * Actualiza este archivo con nuevas variaciones de Dadra
+ * Add new Dadra variations here
  */
 
 import type { Taal } from '../../types';
@@ -346,5 +346,3 @@ export const dadra: Taal = {
         text_en: 'Dadra is characteristic of Thumri and semi-classical music. Its 6-beat structure creates a natural swaying motion perfect for accompanying expressive, ornamental melodies. Set the metronome to 3/4 or a 6-pulse cycle, where each click represents 1 Matra. Suggested tempo: Start at 60 BPM (one beat per second) to ensure clean bols.',
     }
 };
-
-// Made with Bob

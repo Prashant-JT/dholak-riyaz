@@ -1,7 +1,7 @@
 /**
- * WIZARD STEP 2 — Ejecución bloque a bloque
- * Renderiza el player de práctica: timer, soporte rítmico (metrónomo /
- * canción / lehra), patrón visual y botón de siguiente / finalizar.
+ * WIZARD STEP 2 — Block-by-block practice
+ * Timer, rhythmic support (metronome / song / lehra), pattern display
+ * and the next / finish button.
  */
 
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray, VIBHAG_DIVIDERS } from '../../core/utils.js';
@@ -39,9 +39,7 @@ export interface Step2Callbacks {
     setState:   (patch: Partial<Step2State>) => void;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers: block labels for nav pills
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Helpers: block labels for nav pills ──────────────────────────────────────
 
 /** Short pill label: index + type/taal name */
 function getBlockShortLabel(b: SessionBlock, index: number): string {
@@ -52,9 +50,16 @@ function getBlockShortLabel(b: SessionBlock, index: number): string {
     return `${num}. ${taal}`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Punto de entrada
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Entry point ──────────────────────────────────────────────────────────────
+
+// Active recording zones register a release function so the mic is freed on teardown
+const recorderReleasers = new Set<() => void>();
+
+/** Stop any in-progress recording and release the microphone. */
+export function releaseRecorders(): void {
+    recorderReleasers.forEach(release => release());
+    recorderReleasers.clear();
+}
 
 export function renderStep2(
     container: HTMLElement,
@@ -64,6 +69,7 @@ export function renderStep2(
 ): void {
     stopTimer(cb);
     stopMetronome(cb);
+    releaseRecorders();
     container.innerHTML = '';
 
     const block = sessionState.blocks[sessionState.currentBlockIndex];
@@ -144,7 +150,7 @@ export function renderStep2(
         container.appendChild(renderSecondaryMetronome(block, cb));
     }
 
-    // ✏️ Edit button + panel — just before the next/finish button
+    // Edit button + panel — just before the next/finish button
     const editBtn = createElement('button', { className: 'session-edit-btn' }, t('step2.editBtn'));
     container.appendChild(editBtn);
 
@@ -182,9 +188,7 @@ export function renderStep2(
     startTimer(timerDisplay, blockStartTime, cb, sessionState);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Completar bloque actual
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Complete current block ───────────────────────────────────────────────────
 
 export function completeCurrentBlock(
     container: HTMLElement,
@@ -215,6 +219,9 @@ export function completeCurrentBlock(
     // Guard: if the container was removed from the DOM (e.g. user navigated away),
     // still save the draft so no data is lost.
     setTimeout(() => {
+        // The user may have navigated away during the flash: the draft is still
+        // advanced, but the next step is rendered only if Step 2 is still on screen
+        const stillMounted = container.isConnected;
         sessionState.currentBlockIndex++;
         if (isLast) {
             saveSessionDraft(sessionState, blockStartTime, true);
@@ -223,13 +230,11 @@ export function completeCurrentBlock(
             const nextBlock = sessionState.blocks[sessionState.currentBlockIndex];
             saveSessionDraft(sessionState, Date.now() - (nextBlock?.durationSecs ?? 0) * 1000);
         }
-        cb.onComplete();
+        if (stillMounted) cb.onComplete();
     }, 900);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Rhythmic support
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Rhythmic support ─────────────────────────────────────────────────────────
 
 function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement {
     const card = createElement('div', { className: 'card p-6 mb-4 session-edit-support-zone' });
@@ -297,9 +302,7 @@ function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement
     return card;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Metronome UI
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Metronome UI ─────────────────────────────────────────────────────────────
 
 export function buildMetronomeUI(
     container: HTMLElement,
@@ -400,9 +403,7 @@ export function buildMetronomeUI(
     void stopPlayback;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Collapsible secondary metronome
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Collapsible secondary metronome ──────────────────────────────────────────
 
 function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTMLElement {
     const wrapper = createElement('div', { className: 'session-metro-wrapper' });
@@ -439,7 +440,6 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
 
     taalSelect.addEventListener('change', () => { stopMetronome(cb); buildForTaal(taalSelect.value); });
 
-    let metroBuilt = false;
     toggleBtn.addEventListener('click', () => {
         const isOpen = metroCard.style.display !== 'none';
         if (isOpen) {
@@ -447,7 +447,8 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
             metroCard.style.display = 'none';
             toggleBtn.textContent = t('step2.supportMetronome');
         } else {
-            if (!metroBuilt) { buildForTaal(taalSelect.value); metroBuilt = true; }
+            // stopMetronome() drops the engine, so rebuild on every open
+            buildForTaal(taalSelect.value);
             metroCard.style.display = '';
             toggleBtn.textContent = t('step2.supportHide');
         }
@@ -458,9 +459,7 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
     return wrapper;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Taal / kayda visual pattern
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Taal / kayda visual pattern ──────────────────────────────────────────────
 
 function renderPatternZone(block: SessionBlock): HTMLElement {
     const card = createElement('div', { className: 'card p-6 mb-4 session-edit-pattern-zone' });
@@ -557,9 +556,7 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
     return card;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Timer y helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Timer y helpers ──────────────────────────────────────────────────────────
 
 function startTimer(
     display: HTMLElement,
@@ -615,13 +612,13 @@ function toEmbedUrl(url: string): string {
     const embedMatch  = url.match(/youtube\.com\/embed\/([\w-]+)/);
     const shortsMatch = url.match(/youtube\.com\/shorts\/([\w-]+)/);
     const id = (watchMatch ?? shortMatch ?? embedMatch ?? shortsMatch)?.[1];
-    return id ? `https://www.youtube.com/embed/${id}` : url;
+    if (id) return `https://www.youtube.com/embed/${id}`;
+    // URLs can arrive via shared links: only allow https, never javascript:/data:
+    return /^https:\/\//i.test(url) ? url : 'about:blank';
 }
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Audio recording zone — microphone only, with preview before download
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Audio recording zone — microphone only, with preview before download ─────
 
 function renderRecordingZone(block: SessionBlock): HTMLElement {
     const wrapper = createElement('div', { className: 'session-rec-zone' });
@@ -763,8 +760,6 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
         source.connect(gainNode);
         gainNode.connect(dest);
         const boostedStream = dest.stream;
-        // Stop AudioContext when tracks are released
-        micStream.getAudioTracks()[0]?.addEventListener('ended', () => void audioCtx.close());
 
         // ── Start MediaRecorder on the boosted stream ────────────────────────
         mediaRecorder = new MediaRecorder(boostedStream, mimeType ? { mimeType } : {});
@@ -775,6 +770,9 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
 
         mediaRecorder.addEventListener('stop', () => {
             allTracks.forEach(tr => tr.stop());
+            // track.stop() does not fire 'ended', so close the context explicitly
+            void audioCtx.close();
+            recorderReleasers.delete(release);
 
             const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
             showPreview(blob, mimeType || 'audio/webm');
@@ -784,6 +782,11 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
             statusEl.textContent = '';
             mediaRecorder = null;
         });
+
+        const release = (): void => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+        };
+        recorderReleasers.add(release);
 
         mediaRecorder.start();
         recBtn.textContent   = t('step2.recStop');
@@ -804,9 +807,7 @@ function renderRecordingZone(block: SessionBlock): HTMLElement {
 }
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Inline block edit panel during a session
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Inline block edit panel during a session ─────────────────────────────────
 
 function renderEditPanel(
     panel: HTMLElement,

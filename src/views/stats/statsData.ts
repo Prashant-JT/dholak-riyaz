@@ -6,6 +6,7 @@
 import { db } from '../../core/supabase.js';
 import { TAALS } from '../../data/taals/index.js';
 import { CONFIG } from '../../core/config.js';
+import { escapeHtml } from '../../core/utils.js';
 import { t, tArray, getLang } from '../../i18n/index.js';
 import type { SupabaseSession, UserStats } from './statsTypes.js';
 
@@ -35,6 +36,25 @@ export function gcMondayStr(isoDate: string): string {
     const dow = d.getUTCDay();
     d.setUTCDate(d.getUTCDate() - (dow === 0 ? 6 : dow - 1));
     return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Current streak of consecutive ISO weeks with practice, from sorted Monday keys.
+ * Like the daily streak, last week still counts until this week ends (one-week grace).
+ */
+export function currentWeekStreak(sortedMondays: string[]): number {
+    if (sortedMondays.length === 0) return 0;
+    let streak = 1;
+    for (let i = sortedMondays.length - 1; i > 0; i--) {
+        const prev = new Date(sortedMondays[i - 1] + 'T00:00:00Z');
+        prev.setUTCDate(prev.getUTCDate() + 7);
+        if (prev.toISOString().slice(0, 10) === sortedMondays[i]) streak++; else break;
+    }
+    const thisMonday = gcMondayStr(gcTodayStr());
+    const lastMonday = new Date(thisMonday + 'T00:00:00Z');
+    lastMonday.setUTCDate(lastMonday.getUTCDate() - 7);
+    const latest = sortedMondays[sortedMondays.length - 1];
+    return latest === thisMonday || latest === lastMonday.toISOString().slice(0, 10) ? streak : 0;
 }
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
@@ -67,33 +87,23 @@ export function effectiveSecs(s: SupabaseSession): number {
 // ── Data transformation ───────────────────────────────────────────────────────
 
 export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats {
-    const now   = new Date();
-    const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
-
-    // ── Last 16 weeks from today ──────────────────────────────────────────────
-    const weekStarts: Date[] = [];
+    // ── Last 16 weeks (Monday keys in Canary time, same as streaks / heatmap) ─
+    const thisMonday = gcMondayStr(gcTodayStr());
+    const weekKeys: string[] = [];
     for (let i = 15; i >= 0; i--) {
-        const d = new Date(now.getTime() - i * MS_WEEK);
-        // Monday of that week
-        const day = d.getDay();
-        const diff = (day === 0 ? -6 : 1 - day);
-        d.setDate(d.getDate() + diff);
-        d.setHours(0, 0, 0, 0);
-        weekStarts.push(d);
+        const d = new Date(thisMonday + 'T00:00:00Z');
+        d.setUTCDate(d.getUTCDate() - i * 7);
+        weekKeys.push(d.toISOString().slice(0, 10));
     }
 
     const MONTH_SHORT = tArray('stats.monthsShort');
-    const weekLabels = weekStarts.map(d => `${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`);
+    const weekLabels = weekKeys.map(k => {
+        const d = new Date(k + 'T00:00:00Z');
+        return `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]}`;
+    });
 
     // ── Session → week index ──────────────────────────────────────────────────
-    const getWeekIdx = (isoDate: string): number => {
-        const d = new Date(isoDate);
-        for (let i = weekStarts.length - 1; i >= 0; i--) {
-            const end = new Date(weekStarts[i].getTime() + MS_WEEK);
-            if (d >= weekStarts[i] && d < end) return i;
-        }
-        return -1;
-    };
+    const getWeekIdx = (isoDate: string): number => weekKeys.indexOf(gcMondayStr(gcDateStr(isoDate)));
 
     // ── Weekly minutes + daily breakdown (Mon=0 … Sun=6) ─────────────────────
     const weekly  = new Array(16).fill(0);
@@ -287,21 +297,7 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
 
     // Weekly streak — ISO weeks in Canary Island time
     const sessionWeeksArr = Array.from(new Set(sessions.map(s => gcMondayStr(gcDateStr(s.saved_at))))).sort();
-    let weekStreak = 0;
-    if (sessionWeeksArr.length > 0) {
-        let ws = 1;
-        for (let i = sessionWeeksArr.length - 1; i > 0; i--) {
-            const prev = new Date(sessionWeeksArr[i - 1] + 'T00:00:00Z');
-            prev.setUTCDate(prev.getUTCDate() + 7);
-            if (prev.toISOString().slice(0, 10) === sessionWeeksArr[i]) ws++; else break;
-        }
-        const lastWeek   = new Date(sessionWeeksArr[sessionWeeksArr.length - 1] + 'T00:00:00Z');
-        const todayDay2  = new Date(todayGC + 'T00:00:00Z');
-        const todayDow   = todayDay2.getUTCDay();
-        const thisMonday = new Date(todayDay2);
-        thisMonday.setUTCDate(todayDay2.getUTCDate() - (todayDow === 0 ? 6 : todayDow - 1));
-        weekStreak = lastWeek.toISOString().slice(0, 10) === thisMonday.toISOString().slice(0, 10) ? ws : 0;
-    }
+    const weekStreak = currentWeekStreak(sessionWeeksArr);
 
     // ── Automatic insight ─────────────────────────────────────────────────────
     const taalOnlyEntries = Object.entries(donutSecs).filter(([k]) => !k.startsWith('Warm Up') && !k.startsWith('Pickup'));
@@ -310,8 +306,8 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
     const insight = sessions.length === 0
         ? t('stats.insightNoSessions')
         : taalOnlyEntries.length <= 1
-            ? t('stats.insightOneTaal', topTaal)
-            : t('stats.insightMultiTaal', topTaal, leastTaal);
+            ? t('stats.insightOneTaal', escapeHtml(topTaal))
+            : t('stats.insightMultiTaal', escapeHtml(topTaal), escapeHtml(leastTaal));
 
     return {
         kpi: { sessions: sessions.length, time: timeStr, bpm: maxBpm, streak, weekStreak, maxStreak },
@@ -365,5 +361,3 @@ export function emptyStats(): UserStats {
         rawSessions: [],
     };
 }
-
-// Made with Bob

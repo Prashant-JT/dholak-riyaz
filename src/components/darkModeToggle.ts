@@ -4,6 +4,7 @@
  */
 
 import { createElement } from '../core/utils.js';
+import { t } from '../i18n/index.js';
 
 export class DarkModeToggle {
     private button: HTMLButtonElement;
@@ -69,8 +70,8 @@ export class DarkModeToggle {
     private createToggleButton(): HTMLButtonElement {
         const button = createElement('button', {
             className: 'dark-mode-toggle',
-            'aria-label': 'Cambiar tema',
-            title: 'Cambiar entre modo claro y oscuro'
+            'aria-label': t('app.toggleTheme'),
+            title: t('app.toggleTheme')
         }) as HTMLButtonElement;
 
         button.addEventListener('click', () => this.toggleTheme());
@@ -86,4 +87,3 @@ export class DarkModeToggle {
     }
 }
 
-// Made with Bob

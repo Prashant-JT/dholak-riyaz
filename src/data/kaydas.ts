@@ -1,6 +1,6 @@
 /**
  * KAYDAS DATA
- * Actualiza este archivo cuando aprendas nuevas kaydas y variaciones
+ * Add new kaydas and variations here as they are learned
  */
 
 import type { KaydasData } from '../types';
@@ -350,5 +350,3 @@ export const KAYDAS: KaydasData = {
         ]
     }
 };
-
-// Made with Bob

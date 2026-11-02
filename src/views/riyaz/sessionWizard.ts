@@ -1,12 +1,11 @@
 /**
- * SESSION WIZARD VIEW — Orquestador
- * Tres pasos: Configurar → Practicar (bloque a bloque) → Resumen.
+ * SESSION WIZARD VIEW — Orchestrator
+ * Three steps: Set up → Practise (block by block) → Summary.
  *
- * La lógica de cada paso vive en módulos separados:
- *   - wizardDraft.ts   → persistencia de borrador, plantillas y share URL
- *   - wizardStep1.ts   → configuración de sesión (formularios, plantillas)
- *   - wizardStep2.ts   → ejecución bloque a bloque (metrónomo, timer, patrón)
- *   - wizardStep3.ts   → resumen y guardado a Supabase
+ *   - wizardDraft.ts   → draft persistence, templates, share URL
+ *   - wizardStep1.ts   → session setup
+ *   - wizardStep2.ts   → block-by-block practice
+ *   - wizardStep3.ts   → summary and save to Supabase
  */
 
 import { createElement } from '../../core/utils.js';
@@ -32,6 +31,7 @@ import {
     renderStep2,
     stopTimer,
     stopMetronome,
+    releaseRecorders,
     type Step2State,
     type Step2Callbacks,
 } from './wizardStep2.js';
@@ -50,9 +50,12 @@ export class SessionWizardView implements View {
         cycleCount:    0,
     };
 
-    public render(): HTMLElement {
-        // Clean up any leftover timer/metronome from a previous render
-        // (e.g. user navigated away mid-session and came back)
+    public onLeave(): void {
+        this.cleanupStep2();
+    }
+
+    /** Stop the block timer and metronome left over from Step 2. */
+    private cleanupStep2(): void {
         const cleanupCb = {
             getState:   () => this.step2State,
             setState:   (patch: Partial<Step2State>) => { Object.assign(this.step2State, patch); },
@@ -61,11 +64,17 @@ export class SessionWizardView implements View {
         };
         stopTimer(cleanupCb);
         stopMetronome(cleanupCb);
+        releaseRecorders();
+    }
+
+    public render(): HTMLElement {
+        // Clean up anything left over from a previous render
+        this.cleanupStep2();
 
         seedDefaultTemplates();
         this.container = createElement('section', { id: 'riyaz', className: 'view-section' });
 
-        // 1. Link compartido tiene prioridad absoluta
+        // 1. A shared link always takes priority
         const hashParam = extractShareHash();
         if (hashParam) {
             const parsed = hashToBlocks(hashParam);
@@ -84,9 +93,7 @@ export class SessionWizardView implements View {
         return this.container;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Step coordination
-    // ─────────────────────────────────────────────────────────────────────────
+    // ── Step coordination ────────────────────────────────────────────────────
 
     private doStep1(blocks: SessionBlock[] = [], share: { name: string; blocks: SessionBlock[] } | null = null): void {
         renderStep1(this.container, {
@@ -109,6 +116,7 @@ export class SessionWizardView implements View {
 
     private doStep2(): void {
         this.step2State.cycleCount = 0;
+        window.scrollTo(0, 0);
         renderStep2(
             this.container,
             this.sessionState,
@@ -144,6 +152,7 @@ export class SessionWizardView implements View {
     }
 
     private doStep3(): void {
+        window.scrollTo(0, 0);
         renderStep3(this.container, this.sessionState, {
             onNewSession: () => {
                 clearSessionDraft();
@@ -152,9 +161,7 @@ export class SessionWizardView implements View {
         });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Interrupted session recovery banner
-    // ─────────────────────────────────────────────────────────────────────────
+    // ── Interrupted session recovery banner ──────────────────────────────────
 
     private renderDraftRecovery(draft: SessionDraft): void {
         this.container.innerHTML = '';
@@ -190,9 +197,9 @@ export class SessionWizardView implements View {
             const isCurrent = !allBlocksDone && i === draft.state.currentBlockIndex;
             const isDone = b.completedAt !== undefined;
             const label = b.type === 'warmup'
-                ? `Warm Up — ${b.kaydaName ?? ''}`
+                ? `${t('step3.warmUp')} — ${b.kaydaName ?? ''}`
                 : b.type === 'pickup'
-                    ? `Pickup — ${b.pickupName ?? ''}`
+                    ? `${t('step3.pickup')} — ${b.pickupName ?? ''}`
                     : `${b.taalName ?? ''} · ${b.variationName ?? ''}`;
             const prefix = isCurrent ? '▶ ' : isDone ? '✓ ' : '';
             const li = createElement('li', {

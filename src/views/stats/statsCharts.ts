@@ -511,5 +511,3 @@ export function mountCumulativeChart(p: UserStats, m: UserStats, chartRegistry: 
         },
     }));
 }
-
-// Made with Bob

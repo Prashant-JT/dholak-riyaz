@@ -9,7 +9,7 @@ import { MetronomeEngine } from './components/metronome.js';
 import { DarkModeToggle } from './components/darkModeToggle.js';
 import { CONFIG } from './core/config.js';
 import { updateSessionBadge } from './views/riyaz/sessionWizard.js';
-import { t } from './i18n/index.js';
+import { t, getLang } from './i18n/index.js';
 import type { NavigateEventDetail } from './types.js';
 
 class Application {
@@ -26,6 +26,8 @@ class Application {
      * Initialise the application
      */
     public init(): void {
+        this.applyDocumentLocale();
+
         // Initialise navigation
         this.navigationController = new NavigationController('navigationMenu', 'mainContent');
         this.navigationController.render();
@@ -76,6 +78,16 @@ class Application {
 
         // Scroll to top button
         this.initScrollToTop();
+    }
+
+    /**
+     * index.html ships in Spanish; sync <html lang>, title and aria labels with the active language
+     */
+    private applyDocumentLocale(): void {
+        document.documentElement.lang = getLang();
+        document.title = t('app.title');
+        document.getElementById('hamburgerBtn')?.setAttribute('aria-label', t('app.openMenu'));
+        document.getElementById('scrollTopBtn')?.setAttribute('aria-label', t('app.scrollTop'));
     }
 
     /**
@@ -373,5 +385,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = new Application();
     app.init();
 });
-
-// Made with Bob

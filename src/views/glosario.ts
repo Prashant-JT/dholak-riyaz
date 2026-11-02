@@ -206,5 +206,3 @@ export class GlosarioView implements View {
         return column;
     }
 }
-
-// Made with Bob

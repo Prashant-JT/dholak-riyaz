@@ -7,6 +7,16 @@ import type { Strings } from './es.js';
 
 export const en: Strings = {
 
+    app: {
+        title:          'Satnam Sakhi - Practice System',
+        openMenu:       'Open menu',
+        scrollTop:      'Back to top',
+        toggleTheme:    'Toggle theme',
+        viewError:      'Something went wrong while loading this view.',
+        viewErrorHint:  'Reload the page to continue. Your session is saved.',
+        viewNotFound:   (id: string) => `View "${id}" not found.`,
+    },
+
     nav: {
         soon: 'Coming soon',
         riyaz:       'Riyaz Session',
@@ -121,6 +131,8 @@ export const en: Strings = {
 
     // ── Taal views ────────────────────────────────────────────────────────────
     taal: {
+        legendThapkiDesc: 'mirror stroke on the Dayan (treble)',
+        legendGhuisaDesc: 'slide on the Bayan (bass)',
         beatsUnit:          (n: number) => `${n} Beats`,
         mainPattern:        'Main Pattern',
         searchPlaceholder:  'Search variation, song or bol...',
@@ -276,37 +288,37 @@ export const en: Strings = {
     },
 
     stats: {
+        kpiSessionsBadge: '📊 all time',
         pageTitle:        'Statistics',
         pageSubtitle:     'Practice progression and analysis · real data',
+        kpiTimeBadge:     '⏱ in practice',
         tabPrashant:      'Prashant',
         tabMeera:         'Meera',
+        kpiAvgBadge:      '📈 average',
         tabCompare:       'Compare',
         loading:          'Connecting to Supabase…',
+        kpiLongestBadge:  '💪 maximum',
         loadingHint:      'This may take a few seconds the first time.',
         errorMsg:         'No connection — statistics could not be loaded.',
+        kpiBpmBadge:      '🎯 record',
         errorHint:        'Connect to the internet and reload the page.',
         backBtn:          '← Go to Riyaz',
+        kpiBestDayBadge:  '📅 favourite',
         kpiSessions:      'Total sessions',
         kpiSessionsSub:   'recorded',
-        kpiSessionsBadge: '📊 all time',
+        kpiDaysPracticedBadge: '📆 this month',
         kpiTime:          'Total time',
         kpiTimeSub:       'accumulated',
-        kpiTimeBadge:     '⏱ in practice',
         kpiAvg:           'Avg. per session',
         kpiAvgSub:        'average',
-        kpiAvgBadge:      '📈 average',
         kpiLongest:       'Longest session',
         kpiLongestSub:    'personal best',
-        kpiLongestBadge:  '💪 maximum',
         kpiBpm:           'Max BPM reached',
         kpiBpmSub:        'best mark',
-        kpiBpmBadge:      '🎯 record',
         kpiBestDay:       'Most active day',
         kpiBestDaySub:    (n: number) => `${n} session${n !== 1 ? 's' : ''}`,
-        kpiBestDayBadge:  '📅 favourite',
         kpiDaysPracticed: 'Days practised',
         kpiDaysPracticedSub: (d: number) => `of ${d} this month`,
-        kpiDaysPracticedBadge: '📆 this month',
         kpiNoData:        'no data',
         streakLabel:      'Active streak',
         streakDays:       'days',
@@ -471,5 +483,3 @@ export const en: Strings = {
     },
 
 };
-
-// Made with Bob

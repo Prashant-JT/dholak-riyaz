@@ -1,12 +1,12 @@
 /**
  * TAAL VIEW
- * Vista genérica para mostrar taals
+ * Generic view for any taal
  */
 
 import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
 import { t, getLang } from '../i18n/index.js';
-import type { View, Taal } from '../types.js';
+import type { View, Taal, TaalVariation, Matra } from '../types.js';
 
 export class TaalView implements View {
     private taalData: Taal;
@@ -160,7 +160,7 @@ export class TaalView implements View {
      * Splits matras into vibhags according to the taal structure.
      * Mobile only (< 768px).
      */
-    private getVibhagStructure(row: any[]): any[][] {
+    private getVibhagStructure(row: Matra[]): Matra[][] {
         const isMobile = window.innerWidth < 768;
         
         // Not mobile — return the full row
@@ -220,7 +220,7 @@ export class TaalView implements View {
                 ];
             default:
                 // For other taals, split into groups of 4
-                const vibhags: any[][] = [];
+                const vibhags: Matra[][] = [];
                 for (let i = 0; i < row.length; i += 4) {
                     vibhags.push(row.slice(i, i + 4));
                 }
@@ -228,7 +228,7 @@ export class TaalView implements View {
         }
     }
     
-    private createTaalCard(title: string, rows: any[][], description?: string, variation?: any, isEn = false): HTMLElement {
+    private createTaalCard(title: string, rows: Matra[][], description?: string, variation?: TaalVariation, isEn = false): HTMLElement {
         const card = createElement('div', { className: 'card p-8 mb-6' });
         
         const titleEl = createElement('h3', {
@@ -351,7 +351,7 @@ export class TaalView implements View {
                 
                 const tutorialsGrid = createElement('div', { className: 'grid gap-2' });
                 
-                variation.tutorials.forEach((url: string, idx: number) => {
+                variation?.tutorials?.forEach((url: string, idx: number) => {
                     const tutorialCard = createElement('div', { className: 'tutorial-card' });
                     const link = createElement('a', {
                         href: url,
@@ -442,5 +442,3 @@ export class TaalView implements View {
         return tipDiv;
     }
 }
-
-// Made with Bob
