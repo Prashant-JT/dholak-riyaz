@@ -579,6 +579,25 @@ export const keherwa: Taal = {
                 'The first Dhi (M1) and the last Dha (M8) are open strokes: open hand on the bayan.',
                 'Dhit (M5) uses ghisa.'
             ]
+        },
+        {
+            name: 'Keherwa variación rápida con Thapki',
+            name_en: 'Keherwa Fast Thapki variation',
+            rows: [
+                [
+                    { matra: 1, bol: 'Ghe',          technique: '' },
+                    { matra: 2, bol: '—',            technique: '' },
+                    { matra: 3, bol: 'Ti (thapki)',  technique: '' },
+                    { matra: 4, bol: 'Na',           technique: '' },
+                    { matra: 5, bol: 'Ta',           technique: '' },
+                    { matra: 6, bol: '—',            technique: '' },
+                    { matra: 7, bol: 'Dhi (ghisa)',  technique: '' },
+                    { matra: 8, bol: 'Na',           technique: '' }
+                ]
+            ],
+            tutorials: ['https://www.youtube.com/watch?v=fS9PdetOo6Y'],
+            description: '4 beats + 4 beats — theka rápido con thapki y ghisa',
+            description_en: '4 beats + 4 beats — fast theka with thapki and ghisa'
         }
     ]
 };
