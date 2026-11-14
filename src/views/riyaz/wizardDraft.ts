@@ -8,6 +8,7 @@ import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState } from '../../types.js';
 import { DEFAULT_TEMPLATES } from '../../data/defaultTemplates.js';
 import { CONFIG } from '../../core/config.js';
+import { clearRecordings } from './recordingDraft.js';
 
 // ─── Active session draft ─────────────────────────────────────────────────────
 
@@ -37,6 +38,8 @@ export function loadSessionDraft(): SessionDraft | null {
 
 export function clearSessionDraft(): void {
     localStorage.removeItem(LS_DRAFT_KEY);
+    // Recordings belong to the draft: drop them once the session is saved or discarded
+    void clearRecordings();
     updateSessionBadge();
 }
 
@@ -81,7 +84,7 @@ export function seedDefaultTemplates(): void {
 
 // ─── URL share serialisation ──────────────────────────────────────────────────
 
-type ShareableBlock = Omit<SessionBlock, 'durationSecs' | 'completedAt' | 'cyclesCompleted' | 'bpmEnd'>;
+type ShareableBlock = Omit<SessionBlock, 'durationSecs' | 'completedAt' | 'cyclesCompleted' | 'bpmEnd' | 'note'>;
 
 export function blocksToHash(name: string, blocks: ShareableBlock[]): string {
     return btoa(encodeURIComponent(JSON.stringify({ name, blocks })));

@@ -241,6 +241,9 @@ export const es = {
         recDownload:       '⬇ Descargar',
         recNoMic:          'Sin permiso de micrófono',
         recUnsupported:    'Tu navegador no soporta grabación de audio',
+        recKeep:           'Guardar con la sesión',
+        blockNoteLabel:    'Comentario del bloque',
+        blockNotePlaceholder: '¿Cómo ha ido? Qué falló, qué mejorar...',
     },
 
     // ── Riyaz session — Step 3 ─────────────────────────────────────────────────
@@ -274,6 +277,9 @@ export const es = {
         saveModalSaving: 'Guardando...',
         saveModalBtn:   'Guardar',
         saveModalError: 'Error al guardar. Revisa tu conexión e inténtalo de nuevo.',
+        saveModalUploading: (n: number, total: number) => `Subiendo grabación ${n}/${total}...`,
+        saveModalRecError: 'No se pudieron subir las grabaciones. Inténtalo de nuevo o guarda sin ellas.',
+        saveModalSkipRec: 'Guardar sin grabaciones',
     },
 
     // ── Interrupted session / recovery ────────────────────────────────────────
@@ -397,6 +403,9 @@ export const es = {
         historySupSong:   (ref: string) => `🎵 ${ref}`,
         historySupLehra:  (ref: string) => `🎶 ${ref}`,
         historyCycles:    (n: number) => `🔁 ${n} ciclos`,
+        historyRecording: 'Grabación del bloque',
+        historyRecUnsupported: 'Este navegador no puede reproducir la grabación.',
+        historyRecDownload: 'Descargar',
         // Charts
         chartBpmTitle:    'Evolución de BPM por taal',
         chartBpmSub:      'Progresión técnica real',

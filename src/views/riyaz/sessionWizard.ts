@@ -37,6 +37,7 @@ import {
 } from './wizardStep2.js';
 
 import { renderStep3 } from './wizardStep3.js';
+import { clearRecordings } from './recordingDraft.js';
 
 export class SessionWizardView implements View {
     private container!: HTMLElement;
@@ -103,6 +104,8 @@ export class SessionWizardView implements View {
     }
 
     private startSession(blocks: SessionBlock[]): void {
+        // Leftovers from an abandoned session must not attach to the new blocks
+        void clearRecordings();
         this.sessionState = {
             startedAt: Date.now(),
             blocks: blocks.map(b => ({ ...b })),

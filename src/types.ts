@@ -240,6 +240,7 @@ export interface SessionBlock {
     durationSecs?: number;
     completedAt?: number;           // timestamp Date.now()
     cyclesCompleted?: number;       // only if supportType === 'metronome'
+    note?: string;                  // free comment on how the block went
 }
 
 export interface SessionState {

@@ -10,6 +10,10 @@ import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState } from '../../types.js';
 import { clearSessionDraft } from './wizardDraft.js';
 import { formatTime } from './wizardStep2.js';
+import { getRecording } from './recordingDraft.js';
+import { renderBlockNote, BLOCK_NOTE_MAX } from './blockNote.js';
+import { saveSessionDraft } from './wizardDraft.js';
+import { buildRecordingPath, uploadRecording } from '../../core/recordingStorage.js';
 
 /** SHA-256 via the native Web Crypto API */
 async function hashPassword(plain: string): Promise<string> {
@@ -39,7 +43,7 @@ export function renderStep3(
     container.appendChild(header);
 
     // Lista de bloques
-    container.appendChild(buildBlocksList(sessionState.blocks));
+    container.appendChild(buildBlocksList(sessionState));
 
     // Time breakdown by taal
     const taalTimes: Record<string, number> = {};
@@ -141,7 +145,8 @@ export function renderStep3(
 
 // ── Helpers de UI ────────────────────────────────────────────────────────────
 
-function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
+function buildBlocksList(sessionState: SessionState): HTMLElement {
+    const blocks = sessionState.blocks;
     const card = createElement('div', { className: 'card p-6 mb-4' });
     card.appendChild(createElement('h3', { className: 'font-bold text-lg mb-4' }, t('step3.blocksTitle')));
 
@@ -165,6 +170,8 @@ function buildBlocksList(blocks: SessionBlock[]): HTMLElement {
         meta.textContent = `${dur}${bpmInfo}${cyclesInfo}${songInfo}`;
         row.appendChild(meta);
         card.appendChild(row);
+        // Block comment — editable here too, in case it was not written during practice
+        card.appendChild(renderBlockNote(block, () => saveSessionDraft(sessionState, Date.now(), true)));
     });
 
     return card;
@@ -254,6 +261,19 @@ function showSaveModal(
     const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, t('step3.saveModalBtn'));
     // Set synchronously so a double tap / Enter + click cannot insert the session twice
     let inFlight = false;
+    // Paths already uploaded, by block id — a retry after a failure does not re-upload them
+    const uploadedPaths = new Map<string, string>();
+    // Set after an upload failure when the user chooses to save the session without recordings
+    let skipRecordings = false;
+
+    const skipRecBtn = createElement('button', { className: 'save-modal__skip-rec' }, t('step3.saveModalSkipRec'));
+    skipRecBtn.style.display = 'none';
+    skipRecBtn.addEventListener('click', () => {
+        skipRecordings = true;
+        skipRecBtn.style.display = 'none';
+        confirmBtn.click();
+    });
+
     confirmBtn.addEventListener('click', async () => {
         if (inFlight) return;
         inFlight = true;
@@ -273,6 +293,37 @@ function showSaveModal(
         confirmBtn.setAttribute('disabled', 'true');
         errorEl.style.display = 'none';
 
+        // saved_at = session start time (ISO 8601)
+        const savedAt = new Date(startedAt).toISOString();
+
+        // Upload the recordings kept during the session before inserting the rows
+        if (!skipRecordings) {
+            const pending: { blockId: string; blob: Blob; mimeType: string }[] = [];
+            for (const b of blocks) {
+                if (uploadedPaths.has(b.id)) continue;
+                const rec = await getRecording(b.id);
+                if (rec) pending.push({ blockId: b.id, blob: rec.blob, mimeType: rec.mimeType });
+            }
+            try {
+                for (let i = 0; i < pending.length; i++) {
+                    const p = pending[i];
+                    confirmBtn.textContent = t('step3.saveModalUploading', i + 1, pending.length);
+                    const path = buildRecordingPath(userId, savedAt, p.mimeType, crypto.randomUUID());
+                    uploadedPaths.set(p.blockId, await uploadRecording(path, p.blob, p.mimeType));
+                }
+            } catch (err) {
+                console.error('Error uploading recording:', err);
+                errorEl.textContent = t('step3.saveModalRecError');
+                errorEl.style.display = 'block';
+                skipRecBtn.style.display = '';
+                confirmBtn.textContent = t('step3.saveModalBtn');
+                confirmBtn.removeAttribute('disabled');
+                inFlight = false;
+                return;
+            }
+            confirmBtn.textContent = t('step3.saveModalSaving');
+        }
+
         const blocksMapped = blocks.map(b => ({
             type:             b.type,
             taal_name:        b.taalName,
@@ -286,10 +337,9 @@ function showSaveModal(
             cycles_completed: b.cyclesCompleted,
             pickup_name:      b.pickupName,
             pickup_taal:      b.pickupTaalCategory,
+            recording_path:   skipRecordings ? undefined : uploadedPaths.get(b.id),
+            note:             b.note?.trim().slice(0, BLOCK_NOTE_MAX) || undefined,
         }));
-
-        // saved_at = session start time (ISO 8601)
-        const savedAt = new Date(startedAt).toISOString();
 
         // Joint session inserts two records: one per user
         const records = jointSession
@@ -313,6 +363,7 @@ function showSaveModal(
             inFlight = false;
         }
     });
+    modal.appendChild(skipRecBtn);
 
     passInput.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') confirmBtn.click(); });
 

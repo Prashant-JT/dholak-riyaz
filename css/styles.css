@@ -3388,6 +3388,42 @@ body.dark .stats-insight-box {
     padding: 1px 7px;
 }
 
+/* Per-block comment inside the history detail panel */
+.stats-block-detail-note {
+    margin: 4px 0 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Block recording player inside the history detail panel */
+.stats-block-audio {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    height: 40px;
+    margin-top: 6px;
+    accent-color: var(--accent);
+}
+
+/* Shown instead of the player when the browser cannot decode the format */
+.stats-block-rec-fallback {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 6px;
+}
+
+.stats-block-rec-dl {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+}
+
 /* Note inside detail panel */
 .stats-block-note {
     margin-top: 10px;
@@ -3583,6 +3619,20 @@ body.dark .save-modal__error {
     display: flex;
     gap: 10px;
     margin-top: 20px;
+}
+
+/* Shown only after a recording upload fails */
+.save-modal__skip-rec {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 /* Password input — same style as system select/input */
@@ -3942,6 +3992,61 @@ body.dark .session-action-feedback--success {
     min-width: 0;
     height: 36px;
     accent-color: var(--orange-500);
+}
+
+.session-rec-keep {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.session-rec-keep__check {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* ── Per-block comment (step 2 and step 3) ───────────────────────────────── */
+.session-block-note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    text-align: left;
+}
+
+.session-block-note__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.session-block-note__input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0.75rem;
+    font-family: inherit;
+    font-size: 16px; /* 16px stops iOS from zooming on focus */
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+}
+
+.session-block-note__input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .session-rec-dl-row {

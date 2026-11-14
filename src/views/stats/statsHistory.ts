@@ -11,6 +11,7 @@ import { TAAL_META, DEFAULT_TAAL_META } from './medals.js';
 import { ACTIVE_TAAL_IDS } from './statsData.js';
 import { cardEl, cardTitle, effectiveSecs } from './statsKPIs.js';
 import { CONFIG } from '../../core/config.js';
+import { getRecordingUrl, canPlayRecording } from '../../core/recordingStorage.js';
 
 const GC_TZ = CONFIG.TIMEZONE;
 
@@ -178,11 +179,22 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
                 ? `<span class="stats-block-meta-item">${t('stats.historyCycles', b.cycles_completed)}</span>` : '';
             const supStr = b.support_type
                 ? `<span class="stats-block-meta-item">${escapeHtml(supportLabel(b))}</span>` : '';
+            const recUrl = b.recording_path ? getRecordingUrl(b.recording_path) : null;
+            // Fallback: if this browser cannot play the format, offer a download instead
+            const recStr = !recUrl ? ''
+                : canPlayRecording(b.recording_path!)
+                    ? `<audio class="stats-block-audio" controls preload="none" src="${escapeHtml(recUrl)}" aria-label="${escapeHtml(t('stats.historyRecording'))}"></audio>`
+                    : `<div class="stats-block-rec-fallback">
+                            <span class="text-muted text-sm">${escapeHtml(t('stats.historyRecUnsupported'))}</span>
+                            <a class="btn-secondary stats-block-rec-dl" href="${escapeHtml(recUrl)}?download" target="_blank" rel="noopener">${escapeHtml(t('stats.historyRecDownload'))}</a>
+                       </div>`;
             return `<div class="stats-block-detail-row">
                     <span class="stats-block-detail-num">${bi + 1}</span>
                     <div class="stats-block-detail-body">
                         <span class="stats-block-detail-label">${escapeHtml(blockLabel)}</span>
                         <div class="stats-block-meta">${bpmStr}${durStr}${cycStr}${kayda}${supStr}</div>
+                        ${b.note ? `<p class="stats-block-detail-note">${escapeHtml(b.note)}</p>` : ''}
+                        ${recStr}
                     </div>
                 </div>`;
         }).join('');

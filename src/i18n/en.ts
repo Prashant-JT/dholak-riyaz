@@ -233,6 +233,9 @@ export const en: Strings = {
         recDownload:       '⬇ Download',
         recNoMic:          'No microphone permission',
         recUnsupported:    'Your browser does not support audio recording',
+        recKeep:           'Save with the session',
+        blockNoteLabel:    'Block comment',
+        blockNotePlaceholder: 'How did it go? What slipped, what to improve...',
     },
 
     step3: {
@@ -265,6 +268,9 @@ export const en: Strings = {
         saveModalSaving: 'Saving...',
         saveModalBtn:   'Save',
         saveModalError: 'Error saving. Check your connection and try again.',
+        saveModalUploading: (n: number, total: number) => `Uploading recording ${n}/${total}...`,
+        saveModalRecError: 'Could not upload the recordings. Try again or save without them.',
+        saveModalSkipRec: 'Save without recordings',
     },
 
     recovery: {
@@ -376,6 +382,9 @@ export const en: Strings = {
         historySupSong:   (ref: string) => `🎵 ${ref}`,
         historySupLehra:  (ref: string) => `🎶 ${ref}`,
         historyCycles:    (n: number) => `🔁 ${n} cycles`,
+        historyRecording: 'Block recording',
+        historyRecUnsupported: 'This browser cannot play the recording.',
+        historyRecDownload: 'Download',
         chartBpmTitle:    'BPM progression by taal',
         chartBpmSub:      'Real technical progress',
         chartDonutTitle:  'Practice distribution',

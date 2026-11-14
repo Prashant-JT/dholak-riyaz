@@ -25,6 +25,8 @@ export interface SupabaseBlock {
     cycles_completed?: number;
     pickup_name?: string;
     pickup_taal?: string;
+    recording_path?: string;   // path in the Supabase 'recordings' storage bucket
+    note?: string;             // per-block comment
 }
 
 export interface UserStats {

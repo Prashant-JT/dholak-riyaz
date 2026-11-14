@@ -118,6 +118,7 @@ Dholak/
 │   │   ├── config.ts
 │   │   ├── utils.ts       # createElement (text-safe), escapeHtml, createResourceBox…
 │   │   ├── icons.ts       # Inline SVG icons
+│   │   ├── recordingStorage.ts # Supabase Storage upload + public URLs for recordings
 │   │   └── supabase.ts
 │   ├── components/        # Reusable components
 │   │   ├── metronome.ts
@@ -140,6 +141,9 @@ Dholak/
 │       └── riyaz/
 │           ├── sessionWizard.ts
 │           ├── wizardDraft.ts
+│           ├── recordingDraft.ts   # IndexedDB cache of block recordings until the session is saved
+│           ├── recordingZone.ts    # Per-block recorder UI (record, preview, keep, download)
+│           ├── blockNote.ts        # Per-block comment field (step 2 and step 3)
 │           ├── wizardStep1.ts
 │           ├── wizardStep2.ts
 │           └── wizardStep3.ts
@@ -530,6 +534,7 @@ If a file exceeds its hard limit, open a refactoring task immediately.
 - `createElement(tag, attrs, 'text')` sets **`textContent`**, never `innerHTML`. Values from shared links, localStorage or Supabase are untrusted.
 - When building an HTML string for `innerHTML`, wrap every dynamic value in `escapeHtml()` (`src/core/utils.ts`).
 - Embedded URLs (iframes) must be YouTube or `https://` — see `toEmbedUrl()` in `wizardStep2.ts`.
+- Block recordings are uploaded to the public Supabase Storage bucket `recordings` at `<user>/<YYYY-MM-DD>/<uuid>.<ext>` when the session is saved; the path is stored as `recording_path` inside the block JSON. `getRecordingUrl()` rejects any path that does not match that shape.
 - Views that start timers, audio, recorders or Chart.js instances must implement `onLeave()` (optional method on `View`). `ViewManager` calls it before switching views.
 
 ---

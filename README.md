@@ -51,9 +51,11 @@ Each taal includes: matra table with Taali/Khali markers, variations with tutori
 - Draft recovery — interrupted sessions are automatically restored
 - Share your session via URL (hash-encoded)
 - Per-block timer with free mode and countdown mode
+- Per-block audio recording and comment — kept takes are uploaded to Supabase Storage when the session is saved
 
 ### 📊 Statistics (Supabase)
 - Session history saved to a real database (Supabase) — multi-user (Prashant + Meera)
+- Block recordings playable from the session history, so each player can listen to the other's practice
 - Weekly practice bar chart with trend line
 - **Compare view**: Prashant vs Meera side-by-side with dual trend lines, distribution donuts and medals
 - Consecutive-day streak, weekly streak, total minutes, taals practised
