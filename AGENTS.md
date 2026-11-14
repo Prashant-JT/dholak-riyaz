@@ -803,6 +803,7 @@ Bob (AI assistant) is responsible for tracking releases and deciding when to pro
 | `v2.0.0` | 2026-07-05 | Full practice system — 7 taals, Riyaz planner, Stats, dark mode |
 | `v2.2.0` | 2026-07-27 | Tirekite section, tutorial video in practice blocks, cycle counter fix, new data |
 | `v2.3.0` | 2026-08-11 | Full ES/EN i18n — all views, stats, session wizard; 80 BPM preset; bug fixes |
+| `v2.4.0` | 2026-11-14 | Block recordings and comments saved to session history (Supabase Storage), cross-device playback |
 
 ### When to propose a new release
 Bob must propose a new GitHub release when **any of these thresholds are reached**:
