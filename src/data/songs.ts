@@ -618,5 +618,23 @@ export const SONGS: Song[] = [
         artist: "Bollywood",
         taal: "Keherwa (8 beats)",
         youtubeUrl: "https://www.youtube.com/watch?v=cQq6iLF66Gc"
+    },
+    {
+        title: "Jhilmil Sitaron Ka Aangan / Pal Pal Ma Preetam Tokhe",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=v13cUeX6_co"
+    },
+    {
+        title: "Mere Ghar Ram Aaye Hain",
+        artist: "Devocional",
+        taal: "Keherwa (8 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=q5PmN7SuUkY"
+    },
+    {
+        title: "Humne Dekhi Hai Un Aankhon Ki Mehakti Khusboo",
+        artist: "Bollywood",
+        taal: "Dadra (6 beats)",
+        youtubeUrl: "https://www.youtube.com/watch?v=doPtBhDTpj0"
     }
 ];
