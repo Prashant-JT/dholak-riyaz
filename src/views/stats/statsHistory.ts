@@ -179,15 +179,22 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
                 ? `<span class="stats-block-meta-item">${t('stats.historyCycles', b.cycles_completed)}</span>` : '';
             const supStr = b.support_type
                 ? `<span class="stats-block-meta-item">${escapeHtml(supportLabel(b))}</span>` : '';
-            const recUrl = b.recording_path ? getRecordingUrl(b.recording_path) : null;
-            // Fallback: if this browser cannot play the format, offer a download instead
-            const recStr = !recUrl ? ''
-                : canPlayRecording(b.recording_path!)
-                    ? `<audio class="stats-block-audio" controls preload="none" src="${escapeHtml(recUrl)}" aria-label="${escapeHtml(t('stats.historyRecording'))}"></audio>`
+            const recStr = blockRecordings(b).map((rec, ri, all) => {
+                const recUrl = getRecordingUrl(rec.path);
+                if (!recUrl) return '';
+                const label = rec.label || (all.length > 1 ? t('stats.historyTake', ri + 1) : t('stats.historyRecording'));
+                // Fallback: if this browser cannot play the format, offer a download instead
+                const player = canPlayRecording(rec.path)
+                    ? `<audio class="stats-block-audio" controls preload="none" src="${escapeHtml(recUrl)}" aria-label="${escapeHtml(label)}"></audio>`
                     : `<div class="stats-block-rec-fallback">
                             <span class="text-muted text-sm">${escapeHtml(t('stats.historyRecUnsupported'))}</span>
                             <a class="btn-secondary stats-block-rec-dl" href="${escapeHtml(recUrl)}?download" target="_blank" rel="noopener">${escapeHtml(t('stats.historyRecDownload'))}</a>
                        </div>`;
+                return `<div class="stats-block-rec">
+                        <span class="stats-block-rec__label">${escapeHtml(label)}</span>
+                        ${player}
+                    </div>`;
+            }).join('');
             return `<div class="stats-block-detail-row">
                     <span class="stats-block-detail-num">${bi + 1}</span>
                     <div class="stats-block-detail-body">
@@ -219,6 +226,15 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
+}
+
+/** Recordings of a block: the takes list, or the single legacy path from v2.4.0. */
+function blockRecordings(b: SupabaseBlock): { path: string; label?: string }[] {
+    if (Array.isArray(b.recordings)) {
+        return b.recordings.filter(r => r && typeof r.path === 'string')
+            .map(r => ({ path: r.path, label: typeof r.label === 'string' ? r.label : undefined }));
+    }
+    return typeof b.recording_path === 'string' ? [{ path: b.recording_path }] : [];
 }
 
 export function bindHistoryNotes(container: HTMLElement): void {

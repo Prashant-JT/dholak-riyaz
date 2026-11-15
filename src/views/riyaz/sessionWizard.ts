@@ -155,6 +155,8 @@ export class SessionWizardView implements View {
     }
 
     private doStep3(): void {
+        // Stop a recording still running on the last block so its take is stored
+        releaseRecorders();
         window.scrollTo(0, 0);
         renderStep3(this.container, this.sessionState, {
             onNewSession: () => {

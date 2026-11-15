@@ -10,8 +10,9 @@ import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState } from '../../types.js';
 import { clearSessionDraft } from './wizardDraft.js';
 import { formatTime } from './wizardStep2.js';
-import { getRecording } from './recordingDraft.js';
+import { listTakes, flushRecordings } from './recordingDraft.js';
 import { renderBlockNote, BLOCK_NOTE_MAX } from './blockNote.js';
+import { TAKE_LABEL_MAX } from './recordingZone.js';
 import { saveSessionDraft } from './wizardDraft.js';
 import { buildRecordingPath, uploadRecording } from '../../core/recordingStorage.js';
 
@@ -254,15 +255,19 @@ function showSaveModal(
     errorEl.style.display = 'none';
     modal.appendChild(errorEl);
 
-    const btnRow = createElement('div', { className: 'save-modal__btns' });
-    const cancelBtn = createElement('button', { className: 'btn-secondary flex-1' }, t('step3.saveModalCancel'));
-    cancelBtn.addEventListener('click', () => overlay.remove());
-
-    const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, t('step3.saveModalBtn'));
     // Set synchronously so a double tap / Enter + click cannot insert the session twice
     let inFlight = false;
-    // Paths already uploaded, by block id — a retry after a failure does not re-upload them
-    const uploadedPaths = new Map<string, string>();
+
+    const btnRow = createElement('div', { className: 'save-modal__btns' });
+    const cancelBtn = createElement('button', { className: 'btn-secondary flex-1' }, t('step3.saveModalCancel'));
+    // Locked while saving: closing mid-upload and saving again would insert the session twice
+    cancelBtn.addEventListener('click', () => { if (!inFlight) overlay.remove(); });
+
+    const confirmBtn = createElement('button', { className: 'btn-primary flex-1' }, t('step3.saveModalBtn'));
+    // Takes already uploaded, by take id — a retry after a failure does not re-upload them
+    const uploadedTakes = new Map<string, { path: string; label: string }>();
+    // Kept takes per block id, in recording order (filled at upload time)
+    const takesByBlock = new Map<string, string[]>();
     // Set after an upload failure when the user chooses to save the session without recordings
     let skipRecordings = false;
 
@@ -296,20 +301,27 @@ function showSaveModal(
         // saved_at = session start time (ISO 8601)
         const savedAt = new Date(startedAt).toISOString();
 
-        // Upload the recordings kept during the session before inserting the rows
+        // Upload the takes kept during the session before inserting the rows
         if (!skipRecordings) {
-            const pending: { blockId: string; blob: Blob; mimeType: string }[] = [];
+            // A recording still stopping (last block) must be stored before it is listed
+            await flushRecordings();
+            const pending: { takeId: string; blob: Blob; mimeType: string; label: string }[] = [];
             for (const b of blocks) {
-                if (uploadedPaths.has(b.id)) continue;
-                const rec = await getRecording(b.id);
-                if (rec) pending.push({ blockId: b.id, blob: rec.blob, mimeType: rec.mimeType });
+                const kept = (await listTakes(b.id)).filter(take => take.kept);
+                takesByBlock.set(b.id, kept.map(take => take.takeId));
+                kept.forEach(take => {
+                    const label = take.label.trim().slice(0, TAKE_LABEL_MAX);
+                    const done  = uploadedTakes.get(take.takeId);
+                    if (done) done.label = label;     // label edited after a failed attempt
+                    else pending.push({ takeId: take.takeId, blob: take.blob, mimeType: take.mimeType, label });
+                });
             }
             try {
                 for (let i = 0; i < pending.length; i++) {
                     const p = pending[i];
                     confirmBtn.textContent = t('step3.saveModalUploading', i + 1, pending.length);
                     const path = buildRecordingPath(userId, savedAt, p.mimeType, crypto.randomUUID());
-                    uploadedPaths.set(p.blockId, await uploadRecording(path, p.blob, p.mimeType));
+                    uploadedTakes.set(p.takeId, { path: await uploadRecording(path, p.blob, p.mimeType), label: p.label });
                 }
             } catch (err) {
                 console.error('Error uploading recording:', err);
@@ -337,9 +349,17 @@ function showSaveModal(
             cycles_completed: b.cyclesCompleted,
             pickup_name:      b.pickupName,
             pickup_taal:      b.pickupTaalCategory,
-            recording_path:   skipRecordings ? undefined : uploadedPaths.get(b.id),
+            recordings:       skipRecordings ? undefined : recordingsFor(b.id),
             note:             b.note?.trim().slice(0, BLOCK_NOTE_MAX) || undefined,
         }));
+
+        function recordingsFor(blockId: string): { path: string; label?: string }[] | undefined {
+            const list = (takesByBlock.get(blockId) ?? [])
+                .map(id => uploadedTakes.get(id))
+                .filter((r): r is { path: string; label: string } => r !== undefined)
+                .map(r => (r.label ? { path: r.path, label: r.label } : { path: r.path }));
+            return list.length > 0 ? list : undefined;
+        }
 
         // Joint session inserts two records: one per user
         const records = jointSession

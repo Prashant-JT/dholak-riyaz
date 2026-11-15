@@ -25,7 +25,8 @@ export interface SupabaseBlock {
     cycles_completed?: number;
     pickup_name?: string;
     pickup_taal?: string;
-    recording_path?: string;   // path in the Supabase 'recordings' storage bucket
+    recording_path?: string;   // legacy (v2.4.0): single recording path in the 'recordings' bucket
+    recordings?: { path: string; label?: string }[];   // takes in the 'recordings' bucket
     note?: string;             // per-block comment
 }
 
