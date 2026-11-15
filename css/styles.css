@@ -2965,88 +2965,144 @@ body.dark .stats-insight-box {
     background: var(--blue-500, #3b82f6);
 }
 
-/* Tabla comparativa de KPIs */
-.stats-compare-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1px;
-    background: var(--border-primary);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 8px;
-}
-
-.stats-compare-grid--4col {
-    grid-template-columns: 1.4fr 1fr 1fr 0.9fr;
-}
-
-.stats-compare-cell {
-    background: var(--card-bg);
-    padding: 12px 16px;
-    font-size: 0.9rem;
-}
-
-.stats-compare-header {
-    background: var(--bg-secondary);
-}
-
-.stats-compare-name {
-    font-weight: 700;
-    font-size: 0.95rem;
-    text-align: center;
-}
-
-.stats-compare-name--p { color: var(--orange-500); background: var(--bg-secondary); }
-.stats-compare-name--m { color: #3b82f6;           background: var(--bg-secondary); }
-
-.stats-compare-label {
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    background: var(--bg-secondary);
-    display: flex;
+/* ── Compare view: head-to-head bars + medals grouped by owner ─────────────── */
+.cmp-name {
+    display: inline-flex;
     align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
 }
 
-.stats-compare-val {
-    font-weight: 700;
-    font-size: 1.1rem;
+.cmp-name::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cmp-name--p::before { background: #f97316; }
+.cmp-name--m::before { background: #3b82f6; }
+
+.cmp-h2h__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+}
+
+.cmp-h2h__names {
+    display: flex;
+    gap: 1rem;
+    padding-top: 2px;
+}
+
+.cmp-h2h {
+    display: flex;
+    flex-direction: column;
+}
+
+.cmp-h2h__row {
+    padding: 12px 0;
+    border-top: 1px solid var(--border-primary);
+}
+
+.cmp-h2h__label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
     text-align: center;
 }
 
-.stats-compare-val--p { color: var(--orange-500); }
-.stats-compare-val--m { color: #3b82f6; }
+.cmp-h2h__values {
+    display: grid;
+    grid-template-columns: minmax(64px, auto) 1fr minmax(64px, auto);
+    align-items: center;
+    gap: 12px;
+}
 
-/* Difference column */
-.stats-compare-diff {
-    font-size: 0.88rem;
+.cmp-h2h__val {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cmp-h2h__val--p { text-align: left; }
+.cmp-h2h__val--m { text-align: right; }
+
+.cmp-h2h__val--lead {
     font-weight: 700;
+    color: var(--text-primary);
+}
+
+.cmp-h2h__bar {
+    display: flex;
+    height: 6px;
+    gap: 2px;
+    background: var(--border-primary);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.cmp-h2h__fill { height: 100%; }
+.cmp-h2h__fill--p { background: #f97316; }
+.cmp-h2h__fill--m { background: #3b82f6; }
+
+.cmp-medals__group {
+    padding-top: 12px;
+    border-top: 1px solid var(--border-primary);
+}
+
+.cmp-medals__group + .cmp-medals__group {
+    margin-top: 12px;
+}
+
+.cmp-medals__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cmp-medal-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-tertiary, var(--card-bg));
+    border: 1px solid var(--border-primary);
+    border-radius: 999px;
+    cursor: default;
+}
+
+.cmp-medal-chip__emoji {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.cmp-medals__group--p .cmp-medal-chip { border-color: rgba(249, 115, 22, 0.45); }
+.cmp-medals__group--m .cmp-medal-chip { border-color: rgba(59, 130, 246, 0.45); }
+
+.cmp-medals__group--none .cmp-medal-chip {
     color: var(--text-muted);
-    background: var(--bg-secondary);
+    background: transparent;
 }
 
-.stats-compare-diff--p {
-    color: var(--orange-500);
-    background: color-mix(in srgb, var(--orange-500) 8%, var(--card-bg));
-}
-
-.stats-compare-diff--m {
-    color: #3b82f6;
-    background: color-mix(in srgb, #3b82f6 8%, var(--card-bg));
+.cmp-medals__group--none .cmp-medal-chip__emoji {
+    filter: grayscale(1);
+    opacity: 0.5;
 }
 
 @media (max-width: 768px) {
-    .stats-compare-grid {
-        font-size: 0.82rem;
-    }
-    .stats-compare-grid--4col {
-        grid-template-columns: 1.2fr 1fr 1fr 0.85fr;
-    }
-    .stats-compare-val {
-        font-size: 0.95rem;
-    }
-    .stats-compare-cell {
-        padding: 10px 10px;
-    }
+    .cmp-h2h__val { font-size: 0.92rem; }
 }
 
 /* Weekly toggle: header with title + buttons */
@@ -4366,123 +4422,6 @@ body.dark .stats-block-audio {
     border-radius: 99px;
     transition: width 0.4s ease;
 }
-
-/* ── Medallas comparativas ──────────────────────────────────────────────────── */
-
-/* Leyenda */
-.medals-compare-legend {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.medals-compare-legend-dots {
-    display: flex;
-    gap: 1rem;
-}
-
-.medals-compare-legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.medals-compare-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-    background: var(--border-primary);
-    opacity: 0.3;
-}
-
-.medals-compare-dot--p { background: #f97316; opacity: 1; }
-.medals-compare-dot--m { background: #3b82f6; opacity: 1; }
-
-.medals-compare-count {
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 1px 7px;
-    border-radius: 999px;
-    line-height: 1.4;
-}
-.medals-compare-count--p { background: rgba(249,115,22,0.15); color: #f97316; }
-.medals-compare-count--m { background: rgba(59,130,246,0.15); color: #3b82f6; }
-
-/* Grid de 3 cards */
-.medals-compare-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-
-@media (min-width: 768px) {
-    .medals-compare-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-/* Grid de celdas dentro de cada card */
-.medals-cmp-cell-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.4rem;
-}
-
-/* Celda de medalla */
-.medals-cmp-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.2rem;
-    padding: 0.5rem 0.25rem;
-    border-radius: 8px;
-    border: 1.5px solid var(--border-primary);
-    background: var(--bg-tertiary);
-    cursor: default;
-}
-
-.medals-cmp-emoji {
-    font-size: 1.4rem;
-    line-height: 1;
-}
-
-.medals-cmp-emoji--locked {
-    filter: grayscale(1);
-    opacity: 0.35;
-}
-
-.medals-cmp-name {
-    font-size: 0.6rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-
-/* Dos dots por celda */
-.medals-cmp-dots {
-    display: flex;
-    gap: 4px;
-    margin-top: 0.2rem;
-}
-
-.medals-cmp-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--border-primary);
-    opacity: 0.25;
-    flex-shrink: 0;
-}
-
-.medals-cmp-dot--p.medals-cmp-dot--on { background: #f97316; opacity: 1; }
-.medals-cmp-dot--m.medals-cmp-dot--on { background: #3b82f6; opacity: 1; }
 
 /* Made with Bob */
 

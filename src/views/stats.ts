@@ -9,6 +9,7 @@
  * Heatmap    → stats/statsHeatmap.ts
  * History    → stats/statsHistory.ts
  * MedalsUI   → stats/statsMedalsUI.ts
+ * CompareUI  → stats/statsCompareUI.ts
  */
 
 import { createElement } from '../core/utils.js';
@@ -22,10 +23,11 @@ import type { UserStats } from './stats/statsTypes.js';
 import { fetchUserStats, emptyStats, ACTIVE_TAAL_IDS } from './stats/statsData.js';
 import { computeMedals } from './stats/medals.js';
 import { C, mountCharts, mountCompareCharts, mountCumulativeChart } from './stats/statsCharts.js';
-import { buildKPIs, buildInsight, buildWeekCompare, cardEl, cardTitle, cardSub, effectiveSecs } from './stats/statsKPIs.js';
+import { buildKPIs, buildInsight, buildWeekCompare, cardEl, cardTitle, cardSub } from './stats/statsKPIs.js';
 import { buildHeatmap, buildHeatmapLegend } from './stats/statsHeatmap.js';
 import { buildHistoryCard } from './stats/statsHistory.js';
 import { buildNextMedalCard, buildMedalsCard } from './stats/statsMedalsUI.js';
+import { buildHeadToHead, buildCompareMedals } from './stats/statsCompareUI.js';
 
 // ── Medal groups — single source of truth used by both individual and compare views ──
 function getMedalGroups(): { label: string; ids: string[] }[] {
@@ -174,6 +176,7 @@ export class StatsView implements View {
         const otherSessions = this.userData[otherUser]?.rawSessions ?? [];
 
         content.appendChild(buildKPIs(d));
+        content.appendChild(buildHistoryCard(d));
         content.appendChild(buildInsight(d));
         content.appendChild(buildWeekCompare(d));
         content.appendChild(this.buildWeeklyCard(d));
@@ -184,8 +187,6 @@ export class StatsView implements View {
         heatCard.appendChild(createElement('div', { id: 'stats-heatmap' }));
         heatCard.appendChild(buildHeatmapLegend());
         content.appendChild(heatCard);
-
-        content.appendChild(buildHistoryCard(d));
 
         const row2 = createElement('div', { className: 'stats-chart-row' });
         row2.appendChild(this.buildChartCard(t('stats.chartBpmTitle'), t('stats.chartBpmSub'), 'stats-chart-bpm', 260, 'stats-canvas-medium'));
@@ -369,58 +370,7 @@ export class StatsView implements View {
         const p = this.userData['prashant'] ?? emptyStats();
         const m = this.userData['meera']    ?? emptyStats();
 
-        const totalMins = (d: UserStats) =>
-            Math.round(d.rawSessions.reduce((s, x) => s + effectiveSecs(x), 0) / 60);
-
-        const delta = (pVal: number, mVal: number, unit = '', higherIsBetter = true): { text: string; cls: string } => {
-            const diff = pVal - mVal;
-            if (diff === 0 || (pVal === 0 && mVal === 0)) return { text: '=', cls: '' };
-            const absText = unit ? `${Math.abs(diff)}${unit}` : String(Math.abs(diff));
-            if (diff > 0) return { text: `+${absText}`, cls: higherIsBetter ? 'p' : 'm' };
-            return { text: `-${absText}`, cls: higherIsBetter ? 'm' : 'p' };
-        };
-
-        const pMins = totalMins(p);
-        const mMins = totalMins(m);
-        const timeDiff = pMins - mMins;
-        const timeDiffText = (() => {
-            if (timeDiff === 0) return '=';
-            const sign = timeDiff > 0 ? '+' : '-';
-            const abs  = Math.abs(timeDiff);
-            return abs >= 60
-                ? `${sign}${Math.floor(abs / 60)}h${abs % 60 > 0 ? (abs % 60) + 'm' : ''}`
-                : `${sign}${abs}m`;
-        })();
-        const timeDiffCls = timeDiff === 0 ? '' : timeDiff > 0 ? 'p' : 'm';
-
-        const kpiDefs: { label: string; p: string; m: string; diff: { text: string; cls: string } }[] = [
-            { label: t('stats.compareKpiSessions'),   p: String(p.kpi.sessions),               m: String(m.kpi.sessions),               diff: delta(p.kpi.sessions, m.kpi.sessions) },
-            { label: t('stats.compareKpiTime'),        p: p.kpi.time,                           m: m.kpi.time,                           diff: { text: timeDiffText, cls: timeDiffCls } },
-            { label: t('stats.compareKpiBpm'),         p: p.kpi.bpm > 0 ? String(p.kpi.bpm) : '—', m: m.kpi.bpm > 0 ? String(m.kpi.bpm) : '—', diff: (p.kpi.bpm === 0 && m.kpi.bpm === 0) ? { text: '—', cls: '' } : delta(p.kpi.bpm, m.kpi.bpm) },
-            { label: t('stats.compareKpiStreak'),      p: `${p.kpi.streak}d`,                  m: `${m.kpi.streak}d`,                  diff: delta(p.kpi.streak, m.kpi.streak, 'd') },
-            { label: t('stats.compareKpiWeekStreak'),  p: `${p.kpi.weekStreak}sem`,             m: `${m.kpi.weekStreak}sem`,             diff: delta(p.kpi.weekStreak, m.kpi.weekStreak, 'sem') },
-        ];
-
-        const kpiSection = cardEl();
-        kpiSection.appendChild(cardTitle(t('stats.compareTitleKpi')));
-        kpiSection.appendChild(cardSub(t('stats.compareSubKpi')));
-
-        const kpiGrid = createElement('div', { className: 'stats-compare-grid stats-compare-grid--4col' });
-        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-header' }));
-        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-name stats-compare-name--p' }, 'Prashant'));
-        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-name stats-compare-name--m' }, 'Meera'));
-        kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-name stats-compare-header' }, t('stats.compareDeltaHeader')));
-
-        kpiDefs.forEach(k => {
-            kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-label' }, k.label));
-            kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--p' }, k.p));
-            kpiGrid.appendChild(createElement('div', { className: 'stats-compare-cell stats-compare-val stats-compare-val--m' }, k.m));
-            kpiGrid.appendChild(createElement('div', {
-                className: `stats-compare-cell stats-compare-val stats-compare-diff${k.diff.cls ? ` stats-compare-diff--${k.diff.cls}` : ''}`,
-            }, k.diff.text));
-        });
-        kpiSection.appendChild(kpiGrid);
-        content.appendChild(kpiSection);
+        content.appendChild(buildHeadToHead(p, m));
 
         const chartCard    = cardEl();
         const cmpHeader    = createElement('div', { className: 'stats-weekly-header' });
@@ -516,65 +466,9 @@ export class StatsView implements View {
         });
         content.appendChild(distRow);
 
-        const pm     = computeMedals(p.rawSessions, m.rawSessions);
-        const mm     = computeMedals(m.rawSessions, p.rawSessions);
-        const pmById = Object.fromEntries(pm.map(x => [x.id, x]));
-        const mmById = Object.fromEntries(mm.map(x => [x.id, x]));
-
-        const COMPARE_GROUPS = getMedalGroups();
-        const pEarned = pm.filter(medal => medal.earned).length;
-        const mEarned = mm.filter(medal => medal.earned).length;
-        const total   = pm.length;
-
-        const legendCard = cardEl();
-        legendCard.style.paddingBottom = '12px';
-        legendCard.style.marginBottom  = '8px';
-        const legendTitle = createElement('div', { className: 'medals-compare-legend' });
-        legendTitle.appendChild(cardTitle(t('stats.compareMedalsTitle')));
-        const dots = createElement('div', { className: 'medals-compare-legend-dots' });
-        ([['p', 'Prashant', pEarned], ['m', 'Meera', mEarned]] as [string, string, number][]).forEach(([k, name, earned]) => {
-            const item = createElement('span', { className: 'medals-compare-legend-item' });
-            item.appendChild(createElement('span', { className: `medals-compare-dot medals-compare-dot--${k}` }));
-            item.appendChild(document.createTextNode(`${name} `));
-            item.appendChild(createElement('span', { className: `medals-compare-count medals-compare-count--${k}` }, `${earned}/${total}`));
-            dots.appendChild(item);
-        });
-        legendTitle.appendChild(dots);
-        legendCard.appendChild(legendTitle);
-        content.appendChild(legendCard);
-
-        const medalGrid = createElement('div', { className: 'medals-compare-grid' });
-        COMPARE_GROUPS.forEach(group => {
-            const groupCard = cardEl();
-            groupCard.style.marginBottom = '0';
-            groupCard.appendChild(createElement('p', { className: 'medals-group-label' }, group.label));
-            const cellGrid = createElement('div', { className: 'medals-cmp-cell-grid' });
-            group.ids.forEach(id => {
-                const pm_ = pmById[id];
-                const mm_ = mmById[id];
-                if (!pm_ || !mm_) return;
-                const cell    = createElement('div', { className: 'medals-cmp-cell' });
-                cell.title    = pm_.desc;
-                const emojiEl = createElement('span', {
-                    className: `medals-cmp-emoji${(!pm_.earned && !mm_.earned) ? ' medals-cmp-emoji--locked' : ''}`,
-                }, pm_.emoji);
-                cell.appendChild(emojiEl);
-                cell.appendChild(createElement('span', { className: 'medals-cmp-name' }, pm_.name));
-                const dotsEl = createElement('div', { className: 'medals-cmp-dots' });
-                [pm_, mm_].forEach((medal, ui) => {
-                    const dot = createElement('span', {
-                        className: `medals-cmp-dot medals-cmp-dot--${ui === 0 ? 'p' : 'm'}${medal.earned ? ' medals-cmp-dot--on' : ''}`,
-                    });
-                    if (medal.earned && medal.earnedAt) dot.title = medal.earnedAt;
-                    dotsEl.appendChild(dot);
-                });
-                cell.appendChild(dotsEl);
-                cellGrid.appendChild(cell);
-            });
-            groupCard.appendChild(cellGrid);
-            medalGrid.appendChild(groupCard);
-        });
-        content.appendChild(medalGrid);
+        const pm = computeMedals(p.rawSessions, m.rawSessions);
+        const mm = computeMedals(m.rawSessions, p.rawSessions);
+        content.appendChild(buildCompareMedals(pm, mm, getMedalGroups().flatMap(g => g.ids)));
 
         requestAnimationFrame(() => {
             mountCumulativeChart(p, m, this.charts);
