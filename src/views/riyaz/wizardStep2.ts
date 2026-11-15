@@ -139,8 +139,9 @@ export function renderStep2(
     timerCard.appendChild(renderBlockNote(block, () => saveSessionDraft(sessionState, blockStartTime)));
     container.appendChild(timerCard);
 
-    container.appendChild(renderSupportZone(block, cb));
+    // Bols first: they are what the player reads while playing; video/metronome below
     container.appendChild(renderPatternZone(block));
+    container.appendChild(renderSupportZone(block, cb));
 
     if (block.type === 'pickup' || block.supportType !== 'metronome') {
         container.appendChild(renderSecondaryMetronome(block, cb));
