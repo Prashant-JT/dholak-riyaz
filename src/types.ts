@@ -225,7 +225,7 @@ export interface SessionBlock {
     supportRef?: string;            // song title or lehra label
     supportUrl?: string;            // URL YouTube
     bpmStart?: number;
-    bpmEnd?: number;                // BPM al finalizar el bloque (puede cambiar)
+    bpmEnd?: number;                // BPM at the end of the block (may change)
 
     // Pickup
     pickupName?: string;            // pattern name (e.g. 'Na Na Ti (x2) Na')
@@ -234,7 +234,7 @@ export interface SessionBlock {
 
     // Timer
     timerMode: 'free' | 'fixed';
-    timerMinutes?: number;          // solo si timerMode === 'fixed'
+    timerMinutes?: number;          // only when timerMode === 'fixed'
 
     // Result (filled in when the block is completed during execution)
     durationSecs?: number;

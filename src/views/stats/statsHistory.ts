@@ -2,14 +2,15 @@
  * STATS — History card with filters, pagination, expandable block detail rows
  */
 
-import { createElement, escapeHtml } from '../../core/utils.js';
+import { createElement, escapeHtml, variationLabel } from '../../core/utils.js';
 import { t, tArray } from '../../i18n/index.js';
 import { TAALS } from '../../data/taals/index.js';
 import type { UserStats, SupabaseSession, SupabaseBlock } from './statsTypes.js';
 import { gcDateStr } from './statsData.js';
 import { TAAL_META, DEFAULT_TAAL_META } from './medals.js';
 import { ACTIVE_TAAL_IDS } from './statsData.js';
-import { cardEl, cardTitle, effectiveSecs } from './statsKPIs.js';
+import { cardEl, cardTitle } from './statsKPIs.js';
+import { effectiveSecs } from './statsData.js';
 import { CONFIG } from '../../core/config.js';
 import { getRecordingUrl, canPlayRecording } from '../../core/recordingStorage.js';
 
@@ -169,14 +170,16 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
         const blockDetailRows = s.blocks.map((b, bi) => {
             const blockLabel = b.type === 'warmup' ? t('stats.historyWarmUp')
                 : b.type === 'pickup' ? `${t('stats.historyPickup')}: ${b.pickup_name ?? ''}`
-                : `${b.taal_name ?? t('stats.historyPractice')}${b.variation_name ? ` · ${b.variation_name}` : ''}`;
+                : `${b.taal_name ?? t('stats.historyPractice')}${b.variation_name ? ` · ${variationLabel(b.variation_name)}` : ''}`;
             const kayda  = b.kayda_name ? `<span class="stats-block-meta-item">${escapeHtml(b.kayda_name)}</span>` : '';
+            // DB values are untrusted (rows can be edited by hand): only render real numbers
+            const num = (v: unknown): string => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '?');
             const bpmStr = (b.bpm_start || b.bpm_end)
-                ? `<span class="stats-block-meta-item">${b.bpm_start ?? '?'} → ${b.bpm_end ?? '?'} BPM</span>` : '';
-            const durStr = b.duration_secs
+                ? `<span class="stats-block-meta-item">${num(b.bpm_start)} → ${num(b.bpm_end)} BPM</span>` : '';
+            const durStr = typeof b.duration_secs === 'number' && b.duration_secs > 0
                 ? `<span class="stats-block-meta-item">${Math.round(b.duration_secs / 60)} min</span>` : '';
-            const cycStr = b.cycles_completed
-                ? `<span class="stats-block-meta-item">${t('stats.historyCycles', b.cycles_completed)}</span>` : '';
+            const cycStr = typeof b.cycles_completed === 'number' && b.cycles_completed > 0
+                ? `<span class="stats-block-meta-item">${escapeHtml(t('stats.historyCycles', b.cycles_completed))}</span>` : '';
             const supStr = b.support_type
                 ? `<span class="stats-block-meta-item">${escapeHtml(supportLabel(b))}</span>` : '';
             const recStr = blockRecordings(b).map((rec, ri, all) => {
@@ -207,7 +210,7 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
         }).join('');
 
         const detailRow = `<tr id="${detailId}" class="stats-detail-row" style="display:none">
-                <td colspan="5" class="stats-detail-cell">
+                <td colspan="4" class="stats-detail-cell">
                     <div class="stats-detail-inner">${blockDetailRows}${noteHtml}</div>
                 </td>
             </tr>`;

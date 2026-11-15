@@ -132,6 +132,26 @@ export class SongsView implements View {
         row.appendChild(title);
         row.appendChild(button);
         card.appendChild(row);
+
+        if (song.notes) card.appendChild(this.createSongNote(song.notes));
         return card;
+    }
+
+    /**
+     * Song note under the title. Any https:// URL inside it becomes a link
+     * (built with textContent + href, never innerHTML — notes are data, not markup).
+     */
+    private createSongNote(notes: string): HTMLElement {
+        const note = createElement('p', { className: 'songs-note text-muted text-sm' });
+        notes.split(/(https:\/\/\S+)/).forEach(part => {
+            if (/^https:\/\/\S+$/.test(part)) {
+                note.appendChild(createElement('a', {
+                    href: part, target: '_blank', rel: 'noopener noreferrer', className: 'songs-note__link',
+                }, part.replace(/^https:\/\/(www\.)?/, '')));
+            } else if (part) {
+                note.appendChild(document.createTextNode(part));
+            }
+        });
+        return note;
     }
 }

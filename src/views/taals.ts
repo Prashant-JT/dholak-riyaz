@@ -3,7 +3,7 @@
  * Generic view for any taal
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, VIBHAG_DIVIDERS } from '../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray, VIBHAG_DIVIDERS } from '../core/utils.js';
 import { TAALS } from '../data/taals/index.js';
 import { t, getLang } from '../i18n/index.js';
 import type { View, Taal, TaalVariation, Matra } from '../types.js';
@@ -157,75 +157,28 @@ export class TaalView implements View {
     }
     
     /**
-     * Splits matras into vibhags according to the taal structure.
-     * Mobile only (< 768px).
+     * Splits a row into vibhags (mobile only, < 768px).
+     * Splits by matra number using VIBHAG_DIVIDERS, so it works whatever the
+     * row layout is (a full cycle or half a cycle per row). Empty groups are
+     * never produced. Taals without dividers fall back to groups of 4.
      */
     private getVibhagStructure(row: Matra[]): Matra[][] {
-        const isMobile = window.innerWidth < 768;
-        
-        // Not mobile — return the full row
-        if (!isMobile) {
-            return [row];
-        }
-        
-        // Split according to the taal's beat count
-        const beats = this.taalData.beats;
-        
-        switch (beats) {
-            case 6: // Dadra: 3+3
-                return [
-                    row.slice(0, 3),
-                    row.slice(3, 6)
-                ];
-            case 7: // Rupak: 3+2+2
-                return [
-                    row.slice(0, 3),
-                    row.slice(3, 5),
-                    row.slice(5, 7)
-                ];
-            case 8: // Keherwa: 4+4
-                return [
-                    row.slice(0, 4),
-                    row.slice(4, 8)
-                ];
-            case 10: // Jhaptal: 2+3+2+3
-                return [
-                    row.slice(0, 2),
-                    row.slice(2, 5),
-                    row.slice(5, 7),
-                    row.slice(7, 10)
-                ];
-            case 12: // Ektal: 2+2+2+2+2+2
-                return [
-                    row.slice(0, 2),
-                    row.slice(2, 4),
-                    row.slice(4, 6),
-                    row.slice(6, 8),
-                    row.slice(8, 10),
-                    row.slice(10, 12)
-                ];
-            case 14: // Deepchandi: 3+4+3+4
-                return [
-                    row.slice(0, 3),
-                    row.slice(3, 7),
-                    row.slice(7, 10),
-                    row.slice(10, 14)
-                ];
-            case 16: // Teental: 4+4+4+4
-                return [
-                    row.slice(0, 4),
-                    row.slice(4, 8),
-                    row.slice(8, 12),
-                    row.slice(12, 16)
-                ];
-            default:
-                // For other taals, split into groups of 4
-                const vibhags: Matra[][] = [];
-                for (let i = 0; i < row.length; i += 4) {
-                    vibhags.push(row.slice(i, i + 4));
-                }
-                return vibhags;
-        }
+        if (window.innerWidth >= 768) return [row];
+
+        const dividers = VIBHAG_DIVIDERS[this.taalData.beats];
+        if (!dividers) return chunkArray(row, 4);
+
+        const groups: Matra[][] = [];
+        let current: Matra[] = [];
+        row.forEach(matra => {
+            current.push(matra);
+            if (dividers.includes(matra.matra)) {
+                groups.push(current);
+                current = [];
+            }
+        });
+        if (current.length > 0) groups.push(current);
+        return groups;
     }
     
     private createTaalCard(title: string, rows: Matra[][], description?: string, variation?: TaalVariation, isEn = false): HTMLElement {

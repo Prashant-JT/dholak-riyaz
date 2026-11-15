@@ -17,15 +17,14 @@ This document establishes the standards and best practices that ALL AI agents mu
 
 ### 2. **Absolute Visual Consistency — minimalist style**
 - **ALL views must follow the same design pattern**
-- Cards: class `card` (1px border, `--radius-lg`, no shadow). Hover only changes the border colour — no lift, no shadow
+- Cards: class `card` (themed via `--card-bg` / `--card-border`)
 - Section titles: class `section-title`; subtitles: `section-subtitle`
 - Grid layouts: `grid grid-cols-1 gap-4` (mobile) → `md:grid-cols-2` or `md:grid-cols-3` (desktop)
 - Do NOT use HTML tables unless strictly necessary — prefer cards
-- **No emojis in the UI** (labels, buttons, i18n strings, CSS `content`). Exception: medal emojis in `stats/medals.ts`, which stay on purpose
-- Functional icons (close, share, theme…) come from `src/core/icons.ts` (`icon('close')`) — inline SVG, `currentColor`
-- No gradients, no coloured/decorative shadows. Orange (`--accent`) is reserved for the primary action and the active state
-- Use the design tokens in `:root`: `--accent`, `--accent-hover`, `--accent-soft`, `--danger`, `--focus-ring`, `--radius-sm/md/lg`, `--ease`
-- Layout: fixed top **app bar** (`#appBar` in `index.html`) holds the menu button, app name and theme toggle. The document scrolls (not `<main>`) — use `window.scrollTo`
+- Emojis: the current UI uses them in some labels and medals (`stats/medals.ts`). Do not add new decorative ones; keep the existing style consistent
+- Orange (`--orange-500`) is reserved for the primary action and the active state
+- Use the design tokens in `:root` (`css/styles.css`): `--bg-*`, `--text-primary/secondary/tertiary/muted`, `--border-*`, `--card-bg`, `--card-border`, `--orange-50…700`, `--blue-50…900`, `--info-*`. There are **no** `--accent*`, `--radius-*`, `--focus-ring` or `--ease` tokens — do not use them
+- Layout: a floating **hamburger button** (`#hamburgerBtn`) opens the `aside.sidebar`; the theme toggle is a floating button. The document scrolls (not `<main>`) — use `window.scrollTo` / `window.scrollY`
 - Only one filled orange button per screen (the main action). Secondary actions use `.btn-secondary`; links to YouTube/tutorials use the outline pill `.songs-yt-btn`
 - **Tailwind is NOT loaded.** Utility classes only work if they exist in the "UTILITY CLASSES" block of `css/styles.css` — add the class there before using it
 
@@ -69,10 +68,6 @@ This document establishes the standards and best practices that ALL AI agents mu
   | `.btn-secondary` | Secondary action button (outline) |
   | `.bol-cell` | Matra cell in Taal table |
   | `.taal-row-separator` | Orange separator between vibhag rows — must stay clearly visible |
-  | `.card-title` | Title inside a card (taal variation, kayda, metronome…) |
-  | `.list-card` + `.list-card__title` | Compact row card (songs, fillers) |
-  | `.group-title` | Small uppercase label above a group of cards |
-  | `.bol-cell--vibhag-end` | Last matra of a vibhag (desktop divider) — never inline styles |
 
 ### 4. **Strict TypeScript**
 - All files must be `.ts`
@@ -117,7 +112,6 @@ Dholak/
 │   ├── core/              # Core (DO NOT TOUCH without reason)
 │   │   ├── config.ts
 │   │   ├── utils.ts       # createElement (text-safe), escapeHtml, createResourceBox…
-│   │   ├── icons.ts       # Inline SVG icons
 │   │   ├── recordingStorage.ts # Supabase Storage upload + public URLs for recordings
 │   │   └── supabase.ts
 │   ├── components/        # Reusable components
@@ -135,9 +129,14 @@ Dholak/
 │       ├── stats.ts               # Thin orchestrator — imports from stats/
 │       ├── stats/
 │       │   ├── statsTypes.ts      # SupabaseSession, SupabaseBlock, UserStats, Medal
-│       │   ├── statsData.ts       # fetch, transform, timezone helpers
+│       │   ├── statsData.ts       # fetch, transform, timezone helpers, effectiveSecs()
 │       │   ├── medals.ts          # computeMedals(), TAAL_META
-│       │   └── statsCharts.ts     # Chart.js colour palette + mount functions
+│       │   ├── statsCharts.ts     # Chart.js colour palette + mount functions
+│       │   ├── statsKPIs.ts       # KPI cards, insight box, this week vs last week, card helpers
+│       │   ├── statsHeatmap.ts    # Activity heatmap (minutes per day)
+│       │   ├── statsHistory.ts    # Session history: filters, block detail, notes, recordings
+│       │   ├── statsMedalsUI.ts   # Next-medal card and medals grid
+│       │   └── statsCompareUI.ts  # Compare view: head-to-head bars, medals grouped by owner
 │       └── riyaz/
 │           ├── sessionWizard.ts
 │           ├── wizardDraft.ts
@@ -329,12 +328,12 @@ Every time a new taal is added or activated, these **7 files/locations must be t
 | 3 | `src/core/config.ts` | Field in `VIEWS` + item in `NAVIGATION` array (**ordered by beats ascending**) |
 | 4 | `src/types.ts` | Field in `ViewsConfig` interface |
 | 5 | `src/core/utils.ts` → `VIBHAG_DIVIDERS` | Entry `beats: [matraAfterWhichDividerAppears]` for orange vertical lines on desktop |
-| 6 | `src/views/taals.ts` → `getVibhagStructure()` | `case beats:` with the correct slices for mobile grouping |
-| 7 | `src/views/stats/medals.ts` → `TAAL_META` | Entry with medal emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory** |
+| 6 | *(automatic)* `src/views/taals.ts` → `getVibhagStructure()` | Nothing to add — mobile grouping is derived from the `VIBHAG_DIVIDERS` entry of step 5 |
+| 7 | `src/views/stats/medals.ts` → `TAAL_META` | Entry with medal emoji and CSS colour class (`stats-tag--orange/blue/purple/teal/amber`) — **ALWAYS mandatory**. Also add the taal to `DONUT_COLOR_MAP` in `statsCharts.ts` |
 
 > ✅ **Automatic** — nothing else needs to be touched:
 > - `src/components/viewManager.ts`: registers TaalViews dynamically from `CONFIG.NAVIGATION`
-> - Riyaz practice blocks (`wizardStep1.ts`, `wizardStep2.ts`): derive active taals from `CONFIG.NAVIGATION`
+> - Riyaz practice blocks (`wizardStep1.ts`, `wizardStep2.ts`): derive active taals from `CONFIG.NAVIGATION` (an inactive taal such as Jhaptal never appears in Riyaz)
 > - Statistics (`stats/medals.ts`): "First X" badges and "Polyrhythmic" badge are generated dynamically from `ACTIVE_TAAL_IDS`
 
 ---
@@ -391,11 +390,11 @@ rows: [
 
 The same applies to `variations[].rows` — each variation must also respect the vibhag split.
 
-### ⚠️ MANDATORY — Register the taal in both divider mechanisms
+### ⚠️ MANDATORY — Register the taal in `VIBHAG_DIVIDERS`
 
-When adding a new taal, **two locations** must be updated:
+One entry drives both the desktop dividers and the mobile grouping:
 
-#### 1. `VIBHAG_DIVIDERS` in `src/core/utils.ts` (orange vertical divider on desktop)
+#### `VIBHAG_DIVIDERS` in `src/core/utils.ts` (orange vertical divider on desktop)
 `Record<number, number[]>` exported from **`src/core/utils.ts`**, indexed by beat count. The array contains the matra numbers **after which** the orange right border appears:
 
 ```typescript
@@ -403,29 +402,17 @@ export const VIBHAG_DIVIDERS: Record<number, number[]> = {
     6:  [3],              // Dadra:          3+3
     7:  [3, 5],           // Rupak:          3+2+2
     8:  [4],              // Keherwa:        4+4
+    10: [2, 5, 7],        // Jhaptal:        2+3+2+3
     12: [2, 4, 6, 8, 10], // Ektal:          2+2+2+2+2+2
     14: [3, 7, 10],       // Deepchandi:     3+4+3+4
     16: [4, 8, 12],       // Addha/Teental:  4+4+4+4
 };
 ```
 
-#### 2. `getVibhagStructure()` (sub-row split on mobile)
-Switch by beat count that splits each row into groups according to the taal's vibhags:
+#### Mobile grouping (automatic)
+`getVibhagStructure()` in `src/views/taals.ts` splits each row **by matra number** using the same `VIBHAG_DIVIDERS` entry, so it works whether a row holds a full cycle or half a cycle and never produces empty groups. Taals without an entry fall back to groups of 4.
 
-```typescript
-case 12: // Ektal: 2+2+2+2+2+2
-    return [
-        row.slice(0, 2),
-        row.slice(2, 4),
-        row.slice(4, 6),
-        row.slice(6, 8),
-        row.slice(8, 10),
-        row.slice(10, 12)
-    ];
-```
-
-> If the case is not added to `getVibhagStructure`, the taal will fall through to the `default` (groups of 4) and vibhags on mobile will not be grouped correctly.
-> If not added to `VIBHAG_DIVIDERS`, the orange vertical lines will not appear on desktop.
+> If not added to `VIBHAG_DIVIDERS`, the orange vertical lines will not appear on desktop and mobile vibhags fall back to groups of 4.
 
 ---
 
@@ -534,7 +521,7 @@ If a file exceeds its hard limit, open a refactoring task immediately.
 - `createElement(tag, attrs, 'text')` sets **`textContent`**, never `innerHTML`. Values from shared links, localStorage or Supabase are untrusted.
 - When building an HTML string for `innerHTML`, wrap every dynamic value in `escapeHtml()` (`src/core/utils.ts`).
 - Embedded URLs (iframes) must be YouTube or `https://` — see `toEmbedUrl()` in `wizardStep2.ts`.
-- Block recordings are uploaded to the public Supabase Storage bucket `recordings` at `<user>/<YYYY-MM-DD>/<uuid>.<ext>` when the session is saved; the path is stored as `recording_path` inside the block JSON. `getRecordingUrl()` rejects any path that does not match that shape.
+- Block recordings are uploaded to the public Supabase Storage bucket `recordings` at `<user>/<YYYY-MM-DD>/<uuid>.<ext>` when the session is saved; the takes are stored as `recordings: [{ path, label? }]` inside the block JSON (a block may hold several takes; `recording_path` is the legacy single-take field from v2.4.0, still read by the history). `getRecordingUrl()` rejects any path that does not match that shape.
 - Views that start timers, audio, recorders or Chart.js instances must implement `onLeave()` (optional method on `View`). `ViewManager` calls it before switching views.
 
 ---
@@ -635,7 +622,7 @@ Before considering a task complete, verify:
 
 - [ ] ✅ All `.ts` files compile without errors
 - [ ] ✅ `npm run build` runs successfully
-- [ ] ✅ `npm test` passes — all 416+ tests green
+- [ ] ✅ `npm test` passes — all tests green (424 at v2.4.0)
 - [ ] ✅ `dist/` folder exists with `.js` files
 - [ ] ✅ `index.html` loads `dist/app.js`
 - [ ] ✅ CSS has all required classes
@@ -832,6 +819,6 @@ If you find inconsistencies in this document or in the code, document them here 
 
 ---
 
-**Version**: 1.4.0
-**Last updated**: 2026-11-02
+**Version**: 1.5.0
+**Last updated**: 2026-11-15
 **Maintainer**: Bob (AI Assistant)

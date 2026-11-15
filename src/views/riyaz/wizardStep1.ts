@@ -3,7 +3,7 @@
  * Templates, block list, Warm Up / Practice / Pickup forms and the start button.
  */
 
-import { createElement } from '../../core/utils.js';
+import { createElement, variationLabel, MAIN_PATTERN_NAME } from '../../core/utils.js';
 import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
@@ -31,10 +31,10 @@ const TAAL_SONG_PREFIXES: Record<string, string> = Object.fromEntries(
 
 export interface Step1Callbacks {
     onStart:    (blocks: SessionBlock[]) => void;
-    onStep1:    (blocks?: SessionBlock[]) => void;  // re-render step1 (con bloques actualizados)
+    onStep1:    (blocks?: SessionBlock[]) => void;  // re-render step 1 (with updated blocks)
 }
 
-// ── Punto de entrada ─────────────────────────────────────────────────────────
+// ── Entry point ──────────────────────────────────────────────────────────────
 
 export function renderStep1(
     container: HTMLElement,
@@ -57,7 +57,7 @@ export function renderStep1(
     container.appendChild(renderTemplatesPanel(existingBlocks, cb));
 
     if (existingBlocks.length > 0) {
-        container.appendChild(renderPlanBar(existingBlocks, cb));
+        container.appendChild(renderPlanBar(existingBlocks));
     }
 
     const blockList = createElement('div', { id: 'block-list', className: 'mb-4' });
@@ -94,7 +94,7 @@ export function extractShareHash(): string | null {
 
 // ── Summary bar + share button ───────────────────────────────────────────────
 
-function renderPlanBar(blocks: SessionBlock[], _cb: Step1Callbacks): HTMLElement {
+function renderPlanBar(blocks: SessionBlock[]): HTMLElement {
     const bar = createElement('div', { className: 'session-plan-bar mb-4' });
 
     const chips = createElement('div', { className: 'session-plan-chips' });
@@ -168,7 +168,7 @@ function renderShareModal(share: { name: string; blocks: SessionBlock[] }, cb: S
     modal.appendChild(createElement('div', { className: 'session-share-modal__icon' }, '📋'));
         const text = b.type === 'warmup'
             ? `🥁 ${t('step3.warmUp')} — ${b.kaydaName ?? ''}`
-            : `${b.taalName ?? b.taalId} · ${b.variationName ?? t('step1.blockPatternMain')}${b.supportRef ? ' · ' + b.supportRef : ''}`;
+            : `${b.taalName ?? b.taalId} · ${variationLabel(b.variationName)}${b.supportRef ? ' · ' + b.supportRef : ''}`;
         list.appendChild(createElement('li', {}, text));
     });
     modal.appendChild(list);
@@ -327,7 +327,7 @@ function createBlockSummaryCard(
         ? `${block.kaydaName ?? ''}`
         : block.type === 'pickup'
             ? `${block.pickupName ?? ''}`
-            : `${block.taalName ?? ''} · ${block.variationName ?? t('step1.blockPatternMain')}`;
+            : `${block.taalName ?? ''} · ${variationLabel(block.variationName)}`;
     body.appendChild(createElement('div', { className: 'session-block-card__title' }, title));
 
     const meta = createElement('div', { className: 'session-block-card__meta' });
@@ -335,7 +335,7 @@ function createBlockSummaryCard(
         meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.lehraLabel));
     } else if (block.type === 'pickup') {
         if (block.pickupTaalCategory) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, block.pickupTaalCategory));
-        if (block.pickupVideoUrl) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('taal.tutorialBtn')));
+        if (block.pickupVideoUrl) meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('step1.pickupVideoTag')));
     } else if (block.supportType === 'metronome') {
         meta.appendChild(createElement('span', { className: 'session-block-card__tag' }, t('step1.blockMetronome', block.bpmStart ?? 120)));
     } else if (block.supportRef) {
@@ -393,7 +393,6 @@ function createWarmUpForm(existingBlocks: SessionBlock[], cb: Step1Callbacks): H
     const kaydaField = createElement('div', { className: 'session-form-field' });
     kaydaField.appendChild(createElement('label', {}, t('step1.warmUpKayda')));
     const kaydaSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.warmUpLabel')));
     Object.entries(KAYDAS).forEach(([id, k]) => {
         kaydaSelect.appendChild(createElement('option', { value: id }, k.name) as HTMLOptionElement);
     });
@@ -439,7 +438,6 @@ function createPickupBlockForm(existingBlocks: SessionBlock[], cb: Step1Callback
     patField.appendChild(createElement('label', {}, t('step1.pickupPattern')));
     const patSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
     wrapper.appendChild(patField);
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.pickupLabel')));
 
     const patPreview = createElement('div', { className: 'session-bol-preview' });
     wrapper.appendChild(patPreview);
@@ -518,7 +516,6 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     const varField = createElement('div', { className: 'session-form-field' });
     varField.appendChild(createElement('label', {}, t('step1.variationLabel')));
     const varSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
-    wrapper.appendChild(createElement('h3', { className: 'session-form-card__title' }, t('step1.practiceLabel')));
     varField.appendChild(varSelect);
     wrapper.appendChild(varField);
 
@@ -612,7 +609,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
                 type: 'text', placeholder: t('step1.songCustomTitle'), className: 'w-full session-custom-input', 'data-custom-title': 'true',
             }) as HTMLInputElement;
             const customUrl = createElement('input', {
-                type: 'url', placeholder: 'URL de YouTube (https://…)', className: 'w-full session-custom-input', 'data-custom-url': 'true',
+                type: 'url', placeholder: t('step1.songCustomUrl'), className: 'w-full session-custom-input', 'data-custom-url': 'true',
             }) as HTMLInputElement;
             customWrap.appendChild(customTitle);
             customWrap.appendChild(customUrl);
@@ -643,7 +640,7 @@ function createPracticeBlockForm(existingBlocks: SessionBlock[], cb: Step1Callba
     const addBtn = createElement('button', { className: 'btn-primary session-add-btn' }, t('step1.practiceAddBtn'));
     addBtn.addEventListener('click', () => {
         const taalId = taalSelect.value;
-        const varName = varSelect.value === '__main__' ? 'Patrón Principal' : varSelect.value;  // always Spanish for DB storage
+        const varName = varSelect.value === '__main__' ? MAIN_PATTERN_NAME : varSelect.value;  // always Spanish for DB storage
         const supportType = supportSelect.value as 'metronome' | 'song' | 'lehra';
         const subSel = subSelectorContainer.querySelector('[data-sub-select]') as HTMLSelectElement | null;
 

@@ -4,7 +4,7 @@
  * and the next / finish button.
  */
 
-import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray, VIBHAG_DIVIDERS } from '../../core/utils.js';
+import { createElement, applyBolIndicators, bolsHaveIndicators, createBolIndicatorsLegend, chunkArray, VIBHAG_DIVIDERS, MAIN_PATTERN_NAME, variationLabel } from '../../core/utils.js';
 import { TAALS } from '../../data/taals/index.js';
 import { KAYDAS } from '../../data/kaydas.js';
 import { LEHRAS } from '../../data/lehras.js';
@@ -78,6 +78,8 @@ export function renderStep2(
         return;
     }
     const isLast = sessionState.currentBlockIndex === sessionState.blocks.length - 1;
+    // Restore the block's cycle count before the metronome UI reads it
+    cb.setState({ cycleCount: block.cyclesCompleted ?? 0 });
 
     // Header with progress bar
     const header = createElement('div', { className: 'mb-4' });
@@ -122,7 +124,7 @@ export function renderStep2(
     const getSubtitleText = (b: SessionBlock): string =>
         b.type === 'warmup'  ? `${t('step3.warmUp')} — ${b.kaydaName}`
         : b.type === 'pickup'  ? `${t('step3.pickup')} — ${b.pickupTaalCategory ?? ''}`
-        : `${b.taalName} · ${b.variationName}`;
+        : `${b.taalName} · ${variationLabel(b.variationName)}`;
     subtitleEl.textContent = getSubtitleText(block);
     header.appendChild(subtitleEl);
     container.appendChild(header);
@@ -179,9 +181,6 @@ export function renderStep2(
     });
     container.appendChild(nextBtn);
 
-    cb.setState({
-        cycleCount: sessionState.blocks[sessionState.currentBlockIndex]?.cyclesCompleted ?? 0
-    });
     startTimer(timerDisplay, blockStartTime, cb, sessionState);
 }
 
@@ -277,7 +276,7 @@ function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement
             }
         }, t('step2.taalLabel')));
         const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
-        Object.keys(TAALS).forEach(id => {
+        activeTaals.forEach(id => {
             const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
             if (id === (block.taalId ?? 'keherwa')) opt.selected = true;
             taalSelect.appendChild(opt);
@@ -290,7 +289,8 @@ function renderSupportZone(block: SessionBlock, cb: Step2Callbacks): HTMLElement
 
         const buildForTaal = (taalId: string) => {
             metroBody.innerHTML = '';
-            buildMetronomeUI(metroBody, TAALS[taalId]?.beats ?? 8, block.bpmStart ?? 120, block, cb);
+            // Resume at the tempo already reached in this block (jump back / reload)
+            buildMetronomeUI(metroBody, TAALS[taalId]?.beats ?? 8, block.bpmEnd ?? block.bpmStart ?? 120, block, cb);
         };
         taalSelect.addEventListener('change', () => { stopMetronome(cb); buildForTaal(taalSelect.value); });
         buildForTaal(taalSelect.value);
@@ -338,7 +338,8 @@ export function buildMetronomeUI(
     }, `${initialBpm} BPM`);
     container.appendChild(bpmDisplay);
 
-    const cycleDisplay = createElement('div', { className: 'text-muted text-sm text-center mb-3' }, `${t('step2.cyclesLabel')} 0`);
+    // Resume from the count already recorded for this block (jump back / reload)
+    const cycleDisplay = createElement('div', { className: 'text-muted text-sm text-center mb-3' }, `${t('step2.cyclesLabel')} ${cb.getState().cycleCount}`);
     container.appendChild(cycleDisplay);
 
     metro.onCycle((_cycle: number) => {
@@ -397,7 +398,6 @@ export function buildMetronomeUI(
         }
     });
     container.appendChild(playBtn);
-    void stopPlayback;
 }
 
 // ── Collapsible secondary metronome ──────────────────────────────────────────
@@ -419,7 +419,7 @@ function renderSecondaryMetronome(block: SessionBlock, cb: Step2Callbacks): HTML
         }
     }, t('step2.taalLabel')));
     const taalSelect = createElement('select', { className: 'w-full' }) as HTMLSelectElement;
-    Object.keys(TAALS).forEach(id => {
+    activeTaals.forEach(id => {
         const opt = createElement('option', { value: id }, TAALS[id]?.name ?? id) as HTMLOptionElement;
         if (id === (block.taalId ?? 'keherwa')) opt.selected = true;
         taalSelect.appendChild(opt);
@@ -463,11 +463,9 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
 
     if (block.type === 'pickup') return createElement('div', {});
 
-    const displayVarName = block.variationName === 'Patrón Principal'
-        ? t('step1.blockPatternMain')
-        : (block.variationName ?? '');
+    const displayVarName = variationLabel(block.variationName);
     const title = block.type === 'warmup'
-        ? (block.kaydaName ?? 'Kayda')
+        ? (block.kaydaName ?? t('step1.warmUpKayda'))
         : `${block.taalName ?? ''} — ${displayVarName}`;
     card.appendChild(createElement('h4', { className: 'font-bold mb-4' }, title));
 
@@ -517,7 +515,7 @@ function renderPatternZone(block: SessionBlock): HTMLElement {
     if (block.taalId) {
         const taal = TAALS[block.taalId];
         if (taal) {
-            rows = (block.variationName === 'Patrón Principal' || block.variationName === t('step1.blockPatternMain'))
+            rows = (block.variationName === MAIN_PATTERN_NAME || block.variationName === t('step1.blockPatternMain'))
                 ? taal.rows
                 : (taal.variations?.find(v => v.name === block.variationName)?.rows ?? taal.rows);
         }
@@ -754,7 +752,7 @@ function renderEditPanel(
             }
         });
         // Pre-select main pattern if it was the current block's variation
-        if ((currentVarName ?? block.variationName) === 'Patrón Principal' || (currentVarName ?? block.variationName) === t('step1.blockPatternMain')) {
+        if ((currentVarName ?? block.variationName) === MAIN_PATTERN_NAME || (currentVarName ?? block.variationName) === t('step1.blockPatternMain')) {
             (varSelect.options[0] as HTMLOptionElement).selected = true;
         }
         bolPreview.textContent = getBolsPreview(taalId, varSelect.value);
@@ -835,7 +833,7 @@ function renderEditPanel(
                 type: 'text', placeholder: t('step1.songCustomTitle'), className: 'w-full session-custom-input', 'data-custom-title': 'true',
             }) as HTMLInputElement;
             const customUrl = createElement('input', {
-                type: 'url', placeholder: 'URL de YouTube (https://…)', className: 'w-full session-custom-input', 'data-custom-url': 'true',
+                type: 'url', placeholder: t('step1.songCustomUrl'), className: 'w-full session-custom-input', 'data-custom-url': 'true',
             }) as HTMLInputElement;
             customWrap.appendChild(customTitle);
             customWrap.appendChild(customUrl);
@@ -866,7 +864,7 @@ function renderEditPanel(
     const confirmBtn = createElement('button', { className: 'btn-primary session-edit-confirm-btn' }, t('step2.confirmChanges'));
     confirmBtn.addEventListener('click', () => {
         const taalId     = taalSelect.value;
-        const varName    = varSelect.value === '__main__' ? 'Patrón Principal' : varSelect.value;  // always Spanish for DB storage
+        const varName    = varSelect.value === '__main__' ? MAIN_PATTERN_NAME : varSelect.value;  // always Spanish for DB storage
         const supportType = supportSelect.value as 'metronome' | 'song' | 'lehra';
         const subSel     = subContainer.querySelector('[data-sub-select]') as HTMLSelectElement | null;
 
@@ -877,8 +875,15 @@ function renderEditPanel(
 
         if (supportType === 'metronome') {
             block.bpmStart  = parseInt(bpmInput.value, 10);
+            // A new start tempo invalidates the end tempo reached with the old one
+            block.bpmEnd    = undefined;
             block.supportRef = `${bpmInput.value} BPM`;
             block.supportUrl = '';
+            // Tutorial of the newly selected variation (falls back to the taal tutorial)
+            const variation = varSelect.value === '__main__'
+                ? undefined
+                : TAALS[taalId]?.variations?.find(v => v.name === varSelect.value);
+            block.tutorialUrl = variation?.tutorials?.[0] ?? TAALS[taalId]?.tutorial ?? undefined;
             // Reset metronome with new taal and BPM
             stopMetronome(cb);
         } else if (supportType === 'song' && subSel?.value === '__custom__') {

@@ -5,7 +5,7 @@
 import { createElement } from '../../core/utils.js';
 import { t, tArray } from '../../i18n/index.js';
 import type { UserStats, SupabaseSession } from './statsTypes.js';
-import { gcDateStr, gcTodayStr } from './statsData.js';
+import { gcDateStr, gcTodayStr, gcMondayStr, effectiveSecs } from './statsData.js';
 
 // ── Shared card helpers ───────────────────────────────────────────────────────
 
@@ -29,13 +29,6 @@ export function cardSub(text: string): HTMLElement {
     p.style.marginBottom = '16px';
     p.textContent = text;
     return p;
-}
-
-// ── effectiveSecs helper (avoids cross-import from statsData) ─────────────────
-
-export function effectiveSecs(s: SupabaseSession): number {
-    const fromBlocks = s.blocks.reduce((sum, b) => sum + (b.duration_secs ?? 0), 0);
-    return fromBlocks > 0 ? fromBlocks : s.total_secs;
 }
 
 // ── KPI grid ──────────────────────────────────────────────────────────────────
@@ -143,26 +136,16 @@ export function buildWeekCompare(d: UserStats): HTMLElement {
     const minsThis = d.weekly[15] ?? 0;
     const minsPrev = d.weekly[14] ?? 0;
 
-    const MS_WEEK    = 7 * 24 * 60 * 60 * 1000;
-    const now        = new Date();
-    const getMonday  = (ref: Date): Date => {
-        const day = ref.getDay();
-        const result = new Date(ref);
-        result.setDate(ref.getDate() - (day === 0 ? 6 : day - 1));
-        result.setHours(0, 0, 0, 0);
-        return result;
-    };
-    const thisMonday = getMonday(now);
-    const prevMonday = new Date(thisMonday.getTime() - MS_WEEK);
+    // Weeks are Monday-based calendar weeks in CONFIG.TIMEZONE — the same buckets
+    // as d.weekly — so minutes, sessions and BPM always refer to the same week
+    const thisMonday = gcMondayStr(gcTodayStr());
+    const prevDate   = new Date(thisMonday + 'T12:00:00Z');
+    prevDate.setUTCDate(prevDate.getUTCDate() - 7);
+    const prevMonday = prevDate.toISOString().slice(0, 10);
+    const weekOf     = (s: SupabaseSession): string => gcMondayStr(gcDateStr(s.saved_at));
 
-    const sessionsThis = d.rawSessions.filter(s => {
-        const tv = new Date(s.saved_at).getTime();
-        return tv >= thisMonday.getTime() && tv < thisMonday.getTime() + MS_WEEK;
-    });
-    const sessionsPrev = d.rawSessions.filter(s => {
-        const tv = new Date(s.saved_at).getTime();
-        return tv >= prevMonday.getTime() && tv < thisMonday.getTime();
-    });
+    const sessionsThis = d.rawSessions.filter(s => weekOf(s) === thisMonday);
+    const sessionsPrev = d.rawSessions.filter(s => weekOf(s) === prevMonday);
 
     const maxBpmOf = (ss: SupabaseSession[]) =>
         ss.flatMap(s => s.blocks.map(b => b.bpm_end ?? 0)).reduce((mv, v) => Math.max(mv, v), 0);
@@ -179,7 +162,7 @@ export function buildWeekCompare(d: UserStats): HTMLElement {
     };
 
     const minsDelta = delta(minsThis,            minsPrev,            'min');
-    const sessDelta = delta(sessionsThis.length, sessionsPrev.length, 'ses.');
+    const sessDelta = delta(sessionsThis.length, sessionsPrev.length, t('stats.weekCmpSessUnit'));
     const bpmDelta  = delta(bpmThis,             bpmPrev,             'BPM');
 
     const fmtMins = (mn: number) => mn >= 60 ? `${Math.floor(mn/60)}h ${mn%60 > 0 ? mn%60+'m' : ''}`.trim() : `${mn}m`;

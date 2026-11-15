@@ -41,7 +41,6 @@ export interface UserStats {
     bpm: Record<string, number[]>;
     donut: Record<string, number>;
     cycles: number[];
-    history: { date: string; dur: string; blocks: string[]; bpm: string; notes: string | null }[];
     heatmap: { label: string; days: number[] }[];
     rawSessions: SupabaseSession[];
 }

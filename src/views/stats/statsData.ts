@@ -7,7 +7,7 @@ import { db } from '../../core/supabase.js';
 import { TAALS } from '../../data/taals/index.js';
 import { CONFIG } from '../../core/config.js';
 import { escapeHtml } from '../../core/utils.js';
-import { t, tArray, getLang } from '../../i18n/index.js';
+import { t, tArray } from '../../i18n/index.js';
 import type { SupabaseSession, UserStats } from './statsTypes.js';
 
 // ── Active taal IDs ───────────────────────────────────────────────────────────
@@ -174,32 +174,6 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
                 .reduce((sum, b) => sum + (b.cycles_completed ?? 0), 0)
     );
 
-    // ── History: last 10 sessions ─────────────────────────────────────────────
-    const recentSessions = [...sessions].reverse().slice(0, 10);
-    const history = recentSessions.map(s => {
-        const gcStr = gcDateStr(s.saved_at);
-        const d = new Date(gcStr + 'T12:00:00Z');
-        const date = `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-        const dur  = `${Math.round(effectiveSecs(s) / 60)} min`;
-        const blocks = s.blocks.map(b =>
-            b.type === 'warmup'
-                ? t('stats.historyWarmUp')
-                : b.type === 'pickup'
-                    ? t('stats.historyPickup')
-                    : (b.taal_name ?? t('stats.historyPractice'))
-        );
-        const maxBpm = s.blocks
-            .filter(b => b.bpm_end)
-            .reduce((max, b) => Math.max(max, b.bpm_end ?? 0), 0);
-        return {
-            date,
-            dur,
-            blocks,
-            bpm: maxBpm > 0 ? String(maxBpm) : '—',
-            notes: s.notes ?? null,
-        };
-    });
-
     // ── Monthly minutes: last 12 months ──────────────────────────────────────
     const MONTH_SHORT_M = tArray('stats.monthsShort');
     const gcNowForMonths = gcTodayStr();
@@ -237,23 +211,23 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
         const refMonth = parseInt(gcNow.slice(5, 7)) - 1 - m;
         const ref = new Date(Date.UTC(refYear, refMonth, 1));
         const daysInMonth = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth() + 1, 0)).getUTCDate();
-        const days = new Array(daysInMonth).fill(0);
-
+        // Sum the day's seconds first, then map the total to a level, so two
+        // 20-minute sessions read as 40 minutes (not as two separate levels added up)
+        const daySecs = new Array(daysInMonth).fill(0);
         sessions.forEach(s => {
             const sd = new Date(gcDateStr(s.saved_at) + 'T12:00:00Z');
             if (sd.getUTCFullYear() === ref.getUTCFullYear() && sd.getUTCMonth() === ref.getUTCMonth()) {
-                const dayIdx = sd.getUTCDate() - 1;
-                const mins = Math.round(effectiveSecs(s) / 60);
-                const level = mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : mins >= 1 ? 1 : effectiveSecs(s) > 0 ? 1 : 0;
-                days[dayIdx] = Math.min(4, days[dayIdx] + level);
+                daySecs[sd.getUTCDate() - 1] += effectiveSecs(s);
             }
+        });
+        // Levels: 0 none · 1 under 15 min · 2 15–29 · 3 30–59 · 4 60+
+        const days = daySecs.map(secs => {
+            const mins = secs / 60;
+            return secs <= 0 ? 0 : mins >= 60 ? 4 : mins >= 30 ? 3 : mins >= 15 ? 2 : 1;
         });
 
         heatmap.push({
-            label: MONTH_FULL[ref.getUTCMonth()] ?? ref.toLocaleDateString(
-                getLang() === 'en' ? 'en-GB' : 'es-ES',
-                { timeZone: 'UTC', month: 'long' }
-            ),
+            label: MONTH_FULL[ref.getUTCMonth()] ?? '',
             days,
         });
     }
@@ -320,7 +294,6 @@ export function transformSessionsToStats(sessions: SupabaseSession[]): UserStats
         bpm: bpmMap,
         donut,
         cycles,
-        history,
         heatmap,
         rawSessions: sessions,
     };
@@ -356,7 +329,6 @@ export function emptyStats(): UserStats {
         bpm:         {},
         donut:       {},
         cycles:      [],
-        history:     [],
         heatmap:     [],
         rawSessions: [],
     };

@@ -6,7 +6,7 @@
  * session is saved.
  */
 
-import { createElement } from '../../core/utils.js';
+import { createElement, MAIN_PATTERN_NAME } from '../../core/utils.js';
 import { t } from '../../i18n/index.js';
 import type { SessionBlock } from '../../types.js';
 import {
@@ -42,7 +42,7 @@ function buildFilename(block: SessionBlock, label: string, ext: string): string 
         return `Pickup_${sanitize(block.pickupName ?? 'Pickup')}${take}_${date}.${ext}`;
     }
     const taal      = sanitize(block.taalName ?? '');
-    const variation = block.variationName && block.variationName !== 'Patrón Principal'
+    const variation = block.variationName && block.variationName !== MAIN_PATTERN_NAME
         ? `_${sanitize(block.variationName)}` : '';
     const support   = block.supportRef ? `_${sanitize(block.supportRef)}` : '';
     const bpm       = block.bpmEnd ?? block.bpmStart;

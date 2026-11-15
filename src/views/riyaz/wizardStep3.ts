@@ -4,7 +4,7 @@
  * save / discard actions behind the password modal.
  */
 
-import { createElement } from '../../core/utils.js';
+import { createElement, variationLabel } from '../../core/utils.js';
 import { db } from '../../core/supabase.js';
 import { t } from '../../i18n/index.js';
 import type { SessionBlock, SessionState } from '../../types.js';
@@ -23,10 +23,10 @@ async function hashPassword(plain: string): Promise<string> {
 }
 
 export interface Step3Callbacks {
-    onNewSession: () => void;   // redirige de vuelta al step 1
+    onNewSession: () => void;   // goes back to step 1
 }
 
-// ── Punto de entrada ─────────────────────────────────────────────────────────
+// ── Entry point ──────────────────────────────────────────────────────────────
 
 export function renderStep3(
     container: HTMLElement,
@@ -43,7 +43,7 @@ export function renderStep3(
     header.appendChild(createElement('p', { className: 'section-subtitle' }, t('step3.totalTime', formatTime(totalSecs))));
     container.appendChild(header);
 
-    // Lista de bloques
+    // Blocks list
     container.appendChild(buildBlocksList(sessionState));
 
     // Time breakdown by taal
@@ -58,7 +58,7 @@ export function renderStep3(
         container.appendChild(buildTaalBreakdown(taalTimes, totalSecs));
     }
 
-    // Notas libres
+    // Free-form notes
     const notesCard = createElement('div', { className: 'card p-6 mb-4' });
     notesCard.appendChild(createElement('h3', { className: 'font-bold text-lg mb-3' }, t('step3.notesTitle')));
     const textarea = createElement('textarea', {
@@ -85,7 +85,7 @@ export function renderStep3(
     });
     const jointCheckbox = createElement('input', { type: 'checkbox', id: 'joint-session-toggle' }) as HTMLInputElement;
     jointCheckbox.style.cssText = 'width:18px;height:18px;cursor:pointer;accent-color:var(--orange-500)';
-    const jointLabel = createElement('label', { htmlFor: 'joint-session-toggle' });
+    const jointLabel = createElement('label', { for: 'joint-session-toggle' });
     jointLabel.style.cssText = 'cursor:pointer;font-size:0.95rem;user-select:none';
     jointLabel.textContent = t('step3.jointSession');
     jointRow.appendChild(jointCheckbox);
@@ -144,14 +144,14 @@ export function renderStep3(
     container.appendChild(actionArea);
 }
 
-// ── Helpers de UI ────────────────────────────────────────────────────────────
+// ── UI helpers ───────────────────────────────────────────────────────────────
 
 function buildBlocksList(sessionState: SessionState): HTMLElement {
     const blocks = sessionState.blocks;
     const card = createElement('div', { className: 'card p-6 mb-4' });
     card.appendChild(createElement('h3', { className: 'font-bold text-lg mb-4' }, t('step3.blocksTitle')));
 
-    blocks.forEach((block, i) => {
+    blocks.forEach(block => {
         const row = createElement('div', {
             className: 'flex items-center justify-between py-2',
             style: { borderBottom: '1px solid var(--border-primary)' }
@@ -160,7 +160,7 @@ function buildBlocksList(sessionState: SessionState): HTMLElement {
             ? `${t('step3.warmUp')} — ${block.kaydaName}`
             : block.type === 'pickup'
                 ? `${t('step3.pickup')} — ${block.pickupName ?? ''}`
-                : `${i}. ${block.taalName} · ${block.variationName}`;
+                : `${block.taalName} · ${variationLabel(block.variationName)}`;
         row.appendChild(createElement('span', { className: 'font-medium' }, name));
 
         const meta = createElement('span', { className: 'text-muted text-sm text-right' });
@@ -246,7 +246,7 @@ function showSaveModal(
     const passField = createElement('div', { className: 'save-modal__field' });
     passField.appendChild(createElement('label', { className: 'save-modal__label' }, t('step3.saveModalPass')));
     const passInput = createElement('input', {
-        type: 'password', className: 'save-modal__pass-input', placeholder: '••••••••',
+        type: 'password', className: 'save-modal__pass-input', placeholder: t('step3.saveModalPassPlaceholder'),
     }) as HTMLInputElement;
     passField.appendChild(passInput);
     modal.appendChild(passField);

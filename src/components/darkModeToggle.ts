@@ -50,9 +50,7 @@ export class DarkModeToggle {
      */
     private updateButtonIcon(): void {
         this.button.textContent = this.isDark ? '☀️' : '🌙';
-        this.button.setAttribute('aria-label', 
-            this.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'
-        );
+        this.button.setAttribute('aria-label', this.isDark ? t('app.themeToLight') : t('app.themeToDark'));
     }
 
     /**

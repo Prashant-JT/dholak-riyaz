@@ -29,7 +29,11 @@ export const DEFAULT_TAAL_META = { emoji: '🎵', tagCls: 'stats-tag--orange' };
 
 export function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
     const MONTH_SHORT = tArray('stats.monthsShort');
-    const fmt = (iso: string) => { const d = new Date(iso); return `${d.getUTCDate()} ${MONTH_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+    // Calendar day in CONFIG.TIMEZONE, so the date matches the session history
+    const fmt = (iso: string) => {
+        const [y, m, d] = gcDateStr(iso).split('-').map(Number);
+        return `${d} ${MONTH_SHORT[m - 1]} ${y}`;
+    };
 
     const sorted = [...sessions].sort((a, b) => a.saved_at.localeCompare(b.saved_at));
 

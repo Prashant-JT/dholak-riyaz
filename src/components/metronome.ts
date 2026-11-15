@@ -135,13 +135,6 @@ export class MetronomeEngine {
         this.currentBeat = 0;
     }
     
-    /**
-     * Get current beats per measure
-     * @returns Current beats per measure
-     */
-    public getBeatsPerMeasure(): number {
-        return this.beatsPerMeasure;
-    }
     
     /**
      * Reset cycle counter
@@ -150,13 +143,6 @@ export class MetronomeEngine {
         this.cycleCount = 0;
     }
     
-    /**
-     * Get current cycle count
-     * @returns Current cycle count
-     */
-    public getCycleCount(): number {
-        return this.cycleCount;
-    }
     
     /**
      * Starts the metronome

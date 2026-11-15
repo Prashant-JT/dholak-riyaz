@@ -131,15 +131,15 @@ class Application {
      */
     private initScrollToTop(): void {
         const btn = document.getElementById('scrollTopBtn');
-        const main = document.getElementById('mainContent');
-        if (!btn || !main) return;
+        if (!btn) return;
 
-        main.addEventListener('scroll', () => {
-            btn.classList.toggle('visible', main.scrollTop > CONFIG.SCROLL_TOP_THRESHOLD);
-        });
+        // The document scrolls (not <main>), so listen on window
+        window.addEventListener('scroll', () => {
+            btn.classList.toggle('visible', window.scrollY > CONFIG.SCROLL_TOP_THRESHOLD);
+        }, { passive: true });
 
         btn.addEventListener('click', () => {
-            main.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
     
@@ -242,6 +242,10 @@ class Application {
                 this.metronome.setBPM(bpm);
                 bpmDisplay.textContent = bpm.toString();
             });
+            // The view is re-rendered with the default BPM on every visit, but the
+            // shared engine keeps the last tempo: sync the engine to what is shown
+            const shownBpm = parseInt(newSlider.value);
+            if (Number.isFinite(shownBpm)) this.metronome.setBPM(shownBpm);
         }
         
         // Beats per measure select

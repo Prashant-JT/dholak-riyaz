@@ -17,13 +17,13 @@ const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON) {
-    console.error('❌  Faltan variables de entorno SUPABASE_URL y/o SUPABASE_ANON_KEY');
+    console.error('Missing environment variables SUPABASE_URL and/or SUPABASE_ANON_KEY');
     process.exit(1);
 }
 
-// Usa la REST API directamente — sin WebSocket ni Realtime
+// Use the REST API directly — no WebSocket or Realtime
 const url = `${SUPABASE_URL}/rest/v1/sessions?select=*&order=saved_at.asc`;
-console.log('🔌  Conectando a Supabase...');
+console.log('Connecting to Supabase...');
 
 const res = await fetch(url, {
     headers: {
@@ -39,7 +39,7 @@ if (!res.ok) {
 }
 
 const sessions = await res.json();
-console.log(`✅  ${sessions.length} sesión(es) descargadas`);
+console.log(`${sessions.length} session(s) downloaded`);
 
 // Write to backups/YYYY-MM-DD.json
 const today = new Date().toISOString().slice(0, 10);
@@ -53,4 +53,4 @@ const payload = {
     sessions,
 };
 writeFileSync(outPath, JSON.stringify(payload, null, 2), 'utf8');
-console.log(`💾  Guardado en backups/${today}.json`);
+console.log(`Saved to backups/${today}.json`);

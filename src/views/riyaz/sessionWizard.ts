@@ -8,7 +8,7 @@
  *   - wizardStep3.ts   → summary and save to Supabase
  */
 
-import { createElement } from '../../core/utils.js';
+import { createElement, variationLabel } from '../../core/utils.js';
 import { t } from '../../i18n/index.js';
 import type { View, SessionBlock, SessionState } from '../../types.js';
 
@@ -157,6 +157,9 @@ export class SessionWizardView implements View {
     private doStep3(): void {
         // Stop a recording still running on the last block so its take is stored
         releaseRecorders();
+        // Blocks never played (0 s, e.g. skipped by jumping to the last block) are
+        // not part of the session: saving them would award medals for taals never played
+        this.sessionState.blocks = this.sessionState.blocks.filter(b => (b.durationSecs ?? 0) > 0);
         window.scrollTo(0, 0);
         renderStep3(this.container, this.sessionState, {
             onNewSession: () => {
@@ -205,7 +208,7 @@ export class SessionWizardView implements View {
                 ? `${t('step3.warmUp')} — ${b.kaydaName ?? ''}`
                 : b.type === 'pickup'
                     ? `${t('step3.pickup')} — ${b.pickupName ?? ''}`
-                    : `${b.taalName ?? ''} · ${b.variationName ?? ''}`;
+                    : `${b.taalName ?? ''} · ${variationLabel(b.variationName)}`;
             const prefix = isCurrent ? '▶ ' : isDone ? '✓ ' : '';
             const li = createElement('li', {
                 className: isCurrent ? 'session-draft-recovery__list-item--current' : ''
@@ -239,7 +242,12 @@ export class SessionWizardView implements View {
             if (completedCount > 0) {
                 const finishEarlyBtn = createElement('button', { className: 'session-draft-recovery__finish-early' }, t('recovery.finishEarly', completedCount));
                 finishEarlyBtn.addEventListener('click', () => {
-                    this.sessionState = draft.state;
+                    // Keep only the blocks actually practised: unplayed blocks would be
+                    // saved with 0 s and award "First <taal>" medals for taals never played
+                    this.sessionState = {
+                        ...draft.state,
+                        blocks: draft.state.blocks.filter(b => b.completedAt !== undefined),
+                    };
                     this.blockStartTime = 0;
                     this.doStep3();
                 });

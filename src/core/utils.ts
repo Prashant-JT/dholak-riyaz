@@ -14,6 +14,14 @@ import type { ElementAttributes } from '../types';
  * @returns Created HTML element
  */
 /** HTML-escape a string before interpolating it into an innerHTML template. */
+/** Canonical (DB) name of a taal's main pattern — always stored in Spanish. */
+export const MAIN_PATTERN_NAME = 'Patrón Principal';
+
+/** Display label for a stored variation name: the main pattern is translated, others are shown as-is. */
+export function variationLabel(name: string | undefined): string {
+    return !name || name === MAIN_PATTERN_NAME ? t('step1.blockPatternMain') : name;
+}
+
 export function escapeHtml(value: string): string {
     return value
         .replace(/&/g, '&amp;')
@@ -200,8 +208,8 @@ export function setupSearchFilter(
     const updateCounter = (visibleCount: number, query: string) => {
         if (!counter) return;
         counter.textContent = query
-            ? `${visibleCount} de ${items.length} resultados`
-            : `${items.length} resultados`;
+            ? t('kaydas.counterFiltered', visibleCount, items.length)
+            : t('kaydas.counter', items.length);
     };
 
     // Set initial count

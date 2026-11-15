@@ -47,6 +47,7 @@ export class StatsView implements View {
     private charts: any[] = [];
     private userData: Record<string, UserStats> = {};
     private dataLoaded: boolean = false;
+    private stopProgress: (() => void) | null = null;   // loading bar interval of the current render
     private section!: HTMLElement;
     private weeklyMode: 'weeks' | 'days' | 'months' = 'weeks';
     private weeklySelectedIdx: number = 15;
@@ -55,6 +56,9 @@ export class StatsView implements View {
     private compareChart: any = null;
 
     public render(): HTMLElement {
+        // Each visit refetches: tabs stay locked until this render's data arrives
+        this.dataLoaded = false;
+        this.stopProgress?.();
         this.section = createElement('section', { id: 'stats', className: 'view-section' });
 
         const header = createElement('div', { className: 'mb-6' });
@@ -114,28 +118,33 @@ export class StatsView implements View {
             pct = pct < 70 ? pct + 8 : pct < 88 ? pct + 1 : pct;
             barInner.style.width = `${pct}%`;
         }, 300);
-        (wrap as any)._stopProgress = () => {
+        // Held on the view (not the DOM node) so it is cleared even if the node is gone
+        this.stopProgress = () => {
             clearInterval(tick);
             barInner.style.width     = '100%';
             barInner.style.transition = 'width 0.3s ease';
+            this.stopProgress = null;
         };
     }
 
     public onLeave(): void {
         this.destroyCharts();
-        const loadingWrap = this.section?.querySelector('.stats-loading') as any;
-        if (loadingWrap?._stopProgress) loadingWrap._stopProgress();
+        this.stopProgress?.();
     }
 
     private async loadAndRender(content: HTMLElement): Promise<void> {
         try {
-            const [p, m] = await Promise.all([
-                fetchUserStats('prashant').catch((err: unknown) => { console.warn('Stats prashant:', err); return emptyStats(); }),
-                fetchUserStats('meera').catch((err: unknown)    => { console.warn('Stats meera:',    err); return emptyStats(); }),
-            ]);
-
-            const loadingWrap = content.querySelector('.stats-loading') as any;
-            if (loadingWrap?._stopProgress) loadingWrap._stopProgress();
+            // One user failing to load shows "no sessions" for that user only; if
+            // both fail (offline / Supabase down) it is an error, not empty data
+            let failures = 0;
+            const load = (user: string) => fetchUserStats(user).catch((err: unknown) => {
+                console.warn(`Stats ${user}:`, err);
+                failures++;
+                return emptyStats();
+            });
+            const [p, m] = await Promise.all([load('prashant'), load('meera')]);
+            this.stopProgress?.();
+            if (failures === 2) throw new Error('Could not load stats for any user');
 
             await new Promise(r => setTimeout(r, 250));
 
@@ -146,6 +155,8 @@ export class StatsView implements View {
             this.renderContent();
         } catch (err: unknown) {
             console.error('Error loading stats:', err);
+            this.stopProgress?.();
+            if (!content.isConnected) return;
             content.innerHTML = '';
             const errWrap = createElement('div', { className: 'stats-loading' });
             errWrap.innerHTML = `<p class="stats-loading__msg">${t('stats.errorMsg')}</p>
@@ -346,6 +357,15 @@ export class StatsView implements View {
                 switchChart();
             }
         });
+
+        // The mode survives a re-render (user tab switch): show the matching header
+        // straight away — the card is detached here, so set the nodes directly
+        subEl.textContent = this.weeklyMode === 'weeks' ? t('stats.weeklySub16')
+            : this.weeklyMode === 'months' ? t('stats.weeklySubMonths')
+            : t('stats.weeklySubDay', d.weekLabels[this.weeklySelectedIdx]);
+        selCurrent.textContent = d.weekLabels[this.weeklySelectedIdx] ?? '';
+        setActiveBtn(this.weeklyMode === 'weeks' ? btnWeeks : this.weeklyMode === 'months' ? btnMonths : btnDays);
+        weekSel.style.display = this.weeklyMode === 'days' ? 'flex' : 'none';
 
         return card;
     }

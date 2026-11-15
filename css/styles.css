@@ -57,7 +57,7 @@
     --info-border: #3b82f6;
     --info-text: #1e3a8a;
 
-    /* Resource boxes (songs / tutorials dentro de las variaciones) */
+    /* Resource boxes (songs / tutorials inside variations) */
     --resource-songs-bg: #fff7ed;
     --resource-songs-border: #fed7aa;
     --resource-songs-title: #7c2d12;
@@ -75,7 +75,7 @@
 }
 
 body.dark {
-    /* Dark Mode Colors - Mejorado para mejor contraste */
+    /* Dark mode colours — tuned for contrast */
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
     --bg-tertiary: #334155;
@@ -115,7 +115,7 @@ body.dark {
     --blue-700: #2563eb;
     --blue-900: #93c5fd;
     
-    /* Info box colors - oscuros con buen contraste */
+    /* Info box colours — dark with good contrast */
     --info-bg: #1e3a8a;
     --info-border: #3b82f6;
     --info-text: #dbeafe;
@@ -313,6 +313,46 @@ body {
     font-size: 1.5rem;
 }
 
+.text-3xl {
+    font-size: 1.875rem;
+}
+
+.text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-orange-500 { color: var(--orange-500); }
+.text-orange-600 { color: var(--orange-500); }
+
+.underline {
+    text-decoration: underline;
+}
+
+.relative {
+    position: relative;
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+.gap-2 { gap: 0.5rem; }
+.gap-6 { gap: 1.5rem; }
+
+.mt-3 { margin-top: 0.75rem; }
+.pt-6 { padding-top: 1.5rem; }
+
+.py-2  { padding-top: 0.5rem;  padding-bottom: 0.5rem; }
+.py-6  { padding-top: 1.5rem;  padding-bottom: 1.5rem; }
+.py-12 { padding-top: 3rem;    padding-bottom: 3rem; }
+.px-8  { padding-left: 2rem;   padding-right: 2rem; }
+
+.min-w-\[140px\] { min-width: 140px; }
+
 .font-medium {
     font-weight: 500;
 }
@@ -457,6 +497,9 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     .md\:grid-cols-2 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 /* ============================================
@@ -496,7 +539,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     -webkit-overflow-scrolling: touch;
     z-index: 1000;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-    padding: 4.5rem 1.5rem 4rem 1.5rem; /* padding-bottom generoso para barra del navegador */
+    padding: 4.5rem 1.5rem 4rem 1.5rem; /* generous bottom padding for the mobile browser bar */
     transform: translateX(-100%);
     transition: transform 0.3s ease;
 }
@@ -803,6 +846,17 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     transform: translateY(-2px);
 }
 
+/* Song note under the title (may contain a tutorial link) */
+.songs-note {
+    margin-top: 0.5rem;
+    overflow-wrap: anywhere;
+}
+
+.songs-note__link {
+    color: var(--orange-500);
+    text-decoration: underline;
+}
+
 /* ============================================
    HAMBURGER BUTTON
    ============================================ */
@@ -1071,7 +1125,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     border-bottom: none;
 }
 
-/* Header del bol: nombre + indicadores alineados */
+/* Bol header: name + indicators aligned */
 .glosario-col__bol-header {
     display: flex;
     align-items: center;
@@ -1079,7 +1133,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     flex-wrap: wrap;
 }
 
-/* Contenedor de indicadores */
+/* Indicators container */
 .bol-indicators {
     display: flex;
     align-items: center;
@@ -1098,7 +1152,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     top: -1px;
 }
 
-/* Punto indicador base */
+/* Base indicator dot */
 .bol-indicator {
     display: inline-block;
     width: 8px;
@@ -1124,7 +1178,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
     box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
 }
 
-/* Leyenda de indicadores */
+/* Indicators legend */
 .bol-indicators-legend {
     display: flex;
     flex-wrap: wrap;
@@ -1147,7 +1201,7 @@ body.dark .text-indigo-900 { color: #c7d2fe; }
 .glosario-col--blue   { background: #eff6ff; border-color: #bfdbfe; }
 .glosario-col--purple { background: #faf5ff; border-color: #e9d5ff; }
 
-/* Dark mode — colores con tono visible pero suavizados */
+/* Dark mode — visible but softened colours */
 body.dark .glosario-col--orange { background: #431407; border-color: #9a3412; }
 body.dark .glosario-col--blue   { background: #1e3a5f; border-color: #2563eb; }
 body.dark .glosario-col--purple { background: #2e1065; border-color: #6d28d9; }
@@ -1296,7 +1350,7 @@ body.dark .glosario-col--purple { background: #2e1065; border-color: #6d28d9; }
 .info-box--indigo  .info-box__title { color: #1e1b4b; }
 .info-box--indigo  .info-box__text  { color: #312e81; }
 
-/* Dark mode overrides para info-box */
+/* Dark mode overrides for info-box */
 body.dark .info-box--emerald { background: #022c22; border-color: #34d399; }
 body.dark .info-box--emerald .info-box__title { color: #6ee7b7; }
 body.dark .info-box--emerald .info-box__text  { color: #a7f3d0; }
@@ -1984,7 +2038,7 @@ select:disabled {
     background: var(--border-primary);
 }
 
-/* Card del formulario */
+/* Form card */
 .session-form-card {
     background: var(--card-bg);
     border: 2px solid var(--border-secondary);
@@ -1994,16 +2048,7 @@ select:disabled {
 }
 
 /* Internal card title (Warm Up / Practice block) */
-.session-form-card__title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.875rem;
-    border-bottom: 1px solid var(--border-primary);
-}
-
-/* Campos del formulario */
+/* Form fields */
 .session-form-field {
     margin-bottom: 1rem;
 }
@@ -2050,7 +2095,7 @@ select:disabled {
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
-/* Preview de bols */
+/* Bols preview */
 /* Pickup bol pattern when there is no video */
 .session-pickup-pattern {
     font-family: 'JetBrains Mono', monospace;
@@ -2082,7 +2127,7 @@ select:disabled {
     word-break: break-word;
 }
 
-/* ── Barra de resumen en vivo ────────────────────────────────────────── */
+/* ── Live summary bar ───────────────────────────────────────────────── */
 .session-plan-bar {
     display: flex;
     align-items: center;
@@ -2174,7 +2219,7 @@ select:disabled {
     cursor: default;
 }
 
-/* ── Popup de compartir ──────────────────────────────────────────────── */
+/* ── Share popup ────────────────────────────────────────────────────── */
 .session-share-popup {
     position: relative;
     background: var(--card-bg);
@@ -2321,7 +2366,7 @@ select:disabled {
     text-decoration: underline;
 }
 
-/* ── Panel de plantillas guardadas ───────────────────────────────────── */
+/* ── Saved templates panel ──────────────────────────────────────────── */
 .session-templates-panel {
     border: 1.5px solid var(--border-primary);
     border-radius: 12px;
@@ -2490,7 +2535,7 @@ select:disabled {
     border-color: var(--orange-500);
 }
 
-/* Campos de URL personalizada en selector de canciones */
+/* Custom URL fields in the song selector */
 .session-custom-song {
     display: flex;
     flex-direction: column;
@@ -2676,7 +2721,7 @@ body.dark .stats-badge--streak {
     color: #fdba74;
 }
 
-/* Card de racha con dos valores lado a lado */
+/* Streak card: values side by side */
 .stats-streak-row {
     display: flex;
     align-items: center;
@@ -2708,7 +2753,7 @@ body.dark .stats-badge--streak {
     flex-shrink: 0;
 }
 
-/* ── Próxima medalla card ──────────────────────────────────────────────────── */
+/* ── Next medal card ──────────────────────────────────────────────────────── */
 .stats-next-medal {
     display: flex;
     align-items: center;
@@ -2917,7 +2962,7 @@ body.dark .stats-insight-box {
     /* Hide BPM column in history table on mobile */
     .stats-history-table .stats-col-bpm  { display: none; }
 
-    /* Tabs ocupan todo el ancho */
+    /* Tabs take the full width */
     .stats-user-tabs {
         width: 100%;
     }
@@ -3208,7 +3253,7 @@ body.dark .stats-insight-box {
 }
 
 /* History table */
-/* Filtros del historial */
+/* History filters */
 .stats-hist-filters {
     display: flex;
     align-items: center;
@@ -3267,7 +3312,7 @@ body.dark .stats-insight-box {
     border-bottom: none;
 }
 
-/* Fila de nota expandida */
+/* Expanded note row */
 .stats-note-row td {
     border-bottom: none;
 }
@@ -3304,7 +3349,7 @@ body.dark .stats-insight-box {
     filter: drop-shadow(0 0 3px rgba(249,115,22,0.6));
 }
 
-/* Fila principal cuando tiene nota: cursor pointer */
+/* Main row when it has a note: pointer cursor */
 .stats-history-row--has-note {
     cursor: default;
 }
@@ -3862,7 +3907,7 @@ body.dark .session-action-feedback--success {
     line-height: 1.4;
 }
 
-/* ── Flash de bloque completado ─────────────────────────────────────────── */
+/* ── Block completed flash ─────────────────────────────────────────────── */
 .session-block-complete-flash {
     position: fixed;
     bottom: 2rem;
@@ -3903,7 +3948,7 @@ body.dark .session-action-feedback--success {
    EDIT BLOCK PANEL — inline edit during session
    ============================================ */
 
-/* ── Dots de progreso de bloques ─────────────────────────────────────────── */
+/* ── Block progress dots ─────────────────────────────────────────────────── */
 /* ── Block navigation pills (replaces progress dots) ─────────────────────── */
 .session-block-nav {
     display: flex;
@@ -4390,7 +4435,7 @@ body.dark .stats-block-audio {
     line-height: 1.3;
 }
 
-/* Progreso en celdas de medallas bloqueadas */
+/* Progress inside locked medal cells */
 .medals-cell-progress {
     display: flex;
     flex-direction: column;
