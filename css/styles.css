@@ -2996,6 +2996,29 @@ body.dark .stats-insight-box {
     font-family: inherit;
 }
 
+/* New-review count on a user tab */
+.stats-user-tab__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    padding: 0 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: 1px;
+    color: #ffffff;
+    background: var(--orange-500);
+    border-radius: 9999px;
+}
+
+.stats-user-tab.active .stats-user-tab__badge {
+    color: var(--orange-600);
+    background: #ffffff;
+}
+
 .stats-user-tab.active {
     background: var(--orange-500);
     color: #ffffff;
@@ -3532,6 +3555,383 @@ body.dark .stats-insight-box {
     max-width: 420px;
     height: 40px;
     accent-color: var(--orange-500);
+}
+
+/* ============================================
+   RECORDING REVIEWS (history detail panel)
+   ============================================ */
+
+/* Reviewer picker + new-reviews banner at the top of the history card */
+.rec-review-head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 6px 0 12px;
+    border-radius: 10px;
+}
+
+.rec-review-head.is-flash {
+    animation: rec-review-flash 1.2s ease;
+}
+
+@keyframes rec-review-flash {
+    0%, 60% { box-shadow: 0 0 0 3px var(--orange-500); }
+    100%    { box-shadow: 0 0 0 0 transparent; }
+}
+
+.rec-review-banner {
+    margin: 0;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--info-text);
+    background: var(--info-bg);
+    border-left: 3px solid var(--info-border);
+    border-radius: 8px;
+}
+
+.rec-review-who {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0 6px;
+    font-size: 0.82rem;
+}
+
+.rec-review-who__label {
+    color: var(--text-muted);
+}
+
+.rec-review-who__me {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.rec-review-who__dot {
+    color: var(--text-light);
+}
+
+/* Plain text buttons; the 44px tap area is kept with padding, not with a visible pill */
+.rec-review-who__btn {
+    min-height: 44px;
+    padding: 0 2px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    color: var(--orange-500);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.rec-review-who__btn:hover {
+    text-decoration: underline;
+}
+
+/* Orange dot on a session row whose takes have new reviews */
+.rec-review-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 4px;
+    vertical-align: middle;
+    background: var(--orange-500);
+    border-radius: 50%;
+}
+
+/* Reviews under one take — quiet by default, colour only for what is set */
+.rec-review {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 420px;
+    margin-top: 2px;
+}
+
+/* Toolbar: stars | reactions — no backgrounds, just glyphs */
+.rec-review-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rec-review-bar__sep {
+    width: 1px;
+    height: 18px;
+    margin: 0 6px;
+    background: var(--border-secondary);
+}
+
+.rec-review-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rec-review-stars {
+    display: flex;
+}
+
+.rec-review-star {
+    min-width: 30px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--border-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s, transform 0.15s;
+}
+
+.rec-review-star:hover {
+    color: var(--text-muted);
+}
+
+.rec-review-star.is-filled {
+    color: var(--orange-500);
+}
+
+.rec-review-star:active,
+.rec-review-react:active {
+    transform: scale(0.88);
+}
+
+.rec-review-score__others {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.rec-review-reacts {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.rec-review-react {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 36px;
+    min-height: 44px;
+    padding: 0 4px;
+    font-size: 1rem;
+    background: none;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    opacity: 0.45;
+    filter: grayscale(0.6);
+    transition: opacity 0.15s, filter 0.15s, transform 0.15s;
+}
+
+.rec-review-react:hover {
+    opacity: 0.8;
+    filter: none;
+}
+
+/* Someone reacted: full colour; mine also gets a soft underline dot */
+.rec-review-react:has(.rec-review-react__n),
+.rec-review-react.is-active {
+    opacity: 1;
+    filter: none;
+}
+
+.rec-review-react.is-active {
+    background: var(--orange-50);
+}
+
+.rec-review-react__n {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* Small gap between the positive and the "needs work" reactions */
+.rec-review-react--neg-start {
+    margin-left: 6px;
+}
+
+/* Comments: thin left rule, no boxes */
+.rec-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 2px 0 4px;
+    padding: 0;
+    list-style: none;
+}
+
+.rec-review-comment {
+    padding: 0 0 0 10px;
+    border-left: 2px solid var(--border-primary);
+}
+
+.rec-review-comment.is-new {
+    border-left-color: var(--orange-500);
+}
+
+.rec-review-comment__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rec-review-comment__author {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.rec-review-comment__body {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Timestamp: tap to jump the player to that second */
+.rec-review-stamp {
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--blue-600);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.rec-review-stamp:hover {
+    text-decoration: underline;
+}
+
+.rec-review-stamp:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+body.dark .rec-review-stamp {
+    color: var(--blue-500);
+}
+
+.rec-review-del {
+    min-width: 32px;
+    min-height: 32px;
+    margin-left: auto;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.rec-review-del:hover {
+    opacity: 1;
+}
+
+/* Comment field: a single line — text · time · send */
+.rec-review-form {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px 0 12px;
+    background: transparent;
+    border: 1px solid var(--border-primary);
+    border-radius: 22px;
+    transition: border-color 0.15s;
+}
+
+.rec-review-form:focus-within {
+    border-color: var(--border-secondary);
+}
+
+.rec-review-form__input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    max-height: 140px;
+    padding: 11px 0;
+    font-family: inherit;
+    font-size: 16px; /* 16px stops iOS from zooming on focus */
+    line-height: 1.25;
+    color: var(--text-primary);
+    background: none;
+    border: none;
+    outline: none;
+    resize: none;
+}
+
+.rec-review-form__input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Time chip: shows the player position; active = comment pinned to that second */
+.rec-review-chip {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.rec-review-chip.is-active {
+    color: var(--blue-600);
+    opacity: 1;
+}
+
+body.dark .rec-review-chip.is-active {
+    color: var(--blue-500);
+}
+
+.rec-review-send {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    margin: 4px 0;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+/* Lights up once there is something to send */
+.rec-review-form:has(.rec-review-form__input:not(:placeholder-shown)) .rec-review-send {
+    color: #ffffff;
+    background: var(--orange-500);
+}
+
+.rec-review-send:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.rec-review-error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #ef4444;
+}
+
+body.dark .rec-review-error {
+    color: #fca5a5;
 }
 
 /* Shown instead of the player when the browser cannot decode the format */

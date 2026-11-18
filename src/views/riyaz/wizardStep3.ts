@@ -15,13 +15,9 @@ import { renderBlockNote, BLOCK_NOTE_MAX } from './blockNote.js';
 import { TAKE_LABEL_MAX } from './recordingZone.js';
 import { saveSessionDraft } from './wizardDraft.js';
 import { buildRecordingPath, uploadRecording } from '../../core/recordingStorage.js';
+import { verifyPassword } from '../../core/auth.js';
 
 /** SHA-256 via the native Web Crypto API */
-async function hashPassword(plain: string): Promise<string> {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(plain));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 export interface Step3Callbacks {
     onNewSession: () => void;   // goes back to step 1
 }
@@ -210,11 +206,6 @@ function showSaveModal(
     startedAt: number,
     onSuccess: () => void
 ): void {
-    const USERS: Record<string, string> = {
-        prashant: '08ff26c5a6661c7bcf74134fc684717aabba4a66c2d0cfa06c4be231755c1a91',
-        meera:    'ea4198f9dc6c89087fd7a47d6023c65e9eaaf8ed2a219b8fda98f5b5b765ede9',
-    };
-
     const overlay = createElement('div', { className: 'save-modal-overlay' });
     const modal   = createElement('div', { className: 'save-modal' });
 
@@ -283,9 +274,7 @@ function showSaveModal(
         if (inFlight) return;
         inFlight = true;
         const userId       = jointSession ? 'prashant' : userSelect.value;
-        const passwordHash = await hashPassword(passInput.value.trim());
-
-        if (passwordHash !== USERS[userId]) {
+        if (!(await verifyPassword(userId, passInput.value))) {
             inFlight = false;
             errorEl.textContent = t('step3.saveModalWrongPass');
             errorEl.style.display = 'block';

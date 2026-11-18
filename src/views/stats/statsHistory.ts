@@ -5,7 +5,7 @@
 import { createElement, escapeHtml, variationLabel } from '../../core/utils.js';
 import { t, tArray } from '../../i18n/index.js';
 import { TAALS } from '../../data/taals/index.js';
-import type { UserStats, SupabaseSession, SupabaseBlock } from './statsTypes.js';
+import type { UserStats, SupabaseSession, SupabaseBlock, ReviewStore } from './statsTypes.js';
 import { gcDateStr } from './statsData.js';
 import { TAAL_META, DEFAULT_TAAL_META } from './medals.js';
 import { ACTIVE_TAAL_IDS } from './statsData.js';
@@ -13,13 +13,23 @@ import { cardEl, cardTitle } from './statsKPIs.js';
 import { effectiveSecs } from './statsData.js';
 import { CONFIG } from '../../core/config.js';
 import { getRecordingUrl, canPlayRecording } from '../../core/recordingStorage.js';
+import { buildReviewHeader, mountReviews } from './statsReviewsUI.js';
 
 const GC_TZ = CONFIG.TIMEZONE;
 
-export function buildHistoryCard(d: UserStats): HTMLElement {
+export function buildHistoryCard(d: UserStats, reviews: ReviewStore, onReviewerChange: () => void): HTMLElement {
     const PAGE_SIZE = 5;
     const card = cardEl();
     card.appendChild(cardTitle(t('stats.historyTitle')));
+
+    const reviewHead = buildReviewHeader(reviews, d.rawSessions, onReviewerChange);
+    card.appendChild(reviewHead);
+    const onAuthNeeded = () => {
+        reviewHead.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        reviewHead.classList.remove('is-flash');
+        void reviewHead.offsetWidth;   // restart the animation
+        reviewHead.classList.add('is-flash');
+    };
 
     const filterRow = createElement('div', { className: 'stats-hist-filters' });
 
@@ -71,8 +81,9 @@ export function buildHistoryCard(d: UserStats): HTMLElement {
             ? t('stats.historyCountZero')
             : t('stats.historyCount', start, end, filtered.length);
 
-        tableWrap.innerHTML = buildHistoryHTML(shown, MONTH_SHORT);
+        tableWrap.innerHTML = buildHistoryHTML(shown, MONTH_SHORT, reviews.enabled);
         bindHistoryNotes(tableWrap);
+        mountReviews(tableWrap, reviews, onAuthNeeded);
 
         pagination.innerHTML = '';
         if (totalPages <= 1) return;
@@ -129,7 +140,7 @@ export function buildHistoryCard(d: UserStats): HTMLElement {
     return card;
 }
 
-export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string[]): string {
+export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string[], withReviews = false): string {
     if (sessions.length === 0) {
         return `<p class="text-muted text-sm" style="padding:12px 0">${t('stats.historyNoData')}</p>`;
     }
@@ -193,9 +204,13 @@ export function buildHistoryHTML(sessions: SupabaseSession[], monthNames: string
                             <span class="text-muted text-sm">${escapeHtml(t('stats.historyRecUnsupported'))}</span>
                             <a class="btn-secondary stats-block-rec-dl" href="${escapeHtml(recUrl)}?download" target="_blank" rel="noopener">${escapeHtml(t('stats.historyRecDownload'))}</a>
                        </div>`;
+                // Filled by mountReviews (reactions + timestamped comments)
+                const reviewSlot = withReviews
+                    ? `<div class="rec-review" data-rec-path="${escapeHtml(rec.path)}"></div>` : '';
                 return `<div class="stats-block-rec">
                         <span class="stats-block-rec__label">${escapeHtml(label)}</span>
                         ${player}
+                        ${reviewSlot}
                     </div>`;
             }).join('');
             return `<div class="stats-block-detail-row">

@@ -113,6 +113,7 @@ Dholak/
 │   │   ├── config.ts
 │   │   ├── utils.ts       # createElement (text-safe), escapeHtml, createResourceBox…
 │   │   ├── recordingStorage.ts # Supabase Storage upload + public URLs for recordings
+│   │   ├── auth.ts        # Shared password check (session save, reviewer sign-in)
 │   │   └── supabase.ts
 │   ├── components/        # Reusable components
 │   │   ├── metronome.ts
@@ -136,7 +137,10 @@ Dholak/
 │       │   ├── statsHeatmap.ts    # Activity heatmap (minutes per day)
 │       │   ├── statsHistory.ts    # Session history: filters, block detail, notes, recordings
 │       │   ├── statsMedalsUI.ts   # Next-medal card and medals grid
-│       │   └── statsCompareUI.ts  # Compare view: head-to-head bars, medals grouped by owner
+│       │   ├── statsCompareUI.ts  # Compare view: head-to-head bars, medals grouped by owner
+│       │   ├── statsReviews.ts    # Recording reviews: parsing, reviewer identity, "new" tracking
+│       │   ├── statsReviewsData.ts # Recording reviews: Supabase table 'recording_reviews'
+│       │   └── statsReviewsUI.ts  # Score, reactions and timestamped comments under each take
 │       └── riyaz/
 │           ├── sessionWizard.ts
 │           ├── wizardDraft.ts

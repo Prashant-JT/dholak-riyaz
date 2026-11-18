@@ -55,3 +55,23 @@ export interface Medal {
     progress?: string;
     progressPct?: number;
 }
+
+/** One reaction, comment or score on a recording take (table 'recording_reviews'). */
+export interface RecordingReview {
+    id: string;
+    recording_path: string;     // same path as in block.recordings[] — shared by joint session copies
+    author: string;             // 'prashant' | 'meera'
+    kind: 'reaction' | 'comment' | 'score';
+    emoji: string | null;       // reactions only
+    score: number | null;       // scores only: 1..REVIEW_SCORE_MAX
+    body: string | null;        // comments only
+    at_secs: number | null;     // comments only: second of the take the comment points to
+    created_at: string;         // ISO 8601, set by the server
+}
+
+/** Reviews loaded for one Stats visit. */
+export interface ReviewStore {
+    enabled: boolean;                       // false when the table is missing or unreachable
+    items: RecordingReview[];
+    seenAt: Record<string, string | null>;  // per reviewer: last review already seen on this device
+}

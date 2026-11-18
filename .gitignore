@@ -35,3 +35,6 @@ yarn-error.log*
 
 src/core/supabase.ts
 package-lock.json
+
+# Supabase SQL run by hand in the dashboard (not used by the app or CI)
+scripts/*.sql
