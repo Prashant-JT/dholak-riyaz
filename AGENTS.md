@@ -138,9 +138,12 @@ Dholak/
 │       │   ├── statsHistory.ts    # Session history: filters, block detail, notes, recordings
 │       │   ├── statsMedalsUI.ts   # Next-medal card and medals grid
 │       │   ├── statsCompareUI.ts  # Compare view: head-to-head bars, medals grouped by owner
-│       │   ├── statsReviews.ts    # Recording reviews: parsing, reviewer identity, "new" tracking
+│       │   ├── statsReviews.ts    # Recording reviews: parsing, reviewer identity, per-take summaries
 │       │   ├── statsReviewsData.ts # Recording reviews: Supabase table 'recording_reviews'
-│       │   └── statsReviewsUI.ts  # Score, reactions and timestamped comments under each take
+│       │   ├── statsReviewsUI.ts  # Score, reactions and timestamped comments under each take
+│       │   ├── statsStorage.ts    # Supabase space used: %, days-until-full (pure)
+│       │   ├── statsStorageData.ts # Supabase space used: storage_usage() RPC
+│       │   └── statsStorageUI.ts  # Space-used card and the 80 % warning banner
 │       └── riyaz/
 │           ├── sessionWizard.ts
 │           ├── wizardDraft.ts

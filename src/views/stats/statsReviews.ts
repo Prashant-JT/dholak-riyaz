@@ -1,7 +1,6 @@
 /**
  * STATS — Recording reviews: pure logic (reactions, comments, scores)
- * Parsing of DB rows, reviewer identity (stored on this device), "new" tracking
- * and per-take summaries. No DB access here — see statsReviewsData.ts.
+ * Parsing of DB rows, reviewer identity (stored on this device) and per-take summaries. No DB access here — see statsReviewsData.ts.
  */
 
 import type { RecordingReview } from './statsTypes.js';
@@ -15,7 +14,6 @@ export const REVIEW_BODY_MAX = 500;
 
 // Set only after the password check (statsReviewsUI.ts); the old key held unverified picks
 const LS_REVIEWER = 'dholak_reviewer_auth';
-const LS_SEEN     = 'dholak_reviews_seen_';
 
 // ── Parsing ───────────────────────────────────────────────────────────────────
 
@@ -73,43 +71,6 @@ export function setReviewer(id: string): void {
 
 export function clearReviewer(): void {
     localStorage.removeItem(LS_REVIEWER);
-}
-
-// ── "New" tracking ────────────────────────────────────────────────────────────
-
-export function readSeenAt(reviewer: string): string | null {
-    return localStorage.getItem(LS_SEEN + reviewer);
-}
-
-/** Marks every loaded review as seen, using the server clock (latest created_at). */
-export function markSeen(reviewer: string, items: RecordingReview[]): void {
-    const latest = items.reduce<string | null>(
-        (max, r) => (max === null || Date.parse(r.created_at) > Date.parse(max) ? r.created_at : max), null);
-    if (latest) localStorage.setItem(LS_SEEN + reviewer, latest);
-}
-
-/** A review is new for `me` when someone else wrote it after my last visit. */
-export function isNewReview(r: RecordingReview, me: string | null, seenAt: string | null): boolean {
-    if (!me || r.author === me) return false;
-    return seenAt === null || Date.parse(r.created_at) > Date.parse(seenAt);
-}
-
-/** Recording paths (among `paths`) that hold at least one new review for `me`. */
-export function newReviewPaths(
-    items: RecordingReview[], paths: Set<string>, me: string | null, seenAt: string | null
-): Set<string> {
-    const out = new Set<string>();
-    items.forEach(r => {
-        if (paths.has(r.recording_path) && isNewReview(r, me, seenAt)) out.add(r.recording_path);
-    });
-    return out;
-}
-
-/** How many reviews on `paths` are new for `me`. */
-export function countNewReviews(
-    items: RecordingReview[], paths: Set<string>, me: string | null, seenAt: string | null
-): number {
-    return items.filter(r => paths.has(r.recording_path) && isNewReview(r, me, seenAt)).length;
 }
 
 // ── Per-take summaries ────────────────────────────────────────────────────────

@@ -2996,29 +2996,6 @@ body.dark .stats-insight-box {
     font-family: inherit;
 }
 
-/* New-review count on a user tab */
-.stats-user-tab__badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 16px;
-    height: 16px;
-    margin-left: 6px;
-    padding: 0 4px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    line-height: 1;
-    vertical-align: 1px;
-    color: #ffffff;
-    background: var(--orange-500);
-    border-radius: 9999px;
-}
-
-.stats-user-tab.active .stats-user-tab__badge {
-    color: var(--orange-600);
-    background: #ffffff;
-}
-
 .stats-user-tab.active {
     background: var(--orange-500);
     color: #ffffff;
@@ -3558,10 +3535,88 @@ body.dark .stats-insight-box {
 }
 
 /* ============================================
+   STORAGE USAGE (Stats)
+   ============================================ */
+
+.storage-warn {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--notes-text);
+    background: var(--notes-bg);
+    border-left: 3px solid var(--notes-border);
+    border-radius: 8px;
+}
+
+.storage-warn--critical {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-left-color: #ef4444;
+}
+
+body.dark .storage-warn--critical {
+    color: #fca5a5;
+    background: #450a0a;
+}
+
+.storage-meter {
+    margin-bottom: 14px;
+}
+
+.storage-meter__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+}
+
+.storage-meter__label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.storage-meter__value {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+}
+
+.storage-meter__track {
+    height: 6px;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    border-radius: 9999px;
+}
+
+.storage-meter__fill {
+    height: 100%;
+    background: var(--text-muted);
+    border-radius: inherit;
+    transition: width 0.4s ease;
+}
+
+.storage-meter--warn .storage-meter__fill {
+    background: var(--orange-500);
+}
+
+.storage-meter--critical .storage-meter__fill {
+    background: #ef4444;
+}
+
+.storage-forecast {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+/* ============================================
    RECORDING REVIEWS (history detail panel)
    ============================================ */
 
-/* Reviewer picker + new-reviews banner at the top of the history card */
+/* Reviewer picker at the top of the history card */
 .rec-review-head {
     display: flex;
     flex-direction: column;
@@ -3577,17 +3632,6 @@ body.dark .stats-insight-box {
 @keyframes rec-review-flash {
     0%, 60% { box-shadow: 0 0 0 3px var(--orange-500); }
     100%    { box-shadow: 0 0 0 0 transparent; }
-}
-
-.rec-review-banner {
-    margin: 0;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--info-text);
-    background: var(--info-bg);
-    border-left: 3px solid var(--info-border);
-    border-radius: 8px;
 }
 
 .rec-review-who {
@@ -3626,17 +3670,6 @@ body.dark .stats-insight-box {
 
 .rec-review-who__btn:hover {
     text-decoration: underline;
-}
-
-/* Orange dot on a session row whose takes have new reviews */
-.rec-review-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-left: 4px;
-    vertical-align: middle;
-    background: var(--orange-500);
-    border-radius: 50%;
 }
 
 /* Reviews under one take — quiet by default, colour only for what is set */
@@ -3767,10 +3800,6 @@ body.dark .stats-insight-box {
 .rec-review-comment {
     padding: 0 0 0 10px;
     border-left: 2px solid var(--border-primary);
-}
-
-.rec-review-comment.is-new {
-    border-left-color: var(--orange-500);
 }
 
 .rec-review-comment__head {

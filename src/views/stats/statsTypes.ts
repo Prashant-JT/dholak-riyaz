@@ -73,5 +73,12 @@ export interface RecordingReview {
 export interface ReviewStore {
     enabled: boolean;                       // false when the table is missing or unreachable
     items: RecordingReview[];
-    seenAt: Record<string, string | null>;  // per reviewer: last review already seen on this device
+}
+
+/** Supabase space totals from the SQL function storage_usage(). */
+export interface StorageUsage {
+    recordingsBytes: number;
+    recordingsCount: number;
+    recordings30dBytes: number;   // uploaded in the last 30 days (growth rate)
+    dbBytes: number;
 }

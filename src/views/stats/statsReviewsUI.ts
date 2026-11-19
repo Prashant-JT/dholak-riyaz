@@ -1,15 +1,14 @@
 /**
  * STATS — Recording reviews: UI under each take in the session history
- * Score (1–5 stars), reactions (one tap), comments pinned to a second of the take, reviewer picker
- * and the "new reviews" banner. Mounted into placeholders left by buildHistoryHTML.
+ * Score (1–5 stars), reactions (one tap), comments pinned to a second of the take and reviewer picker. Mounted into placeholders left by buildHistoryHTML.
  */
 
 import { createElement } from '../../core/utils.js';
 import { t } from '../../i18n/index.js';
-import type { ReviewStore, RecordingReview, SupabaseSession } from './statsTypes.js';
+import type { ReviewStore, RecordingReview } from './statsTypes.js';
 import {
-    NEG_REACTIONS_START, REVIEWERS, clearReviewer, countNewReviews, REVIEW_SCORE_MAX, findScore, scoresFor, REVIEW_BODY_MAX, getReviewer, setReviewer, isNewReview,
-    commentsFor, reactionSummary, findReaction, formatAtSecs, newReviewPaths,
+    NEG_REACTIONS_START, REVIEWERS, clearReviewer, REVIEW_SCORE_MAX, findScore, scoresFor, REVIEW_BODY_MAX,
+    getReviewer, setReviewer, commentsFor, reactionSummary, findReaction, formatAtSecs,
 } from './statsReviews.js';
 import { addReview, deleteReview, updateReviewScore } from './statsReviewsData.js';
 import { verifyPassword } from '../../core/auth.js';
@@ -19,28 +18,13 @@ const slotScopes = new WeakMap<HTMLElement, AbortController>();
 
 const reviewerName = (id: string): string => (id === 'meera' ? t('stats.tabMeera') : t('stats.tabPrashant'));
 
-/** Every recording path of a list of sessions. */
-export function sessionRecordingPaths(sessions: SupabaseSession[]): Set<string> {
-    const out = new Set<string>();
-    sessions.forEach(s => s.blocks.forEach(b => {
-        if (Array.isArray(b.recordings)) b.recordings.forEach(r => { if (r && typeof r.path === 'string') out.add(r.path); });
-        else if (typeof b.recording_path === 'string') out.add(b.recording_path);
-    }));
-    return out;
-}
+// ── Header: reviewer picker ──────────────────────────────
 
-// ── Header: reviewer picker + new-reviews banner ──────────────────────────────
-
-export function buildReviewHeader(store: ReviewStore, sessions: SupabaseSession[], onChange: () => void): HTMLElement {
+export function buildReviewHeader(store: ReviewStore, onChange: () => void): HTMLElement {
     const wrap = createElement('div', { className: 'rec-review-head' });
     if (!store.enabled) return wrap;
 
     const me = getReviewer();
-    const paths = sessionRecordingPaths(sessions);
-    const fresh = countNewReviews(store.items, paths, me, me ? store.seenAt[me] ?? null : null);
-    if (fresh > 0) {
-        wrap.appendChild(createElement('p', { className: 'rec-review-banner' }, t('stats.reviewNewBanner', fresh)));
-    }
 
     // Identified: "Prashant · change". Not identified: "I'm  Prashant · Meera" (asks the password)
     const who = createElement('div', { className: 'rec-review-who' });
@@ -118,45 +102,28 @@ function openReviewerAuth(userId: string, onSuccess: () => void): void {
 // ── Per-take mounting ─────────────────────────────────────────────────────────
 
 /**
- * Fills every `.rec-review[data-rec-path]` placeholder in `container` and marks
- * session rows that hold new reviews. `onAuthNeeded` scrolls to the reviewer picker.
+ * Fills every `.rec-review[data-rec-path]` placeholder in `container`.
+ * `onAuthNeeded` scrolls to the reviewer picker.
  */
 export function mountReviews(container: HTMLElement, store: ReviewStore, onAuthNeeded: () => void): void {
     if (!store.enabled) return;
     const me = getReviewer();
-    const seen = me ? store.seenAt[me] ?? null : null;
-
     container.querySelectorAll<HTMLElement>('.rec-review[data-rec-path]').forEach(slot => {
         const path = slot.dataset.recPath ?? '';
         const audio = slot.closest('.stats-block-rec')?.querySelector<HTMLAudioElement>('audio') ?? null;
-        renderTakeReviews(slot, path, audio, store, me, seen, onAuthNeeded);
-    });
-
-    // Dot on the session row when one of its takes has something new
-    container.querySelectorAll<HTMLTableRowElement>('.stats-history-row--expandable').forEach(row => {
-        const detail = row.dataset.detail ? container.querySelector(`#${row.dataset.detail}`) : null;
-        if (!detail) return;
-        const paths = new Set(Array.from(detail.querySelectorAll<HTMLElement>('.rec-review[data-rec-path]'))
-            .map(el => el.dataset.recPath ?? ''));
-        if (newReviewPaths(store.items, paths, me, seen).size === 0) return;
-        const cell = row.querySelector('td:last-child');
-        if (cell && !cell.querySelector('.rec-review-dot')) {
-            cell.appendChild(createElement('span', {
-                className: 'rec-review-dot', title: t('stats.reviewNewDot'), 'aria-label': t('stats.reviewNewDot'),
-            }));
-        }
+        renderTakeReviews(slot, path, audio, store, me, onAuthNeeded);
     });
 }
 
 function renderTakeReviews(
     slot: HTMLElement, path: string, audio: HTMLAudioElement | null,
-    store: ReviewStore, me: string | null, seen: string | null, onAuthNeeded: () => void
+    store: ReviewStore, me: string | null, onAuthNeeded: () => void
 ): void {
     slot.innerHTML = '';
     slotScopes.get(slot)?.abort();
     const scope = new AbortController();
     slotScopes.set(slot, scope);
-    const rerender = () => renderTakeReviews(slot, path, audio, store, getReviewer(), seen, onAuthNeeded);
+    const rerender = () => renderTakeReviews(slot, path, audio, store, getReviewer(), onAuthNeeded);
 
     const showError = (msg: string) => {
         const err = createElement('p', { className: 'rec-review-error', role: 'alert' }, msg);
@@ -211,7 +178,7 @@ function renderTakeReviews(
     const comments = commentsFor(store.items, path);
     if (comments.length > 0) {
         const list = createElement('ul', { className: 'rec-review-list' });
-        comments.forEach(c => list.appendChild(buildComment(c, audio, me, seen, async () => {
+        comments.forEach(c => list.appendChild(buildComment(c, audio, me, async () => {
             try {
                 await deleteReview(c.id);
                 store.items = store.items.filter(r => r.id !== c.id);
@@ -279,9 +246,9 @@ function buildScoreRow(
 }
 
 function buildComment(
-    c: RecordingReview, audio: HTMLAudioElement | null, me: string | null, seen: string | null, onDelete: () => void
+    c: RecordingReview, audio: HTMLAudioElement | null, me: string | null, onDelete: () => void
 ): HTMLElement {
-    const li = createElement('li', { className: `rec-review-comment${isNewReview(c, me, seen) ? ' is-new' : ''}` });
+    const li = createElement('li', { className: 'rec-review-comment' });
     const head = createElement('div', { className: 'rec-review-comment__head' });
     head.appendChild(createElement('span', { className: 'rec-review-comment__author' }, reviewerName(c.author)));
 

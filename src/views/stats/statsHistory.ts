@@ -22,7 +22,7 @@ export function buildHistoryCard(d: UserStats, reviews: ReviewStore, onReviewerC
     const card = cardEl();
     card.appendChild(cardTitle(t('stats.historyTitle')));
 
-    const reviewHead = buildReviewHeader(reviews, d.rawSessions, onReviewerChange);
+    const reviewHead = buildReviewHeader(reviews, onReviewerChange);
     card.appendChild(reviewHead);
     const onAuthNeeded = () => {
         reviewHead.scrollIntoView({ behavior: 'smooth', block: 'center' });

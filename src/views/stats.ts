@@ -11,6 +11,7 @@
  * MedalsUI   → stats/statsMedalsUI.ts
  * CompareUI  → stats/statsCompareUI.ts
  * Reviews    → stats/statsReviews*.ts (reactions/comments on recordings)
+ * Storage    → stats/statsStorage*.ts (Supabase space used)
  */
 
 import { createElement } from '../core/utils.js';
@@ -20,10 +21,10 @@ import type { View } from '../types.js';
 // Re-export types consumed by other modules (wizardStep3, etc.)
 export type { SupabaseSession, SupabaseBlock } from './stats/statsTypes.js';
 
-import type { UserStats, ReviewStore } from './stats/statsTypes.js';
+import type { UserStats, ReviewStore, StorageUsage } from './stats/statsTypes.js';
+import { fetchStorageUsage } from './stats/statsStorageData.js';
+import { buildStorageWarning, buildStorageCard } from './stats/statsStorageUI.js';
 import { fetchReviews } from './stats/statsReviewsData.js';
-import { REVIEWERS, getReviewer, readSeenAt, markSeen, countNewReviews } from './stats/statsReviews.js';
-import { sessionRecordingPaths } from './stats/statsReviewsUI.js';
 import { fetchUserStats, emptyStats, ACTIVE_TAAL_IDS } from './stats/statsData.js';
 import { computeMedals } from './stats/medals.js';
 import { C, mountCharts, mountCompareCharts, mountCumulativeChart } from './stats/statsCharts.js';
@@ -58,8 +59,8 @@ export class StatsView implements View {
     private weeklyChart: any = null;
     private compareMode: 'weeks' | 'months' = 'weeks';
     private compareChart: any = null;
-    private reviews: ReviewStore = { enabled: false, items: [], seenAt: {} };
-    private tabButtons: Record<string, HTMLElement> = {};
+    private reviews: ReviewStore = { enabled: false, items: [] };
+    private storage: StorageUsage | null = null;
 
     public render(): HTMLElement {
         // Each visit refetches: tabs stay locked until this render's data arrives
@@ -89,7 +90,6 @@ export class StatsView implements View {
                 this.activeUser = id;
                 this.renderContent();
             });
-            this.tabButtons[id] = btn;
             tabsWrap.appendChild(btn);
         });
         this.section.appendChild(tabsWrap);
@@ -154,17 +154,14 @@ export class StatsView implements View {
                 console.warn('Recording reviews unavailable:', err);
                 return null;
             });
-            const [p, m, reviewItems] = await Promise.all([load('prashant'), load('meera'), loadReviews]);
+            const [p, m, reviewItems, storage] = await Promise.all([
+                load('prashant'), load('meera'), loadReviews, fetchStorageUsage(),
+            ]);
+            this.storage = storage;
             this.stopProgress?.();
             if (failures === 2) throw new Error('Could not load stats for any user');
 
-            // seenAt is the snapshot before this visit, so new items stay highlighted until the next one
-            const seenAt: Record<string, string | null> = {};
-            REVIEWERS.forEach(id => { seenAt[id] = readSeenAt(id); });
-            this.reviews = { enabled: reviewItems !== null, items: reviewItems ?? [], seenAt };
-            const me = getReviewer();
-            if (me && reviewItems) markSeen(me, reviewItems);
-            this.updateTabBadges();
+            this.reviews = { enabled: reviewItems !== null, items: reviewItems ?? [] };
 
             await new Promise(r => setTimeout(r, 250));
 
@@ -197,8 +194,14 @@ export class StatsView implements View {
         content.innerHTML = '';
         this.destroyCharts();
 
+        // Shared space: the warning shows on every tab, the detail card at the bottom
+        const warn = buildStorageWarning(this.storage);
+        if (warn) content.appendChild(warn);
+
         if (this.activeUser === 'compare') {
             this.buildCompareView(content);
+            const card = buildStorageCard(this.storage);
+            if (card) content.appendChild(card);
             return;
         }
 
@@ -207,12 +210,7 @@ export class StatsView implements View {
         const otherSessions = this.userData[otherUser]?.rawSessions ?? [];
 
         content.appendChild(buildKPIs(d));
-        content.appendChild(buildHistoryCard(d, this.reviews, () => {
-            const me = getReviewer();
-            if (me) markSeen(me, this.reviews.items);
-            this.updateTabBadges();
-            this.renderContent();
-        }));
+        content.appendChild(buildHistoryCard(d, this.reviews, () => this.renderContent()));
         content.appendChild(buildInsight(d));
         content.appendChild(buildWeekCompare(d));
         content.appendChild(this.buildWeeklyCard(d));
@@ -235,29 +233,12 @@ export class StatsView implements View {
 
         content.appendChild(buildNextMedalCard(d, otherSessions));
         content.appendChild(buildMedalsCard(d, otherSessions, getMedalGroups()));
+        const storageCard = buildStorageCard(this.storage);
+        if (storageCard) content.appendChild(storageCard);
 
         requestAnimationFrame(() => {
             this.mountAllCharts(d);
             buildHeatmap(d);
-        });
-    }
-
-    // ── New-review badges on the user tabs ────────────────────────────────────
-
-    /** Number of new reviews (from the other person) on each user's recordings, shown on the tab. */
-    private updateTabBadges(): void {
-        const me = getReviewer();
-        const seen = me ? this.reviews.seenAt[me] ?? null : null;
-        REVIEWERS.forEach(id => {
-            const btn = this.tabButtons[id];
-            if (!btn) return;
-            btn.querySelector('.stats-user-tab__badge')?.remove();
-            const paths = sessionRecordingPaths(this.userData[id]?.rawSessions ?? []);
-            const n = this.reviews.enabled ? countNewReviews(this.reviews.items, paths, me, seen) : 0;
-            if (n === 0) return;
-            btn.appendChild(createElement('span', {
-                className: 'stats-user-tab__badge', 'aria-label': t('stats.reviewNewBanner', n),
-            }, n > 9 ? '9+' : String(n)));
         });
     }
 

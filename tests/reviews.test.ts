@@ -5,8 +5,8 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-    countNewReviews, parseReview, formatAtSecs, isNewReview, newReviewPaths, commentsFor,
-    reactionSummary, findReaction, scoresFor, findScore, REVIEW_REACTIONS, getReviewer, setReviewer, markSeen, readSeenAt,
+    parseReview, formatAtSecs, commentsFor,
+    reactionSummary, findReaction, scoresFor, findScore, REVIEW_REACTIONS, getReviewer, setReviewer,
 } from '../src/views/stats/statsReviews';
 import type { RecordingReview } from '../src/views/stats/statsTypes';
 
@@ -74,29 +74,6 @@ describe('formatAtSecs', () => {
     });
 });
 
-describe('isNewReview / newReviewPaths', () => {
-    it('is new only when written by someone else after the last visit', () => {
-        const r = review({ created_at: '2026-11-16T10:00:00Z' });
-        expect(isNewReview(r, 'prashant', null)).toBe(true);
-        expect(isNewReview(r, 'prashant', '2026-11-15T10:00:00Z')).toBe(true);
-        expect(isNewReview(r, 'prashant', '2026-11-16T10:00:00Z')).toBe(false);
-        expect(isNewReview(r, 'meera', null)).toBe(false);
-        expect(isNewReview(r, null, null)).toBe(false);
-    });
-
-    it('counts new reviews on the given paths only', () => {
-        const items = [review({}), review({ id: 'r2' }), review({ id: 'r3', recording_path: 'meera/2026-11-15/x.webm' })];
-        expect(countNewReviews(items, new Set([PATH]), 'prashant', null)).toBe(2);
-        expect(countNewReviews(items, new Set([PATH]), 'meera', null)).toBe(0);
-    });
-
-    it('collects only the requested paths', () => {
-        const items = [review({}), review({ id: 'r2', recording_path: 'meera/2026-11-15/x.webm' })];
-        const out = newReviewPaths(items, new Set([PATH]), 'prashant', null);
-        expect([...out]).toEqual([PATH]);
-    });
-});
-
 describe('commentsFor / reactionSummary / findReaction', () => {
     const items: RecordingReview[] = [
         review({ id: 'c1', at_secs: 90 }),
@@ -141,7 +118,7 @@ describe('scoresFor / findScore', () => {
     });
 });
 
-describe('reviewer identity and seen marker', () => {
+describe('reviewer identity', () => {
     beforeEach(() => localStorage.clear());
 
     it('stores only known reviewers', () => {
@@ -152,11 +129,4 @@ describe('reviewer identity and seen marker', () => {
         expect(getReviewer()).toBe('meera');
     });
 
-    it('marks the latest review as seen', () => {
-        markSeen('prashant', [
-            review({ created_at: '2026-11-16T10:00:00Z' }),
-            review({ id: 'r2', created_at: '2026-11-17T08:00:00Z' }),
-        ]);
-        expect(readSeenAt('prashant')).toBe('2026-11-17T08:00:00Z');
-    });
 });
