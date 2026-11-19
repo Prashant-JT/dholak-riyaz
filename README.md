@@ -56,6 +56,8 @@ Each taal includes: matra table with Taali/Khali markers, variations with tutori
 ### 📊 Statistics (Supabase)
 - Session history saved to a real database (Supabase) — multi-user (Prashant + Meera)
 - Block recordings playable from the session history, so each player can listen to the other's practice
+- **Recording reviews**: 1–5 star score, quick reactions and comments pinned to a second of the take (tap to jump there); reviewer signs in once per device with their password
+- **Space used**: Supabase recordings and database usage with a days-until-full forecast and a warning from 80%
 - Weekly practice bar chart with trend line
 - **Compare view**: Prashant vs Meera side-by-side with dual trend lines, distribution donuts and medals
 - Consecutive-day streak, weekly streak, total minutes, taals practised

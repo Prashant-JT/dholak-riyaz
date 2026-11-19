@@ -630,7 +630,7 @@ Before considering a task complete, verify:
 
 - [ ] ✅ All `.ts` files compile without errors
 - [ ] ✅ `npm run build` runs successfully
-- [ ] ✅ `npm test` passes — all tests green (424 at v2.4.0)
+- [ ] ✅ `npm test` passes — all tests green (446 at v2.5.0)
 - [ ] ✅ `dist/` folder exists with `.js` files
 - [ ] ✅ `index.html` loads `dist/app.js`
 - [ ] ✅ CSS has all required classes
@@ -799,6 +799,7 @@ Bob (AI assistant) is responsible for tracking releases and deciding when to pro
 | `v2.2.0` | 2026-07-27 | Tirekite section, tutorial video in practice blocks, cycle counter fix, new data |
 | `v2.3.0` | 2026-08-11 | Full ES/EN i18n — all views, stats, session wizard; 80 BPM preset; bug fixes |
 | `v2.4.0` | 2026-11-14 | Block recordings and comments saved to session history (Supabase Storage), cross-device playback |
+| `v2.5.0` | 2026-11-19 | Recording reviews (score, reactions, timestamped comments), Supabase space used, recording and 200 medals |
 
 ### When to propose a new release
 Bob must propose a new GitHub release when **any of these thresholds are reached**:
@@ -827,6 +828,6 @@ If you find inconsistencies in this document or in the code, document them here 
 
 ---
 
-**Version**: 1.5.0
-**Last updated**: 2026-11-15
+**Version**: 1.6.0
+**Last updated**: 2026-11-19
 **Maintainer**: Bob (AI Assistant)
