@@ -132,6 +132,7 @@ Dholak/
 │       │   ├── statsTypes.ts      # SupabaseSession, SupabaseBlock, UserStats, Medal
 │       │   ├── statsData.ts       # fetch, transform, timezone helpers, effectiveSecs()
 │       │   ├── medals.ts          # computeMedals(), TAAL_META
+│       │   ├── medalsRecordings.ts # Recording/review medal data (takes, 5/5, 💯, reviews given)
 │       │   ├── statsCharts.ts     # Chart.js colour palette + mount functions
 │       │   ├── statsKPIs.ts       # KPI cards, insight box, this week vs last week, card helpers
 │       │   ├── statsHeatmap.ts    # Activity heatmap (minutes per day)

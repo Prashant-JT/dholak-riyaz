@@ -7,7 +7,8 @@
 import { TAALS } from '../../data/taals/index.js';
 import { t, tArray } from '../../i18n/index.js';
 import { gcDateStr, gcTodayStr, gcMondayStr, currentWeekStreak, effectiveSecs, ACTIVE_TAAL_IDS } from './statsData.js';
-import type { SupabaseSession, Medal } from './statsTypes.js';
+import type { SupabaseSession, Medal, RecordingReview } from './statsTypes.js';
+import { computeRecordingMedalData, REC_ARCHIVE_GOAL, MENTOR_GOAL } from './medalsRecordings.js';
 
 // ── Visual metadata per taal ──────────────────────────────────────────────────
 
@@ -27,7 +28,12 @@ export const DEFAULT_TAAL_META = { emoji: '🎵', tagCls: 'stats-tag--orange' };
 
 // ── Medal computation ─────────────────────────────────────────────────────────
 
-export function computeMedals(sessions: SupabaseSession[], otherSessions: SupabaseSession[] = []): Medal[] {
+export function computeMedals(
+    sessions: SupabaseSession[],
+    otherSessions: SupabaseSession[] = [],
+    reviews: RecordingReview[] = [],
+    userId: string = sessions[0]?.user_id ?? '',
+): Medal[] {
     const MONTH_SHORT = tArray('stats.monthsShort');
     // Calendar day in CONFIG.TIMEZONE, so the date matches the session history
     const fmt = (iso: string) => {
@@ -103,6 +109,9 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
     const session25At      = sorted[24]?.saved_at;
     const session50At      = sorted[49]?.saved_at;
     const session100At     = sorted[99]?.saved_at;
+    const session200At     = sorted[199]?.saved_at;
+    const first200hSession = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 12000)?.saved_at;
+    const rec = computeRecordingMedalData(sorted, userId, reviews);
     const first3hSession   = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 180)?.saved_at;
     const first5hSession   = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 300)?.saved_at;
     const first25hSession  = sorted.find((_, i) => Math.round(sorted.slice(0, i+1).reduce((s,x) => s+effectiveSecs(x),0)/60) >= 1500)?.saved_at;
@@ -146,6 +155,8 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
             t('stats.medalProgSessions', totalSessions, 50), Math.min(100, Math.round((totalSessions / 50) * 100))),
         mk('s100',      '🎗️', t('stats.medalS100.name'),      t('stats.medalS100.desc'),      totalSessions >= 100, session100At,
             t('stats.medalProgSessions', totalSessions, 100), Math.min(100, Math.round((totalSessions / 100) * 100))),
+        mk('s200',      '🏵️', t('stats.medalS200.name'),      t('stats.medalS200.desc'),      totalSessions >= 200, session200At,
+            t('stats.medalProgSessions', totalSessions, 200), Math.min(100, Math.round((totalSessions / 200) * 100))),
         mk('streak7',   '🔥', t('stats.medalStreak7.name'),   t('stats.medalStreak7.desc'),   maxStreak >= 7,   streak7Session,
             t('stats.medalProgStreak', currentStreak), Math.min(100, Math.round((currentStreak / 7) * 100))),
         mk('streak14',  '🌙', t('stats.medalStreak14.name'),  t('stats.medalStreak14.desc'),  maxStreak >= 14,  streak14Session,
@@ -178,6 +189,8 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
             t('stats.medalProgHours', totalMins, 50), Math.min(100, Math.round((totalMins / 3000) * 100))),
         mk('h100',      '🥇', t('stats.medalH100.name'),      t('stats.medalH100.desc'),      totalMins >= 6000, first100hSession,
             t('stats.medalProgHours', totalMins, 100), Math.min(100, Math.round((totalMins / 6000) * 100))),
+        mk('h200',      '⌛', t('stats.medalH200.name'),       t('stats.medalH200.desc'),       totalMins >= 12000, first200hSession,
+            t('stats.medalProgHours', totalMins, 200), Math.min(100, Math.round((totalMins / 12000) * 100))),
         mk('long',      '💪', t('stats.medalLong.name'),      t('stats.medalLong.desc'),      maxSessionMins >= 60, longSession,
             t('stats.medalProgSession', maxSessionMins, 60), Math.min(100, Math.round((maxSessionMins / 60) * 100))),
         mk('marathon',  '🦾', t('stats.medalMarathon.name'),  t('stats.medalMarathon.desc'),  maxSessionMins >= 90, marathonSession,
@@ -201,6 +214,13 @@ export function computeMedals(sessions: SupabaseSession[], otherSessions: Supaba
             Math.min(100, Math.round((ALL_ACTIVE_TAAL_NAMES.filter(tn => taalsSet.has(tn)).length / ALL_ACTIVE_TAAL_NAMES.length) * 100))),
         mk('songs5',    '🎵', t('stats.medalSongs5.name'),    t('stats.medalSongs5.desc'),    songSessions.length >= 5, song5Session,
             t('stats.medalProgSessions', songSessions.length, 5), Math.min(100, Math.round((songSessions.length / 5) * 100))),
+        mk('rec1',      '🎙️', t('stats.medalRec1.name'),      t('stats.medalRec1.desc'),      rec.takes >= 1, rec.firstTakeAt),
+        mk('rec25',     '📼', t('stats.medalRec25.name'),     t('stats.medalRec25.desc'),     rec.takes >= REC_ARCHIVE_GOAL, rec.archiveAt,
+            t('stats.medalProgTakes', rec.takes, REC_ARCHIVE_GOAL), Math.min(100, Math.round((rec.takes / REC_ARCHIVE_GOAL) * 100))),
+        mk('stars5',    '⭐', t('stats.medalStars5.name'),    t('stats.medalStars5.desc'),    rec.fiveStarsAt !== undefined, rec.fiveStarsAt),
+        mk('perfect',   '💯', t('stats.medalPerfect.name'),   t('stats.medalPerfect.desc'),   rec.perfectAt !== undefined, rec.perfectAt),
+        mk('mentor',    '🧑‍🏫', t('stats.medalMentor.name'),    t('stats.medalMentor.desc'),    rec.reviewedTakes >= MENTOR_GOAL, rec.mentorAt,
+            t('stats.medalProgReviewed', rec.reviewedTakes, MENTOR_GOAL), Math.min(100, Math.round((rec.reviewedTakes / MENTOR_GOAL) * 100))),
         mk('slow',      '🐢', t('stats.medalSlow.name'),      t('stats.medalSlow.desc'),      maxBpm > 0 && bpm60Session !== undefined, bpm60Session),
         mk('bpm120',    '⚡', t('stats.medalBpm120.name'),    t('stats.medalBpm120.desc'),    maxBpm >= 120, bpm120Session,
             t('stats.medalProgBpm', maxBpm > 0 ? maxBpm : 0), Math.min(100, Math.round((Math.min(maxBpm, 120) / 120) * 100))),

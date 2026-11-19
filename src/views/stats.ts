@@ -37,9 +37,10 @@ import { buildHeadToHead, buildCompareMedals } from './stats/statsCompareUI.js';
 // ── Medal groups — single source of truth used by both individual and compare views ──
 function getMedalGroups(): { label: string; ids: string[] }[] {
     return [
-        { label: t('stats.medalsGroupConsistency'), ids: ['first','s5','s10','s15','s25','s50','s100','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
-        { label: t('stats.medalsGroupVolume'),      ids: ['h1','h3','h5','h10','h25','h50','h100','long','marathon'] },
+        { label: t('stats.medalsGroupConsistency'), ids: ['first','s5','s10','s15','s25','s50','s100','s200','streak7','streak14','streak30','streak60','streak100','streak365','week4','week8','week12'] },
+        { label: t('stats.medalsGroupVolume'),      ids: ['h1','h3','h5','h10','h25','h50','h100','h200','long','marathon'] },
         { label: t('stats.medalsGroupVariety'),     ids: ['explorer', ...ACTIVE_TAAL_IDS, 'allActive','songs5'] },
+        { label: t('stats.medalsGroupRecordings'), ids: ['rec1','rec25','stars5','perfect','mentor'] },
         { label: t('stats.medalsGroupSpeed'),       ids: ['slow','bpm120','bpm180'] },
         { label: t('stats.medalsGroupJoint'),       ids: ['jugalbandi','duo5','superjugal','maestro','duo20','duolegend','duo5h','duo50','duo10h','duo100','duo25h','duo50h'] },
     ];
@@ -70,7 +71,6 @@ export class StatsView implements View {
 
         const header = createElement('div', { className: 'mb-6' });
         header.appendChild(createElement('h2', { className: 'section-title' }, t('stats.pageTitle')));
-        header.appendChild(createElement('p', { className: 'section-subtitle' }, t('stats.pageSubtitle')));
         this.section.appendChild(header);
 
         const tabsWrap = createElement('div', { className: 'stats-user-tabs' });
@@ -231,8 +231,9 @@ export class StatsView implements View {
             content.appendChild(this.buildChartCard(t('stats.chartCyclesTitle'), t('stats.chartCyclesSub'), 'stats-chart-cycles', 190, 'stats-canvas-short'));
         }
 
-        content.appendChild(buildNextMedalCard(d, otherSessions));
-        content.appendChild(buildMedalsCard(d, otherSessions, getMedalGroups()));
+        const reviews = this.reviews.items;
+        content.appendChild(buildNextMedalCard(d, otherSessions, reviews, this.activeUser));
+        content.appendChild(buildMedalsCard(d, otherSessions, getMedalGroups(), reviews, this.activeUser));
         const storageCard = buildStorageCard(this.storage);
         if (storageCard) content.appendChild(storageCard);
 
@@ -511,8 +512,8 @@ export class StatsView implements View {
         });
         content.appendChild(distRow);
 
-        const pm = computeMedals(p.rawSessions, m.rawSessions);
-        const mm = computeMedals(m.rawSessions, p.rawSessions);
+        const pm = computeMedals(p.rawSessions, m.rawSessions, this.reviews.items, 'prashant');
+        const mm = computeMedals(m.rawSessions, p.rawSessions, this.reviews.items, 'meera');
         content.appendChild(buildCompareMedals(pm, mm, getMedalGroups().flatMap(g => g.ids)));
 
         requestAnimationFrame(() => {

@@ -4,12 +4,17 @@
 
 import { createElement } from '../../core/utils.js';
 import { t } from '../../i18n/index.js';
-import type { UserStats } from './statsTypes.js';
+import type { UserStats, RecordingReview } from './statsTypes.js';
 import { computeMedals } from './medals.js';
 import { cardEl, cardTitle, cardSub } from './statsKPIs.js';
 
-export function buildNextMedalCard(d: UserStats, otherSessions: import('./statsTypes.js').SupabaseSession[]): HTMLElement {
-    const medals     = computeMedals(d.rawSessions, otherSessions);
+export function buildNextMedalCard(
+    d: UserStats,
+    otherSessions: import('./statsTypes.js').SupabaseSession[],
+    reviews: RecordingReview[],
+    userId: string
+): HTMLElement {
+    const medals     = computeMedals(d.rawSessions, otherSessions, reviews, userId);
     const candidates = medals.filter(m => !m.earned && m.progressPct !== undefined && m.progressPct > 0);
     if (candidates.length === 0) return createElement('div', {});
 
@@ -52,9 +57,11 @@ export function buildNextMedalCard(d: UserStats, otherSessions: import('./statsT
 export function buildMedalsCard(
     d: UserStats,
     otherSessions: import('./statsTypes.js').SupabaseSession[],
-    medalGroups: { label: string; ids: string[] }[]
+    medalGroups: { label: string; ids: string[] }[],
+    reviews: RecordingReview[],
+    userId: string
 ): HTMLElement {
-    const medals = computeMedals(d.rawSessions, otherSessions);
+    const medals = computeMedals(d.rawSessions, otherSessions, reviews, userId);
     const earned = medals.filter(m => m.earned).length;
 
     const card       = cardEl();
